@@ -12,8 +12,8 @@ A comprehensive graduation project archiving system built with Laravel 11 and Re
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd PRV
+   git clone https://github.com/YOUR_USERNAME/Fahras.git
+   cd Fahras
    ```
 
 2. **Run the setup script**
@@ -38,8 +38,8 @@ If you prefer manual setup or the automated script fails:
 
 1. **Clone and navigate**
    ```bash
-   git clone <repository-url>
-   cd PRV
+   git clone https://github.com/YOUR_USERNAME/Fahras.git
+   cd Fahras
    ```
 
 2. **Create environment files**
@@ -114,7 +114,7 @@ After running the setup, you can use these default accounts:
 ## 📁 Project Structure
 
 ```
-PRV/
+Fahras/
 ├── api/                    # Laravel backend
 │   ├── app/
 │   │   ├── Http/Controllers/
