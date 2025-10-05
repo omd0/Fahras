@@ -1,0 +1,42 @@
+---
+globs: *.tsx,*.ts
+description: Material-UI v7 patterns and common mistakes to avoid.
+---
+
+# Material-UI v7 Patterns
+
+## Grid Component
+The most common source of errors is incorrect `Grid` syntax.
+
+**✅ Correct (v7)**: Use the `size` prop.
+```typescript
+<Grid size={{ xs: 12, md: 6 }}>...</Grid>
+```
+
+**❌ Incorrect (Old)**: Do not use the `item` prop.
+```typescript
+<Grid item xs={12} md={6}>...</Grid>
+```
+
+## Import Management
+Only import the components you use to avoid linting errors.
+
+**✅ Correct**:
+```typescript
+import { Box, Typography, Button } from '@mui/material';
+```
+
+**❌ Incorrect**:
+```typescript
+// Imports Card and CardContent but does not use them
+import { Box, Typography, Button, Card, CardContent } from '@mui/material';
+```
+
+## Responsive Styling
+Use the `sx` prop with breakpoint objects for responsive design.
+```typescript
+<Box sx={{
+  display: { xs: 'block', md: 'flex' },
+  p: { xs: 1, sm: 2 }
+}}>
+```

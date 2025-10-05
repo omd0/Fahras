@@ -1,0 +1,38 @@
+---
+alwaysApply: true
+description: Key React development patterns to prevent common errors.
+---
+# React Development Workflow
+
+## Core Principles
+1.  **Imports**: Always remove unused imports. Use `npm run lint -- --fix`.
+2.  **Data Handling**: Always use fallbacks for arrays and API responses.
+3.  **UI Components**: Use the correct Material-UI v7 syntax.
+
+## ✅ **MUST DO** Examples
+
+**Safe Array Mapping**:
+```typescript
+// Always use a fallback array to prevent .map() errors
+{(items || []).map(item => <div key={item.id}>{item.name}</div>)}
+```
+
+**Material-UI v7 Grid Syntax**:
+```typescript
+// Use the `size` prop for responsive grids
+<Grid size={{ xs: 12, md: 6 }}>
+```
+
+**API Response Handling**:
+```typescript
+const fetchData = async () => {
+  try {
+    const response = await apiService.getData();
+    // Handle various response structures and always provide a fallback
+    return response.data || response || [];
+  } catch (error) {
+    console.error('API Error:', error);
+    return []; // Fallback on error
+  }
+};
+```

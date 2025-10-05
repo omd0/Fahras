@@ -1,0 +1,35 @@
+---
+globs: *.tsx,*.ts,*.js,*.jsx
+description: Project structure and common patterns for this Laravel + React application
+---
+
+# Project Structure & Patterns
+
+## Architecture Overview
+- **Backend**: Laravel API in `/api/`
+- **Frontend**: React (Material-UI v7) in `/web/`
+- **Setup**: Docker-based with services defined in [docker-compose.yml](mdc:docker-compose.yml)
+
+## Key Files & Directories
+- **API Routes**: [api/routes/api.php](mdc:api/routes/api.php)
+- **React Pages**: `web/src/pages/`
+- **React Components**: `web/src/components/`
+- **API Services**: [web/src/services/api.ts](mdc:web/src/services/api.ts)
+
+## Critical Patterns
+
+**Material-UI v7 Grid**:
+```typescript
+<Grid size={{ xs: 12, md: 6 }}>...</Grid>
+```
+
+**Safe Array Mapping**:
+```typescript
+{(items || []).map(item => ...)}
+```
+
+**API Response Handling**:
+```typescript
+// Always use a fallback to prevent errors
+setData(response.data || response || []);
+```
