@@ -22,7 +22,7 @@ class UserSeeder extends Seeder
         $admin = User::create([
             'full_name' => 'System Administrator',
             'email' => 'admin@fahras.edu',
-            'password' => Hash::make('password'),
+            'password' => 'password',
             'status' => 'active',
         ]);
 
@@ -60,7 +60,7 @@ class UserSeeder extends Seeder
             $user = User::create([
                 'full_name' => $facultyData['full_name'],
                 'email' => $facultyData['email'],
-                'password' => Hash::make('password'),
+                'password' => 'password',
                 'status' => 'active',
             ]);
 
@@ -114,7 +114,7 @@ class UserSeeder extends Seeder
             $user = User::create([
                 'full_name' => $studentData['full_name'],
                 'email' => $studentData['email'],
-                'password' => Hash::make('password'),
+                'password' => 'password',
                 'status' => 'active',
             ]);
 

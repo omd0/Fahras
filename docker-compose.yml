@@ -26,7 +26,7 @@ services:
       - DB_PASSWORD=fahras_password
       - APP_ENV=local
       - APP_DEBUG=true
-      - APP_KEY=
+      - APP_KEY=base64:4dluFFSMqwyQ39UlPaPSkaVNovvu+ZgrkOOZvdVj0M8=
     depends_on:
       - db
       - redis
@@ -54,7 +54,7 @@ services:
       - fahras-network
 
   node:
-    image: node:18-alpine
+    image: node:20-alpine
     volumes:
       - ./web:/app
     working_dir: /app

@@ -9,13 +9,20 @@ if ! command -v docker &> /dev/null; then
     exit 1
 fi
 
-# Check if Docker Compose is installed
+# Check if Docker Compose is installed (support both old and new syntax)
 if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
     echo "❌ Docker Compose is not installed. Please install Docker Compose first."
     exit 1
 fi
 
-echo "✅ Docker and Docker Compose are available"
+# Determine which compose command to use
+if command -v docker-compose &> /dev/null; then
+    COMPOSE_CMD="docker-compose"
+else
+    COMPOSE_CMD="docker compose"
+fi
+
+echo "✅ Docker and Docker Compose are available (using: $COMPOSE_CMD)"
 
 # Create environment files if they don't exist
 if [ ! -f "api/.env" ]; then
@@ -32,37 +39,48 @@ fi
 
 # Start Docker services
 echo "🐳 Starting Docker services..."
-docker compose up -d db redis
+$COMPOSE_CMD up -d db redis
 
 # Wait for database to be ready
 echo "⏳ Waiting for database to be ready..."
+sleep 15
+
+# Build and start all services
+echo "🔨 Building and starting all services..."
+$COMPOSE_CMD up -d --build
+
+# Wait for services to be ready
+echo "⏳ Waiting for services to be ready..."
 sleep 10
 
 # Install Laravel dependencies and setup
 echo "📦 Installing Laravel dependencies..."
-docker compose exec -T php composer install
+$COMPOSE_CMD exec -T php composer install --no-interaction
 
 echo "🔑 Generating Laravel application key..."
-docker compose exec -T php php artisan key:generate
+$COMPOSE_CMD exec -T php php artisan key:generate --force
 
 echo "🗄️ Running database migrations..."
-docker compose exec -T php php artisan migrate
+$COMPOSE_CMD exec -T php php artisan migrate --force
 
 echo "🌱 Seeding database with initial data..."
-docker compose exec -T php php artisan db:seed
+$COMPOSE_CMD exec -T php php artisan db:seed --force
 
 # Install React dependencies
 echo "📦 Installing React dependencies..."
-docker compose exec -T node npm install
+$COMPOSE_CMD exec -T node npm install --silent
 
 echo "🎉 Setup completed successfully!"
 echo ""
 echo "📋 Next steps:"
-echo "1. Start the full development environment: docker compose up -d"
-echo "2. Access the application:"
+echo "1. Access the application:"
 echo "   - Frontend: http://localhost:3000"
 echo "   - API: http://localhost/api"
 echo "   - Database: localhost:5433"
+echo ""
+echo "2. To restart services: $COMPOSE_CMD up -d"
+echo "3. To stop services: $COMPOSE_CMD down"
+echo "4. To view logs: $COMPOSE_CMD logs -f"
 echo ""
 echo "🔑 Default login credentials:"
 echo "   Admin: admin@fahras.edu / password"

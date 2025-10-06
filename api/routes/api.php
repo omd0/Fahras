@@ -19,6 +19,14 @@ Route::get('/programs', function () {
     return response()->json(\App\Models\Program::all());
 });
 
+Route::get('/departments', function () {
+    return response()->json(\App\Models\Department::all());
+});
+
+Route::get('/faculties', function () {
+    return response()->json(\App\Models\Faculty::all());
+});
+
 Route::get('/users', function () {
     return response()->json(\App\Models\User::all());
 });
