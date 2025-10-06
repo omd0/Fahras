@@ -89,6 +89,16 @@ After running the setup, you can use these default accounts:
 - **Faculty**: `sarah.johnson@fahras.edu` / `password`
 - **Student**: `ahmed.almansouri@student.fahras.edu` / `password`
 
+### 🔑 Current Working Credentials
+
+Based on the seeded database, these accounts are available:
+
+- **Faculty Member**: `sarah.johnson@fahras.edu` / `password`
+- **Student**: `ahmed.almansouri@student.fahras.edu` / `password`
+- **Admin**: `admin@fahras.edu` / `password`
+
+**Note**: All users have the password `password` by default. You can change passwords after logging in through the user management interface.
+
 ## 🏗️ Architecture
 
 ### Backend (Laravel 11)

@@ -19,6 +19,10 @@ Route::get('/programs', function () {
     return response()->json(\App\Models\Program::all());
 });
 
+Route::get('/users', function () {
+    return response()->json(\App\Models\User::all());
+});
+
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     // Authentication routes
