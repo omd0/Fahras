@@ -78,7 +78,7 @@ export const ProjectSearch: React.FC<SearchProps> = ({ onSearch, onClear, loadin
   const fetchDepartments = async () => {
     try {
       const response = await apiService.getDepartments();
-      setDepartments(response.data || response || []);
+      setDepartments(response || []);
     } catch (error) {
       console.error('Failed to fetch departments:', error);
       setDepartments([]);

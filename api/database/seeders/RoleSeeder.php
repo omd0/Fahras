@@ -25,6 +25,10 @@ class RoleSeeder extends Seeder
                 'name' => 'student',
                 'description' => 'Student who can create and manage projects',
             ],
+            [
+                'name' => 'reviewer',
+                'description' => 'Reviewer with read-only access to all projects',
+            ],
         ];
 
         foreach ($roles as $role) {

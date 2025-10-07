@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use App\Models\User;
 use App\Models\Notification;
+use App\Models\Comment;
+use App\Models\Rating;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
@@ -14,6 +16,25 @@ class ProjectController extends Controller
     public function index(Request $request)
     {
         $query = Project::with(['program.department', 'creator', 'members', 'advisors']);
+        $user = $request->user();
+
+        // Apply visibility rules based on user role
+        if (!$user) {
+            // Unauthenticated users: only see approved projects
+            $query->where('admin_approval_status', 'approved');
+        } elseif ($user->hasRole('admin')) {
+            // Admin: can see all projects (including hidden ones)
+            // No additional filtering needed
+        } elseif ($user->hasRole('reviewer')) {
+            // Reviewer: only see approved projects (no status indication)
+            $query->where('admin_approval_status', 'approved');
+        } else {
+            // Regular users: can see approved projects and their own projects (including hidden ones)
+            $query->where(function ($q) use ($user) {
+                $q->where('admin_approval_status', 'approved')
+                  ->orWhere('created_by_user_id', $user->id);
+            });
+        }
 
         // Advanced filtering
         if ($request->has('status')) {
@@ -170,14 +191,28 @@ class ProjectController extends Controller
 
     public function show(Project $project)
     {
+        $projectWithFiles = $project->load([
+            'program.department',
+            'creator',
+            'members',
+            'advisors',
+            'files'
+        ]);
+
+        \Log::info('Project details requested', [
+            'project_id' => $project->id,
+            'files_count' => $projectWithFiles->files->count(),
+            'files' => $projectWithFiles->files->map(function($file) {
+                return [
+                    'id' => $file->id,
+                    'original_filename' => $file->original_filename,
+                    'storage_url' => $file->storage_url
+                ];
+            })
+        ]);
+
         return response()->json([
-            'project' => $project->load([
-                'program.department',
-                'creator',
-                'members',
-                'advisors',
-                'files'
-            ])
+            'project' => $projectWithFiles
         ]);
     }
 
@@ -304,6 +339,25 @@ class ProjectController extends Controller
     public function search(Request $request)
     {
         $query = Project::with(['program.department', 'creator', 'members', 'advisors']);
+        $user = $request->user();
+
+        // Apply visibility rules based on user role
+        if (!$user) {
+            // Unauthenticated users: only see approved projects
+            $query->where('admin_approval_status', 'approved');
+        } elseif ($user->hasRole('admin')) {
+            // Admin: can see all projects (including hidden ones)
+            // No additional filtering needed
+        } elseif ($user->hasRole('reviewer')) {
+            // Reviewer: only see approved projects (no status indication)
+            $query->where('admin_approval_status', 'approved');
+        } else {
+            // Regular users: can see approved projects and their own projects (including hidden ones)
+            $query->where(function ($q) use ($user) {
+                $q->where('admin_approval_status', 'approved')
+                  ->orWhere('created_by_user_id', $user->id);
+            });
+        }
 
         // Full-text search with ranking
         if ($request->has('q') && !empty($request->q)) {
@@ -368,10 +422,21 @@ class ProjectController extends Controller
         $createBaseQuery = function() use ($user) {
             $query = Project::query();
             
-            // If user is not admin, filter by their projects
-            if (!$user->hasRole('admin')) {
+            // Apply visibility rules based on user role
+            if (!$user) {
+                // Unauthenticated users: only see approved projects
+                $query->where('admin_approval_status', 'approved');
+            } elseif ($user->hasRole('admin')) {
+                // Admin: can see all projects (including hidden ones)
+                // No additional filtering needed
+            } elseif ($user->hasRole('reviewer')) {
+                // Reviewer: only see approved projects (no status indication)
+                $query->where('admin_approval_status', 'approved');
+            } else {
+                // Regular users: can see approved projects and their own projects (including hidden ones)
                 $query->where(function ($q) use ($user) {
-                    $q->where('created_by_user_id', $user->id)
+                    $q->where('admin_approval_status', 'approved')
+                      ->orWhere('created_by_user_id', $user->id)
                       ->orWhereHas('members', function ($memberQuery) use ($user) {
                           $memberQuery->where('user_id', $user->id);
                       })
@@ -759,7 +824,8 @@ class ProjectController extends Controller
     public function addComment(Request $request, Project $project)
     {
         $validator = Validator::make($request->all(), [
-            'comment' => 'required|string|max:1000',
+            'content' => 'required|string|max:1000',
+            'parent_id' => 'nullable|exists:comments,id',
         ]);
 
         if ($validator->fails()) {
@@ -770,15 +836,22 @@ class ProjectController extends Controller
         }
 
         $user = $request->user();
-        $comment = $request->comment;
+        
+        $comment = Comment::create([
+            'project_id' => $project->id,
+            'user_id' => $user->id,
+            'content' => $request->content,
+            'parent_id' => $request->parent_id,
+        ]);
 
         // Create notifications for project advisors and creator
         $title = 'New Comment on Project';
-        $message = "{$user->full_name} commented on \"{$project->title}\": \"{$comment}\"";
+        $message = "{$user->full_name} commented on \"{$project->title}\": \"{$request->content}\"";
 
         // Notify advisors
         Notification::createForProjectAdvisors($project, 'comment', $title, $message, [
-            'comment' => $comment,
+            'comment_id' => $comment->id,
+            'content' => $request->content,
             'commenter_name' => $user->full_name,
             'commenter_id' => $user->id,
         ]);
@@ -786,23 +859,20 @@ class ProjectController extends Controller
         // Notify project creator if they're not the one commenting
         if ($project->created_by_user_id !== $user->id) {
             Notification::createForProjectCreator($project, 'comment', $title, $message, [
-                'comment' => $comment,
+                'comment_id' => $comment->id,
+                'content' => $request->content,
                 'commenter_name' => $user->full_name,
                 'commenter_id' => $user->id,
             ]);
         }
 
+        // Load the comment with user relationship
+        $comment->load('user');
+
         return response()->json([
             'message' => 'Comment added successfully',
-            'comment' => [
-                'id' => rand(1000, 9999),
-                'project_id' => $project->id,
-                'user_id' => $user->id,
-                'user_name' => $user->full_name,
-                'comment' => $comment,
-                'created_at' => now(),
-            ]
-        ]);
+            'comment' => $comment
+        ], 201);
     }
 
     /**
@@ -812,7 +882,7 @@ class ProjectController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'rating' => 'required|integer|min:1|max:5',
-            'feedback' => 'nullable|string|max:1000',
+            'review' => 'nullable|string|max:1000',
         ]);
 
         if ($validator->fails()) {
@@ -823,20 +893,31 @@ class ProjectController extends Controller
         }
 
         $user = $request->user();
-        $rating = $request->rating;
-        $feedback = $request->feedback;
+        
+        // Update or create rating (one rating per user per project)
+        $rating = Rating::updateOrCreate(
+            [
+                'project_id' => $project->id,
+                'user_id' => $user->id,
+            ],
+            [
+                'rating' => $request->rating,
+                'review' => $request->review,
+            ]
+        );
 
         // Create notifications for project advisors and creator
         $title = 'Project Rated';
-        $message = "{$user->full_name} rated \"{$project->title}\" with {$rating} star(s)";
-        if ($feedback) {
-            $message .= ": \"{$feedback}\"";
+        $message = "{$user->full_name} rated \"{$project->title}\" with {$request->rating} star(s)";
+        if ($request->review) {
+            $message .= ": \"{$request->review}\"";
         }
 
         // Notify advisors
         Notification::createForProjectAdvisors($project, 'rating', $title, $message, [
-            'rating' => $rating,
-            'feedback' => $feedback,
+            'rating_id' => $rating->id,
+            'rating' => $request->rating,
+            'review' => $request->review,
             'rater_name' => $user->full_name,
             'rater_id' => $user->id,
         ]);
@@ -844,23 +925,323 @@ class ProjectController extends Controller
         // Notify project creator if they're not the one rating
         if ($project->created_by_user_id !== $user->id) {
             Notification::createForProjectCreator($project, 'rating', $title, $message, [
-                'rating' => $rating,
-                'feedback' => $feedback,
+                'rating_id' => $rating->id,
+                'rating' => $request->rating,
+                'review' => $request->review,
                 'rater_name' => $user->full_name,
                 'rater_id' => $user->id,
             ]);
         }
 
+        // Load the rating with user relationship
+        $rating->load('user');
+
         return response()->json([
             'message' => 'Project rated successfully',
-            'rating' => [
-                'id' => rand(1000, 9999),
-                'project_id' => $project->id,
-                'user_id' => $user->id,
-                'user_name' => $user->full_name,
-                'rating' => $rating,
-                'feedback' => $feedback,
-                'created_at' => now(),
+            'rating' => $rating
+        ], 201);
+    }
+
+    /**
+     * Get comments for a project
+     */
+    public function getComments(Project $project)
+    {
+        $comments = $project->comments()
+            ->with(['user', 'replies.user'])
+            ->get();
+
+        return response()->json([
+            'comments' => $comments
+        ]);
+    }
+
+    /**
+     * Get ratings for a project
+     */
+    public function getRatings(Project $project)
+    {
+        $ratings = $project->ratings()
+            ->with('user')
+            ->get();
+
+        $averageRating = $project->getAverageRating();
+        $totalRatings = $project->getTotalRatings();
+
+        return response()->json([
+            'ratings' => $ratings,
+            'average_rating' => $averageRating ? round($averageRating, 1) : null,
+            'total_ratings' => $totalRatings
+        ]);
+    }
+
+    /**
+     * Approve a project (admin only)
+     */
+    public function approveProject(Request $request, Project $project)
+    {
+        // Check if user is admin
+        if (!$request->user()->hasRole('admin')) {
+            return response()->json([
+                'message' => 'Unauthorized. Admin access required.'
+            ], 403);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'admin_notes' => 'nullable|string|max:1000',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $project->update([
+            'admin_approval_status' => 'approved',
+            'approved_by_user_id' => $request->user()->id,
+            'approved_at' => now(),
+            'admin_notes' => $request->admin_notes,
+        ]);
+
+        // Create notification for project creator
+        Notification::createForProjectCreator($project, 'approval', 'Project Approved', 
+            "Your project \"{$project->title}\" has been approved and is now visible to everyone.", [
+                'approval_status' => 'approved',
+                'admin_notes' => $request->admin_notes,
+                'approved_by' => $request->user()->full_name,
+            ]);
+
+        return response()->json([
+            'message' => 'Project approved successfully',
+            'project' => $project->load(['program', 'members', 'advisors', 'approver'])
+        ]);
+    }
+
+    /**
+     * Hide a project (admin only)
+     */
+    public function hideProject(Request $request, Project $project)
+    {
+        // Check if user is admin
+        if (!$request->user()->hasRole('admin')) {
+            return response()->json([
+                'message' => 'Unauthorized. Admin access required.'
+            ], 403);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'admin_notes' => 'nullable|string|max:1000',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $project->update([
+            'admin_approval_status' => 'hidden',
+            'approved_by_user_id' => $request->user()->id,
+            'approved_at' => now(),
+            'admin_notes' => $request->admin_notes,
+        ]);
+
+        // Create notification for project creator
+        Notification::createForProjectCreator($project, 'approval', 'Project Hidden', 
+            "Your project \"{$project->title}\" has been hidden from public view.", [
+                'approval_status' => 'hidden',
+                'admin_notes' => $request->admin_notes,
+                'approved_by' => $request->user()->full_name,
+            ]);
+
+        return response()->json([
+            'message' => 'Project hidden successfully',
+            'project' => $project->load(['program', 'members', 'advisors', 'approver'])
+        ]);
+    }
+
+    /**
+     * Toggle project visibility between approved and hidden (admin only)
+     */
+    public function toggleProjectVisibility(Request $request, Project $project)
+    {
+        // Check if user is admin
+        if (!$request->user()->hasRole('admin')) {
+            return response()->json([
+                'message' => 'Unauthorized. Admin access required.'
+            ], 403);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'admin_notes' => 'nullable|string|max:1000',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // Toggle between approved and hidden
+        $newStatus = $project->admin_approval_status === 'approved' ? 'hidden' : 'approved';
+        
+        $project->update([
+            'admin_approval_status' => $newStatus,
+            'approved_by_user_id' => $request->user()->id,
+            'approved_at' => now(),
+            'admin_notes' => $request->admin_notes,
+        ]);
+
+        // Create notification for project creator
+        $action = $newStatus === 'approved' ? 'Approved' : 'Hidden';
+        $message = $newStatus === 'approved' 
+            ? "Your project \"{$project->title}\" has been approved and is now visible to everyone."
+            : "Your project \"{$project->title}\" has been hidden from public view.";
+
+        Notification::createForProjectCreator($project, 'approval', "Project {$action}", $message, [
+            'approval_status' => $newStatus,
+            'admin_notes' => $request->admin_notes,
+            'approved_by' => $request->user()->full_name,
+        ]);
+
+        return response()->json([
+            'message' => "Project {$newStatus} successfully",
+            'project' => $project->load(['program', 'members', 'advisors', 'approver'])
+        ]);
+    }
+
+    /**
+     * Get projects pending approval (admin only)
+     */
+    public function adminPendingApprovals(Request $request)
+    {
+        // Check if user is admin
+        if (!$request->user()->hasRole('admin')) {
+            return response()->json([
+                'message' => 'Unauthorized. Admin access required.'
+            ], 403);
+        }
+
+        $query = Project::with(['program.department', 'creator', 'members', 'advisors'])
+            ->where('admin_approval_status', 'pending');
+
+        // Apply filters
+        if ($request->has('program_id')) {
+            $query->where('program_id', $request->program_id);
+        }
+
+        if ($request->has('department_id')) {
+            $query->whereHas('program', function ($q) use ($request) {
+                $q->where('department_id', $request->department_id);
+            });
+        }
+
+        if ($request->has('academic_year')) {
+            $query->where('academic_year', $request->academic_year);
+        }
+
+        // Sorting
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+        
+        $allowedSortFields = ['created_at', 'updated_at', 'title', 'academic_year'];
+        if (in_array($sortBy, $allowedSortFields)) {
+            $query->orderBy($sortBy, $sortOrder);
+        }
+
+        // Pagination
+        $perPage = min($request->get('per_page', 15), 100);
+        $projects = $query->paginate($perPage);
+
+        return response()->json([
+            'projects' => $projects->items(),
+            'pagination' => [
+                'current_page' => $projects->currentPage(),
+                'per_page' => $projects->perPage(),
+                'total' => $projects->total(),
+                'last_page' => $projects->lastPage(),
+                'has_more_pages' => $projects->hasMorePages(),
+            ]
+        ]);
+    }
+
+    /**
+     * Get all projects with approval status (admin only)
+     */
+    public function adminProjects(Request $request)
+    {
+        // Check if user is admin
+        if (!$request->user()->hasRole('admin')) {
+            return response()->json([
+                'message' => 'Unauthorized. Admin access required.'
+            ], 403);
+        }
+
+        $query = Project::with(['program.department', 'creator', 'members', 'advisors', 'approver']);
+
+        // Filter by approval status
+        if ($request->has('approval_status')) {
+            $query->where('admin_approval_status', $request->approval_status);
+        }
+
+        // Apply other filters (same as index method)
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->has('program_id')) {
+            $query->where('program_id', $request->program_id);
+        }
+
+        if ($request->has('department_id')) {
+            $query->whereHas('program', function ($q) use ($request) {
+                $q->where('department_id', $request->department_id);
+            });
+        }
+
+        if ($request->has('academic_year')) {
+            $query->where('academic_year', $request->academic_year);
+        }
+
+        if ($request->has('created_by')) {
+            $query->where('created_by_user_id', $request->created_by);
+        }
+
+        // Search functionality
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'ilike', "%{$search}%")
+                  ->orWhere('abstract', 'ilike', "%{$search}%")
+                  ->orWhereJsonContains('keywords', $search);
+            });
+        }
+
+        // Sorting
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+        
+        $allowedSortFields = ['created_at', 'updated_at', 'title', 'academic_year', 'admin_approval_status', 'approved_at'];
+        if (in_array($sortBy, $allowedSortFields)) {
+            $query->orderBy($sortBy, $sortOrder);
+        }
+
+        // Pagination
+        $perPage = min($request->get('per_page', 15), 100);
+        $projects = $query->paginate($perPage);
+
+        return response()->json([
+            'projects' => $projects->items(),
+            'pagination' => [
+                'current_page' => $projects->currentPage(),
+                'per_page' => $projects->perPage(),
+                'total' => $projects->total(),
+                'last_page' => $projects->lastPage(),
+                'has_more_pages' => $projects->hasMorePages(),
             ]
         ]);
     }

@@ -87,6 +87,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/notifications', [NotificationController::class, 'destroyAll']);
 
     // Project interaction routes (comments and ratings)
+    Route::get('/projects/{project}/comments', [ProjectController::class, 'getComments']);
     Route::post('/projects/{project}/comments', [ProjectController::class, 'addComment']);
+    Route::get('/projects/{project}/ratings', [ProjectController::class, 'getRatings']);
     Route::post('/projects/{project}/rate', [ProjectController::class, 'rateProject']);
+
+    // Admin-only project approval routes
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/projects/{project}/approve', [ProjectController::class, 'approveProject']);
+        Route::post('/projects/{project}/hide', [ProjectController::class, 'hideProject']);
+        Route::post('/projects/{project}/toggle-visibility', [ProjectController::class, 'toggleProjectVisibility']);
+        Route::get('/admin/projects', [ProjectController::class, 'adminProjects']);
+        Route::get('/admin/projects/pending', [ProjectController::class, 'adminPendingApprovals']);
+    });
 });

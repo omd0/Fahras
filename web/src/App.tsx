@@ -4,6 +4,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { Box } from '@mui/material';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { RoleProtectedRoute } from './components/RoleProtectedRoute';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { DashboardPage } from './pages/DashboardPage';
@@ -16,6 +17,7 @@ import { UserManagementPage } from './pages/UserManagementPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
 import { ApprovalsPage } from './pages/ApprovalsPage';
+import AdminProjectApprovalPage from './pages/AdminProjectApprovalPage';
 import { TVTCBranding } from './components/TVTCBranding';
 
 const theme = createTheme({
@@ -162,29 +164,29 @@ function App() {
             }
           />
           
-          {/* Project routes */}
+          {/* Project routes - Restricted for Reviewer and Admin users */}
           <Route
             path="/projects/create"
             element={
-              <ProtectedRoute>
+              <RoleProtectedRoute restrictedRoles={['reviewer', 'admin']}>
                 <CreateProjectPage />
-              </ProtectedRoute>
+              </RoleProtectedRoute>
             }
           />
           <Route
             path="/projects/:id"
             element={
-              <ProtectedRoute>
+              <RoleProtectedRoute restrictedRoles={['reviewer', 'admin']}>
                 <ProjectDetailPage />
-              </ProtectedRoute>
+              </RoleProtectedRoute>
             }
           />
           <Route
             path="/projects/:id/edit"
             element={
-              <ProtectedRoute>
+              <RoleProtectedRoute restrictedRoles={['reviewer', 'admin']}>
                 <EditProjectPage />
-              </ProtectedRoute>
+              </RoleProtectedRoute>
             }
           />
           
@@ -198,23 +200,23 @@ function App() {
             }
           />
           
-          {/* Evaluations route */}
+          {/* Evaluations route - restricted for reviewers */}
           <Route
             path="/evaluations"
             element={
-              <ProtectedRoute>
+              <RoleProtectedRoute restrictedRoles={['reviewer']}>
                 <EvaluationsPage />
-              </ProtectedRoute>
+              </RoleProtectedRoute>
             }
           />
           
-          {/* User Management route */}
+          {/* User Management route - admin only */}
           <Route
             path="/users"
             element={
-              <ProtectedRoute>
+              <RoleProtectedRoute allowedRoles={['admin']}>
                 <UserManagementPage />
-              </ProtectedRoute>
+              </RoleProtectedRoute>
             }
           />
           
@@ -238,13 +240,23 @@ function App() {
             }
           />
           
-          {/* Approvals route */}
+          {/* Approvals route - admin only */}
           <Route
             path="/approvals"
             element={
-              <ProtectedRoute>
+              <RoleProtectedRoute allowedRoles={['admin']}>
                 <ApprovalsPage />
-              </ProtectedRoute>
+              </RoleProtectedRoute>
+            }
+          />
+          
+          {/* Admin Project Approval route - admin only */}
+          <Route
+            path="/admin/projects"
+            element={
+              <RoleProtectedRoute allowedRoles={['admin']}>
+                <AdminProjectApprovalPage />
+              </RoleProtectedRoute>
             }
           />
           

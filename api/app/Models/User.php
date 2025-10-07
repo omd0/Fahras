@@ -65,6 +65,16 @@ class User extends Authenticatable
         return $this->hasMany(Notification::class);
     }
 
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class);
+    }
+
     public function hasRole($role)
     {
         return $this->roles()->where('name', $role)->exists();

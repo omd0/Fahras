@@ -192,13 +192,15 @@ export const DashboardPage: React.FC = () => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Fahras Dashboard
           </Typography>
-          <Button
-            color="inherit"
-            startIcon={<AddIcon />}
-            onClick={() => navigate('/projects/create')}
-          >
-            New Project
-          </Button>
+          {!user?.roles?.some(role => role.name === 'admin' || role.name === 'reviewer') && (
+            <Button
+              color="inherit"
+              startIcon={<AddIcon />}
+              onClick={() => navigate('/projects/create')}
+            >
+              New Project
+            </Button>
+          )}
           <IconButton
             size="large"
             edge="end"
@@ -242,6 +244,12 @@ export const DashboardPage: React.FC = () => {
               <AccountCircle sx={{ mr: 1 }} />
               Profile
             </MenuItem>
+            {user?.roles?.some(role => role.name === 'admin') && (
+              <MenuItem onClick={() => { navigate('/admin/projects'); handleMenuClose(); }}>
+                <AssignmentIcon sx={{ mr: 1 }} />
+                Project Approvals
+              </MenuItem>
+            )}
             <MenuItem onClick={handleLogout}>
               <ExitToApp sx={{ mr: 1 }} />
               Logout
@@ -270,7 +278,11 @@ export const DashboardPage: React.FC = () => {
         {/* Results Header */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
           <Typography variant="h5">
-            {searching ? 'Search Results' : 'My Projects'}
+            {searching ? 'Search Results' : (
+              user?.roles?.some(role => role.name === 'admin') ? 'All Projects (Admin View)' :
+              user?.roles?.some(role => role.name === 'reviewer') ? 'Approved Projects' :
+              'My Projects'
+            )}
             {pagination.total > 0 && (
               <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1 }}>
                 ({pagination.total} {pagination.total === 1 ? 'project' : 'projects'})
@@ -285,13 +297,15 @@ export const DashboardPage: React.FC = () => {
           >
             Analytics
           </Button>
-          <Button
-            variant="outlined"
-            startIcon={<AssignmentIcon />}
-            onClick={() => navigate('/evaluations')}
-          >
-            Evaluations
-          </Button>
+          {!user?.roles?.some(role => role.name === 'reviewer') && (
+            <Button
+              variant="outlined"
+              startIcon={<AssignmentIcon />}
+              onClick={() => navigate('/evaluations')}
+            >
+              Evaluations
+            </Button>
+          )}
         </Box>
 
         {/* Error Alert */}
@@ -318,7 +332,7 @@ export const DashboardPage: React.FC = () => {
                   : 'Start by creating your first graduation project'
                 }
               </Typography>
-              {!searching && (
+              {!searching && !user?.roles?.some(role => role.name === 'reviewer') && (
                 <Button
                   variant="contained"
                   startIcon={<AddIcon />}
@@ -378,15 +392,52 @@ export const DashboardPage: React.FC = () => {
                             {project.academic_year} • {project.semester}
                           </Typography>
                         </Box>
-                        <Chip
-                          label={project.status.replace('_', ' ')}
-                          color={getStatusColor(project.status) as any}
-                          size="small"
-                          sx={{ textTransform: 'capitalize' }}
-                          icon={project.status === 'approved' ? <CheckCircleIcon /> : 
-                                project.status === 'submitted' ? <PendingIcon /> : 
-                                project.status === 'rejected' ? <CancelIcon /> : <VisibilityIcon />}
-                        />
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                          <Chip
+                            label={project.status.replace('_', ' ')}
+                            color={getStatusColor(project.status) as any}
+                            size="small"
+                            sx={{ textTransform: 'capitalize' }}
+                            icon={project.status === 'approved' ? <CheckCircleIcon /> : 
+                                  project.status === 'submitted' ? <PendingIcon /> : 
+                                  project.status === 'rejected' ? <CancelIcon /> : <VisibilityIcon />}
+                          />
+                          {/* Show approval status based on user role */}
+                          {project.admin_approval_status && (
+                            (() => {
+                              // Admin: show all statuses
+                              if (user?.roles?.some(role => role.name === 'admin')) {
+                                return (
+                                  <Chip
+                                    label={project.admin_approval_status === 'pending' ? 'Pending Approval' : 
+                                           project.admin_approval_status === 'approved' ? 'Approved' : 'Hidden'}
+                                    color={project.admin_approval_status === 'approved' ? 'success' : 
+                                           project.admin_approval_status === 'hidden' ? 'error' : 'warning'}
+                                    size="small"
+                                    variant="outlined"
+                                    sx={{ fontSize: '0.7rem' }}
+                                  />
+                                );
+                              }
+                              // Project owner: show status for their own projects
+                              else if (project.created_by_user_id === user?.id) {
+                                return (
+                                  <Chip
+                                    label={project.admin_approval_status === 'pending' ? 'Pending Approval' : 
+                                           project.admin_approval_status === 'approved' ? 'Approved' : 'Hidden'}
+                                    color={project.admin_approval_status === 'approved' ? 'success' : 
+                                           project.admin_approval_status === 'hidden' ? 'error' : 'warning'}
+                                    size="small"
+                                    variant="outlined"
+                                    sx={{ fontSize: '0.7rem' }}
+                                  />
+                                );
+                              }
+                              // Reviewer and other users: don't show approval status
+                              return null;
+                            })()
+                          )}
+                        </Box>
                       </Box>
                       
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

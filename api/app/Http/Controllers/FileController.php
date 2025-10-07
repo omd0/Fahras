@@ -28,7 +28,7 @@ class FileController extends Controller
 
         $uploadedFile = $request->file('file');
         $filename = Str::uuid() . '.' . $uploadedFile->getClientOriginalExtension();
-        $path = $uploadedFile->storeAs('projects/' . $project->id, $filename, 'local');
+        $path = $uploadedFile->storeAs('uploads/projects/' . $project->id, $filename, 'local');
 
         $file = File::create([
             'project_id' => $project->id,
@@ -40,6 +40,13 @@ class FileController extends Controller
             'storage_url' => $path,
             'checksum' => hash_file('sha256', $uploadedFile->getPathname()),
             'is_public' => $request->boolean('is_public', false),
+        ]);
+
+        \Log::info('File uploaded successfully', [
+            'file_id' => $file->id,
+            'project_id' => $project->id,
+            'filename' => $file->original_filename,
+            'storage_url' => $file->storage_url
         ]);
 
         return response()->json([

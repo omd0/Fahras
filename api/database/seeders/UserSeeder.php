@@ -127,5 +127,18 @@ class UserSeeder extends Seeder
                 'cohort_year' => $studentData['cohort_year'],
             ]);
         }
+
+        // Create reviewer user
+        $reviewerRole = Role::where('name', 'reviewer')->first();
+        if ($reviewerRole) {
+            $reviewer = User::create([
+                'full_name' => 'Reviewer User',
+                'email' => 'reviewer@fahras.edu',
+                'password' => 'password',
+                'status' => 'active',
+            ]);
+
+            $reviewer->roles()->attach($reviewerRole->id);
+        }
     }
 }

@@ -191,17 +191,20 @@ export const CreateProjectPage: React.FC = () => {
       // Create the project first
       const createdProject = await apiService.createProject(projectData);
 
-      // If files are selected, upload them
+      // If files are selected, upload them individually
       if (selectedFiles.length > 0 && createdProject?.project?.id) {
-        const formData = new FormData();
-        selectedFiles.forEach((file, index) => {
-          formData.append(`files[${index}]`, file);
-        });
-
+        console.log('Uploading files to project:', createdProject.project.id, 'Files:', selectedFiles);
         try {
-          await apiService.uploadProjectFiles(createdProject.project.id, formData);
+          // Upload each file individually
+          for (const file of selectedFiles) {
+            console.log('Uploading file:', file.name);
+            const uploadResponse = await apiService.uploadFile(createdProject.project.id, file, false);
+            console.log('File uploaded successfully:', uploadResponse);
+          }
+          console.log('All files uploaded successfully');
         } catch (uploadError) {
-          console.warn('Project created but file upload failed:', uploadError);
+          console.error('File upload failed:', uploadError);
+          setError('Project created but file upload failed: ' + (uploadError as any)?.response?.data?.message || 'Unknown error');
           // Don't fail the entire operation if file upload fails
         }
       }

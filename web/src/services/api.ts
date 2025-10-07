@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import { LoginCredentials, RegisterData, User, Project, CreateProjectData, File, Program } from '../types';
+import { LoginCredentials, RegisterData, User, Project, CreateProjectData, File, Program, Comment, Rating, Department } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost/api';
 
@@ -157,7 +157,7 @@ class ApiService {
     return response.data;
   }
 
-  async getDepartments(): Promise<{ data: Array<{ id: number; name: string }> }> {
+  async getDepartments(): Promise<Department[]> {
     const response: AxiosResponse = await this.api.get('/departments');
     return response.data;
   }
@@ -231,7 +231,7 @@ class ApiService {
     return response.data;
   }
 
-  async getPendingApprovals(): Promise<{
+  async getMyPendingApprovals(): Promise<{
     data: Array<{
       id: number;
       project_id: number;
@@ -285,23 +285,21 @@ class ApiService {
   }
 
   // File endpoints
-  async uploadFile(projectId: number, file: File, isPublic: boolean = false): Promise<{ file: File }> {
+  async uploadFile(projectId: number, file: globalThis.File, isPublic: boolean = false): Promise<{ file: File }> {
     const formData = new FormData();
-    formData.append('file', file as unknown as Blob);
+    formData.append('file', file);
     formData.append('is_public', isPublic.toString());
+
+    console.log('Uploading file:', file.name, 'to project:', projectId);
 
     const response: AxiosResponse = await this.api.post(`/projects/${projectId}/files`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
+    
+    console.log('File upload response:', response.data);
     return response.data;
   }
 
-  async uploadProjectFiles(projectId: number, formData: FormData): Promise<{ files: File[] }> {
-    const response: AxiosResponse = await this.api.post(`/projects/${projectId}/files/batch`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
-    return response.data;
-  }
 
   async getProjectFiles(projectId: number): Promise<{ files: File[] }> {
     const response: AxiosResponse = await this.api.get(`/projects/${projectId}/files`);
@@ -320,36 +318,38 @@ class ApiService {
   }
 
   // Project interaction endpoints (comments and ratings)
-  async addComment(projectId: number, comment: string): Promise<{
-    message: string;
-    comment: {
-      id: number;
-      project_id: number;
-      user_id: number;
-      user_name: string;
-      comment: string;
-      created_at: string;
-    };
-  }> {
-    const response: AxiosResponse = await this.api.post(`/projects/${projectId}/comments`, { comment });
+  async getComments(projectId: number): Promise<{ comments: Comment[] }> {
+    const response: AxiosResponse = await this.api.get(`/projects/${projectId}/comments`);
     return response.data;
   }
 
-  async rateProject(projectId: number, rating: number, feedback?: string): Promise<{
+  async addComment(projectId: number, content: string, parentId?: number): Promise<{
     message: string;
-    rating: {
-      id: number;
-      project_id: number;
-      user_id: number;
-      user_name: string;
-      rating: number;
-      feedback?: string;
-      created_at: string;
-    };
+    comment: Comment;
+  }> {
+    const response: AxiosResponse = await this.api.post(`/projects/${projectId}/comments`, { 
+      content,
+      parent_id: parentId 
+    });
+    return response.data;
+  }
+
+  async getRatings(projectId: number): Promise<{
+    ratings: Rating[];
+    average_rating: number | null;
+    total_ratings: number;
+  }> {
+    const response: AxiosResponse = await this.api.get(`/projects/${projectId}/ratings`);
+    return response.data;
+  }
+
+  async rateProject(projectId: number, rating: number, review?: string): Promise<{
+    message: string;
+    rating: Rating;
   }> {
     const response: AxiosResponse = await this.api.post(`/projects/${projectId}/rate`, { 
       rating, 
-      feedback 
+      review 
     });
     return response.data;
   }
@@ -375,6 +375,85 @@ class ApiService {
 
   async deleteAvatar(): Promise<{ user: User; message: string }> {
     const response: AxiosResponse = await this.api.delete('/profile/avatar');
+    return response.data;
+  }
+
+  // Admin project approval endpoints
+  async approveProject(projectId: number, adminNotes?: string): Promise<{
+    message: string;
+    project: Project;
+  }> {
+    const response: AxiosResponse = await this.api.post(`/projects/${projectId}/approve`, {
+      admin_notes: adminNotes
+    });
+    return response.data;
+  }
+
+  async hideProject(projectId: number, adminNotes?: string): Promise<{
+    message: string;
+    project: Project;
+  }> {
+    const response: AxiosResponse = await this.api.post(`/projects/${projectId}/hide`, {
+      admin_notes: adminNotes
+    });
+    return response.data;
+  }
+
+  async toggleProjectVisibility(projectId: number, adminNotes?: string): Promise<{
+    message: string;
+    project: Project;
+  }> {
+    const response: AxiosResponse = await this.api.post(`/projects/${projectId}/toggle-visibility`, {
+      admin_notes: adminNotes
+    });
+    return response.data;
+  }
+
+  async getAdminProjects(params?: {
+    page?: number;
+    per_page?: number;
+    approval_status?: 'pending' | 'approved' | 'hidden';
+    status?: string;
+    program_id?: number;
+    department_id?: number;
+    academic_year?: string;
+    created_by?: number;
+    search?: string;
+    sort_by?: string;
+    sort_order?: string;
+  }): Promise<{
+    projects: Project[];
+    pagination: {
+      current_page: number;
+      per_page: number;
+      total: number;
+      last_page: number;
+      has_more_pages: boolean;
+    };
+  }> {
+    const response: AxiosResponse = await this.api.get('/admin/projects', { params });
+    return response.data;
+  }
+
+  async getPendingApprovals(params?: {
+    page?: number;
+    per_page?: number;
+    program_id?: number;
+    department_id?: number;
+    academic_year?: string;
+    sort_by?: string;
+    sort_order?: string;
+  }): Promise<{
+    projects: Project[];
+    pagination: {
+      current_page: number;
+      per_page: number;
+      total: number;
+      last_page: number;
+      has_more_pages: boolean;
+    };
+  }> {
+    const response: AxiosResponse = await this.api.get('/admin/projects/pending', { params });
     return response.data;
   }
 

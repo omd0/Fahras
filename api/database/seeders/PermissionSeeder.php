@@ -49,6 +49,7 @@ class PermissionSeeder extends Seeder
         $adminRole = Role::where('name', 'admin')->first();
         $facultyRole = Role::where('name', 'faculty')->first();
         $studentRole = Role::where('name', 'student')->first();
+        $reviewerRole = Role::where('name', 'reviewer')->first();
 
         // Admin gets all permissions
         if ($adminRole) {
@@ -83,6 +84,16 @@ class PermissionSeeder extends Seeder
                 'files.delete',
             ])->pluck('id');
             $studentRole->permissions()->sync($studentPermissions);
+        }
+
+        // Reviewer permissions (read-only access)
+        if ($reviewerRole) {
+            $reviewerPermissions = Permission::whereIn('code', [
+                'users.read',
+                'projects.read',
+                'files.download',
+            ])->pluck('id');
+            $reviewerRole->permissions()->sync($reviewerPermissions);
         }
     }
 }

@@ -35,7 +35,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { Project } from '../types';
 import { apiService } from '../services/api';
-import { ProjectInteractions } from '../components/ProjectInteractions';
+import { CommentSection } from '../components/CommentSection';
+import { RatingSection } from '../components/RatingSection';
+import ProjectVisibilityToggle from '../components/ProjectVisibilityToggle';
 
 export const ProjectDetailPage: React.FC = () => {
   const [project, setProject] = useState<Project | null>(null);
@@ -55,9 +57,28 @@ export const ProjectDetailPage: React.FC = () => {
 
   const fetchProject = async (projectId: number) => {
     try {
+      console.log('Fetching project:', projectId);
       const response = await apiService.getProject(projectId);
+      console.log('Project response:', response);
       setProject(response.project);
+      
+      // Debug: Log files data to console for verification
+      if (response.project.files) {
+        console.log('Project files loaded:', response.project.files);
+        console.log('Number of files:', response.project.files.length);
+        response.project.files.forEach((file, index) => {
+          console.log(`File ${index + 1}:`, {
+            id: file.id,
+            original_filename: file.original_filename,
+            storage_url: file.storage_url,
+            size_bytes: file.size_bytes
+          });
+        });
+      } else {
+        console.log('No files found for project');
+      }
     } catch (error: any) {
+      console.error('Error fetching project:', error);
       setError(error.response?.data?.message || 'Failed to fetch project');
     } finally {
       setLoading(false);
@@ -79,6 +100,7 @@ export const ProjectDetailPage: React.FC = () => {
       setDeleting(false);
     }
   };
+
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -116,6 +138,27 @@ export const ProjectDetailPage: React.FC = () => {
       <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
         <Alert severity="error">
           {error || 'Project not found'}
+        </Alert>
+        <Button
+          variant="outlined"
+          startIcon={<ArrowBackIcon />}
+          onClick={() => navigate('/dashboard')}
+          sx={{ mt: 2 }}
+        >
+          Back to Dashboard
+        </Button>
+      </Container>
+    );
+  }
+
+  // Check if project is hidden and user is not admin or project owner
+  if (project.admin_approval_status === 'hidden' && 
+      !user?.roles?.some(role => role.name === 'admin') && 
+      project.created_by_user_id !== user?.id) {
+    return (
+      <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
+        <Alert severity="error">
+          This project is not available for viewing.
         </Alert>
         <Button
           variant="outlined"
@@ -167,6 +210,14 @@ export const ProjectDetailPage: React.FC = () => {
               Delete
             </Button>
           )}
+          {/* Admin visibility controls */}
+          {user?.roles?.some(role => role.name === 'admin') && (
+            <ProjectVisibilityToggle
+              project={project}
+              onToggleComplete={() => fetchProject(project.id)}
+              variant="button"
+            />
+          )}
         </Toolbar>
       </AppBar>
 
@@ -180,16 +231,68 @@ export const ProjectDetailPage: React.FC = () => {
                   <Typography variant="h4" gutterBottom>
                     {project.title}
                   </Typography>
-                  <Chip
-                    label={project.status.replace('_', ' ')}
-                    color={getStatusColor(project.status)}
-                    variant="outlined"
-                  />
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'flex-end' }}>
+                    <Chip
+                      label={project.status.replace('_', ' ')}
+                      color={getStatusColor(project.status)}
+                      variant="outlined"
+                    />
+                    {/* Show approval status based on user role */}
+                    {project.admin_approval_status && (
+                      (() => {
+                        // Admin: show all statuses
+                        if (user?.roles?.some(role => role.name === 'admin')) {
+                          return (
+                            <Chip
+                              label={project.admin_approval_status === 'pending' ? 'Pending Approval' : 
+                                     project.admin_approval_status === 'approved' ? 'Approved' : 'Hidden'}
+                              color={project.admin_approval_status === 'approved' ? 'success' : 
+                                     project.admin_approval_status === 'hidden' ? 'error' : 'warning'}
+                              variant="filled"
+                              size="small"
+                            />
+                          );
+                        }
+                        // Project owner: show status for their own projects
+                        else if (project.created_by_user_id === user?.id) {
+                          return (
+                            <Chip
+                              label={project.admin_approval_status === 'pending' ? 'Pending Approval' : 
+                                     project.admin_approval_status === 'approved' ? 'Approved' : 'Hidden'}
+                              color={project.admin_approval_status === 'approved' ? 'success' : 
+                                     project.admin_approval_status === 'hidden' ? 'error' : 'warning'}
+                              variant="filled"
+                              size="small"
+                            />
+                          );
+                        }
+                        // Reviewer and other users: don't show approval status
+                        return null;
+                      })()
+                    )}
+                  </Box>
                 </Box>
 
                 <Typography variant="body1" paragraph sx={{ mb: 3 }}>
                   {project.abstract}
                 </Typography>
+
+                {/* Admin Notes */}
+                {project.admin_notes && (
+                  <Box sx={{ mb: 3, p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>
+                    <Typography variant="subtitle2" gutterBottom color="text.secondary">
+                      Admin Notes:
+                    </Typography>
+                    <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
+                      {project.admin_notes}
+                    </Typography>
+                    {project.approver && (
+                      <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                        — {project.approver.full_name} on {new Date(project.approved_at || '').toLocaleDateString()}
+                      </Typography>
+                    )}
+                  </Box>
+                )}
 
                 {/* Keywords */}
                 {project.keywords && project.keywords.length > 0 && (
@@ -238,27 +341,103 @@ export const ProjectDetailPage: React.FC = () => {
             </Card>
 
             {/* Files Section */}
-            {project.files && project.files.length > 0 && (
-              <Card sx={{ mt: 3 }}>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
+            <Card sx={{ mt: 3 }}>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <FileDownloadIcon sx={{ mr: 1, color: 'primary.main' }} />
+                  <Typography variant="h6" component="h2">
                     Project Files
                   </Typography>
+                  <Chip 
+                    label={`${project.files?.length || 0} files`} 
+                    size="small" 
+                    color="primary" 
+                    variant="outlined"
+                    sx={{ ml: 2 }}
+                  />
+                </Box>
+                
+                {project.files && project.files.length > 0 ? (
                   <List>
-                    {(project.files || []).map((file) => (
-                      <ListItem key={file.id} divider>
+                    {(project.files || []).map((file, index) => (
+                      <ListItem 
+                        key={file.id} 
+                        divider={index < (project.files || []).length - 1}
+                        sx={{ 
+                          borderRadius: 1,
+                          mb: 1,
+                          '&:hover': { backgroundColor: 'action.hover' }
+                        }}
+                      >
                         <ListItemIcon>
-                          <FileDownloadIcon />
+                          <FileDownloadIcon color="primary" />
                         </ListItemIcon>
                         <ListItemText
-                          primary={file.original_filename}
-                          secondary={`${(file.size_bytes / 1024).toFixed(1)} KB • ${new Date(file.uploaded_at).toLocaleDateString()}`}
+                          primary={
+                            <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
+                              {file.original_filename}
+                            </Typography>
+                          }
+                          secondary={
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 0.5 }}>
+                              <Typography variant="body2" color="text.secondary">
+                                {(file.size_bytes / 1024).toFixed(1)} KB
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                •
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                {new Date(file.uploaded_at).toLocaleDateString()}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                •
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                {file.mime_type}
+                              </Typography>
+                              {file.is_public && (
+                                <>
+                                  <Typography variant="body2" color="text.secondary">
+                                    •
+                                  </Typography>
+                                  <Chip 
+                                    label="Public" 
+                                    size="small" 
+                                    color="success" 
+                                    variant="outlined"
+                                    sx={{ height: 20, fontSize: '0.75rem' }}
+                                  />
+                                </>
+                              )}
+                            </Box>
+                          }
                         />
                         <Button
+                          variant="contained"
                           size="small"
-                          onClick={() => {
-                            // Handle file download
-                            window.open(file.storage_url, '_blank');
+                          startIcon={<FileDownloadIcon />}
+                          onClick={async () => {
+                            try {
+                              // Use the API service to download the file
+                              const blob = await apiService.downloadFile(file.id);
+                              const url = window.URL.createObjectURL(blob);
+                              const link = document.createElement('a');
+                              link.href = url;
+                              link.download = file.original_filename;
+                              document.body.appendChild(link);
+                              link.click();
+                              document.body.removeChild(link);
+                              window.URL.revokeObjectURL(url);
+                            } catch (error) {
+                              console.error('Error downloading file:', error);
+                              // Fallback to opening the storage URL
+                              window.open(file.storage_url, '_blank');
+                            }
+                          }}
+                          sx={{ 
+                            minWidth: 100,
+                            textTransform: 'none',
+                            fontWeight: 500
                           }}
                         >
                           Download
@@ -266,9 +445,23 @@ export const ProjectDetailPage: React.FC = () => {
                       </ListItem>
                     ))}
                   </List>
-                </CardContent>
-              </Card>
-            )}
+                ) : (
+                  <Box sx={{ 
+                    textAlign: 'center', 
+                    py: 4,
+                    color: 'text.secondary'
+                  }}>
+                    <FileDownloadIcon sx={{ fontSize: 48, mb: 2, opacity: 0.5 }} />
+                    <Typography variant="body1" color="text.secondary">
+                      No files available for this project
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                      Files uploaded by students or faculty will appear here
+                    </Typography>
+                  </Box>
+                )}
+              </CardContent>
+            </Card>
           </Grid>
 
           {/* Sidebar */}
@@ -397,18 +590,16 @@ export const ProjectDetailPage: React.FC = () => {
         </Grid>
 
         {/* Project Interactions - Comments and Ratings */}
+        {/* Comments and Ratings Section */}
         {project && (
-          <ProjectInteractions
-            projectId={project.id}
-            onCommentAdded={() => {
-              // Refresh notifications or show success message
-              console.log('Comment added successfully');
-            }}
-            onRatingAdded={() => {
-              // Refresh notifications or show success message
-              console.log('Rating added successfully');
-            }}
-          />
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12 }}>
+              <RatingSection projectId={project.id} />
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <CommentSection projectId={project.id} />
+            </Grid>
+          </Grid>
         )}
       </Container>
     </Box>

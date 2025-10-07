@@ -62,6 +62,9 @@ export const ProfilePage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [yearFilter, setYearFilter] = useState('');
+
+  // Check if user is restricted from viewing projects
+  const isRestrictedUser = user?.roles?.some(role => role.name === 'reviewer' || role.name === 'admin');
   
   // Profile editing state
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -226,8 +229,11 @@ export const ProfilePage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    loadUserProjects();
-  }, [loadUserProjects]);
+    // Only load projects for non-restricted users
+    if (!isRestrictedUser) {
+      loadUserProjects();
+    }
+  }, [loadUserProjects, isRestrictedUser]);
 
   const handleProjectClick = (projectId: number) => {
     navigate(`/projects/${projectId}`);
@@ -326,7 +332,7 @@ export const ProfilePage: React.FC = () => {
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         {/* User Profile Information */}
         <Grid container spacing={3}>
-          <Grid size={{ xs: 12, md: 4 }}>
+          <Grid size={{ xs: 12, md: isRestrictedUser ? 12 : 4 }}>
             <Card sx={{ mb: 3 }}>
               <CardContent sx={{ textAlign: 'center' }}>
                 <Box sx={{ position: 'relative', display: 'inline-block' }}>
@@ -437,8 +443,9 @@ export const ProfilePage: React.FC = () => {
             </Card>
           </Grid>
 
-          {/* My Projects Section */}
-          <Grid size={{ xs: 12, md: 8 }}>
+          {/* My Projects Section - Only show for non-restricted users */}
+          {!isRestrictedUser && (
+            <Grid size={{ xs: 12, md: 8 }}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
@@ -617,7 +624,8 @@ export const ProfilePage: React.FC = () => {
                 )}
               </CardContent>
             </Card>
-          </Grid>
+            </Grid>
+          )}
         </Grid>
       </Container>
 

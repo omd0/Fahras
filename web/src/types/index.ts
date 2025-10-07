@@ -45,10 +45,15 @@ export interface Project {
   semester: 'fall' | 'spring' | 'summer';
   status: 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected' | 'completed';
   is_public: boolean;
+  admin_approval_status: 'pending' | 'approved' | 'hidden';
+  approved_by_user_id?: number;
+  approved_at?: string;
+  admin_notes?: string;
   doi?: string;
   repo_url?: string;
   program?: Program;
   creator?: User;
+  approver?: User;
   members?: ProjectMember[];
   advisors?: ProjectAdvisor[];
   files?: File[];
@@ -102,7 +107,7 @@ export interface RegisterData {
   email: string;
   password: string;
   password_confirmation: string;
-  role: 'student' | 'faculty' | 'admin';
+  role: 'student' | 'faculty' | 'admin' | 'reviewer';
 }
 
 export interface CreateProjectData {
@@ -126,6 +131,31 @@ export interface ApiResponse<T = any> {
   message?: string;
   data?: T;
   errors?: Record<string, string[]>;
+}
+
+export interface Comment {
+  id: number;
+  project_id: number;
+  user_id: number;
+  content: string;
+  parent_id?: number;
+  is_approved: boolean;
+  user?: User;
+  replies?: Comment[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Rating {
+  id: number;
+  project_id: number;
+  user_id: number;
+  rating: number;
+  review?: string;
+  is_approved: boolean;
+  user?: User;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface PaginatedResponse<T> {

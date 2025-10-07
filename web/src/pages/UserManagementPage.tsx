@@ -137,6 +137,7 @@ export const UserManagementPage: React.FC = () => {
         { id: 1, name: 'Faculty' },
         { id: 2, name: 'Student' },
         { id: 3, name: 'Admin' },
+        { id: 4, name: 'Reviewer' },
       ];
       setRoles(mockRoles);
     } catch (error) {
