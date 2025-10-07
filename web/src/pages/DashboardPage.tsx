@@ -192,7 +192,7 @@ export const DashboardPage: React.FC = () => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Fahras Dashboard
           </Typography>
-          {!user?.roles?.some(role => role.name === 'admin' || role.name === 'reviewer') && (
+          {!user?.roles?.some(role => role.name === 'admin') && (
             <Button
               color="inherit"
               startIcon={<AddIcon />}
@@ -332,7 +332,7 @@ export const DashboardPage: React.FC = () => {
                   : 'Start by creating your first graduation project'
                 }
               </Typography>
-              {!searching && !user?.roles?.some(role => role.name === 'reviewer') && (
+              {!searching && !user?.roles?.some(role => role.name === 'admin') && (
                 <Button
                   variant="contained"
                   startIcon={<AddIcon />}

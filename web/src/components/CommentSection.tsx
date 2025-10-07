@@ -151,7 +151,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
               <Typography variant="body2" sx={{ mt: 1, mb: 2 }}>
                 {comment.content}
               </Typography>
-              {!isReply && !user?.roles?.some(role => role.name === 'reviewer') && (
+              {!isReply && (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <IconButton
                     size="small"
@@ -199,8 +199,8 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
           </Alert>
         )}
 
-        {/* Add new comment - hidden for reviewers */}
-        {!user?.roles?.some(role => role.name === 'reviewer') && (
+        {/* Add new comment */}
+        {(
           <Box sx={{ mb: 3 }}>
             <TextField
               fullWidth
@@ -249,8 +249,8 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
           </List>
         )}
 
-        {/* Reply form - hidden for reviewers */}
-        {replyingTo && !user?.roles?.some(role => role.name === 'reviewer') && (
+        {/* Reply form */}
+        {replyingTo && (
           <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
             <Typography variant="subtitle2" gutterBottom>
               Reply to comment

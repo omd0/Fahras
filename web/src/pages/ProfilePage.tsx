@@ -63,8 +63,9 @@ export const ProfilePage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [yearFilter, setYearFilter] = useState('');
 
-  // Check if user is restricted from viewing projects
-  const isRestrictedUser = user?.roles?.some(role => role.name === 'reviewer' || role.name === 'admin');
+  // Check if user is restricted from creating/editing projects
+  const isRestrictedUser = user?.roles?.some(role => role.name === 'admin');
+  const isReviewer = user?.roles?.some(role => role.name === 'reviewer');
   
   // Profile editing state
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -229,7 +230,7 @@ export const ProfilePage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Only load projects for non-restricted users
+    // Load projects for all users except Admins
     if (!isRestrictedUser) {
       loadUserProjects();
     }
@@ -443,7 +444,7 @@ export const ProfilePage: React.FC = () => {
             </Card>
           </Grid>
 
-          {/* My Projects Section - Only show for non-restricted users */}
+          {/* My Projects Section - Show for all users except Admins */}
           {!isRestrictedUser && (
             <Grid size={{ xs: 12, md: 8 }}>
             <Card>
@@ -532,7 +533,7 @@ export const ProfilePage: React.FC = () => {
                         ? 'Try adjusting your search criteria'
                         : 'You haven\'t created any projects yet'}
                     </Typography>
-                    {!searchTerm && !statusFilter && !yearFilter && (
+                    {!searchTerm && !statusFilter && !yearFilter && !isReviewer && (
                       <Button
                         variant="contained"
                         onClick={() => navigate('/create-project')}

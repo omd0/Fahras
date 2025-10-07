@@ -156,7 +156,7 @@ export const RatingSection: React.FC<RatingSectionProps> = ({ projectId }) => {
                 </Typography>
               </Box>
             </Grid>
-            {!user?.roles?.some(role => role.name === 'reviewer') && (
+            {(
               <Grid size={{ xs: 12, md: 8 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
                   <Typography variant="body1">Your Rating:</Typography>
@@ -195,8 +195,8 @@ export const RatingSection: React.FC<RatingSectionProps> = ({ projectId }) => {
           </Grid>
         </Paper>
 
-        {/* Review Form - hidden for reviewers */}
-        {showReviewForm && !user?.roles?.some(role => role.name === 'reviewer') && (
+        {/* Review Form */}
+        {showReviewForm && (
           <Box sx={{ mb: 3, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
             <Typography variant="subtitle1" gutterBottom>
               Write a Review
