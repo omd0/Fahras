@@ -28,6 +28,15 @@ import {
   Search as SearchIcon,
   Notifications as NotificationsIcon,
   Assignment as AssignmentIcon,
+  School as SchoolIcon,
+  Person as PersonIcon,
+  CalendarToday as CalendarIcon,
+  Visibility as VisibilityIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  CheckCircle as CheckCircleIcon,
+  Pending as PendingIcon,
+  Cancel as CancelIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
@@ -35,6 +44,8 @@ import { Project } from '../types';
 import { apiService } from '../services/api';
 import { ProjectSearch } from '../components/ProjectSearch';
 import { NotificationCenter } from '../components/NotificationCenter';
+import { TVTCLogo } from '../components/TVTCLogo';
+import { useNotifications } from '../hooks/useNotifications';
 
 interface SearchFilters {
   search: string;
@@ -63,24 +74,14 @@ export const DashboardPage: React.FC = () => {
   const [currentFilters, setCurrentFilters] = useState<SearchFilters | null>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [notificationOpen, setNotificationOpen] = useState(false);
-  const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const { unreadCount: unreadNotifications } = useNotifications();
 
   useEffect(() => {
     fetchProjects();
-    fetchNotificationCount();
   }, []);
-
-  const fetchNotificationCount = async () => {
-    try {
-      const response = await apiService.getNotifications();
-      setUnreadNotifications(response.unread_count || 0);
-    } catch (error) {
-      console.error('Failed to fetch notification count:', error);
-    }
-  };
 
   const fetchProjects = async (filters?: SearchFilters, page: number = 1) => {
     try {
@@ -156,6 +157,11 @@ export const DashboardPage: React.FC = () => {
     setAnchorEl(null);
   };
 
+  const handleProfileClick = () => {
+    setAnchorEl(null);
+    navigate('/profile');
+  };
+
   const handleLogout = () => {
     logout();
     navigate('/login');
@@ -182,7 +188,7 @@ export const DashboardPage: React.FC = () => {
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Toolbar>
-          <DashboardIcon sx={{ mr: 2 }} />
+          <TVTCLogo size="medium" variant="icon" color="inherit" sx={{ mr: 2 }} />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Fahras Dashboard
           </Typography>
@@ -232,7 +238,7 @@ export const DashboardPage: React.FC = () => {
             open={Boolean(anchorEl)}
             onClose={handleMenuClose}
           >
-            <MenuItem onClick={handleMenuClose}>
+            <MenuItem onClick={handleProfileClick}>
               <AccountCircle sx={{ mr: 1 }} />
               Profile
             </MenuItem>
@@ -342,9 +348,13 @@ export const DashboardPage: React.FC = () => {
                     onClick={() => navigate(`/projects/${project.id}`)}
                   >
                     <CardContent sx={{ flexGrow: 1 }}>
-                      <Typography variant="h6" component="h2" gutterBottom>
-                        {project.title}
-                      </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>
+                        <SchoolIcon sx={{ color: 'primary.main', mr: 1, mt: 0.5 }} />
+                        <Typography variant="h6" component="h2" sx={{ flexGrow: 1 }}>
+                          {project.title}
+                        </Typography>
+                      </Box>
+                      
                       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                         {project.abstract.substring(0, 100)}...
                       </Typography>
@@ -361,16 +371,36 @@ export const DashboardPage: React.FC = () => {
                         ))}
                       </Box>
                       
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant="caption" color="text.secondary">
-                          {project.academic_year} • {project.semester}
-                        </Typography>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <CalendarIcon sx={{ fontSize: 16, color: 'text.secondary', mr: 0.5 }} />
+                          <Typography variant="caption" color="text.secondary">
+                            {project.academic_year} • {project.semester}
+                          </Typography>
+                        </Box>
                         <Chip
                           label={project.status.replace('_', ' ')}
                           color={getStatusColor(project.status) as any}
                           size="small"
                           sx={{ textTransform: 'capitalize' }}
+                          icon={project.status === 'approved' ? <CheckCircleIcon /> : 
+                                project.status === 'submitted' ? <PendingIcon /> : 
+                                project.status === 'rejected' ? <CancelIcon /> : <VisibilityIcon />}
                         />
+                      </Box>
+                      
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <PersonIcon sx={{ fontSize: 16, color: 'text.secondary', mr: 0.5 }} />
+                          <Typography variant="caption" color="text.secondary">
+                            {project.creator?.full_name || 'Unknown Student'}
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <IconButton size="small" onClick={(e) => { e.stopPropagation(); navigate(`/projects/${project.id}`); }}>
+                            <VisibilityIcon />
+                          </IconButton>
+                        </Box>
                       </Box>
                     </CardContent>
                   </Card>

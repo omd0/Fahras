@@ -110,4 +110,75 @@ class AuthController extends Controller
             'token_type' => 'Bearer'
         ]);
     }
+
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+        
+        $validator = Validator::make($request->all(), [
+            'full_name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $user->update($request->only(['full_name', 'email']));
+
+        return response()->json([
+            'message' => 'Profile updated successfully',
+            'user' => $user->load('roles')
+        ]);
+    }
+
+    public function uploadAvatar(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $user = $request->user();
+        
+        // Delete old avatar if exists
+        if ($user->avatar_url && \Storage::disk('public')->exists($user->avatar_url)) {
+            \Storage::disk('public')->delete($user->avatar_url);
+        }
+
+        // Store new avatar
+        $avatarPath = $request->file('avatar')->store('avatars', 'public');
+        $user->update(['avatar_url' => $avatarPath]);
+
+        return response()->json([
+            'message' => 'Avatar uploaded successfully',
+            'avatar_url' => \Storage::disk('public')->url($avatarPath),
+            'user' => $user->load('roles')
+        ]);
+    }
+
+    public function deleteAvatar(Request $request)
+    {
+        $user = $request->user();
+        
+        if ($user->avatar_url && \Storage::disk('public')->exists($user->avatar_url)) {
+            \Storage::disk('public')->delete($user->avatar_url);
+        }
+        
+        $user->update(['avatar_url' => null]);
+
+        return response()->json([
+            'message' => 'Avatar deleted successfully',
+            'user' => $user->load('roles')
+        ]);
+    }
 }

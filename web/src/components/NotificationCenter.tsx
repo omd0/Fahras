@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import {
   Box,
   Drawer,
@@ -13,6 +13,7 @@ import {
   Chip,
   Divider,
   Paper,
+  Alert,
 } from '@mui/material';
 import {
   Notifications as NotificationsIcon,
@@ -21,17 +22,9 @@ import {
   Warning as WarningIcon,
   Info as InfoIcon,
   Assignment as AssignmentIcon,
+  Delete as DeleteIcon,
 } from '@mui/icons-material';
-import { apiService } from '../services/api';
-
-interface Notification {
-  id: number;
-  type: string;
-  title: string;
-  message: string;
-  is_read: boolean;
-  created_at: string;
-}
+import { useNotifications } from '../hooks/useNotifications';
 
 interface NotificationCenterProps {
   open: boolean;
@@ -39,59 +32,29 @@ interface NotificationCenterProps {
 }
 
 export const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, onClose }) => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const {
+    notifications,
+    unreadCount,
+    loading,
+    error,
+    refreshNotifications,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+  } = useNotifications();
 
   useEffect(() => {
     if (open) {
-      fetchNotifications();
+      refreshNotifications();
     }
-  }, [open]);
-
-  const fetchNotifications = async () => {
-    try {
-      setLoading(true);
-      const response = await apiService.getNotifications();
-      setNotifications(response.data || []);
-      setUnreadCount(0); // Mock unread count for now
-    } catch (error) {
-      console.error('Failed to fetch notifications:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const markAsRead = async (notificationId: number) => {
-    try {
-      await apiService.markNotificationRead(notificationId);
-      setNotifications(prev => 
-        prev.map(notification => 
-          notification.id === notificationId 
-            ? { ...notification, is_read: true }
-            : notification
-        )
-      );
-      setUnreadCount(prev => Math.max(0, prev - 1));
-    } catch (error) {
-      console.error('Failed to mark notification as read:', error);
-    }
-  };
-
-  const markAllAsRead = async () => {
-    try {
-      await apiService.markAllNotificationsRead();
-      setNotifications(prev => 
-        prev.map(notification => ({ ...notification, is_read: true }))
-      );
-      setUnreadCount(0);
-    } catch (error) {
-      console.error('Failed to mark all notifications as read:', error);
-    }
-  };
+  }, [open, refreshNotifications]);
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
+      case 'comment':
+        return <InfoIcon color="info" />;
+      case 'rating':
+        return <CheckCircleIcon color="success" />;
       case 'evaluation_due':
         return <AssignmentIcon color="warning" />;
       case 'approval_required':
@@ -105,6 +68,10 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, on
 
   const getNotificationColor = (type: string) => {
     switch (type) {
+      case 'comment':
+        return 'info';
+      case 'rating':
+        return 'success';
       case 'evaluation_due':
         return 'warning';
       case 'approval_required':
@@ -174,6 +141,12 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, on
 
         <Divider sx={{ mb: 2 }} />
 
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+
         {loading ? (
           <Typography>Loading notifications...</Typography>
         ) : notifications.length === 0 ? (
@@ -237,6 +210,16 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, on
                     </Box>
                   }
                 />
+                <IconButton
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteNotification(notification.id);
+                  }}
+                  sx={{ ml: 1 }}
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
               </ListItem>
             ))}
           </List>

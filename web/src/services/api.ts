@@ -92,9 +92,29 @@ class ApiService {
     is_public?: boolean;
     sort_by?: string;
     sort_order?: string;
+    created_by_user_id?: number;
   }): Promise<{ data: Project[]; current_page: number; last_page: number; total: number; per_page: number; has_more_pages: boolean } | Project[]> {
     const url = typeof params === 'string' ? `/projects?${params}` : '/projects';
     const response: AxiosResponse = await this.api.get(url, typeof params === 'object' ? { params } : {});
+    return response.data;
+  }
+
+  async getMyProjects(params?: {
+    page?: number;
+    per_page?: number;
+    status?: string;
+    academic_year?: string;
+    semester?: string;
+    search?: string;
+    sort_by?: string;
+    sort_order?: string;
+  }): Promise<{ data: Project[]; current_page: number; last_page: number; total: number; per_page: number; has_more_pages: boolean }> {
+    const response: AxiosResponse = await this.api.get('/projects', { 
+      params: { 
+        ...params,
+        my_projects: true // Flag to indicate we want only user's projects
+      } 
+    });
     return response.data;
   }
 
@@ -143,18 +163,36 @@ class ApiService {
   }
 
   // Notification endpoints
-  async getNotifications(): Promise<{
-    data: Array<{
+  async getNotifications(params?: {
+    type?: string;
+    is_read?: boolean;
+    per_page?: number;
+    page?: number;
+  }): Promise<{
+    notifications: Array<{
       id: number;
       type: string;
       title: string;
       message: string;
       is_read: boolean;
       created_at: string;
+      project?: Project;
     }>;
+    pagination: {
+      current_page: number;
+      per_page: number;
+      total: number;
+      last_page: number;
+      has_more_pages: boolean;
+    };
     unread_count: number;
   }> {
-    const response: AxiosResponse = await this.api.get('/notifications');
+    const response: AxiosResponse = await this.api.get('/notifications', { params });
+    return response.data;
+  }
+
+  async getUnreadCount(): Promise<{ unread_count: number }> {
+    const response: AxiosResponse = await this.api.get('/notifications/unread-count');
     return response.data;
   }
 
@@ -164,6 +202,14 @@ class ApiService {
 
   async markAllNotificationsRead(): Promise<void> {
     await this.api.put('/notifications/read-all');
+  }
+
+  async deleteNotification(notificationId: number): Promise<void> {
+    await this.api.delete(`/notifications/${notificationId}`);
+  }
+
+  async deleteAllNotifications(): Promise<void> {
+    await this.api.delete('/notifications');
   }
 
   // Evaluation endpoints
@@ -250,6 +296,13 @@ class ApiService {
     return response.data;
   }
 
+  async uploadProjectFiles(projectId: number, formData: FormData): Promise<{ files: File[] }> {
+    const response: AxiosResponse = await this.api.post(`/projects/${projectId}/files/batch`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
+  }
+
   async getProjectFiles(projectId: number): Promise<{ files: File[] }> {
     const response: AxiosResponse = await this.api.get(`/projects/${projectId}/files`);
     return response.data;
@@ -264,6 +317,65 @@ class ApiService {
 
   async deleteFile(fileId: number): Promise<void> {
     await this.api.delete(`/files/${fileId}`);
+  }
+
+  // Project interaction endpoints (comments and ratings)
+  async addComment(projectId: number, comment: string): Promise<{
+    message: string;
+    comment: {
+      id: number;
+      project_id: number;
+      user_id: number;
+      user_name: string;
+      comment: string;
+      created_at: string;
+    };
+  }> {
+    const response: AxiosResponse = await this.api.post(`/projects/${projectId}/comments`, { comment });
+    return response.data;
+  }
+
+  async rateProject(projectId: number, rating: number, feedback?: string): Promise<{
+    message: string;
+    rating: {
+      id: number;
+      project_id: number;
+      user_id: number;
+      user_name: string;
+      rating: number;
+      feedback?: string;
+      created_at: string;
+    };
+  }> {
+    const response: AxiosResponse = await this.api.post(`/projects/${projectId}/rate`, { 
+      rating, 
+      feedback 
+    });
+    return response.data;
+  }
+
+  // Profile management endpoints
+  async updateProfile(data: {
+    full_name?: string;
+    email?: string;
+  }): Promise<{ user: User; message: string }> {
+    const response: AxiosResponse = await this.api.put('/profile', data);
+    return response.data;
+  }
+
+  async uploadAvatar(file: globalThis.File): Promise<{ user: User; avatar_url: string; message: string }> {
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    const response: AxiosResponse = await this.api.post('/profile/avatar', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
+  }
+
+  async deleteAvatar(): Promise<{ user: User; message: string }> {
+    const response: AxiosResponse = await this.api.delete('/profile/avatar');
+    return response.data;
   }
 
   // Utility endpoints

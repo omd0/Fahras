@@ -19,12 +19,21 @@ import {
   IconButton,
   Alert,
   CircularProgress,
+  Divider,
+  Paper,
+  Stack,
 } from '@mui/material';
 import {
   ArrowBack as ArrowBackIcon,
   Save as SaveIcon,
   Add as AddIcon,
   Delete as DeleteIcon,
+  CloudUpload as CloudUploadIcon,
+  AttachFile as AttachFileIcon,
+  Person as PersonIcon,
+  School as SchoolIcon,
+  Description as DescriptionIcon,
+  AttachFile as AttachFileIcon2,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
@@ -49,6 +58,7 @@ export const CreateProjectPage: React.FC = () => {
   const [newKeyword, setNewKeyword] = useState('');
   const [newMember, setNewMember] = useState({ user_id: 0, role: 'MEMBER' as 'LEAD' | 'MEMBER' });
   const [newAdvisor, setNewAdvisor] = useState({ user_id: 0, role: 'MAIN' as 'MAIN' | 'CO_ADVISOR' | 'REVIEWER' });
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
   const { user } = useAuthStore();
   const navigate = useNavigate();
@@ -140,6 +150,23 @@ export const CreateProjectPage: React.FC = () => {
     }));
   };
 
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    setSelectedFiles(prev => [...prev, ...files]);
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -161,7 +188,24 @@ export const CreateProjectPage: React.FC = () => {
         members: membersToSubmit
       };
 
-      await apiService.createProject(projectData);
+      // Create the project first
+      const createdProject = await apiService.createProject(projectData);
+
+      // If files are selected, upload them
+      if (selectedFiles.length > 0 && createdProject?.project?.id) {
+        const formData = new FormData();
+        selectedFiles.forEach((file, index) => {
+          formData.append(`files[${index}]`, file);
+        });
+
+        try {
+          await apiService.uploadProjectFiles(createdProject.project.id, formData);
+        } catch (uploadError) {
+          console.warn('Project created but file upload failed:', uploadError);
+          // Don't fail the entire operation if file upload fails
+        }
+      }
+
       navigate('/dashboard');
     } catch (error: any) {
       setError(error.response?.data?.message || 'Failed to create project');
@@ -171,7 +215,7 @@ export const CreateProjectPage: React.FC = () => {
   };
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
+    <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <AppBar position="static">
         <Toolbar>
           <IconButton
@@ -188,248 +232,403 @@ export const CreateProjectPage: React.FC = () => {
         </Toolbar>
       </AppBar>
 
-      <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
-        <Card>
-          <CardContent>
-            <Typography variant="h5" gutterBottom>
-              Project Information
-            </Typography>
+      <Container maxWidth="lg" sx={{ flex: 1, py: 4 }}>
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {error}
+          </Alert>
+        )}
 
-            {error && (
-              <Alert severity="error" sx={{ mb: 3 }}>
-                {error}
-              </Alert>
-            )}
-
-            <form onSubmit={handleSubmit}>
-              <Grid container spacing={3}>
-                {/* Program Selection */}
-                <Grid size={{ xs: 12 }}>
-                  <FormControl fullWidth required>
-                    <InputLabel>Program</InputLabel>
-                    <Select
-                      value={formData.program_id}
-                      onChange={(e) => handleInputChange('program_id', e.target.value)}
-                    >
-                      {(programs || []).map((program) => (
-                        <MenuItem key={program.id} value={program.id}>
-                          {program.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-
-                {/* Title */}
-                <Grid size={{ xs: 12 }}>
-                  <TextField
-                    fullWidth
-                    label="Project Title"
-                    value={formData.title}
-                    onChange={(e) => handleInputChange('title', e.target.value)}
-                    required
-                  />
-                </Grid>
-
-                {/* Abstract */}
-                <Grid size={{ xs: 12 }}>
-                  <TextField
-                    fullWidth
-                    label="Abstract"
-                    multiline
-                    rows={4}
-                    value={formData.abstract}
-                    onChange={(e) => handleInputChange('abstract', e.target.value)}
-                    required
-                  />
-                </Grid>
-
-                {/* Academic Year */}
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    fullWidth
-                    label="Academic Year"
-                    placeholder="2024-2025"
-                    value={formData.academic_year}
-                    onChange={(e) => handleInputChange('academic_year', e.target.value)}
-                    required
-                  />
-                </Grid>
-
-                {/* Semester */}
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormControl fullWidth required>
-                    <InputLabel>Semester</InputLabel>
-                    <Select
-                      value={formData.semester}
-                      onChange={(e) => handleInputChange('semester', e.target.value)}
-                    >
-                      <MenuItem value="fall">Fall</MenuItem>
-                      <MenuItem value="spring">Spring</MenuItem>
-                      <MenuItem value="summer">Summer</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-
-                {/* Keywords */}
-                <Grid size={{ xs: 12 }}>
-                  <Typography variant="subtitle1" gutterBottom>
-                    Keywords
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <Grid container spacing={4}>
+            {/* Basic Information Section */}
+            <Grid size={{ xs: 12 }}>
+              <Paper elevation={2} sx={{ p: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                  <SchoolIcon color="primary" sx={{ mr: 2 }} />
+                  <Typography variant="h6" component="h2">
+                    Basic Information
                   </Typography>
-                  <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                </Box>
+                
+                <Grid container spacing={3}>
+                  <Grid size={{ xs: 12 }}>
+                    <FormControl fullWidth required>
+                      <InputLabel id="program-label">Program</InputLabel>
+                      <Select
+                        labelId="program-label"
+                        value={formData.program_id}
+                        label="Program"
+                        onChange={(e) => handleInputChange('program_id', e.target.value)}
+                      >
+                        {(programs || []).map((program) => (
+                          <MenuItem key={program.id} value={program.id}>
+                            {program.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+
+                  <Grid size={{ xs: 12 }}>
                     <TextField
-                      size="small"
-                      placeholder="Add keyword"
-                      value={newKeyword}
-                      onChange={(e) => setNewKeyword(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddKeyword())}
+                      fullWidth
+                      label="Project Title"
+                      value={formData.title}
+                      onChange={(e) => handleInputChange('title', e.target.value)}
+                      required
+                      helperText="Enter a clear and descriptive title for your project"
                     />
-                    <Button
+                  </Grid>
+
+                  <Grid size={{ xs: 12 }}>
+                    <TextField
+                      fullWidth
+                      label="Abstract"
+                      multiline
+                      rows={4}
+                      value={formData.abstract}
+                      onChange={(e) => handleInputChange('abstract', e.target.value)}
+                      required
+                      helperText="Provide a comprehensive overview of your project's objectives, methodology, and expected outcomes"
+                    />
+                  </Grid>
+
+                  <Grid size={{ xs: 12, md: 6 }}>
+                    <TextField
+                      fullWidth
+                      label="Academic Year"
+                      placeholder="2024-2025"
+                      value={formData.academic_year}
+                      onChange={(e) => handleInputChange('academic_year', e.target.value)}
+                      required
+                      helperText="Format: YYYY-YYYY"
+                    />
+                  </Grid>
+
+                  <Grid size={{ xs: 12, md: 6 }}>
+                    <FormControl fullWidth required>
+                      <InputLabel id="semester-label">Semester</InputLabel>
+                      <Select
+                        labelId="semester-label"
+                        value={formData.semester}
+                        label="Semester"
+                        onChange={(e) => handleInputChange('semester', e.target.value)}
+                      >
+                        <MenuItem value="fall">Fall</MenuItem>
+                        <MenuItem value="spring">Spring</MenuItem>
+                        <MenuItem value="summer">Summer</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                </Grid>
+              </Paper>
+            </Grid>
+
+            {/* Keywords Section */}
+            <Grid size={{ xs: 12 }}>
+              <Paper elevation={2} sx={{ p: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                  <DescriptionIcon color="primary" sx={{ mr: 2 }} />
+                  <Typography variant="h6" component="h2">
+                    Keywords & Tags
+                  </Typography>
+                </Box>
+                
+                <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
+                  <TextField
+                    size="small"
+                    placeholder="Add keyword"
+                    value={newKeyword}
+                    onChange={(e) => setNewKeyword(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddKeyword())}
+                    sx={{ minWidth: 200 }}
+                  />
+                  <Button
+                    variant="outlined"
+                    onClick={handleAddKeyword}
+                    disabled={!newKeyword.trim()}
+                    startIcon={<AddIcon />}
+                  >
+                    Add Keyword
+                  </Button>
+                </Box>
+                
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  {(formData.keywords || []).map((keyword, index) => (
+                    <Chip
+                      key={index}
+                      label={keyword}
+                      onDelete={() => handleRemoveKeyword(keyword)}
+                      color="primary"
                       variant="outlined"
-                      onClick={handleAddKeyword}
-                      disabled={!newKeyword.trim()}
-                    >
-                      Add
-                    </Button>
-                  </Box>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                    {formData.keywords?.map((keyword, index) => (
-                      <Chip
-                        key={index}
-                        label={keyword}
-                        onDelete={() => handleRemoveKeyword(keyword)}
-                        color="primary"
-                        variant="outlined"
+                    />
+                  ))}
+                </Box>
+              </Paper>
+            </Grid>
+
+            {/* Team Section */}
+            <Grid size={{ xs: 12 }}>
+              <Paper elevation={2} sx={{ p: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                  <PersonIcon color="primary" sx={{ mr: 2 }} />
+                  <Typography variant="h6" component="h2">
+                    Project Team
+                  </Typography>
+                </Box>
+                
+                <Grid container spacing={3}>
+                  {/* Members */}
+                  <Grid size={{ xs: 12, md: 6 }}>
+                    <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>
+                      Project Members
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 2, mb: 2, flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'flex-end' } }}>
+                      <Autocomplete
+                        sx={{ flexGrow: 1 }}
+                        options={users}
+                        getOptionLabel={(option) => `${option.full_name} (${option.email})`}
+                        value={users.find(u => u.id === newMember.user_id) || null}
+                        onChange={(_, value) => setNewMember(prev => ({ ...prev, user_id: value?.id || 0 }))}
+                        renderInput={(params) => <TextField {...params} label="Select Member" />}
                       />
-                    ))}
-                  </Box>
-                </Grid>
-
-                {/* Members */}
-                <Grid size={{ xs: 12 }}>
-                  <Typography variant="subtitle1" gutterBottom>
-                    Project Members
-                  </Typography>
-                  <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                    <Autocomplete
-                      sx={{ flexGrow: 1 }}
-                      options={users}
-                      getOptionLabel={(option) => `${option.full_name} (${option.email})`}
-                      value={users.find(u => u.id === newMember.user_id) || null}
-                      onChange={(_, value) => setNewMember(prev => ({ ...prev, user_id: value?.id || 0 }))}
-                      renderInput={(params) => <TextField {...params} label="Select Member" />}
-                    />
-                    <FormControl sx={{ minWidth: 120 }}>
-                      <InputLabel>Role</InputLabel>
-                      <Select
-                        value={newMember.role}
-                        onChange={(e) => setNewMember(prev => ({ ...prev, role: e.target.value as 'LEAD' | 'MEMBER' }))}
-                      >
-                        <MenuItem value="LEAD">Lead</MenuItem>
-                        <MenuItem value="MEMBER">Member</MenuItem>
-                      </Select>
-                    </FormControl>
-                    <Button
-                      variant="outlined"
-                      onClick={handleAddMember}
-                      disabled={newMember.user_id === 0}
-                    >
-                      Add
-                    </Button>
-                  </Box>
-                  {(formData.members || []).map((member, index) => {
-                    const user = users.find(u => u.id === member.user_id);
-                    return (
-                      <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                        <Typography variant="body2" sx={{ flexGrow: 1 }}>
-                          {user?.full_name} ({member.role})
-                        </Typography>
-                        <IconButton
-                          size="small"
-                          onClick={() => handleRemoveMember(index)}
+                      <FormControl sx={{ minWidth: 140 }}>
+                        <InputLabel id="member-role-label">Role</InputLabel>
+                        <Select
+                          labelId="member-role-label"
+                          value={newMember.role}
+                          label="Role"
+                          onChange={(e) => setNewMember(prev => ({ ...prev, role: e.target.value as 'LEAD' | 'MEMBER' }))}
                         >
-                          <DeleteIcon />
-                        </IconButton>
-                      </Box>
-                    );
-                  })}
-                </Grid>
-
-                {/* Advisors */}
-                <Grid size={{ xs: 12 }}>
-                  <Typography variant="subtitle1" gutterBottom>
-                    Project Advisors (Optional)
-                  </Typography>
-                  <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                    <Autocomplete
-                      sx={{ flexGrow: 1 }}
-                      options={users}
-                      getOptionLabel={(option) => `${option.full_name} (${option.email})`}
-                      value={users.find(u => u.id === newAdvisor.user_id) || null}
-                      onChange={(_, value) => setNewAdvisor(prev => ({ ...prev, user_id: value?.id || 0 }))}
-                      renderInput={(params) => <TextField {...params} label="Select Advisor" />}
-                    />
-                    <FormControl sx={{ minWidth: 120 }}>
-                      <InputLabel>Role</InputLabel>
-                      <Select
-                        value={newAdvisor.role}
-                        onChange={(e) => setNewAdvisor(prev => ({ ...prev, role: e.target.value as 'MAIN' | 'CO_ADVISOR' | 'REVIEWER' }))}
+                          <MenuItem value="LEAD">Lead</MenuItem>
+                          <MenuItem value="MEMBER">Member</MenuItem>
+                        </Select>
+                      </FormControl>
+                      <Button
+                        variant="outlined"
+                        onClick={handleAddMember}
+                        disabled={newMember.user_id === 0}
+                        startIcon={<AddIcon />}
+                        sx={{ minWidth: 100 }}
                       >
-                        <MenuItem value="MAIN">Main Advisor</MenuItem>
-                        <MenuItem value="CO_ADVISOR">Co-Advisor</MenuItem>
-                        <MenuItem value="REVIEWER">Reviewer</MenuItem>
-                      </Select>
-                    </FormControl>
-                    <Button
-                      variant="outlined"
-                      onClick={handleAddAdvisor}
-                      disabled={newAdvisor.user_id === 0}
-                    >
-                      Add
-                    </Button>
-                  </Box>
-                  {(formData.advisors || []).map((advisor, index) => {
-                    const user = users.find(u => u.id === advisor.user_id);
-                    return (
-                      <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                        <Typography variant="body2" sx={{ flexGrow: 1 }}>
-                          {user?.full_name} ({advisor.role})
-                        </Typography>
-                        <IconButton
-                          size="small"
-                          onClick={() => handleRemoveAdvisor(index)}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </Box>
-                    );
-                  })}
-                </Grid>
+                        Add
+                      </Button>
+                    </Box>
+                    <Stack spacing={1}>
+                      {(formData.members || []).map((member, index) => {
+                        const user = users.find(u => u.id === member.user_id);
+                        return (
+                          <Box key={index} sx={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            p: 1, 
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            borderRadius: 1,
+                            backgroundColor: 'background.paper'
+                          }}>
+                            <Typography variant="body2" sx={{ flexGrow: 1 }}>
+                              {user?.full_name} <Chip label={member.role} size="small" color="primary" variant="outlined" sx={{ ml: 1 }} />
+                            </Typography>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleRemoveMember(index)}
+                              color="error"
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </Box>
+                        );
+                      })}
+                    </Stack>
+                  </Grid>
 
-                {/* Submit Button */}
-                <Grid size={{ xs: 12 }}>
-                  <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+                  {/* Advisors */}
+                  <Grid size={{ xs: 12, md: 6 }}>
+                    <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>
+                      Project Advisors (Optional)
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 2, mb: 2, flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'flex-end' } }}>
+                      <Autocomplete
+                        sx={{ flexGrow: 1 }}
+                        options={users}
+                        getOptionLabel={(option) => `${option.full_name} (${option.email})`}
+                        value={users.find(u => u.id === newAdvisor.user_id) || null}
+                        onChange={(_, value) => setNewAdvisor(prev => ({ ...prev, user_id: value?.id || 0 }))}
+                        renderInput={(params) => <TextField {...params} label="Select Advisor" />}
+                      />
+                      <FormControl sx={{ minWidth: 140 }}>
+                        <InputLabel id="advisor-role-label">Role</InputLabel>
+                        <Select
+                          labelId="advisor-role-label"
+                          value={newAdvisor.role}
+                          label="Role"
+                          onChange={(e) => setNewAdvisor(prev => ({ ...prev, role: e.target.value as 'MAIN' | 'CO_ADVISOR' | 'REVIEWER' }))}
+                        >
+                          <MenuItem value="MAIN">Main Advisor</MenuItem>
+                          <MenuItem value="CO_ADVISOR">Co-Advisor</MenuItem>
+                          <MenuItem value="REVIEWER">Reviewer</MenuItem>
+                        </Select>
+                      </FormControl>
+                      <Button
+                        variant="outlined"
+                        onClick={handleAddAdvisor}
+                        disabled={newAdvisor.user_id === 0}
+                        startIcon={<AddIcon />}
+                        sx={{ minWidth: 100 }}
+                      >
+                        Add
+                      </Button>
+                    </Box>
+                    <Stack spacing={1}>
+                      {(formData.advisors || []).map((advisor, index) => {
+                        const user = users.find(u => u.id === advisor.user_id);
+                        return (
+                          <Box key={index} sx={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            p: 1, 
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            borderRadius: 1,
+                            backgroundColor: 'background.paper'
+                          }}>
+                            <Typography variant="body2" sx={{ flexGrow: 1 }}>
+                              {user?.full_name} <Chip label={advisor.role} size="small" color="secondary" variant="outlined" sx={{ ml: 1 }} />
+                            </Typography>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleRemoveAdvisor(index)}
+                              color="error"
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </Box>
+                        );
+                      })}
+                    </Stack>
+                  </Grid>
+                </Grid>
+              </Paper>
+            </Grid>
+
+            {/* File Upload Section */}
+            <Grid size={{ xs: 12 }}>
+              <Paper elevation={2} sx={{ p: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                  <AttachFileIcon2 color="primary" sx={{ mr: 2 }} />
+                  <Typography variant="h6" component="h2">
+                    Project Files (Optional)
+                  </Typography>
+                </Box>
+                
+                <Box sx={{ mb: 2 }}>
+                  <input
+                    accept=".pdf,.doc,.docx,.txt,.rtf,.ppt,.pptx,.xls,.xlsx"
+                    style={{ display: 'none' }}
+                    id="file-upload"
+                    multiple
+                    type="file"
+                    onChange={handleFileSelect}
+                  />
+                  <label htmlFor="file-upload">
                     <Button
                       variant="outlined"
-                      onClick={() => navigate('/dashboard')}
-                      disabled={loading}
+                      component="span"
+                      startIcon={<CloudUploadIcon />}
+                      sx={{ mb: 1 }}
                     >
-                      Cancel
+                      Upload Files
                     </Button>
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      startIcon={loading ? <CircularProgress size={20} /> : <SaveIcon />}
-                      disabled={loading || !formData.program_id || !formData.title || !formData.abstract}
-                    >
-                      {loading ? 'Creating...' : 'Create Project'}
-                    </Button>
+                  </label>
+                  <Typography variant="caption" display="block" color="text.secondary">
+                    Supported formats: PDF, DOC, DOCX, TXT, RTF, PPT, PPTX, XLS, XLSX
+                  </Typography>
+                </Box>
+                
+                {selectedFiles.length > 0 && (
+                  <Box>
+                    <Typography variant="subtitle2" gutterBottom>
+                      Selected Files ({selectedFiles.length}):
+                    </Typography>
+                    <Stack spacing={1}>
+                      {selectedFiles.map((file, index) => (
+                        <Box
+                          key={index}
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1,
+                            p: 2,
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            borderRadius: 1,
+                            backgroundColor: 'background.paper'
+                          }}
+                        >
+                          <AttachFileIcon color="action" />
+                          <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                            <Typography variant="body2" noWrap>
+                              {file.name}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {formatFileSize(file.size)}
+                            </Typography>
+                          </Box>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleRemoveFile(index)}
+                            color="error"
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </Box>
+                      ))}
+                    </Stack>
                   </Box>
-                </Grid>
-              </Grid>
-            </form>
-          </CardContent>
-        </Card>
+                )}
+              </Paper>
+            </Grid>
+          </Grid>
+
+          {/* Sticky Footer */}
+          <Paper 
+            elevation={8} 
+            sx={{ 
+              position: 'sticky', 
+              bottom: 0, 
+              left: 0, 
+              right: 0, 
+              p: 2, 
+              mt: 4,
+              backgroundColor: 'background.paper',
+              borderTop: '1px solid',
+              borderColor: 'divider'
+            }}
+          >
+            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', maxWidth: 'lg', mx: 'auto' }}>
+              <Button
+                variant="outlined"
+                onClick={() => navigate('/dashboard')}
+                disabled={loading}
+                size="large"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                startIcon={loading ? <CircularProgress size={20} /> : <SaveIcon />}
+                disabled={loading || !formData.program_id || !formData.title || !formData.abstract}
+                size="large"
+                sx={{ minWidth: 160 }}
+              >
+                {loading ? 'Creating...' : 'Create Project'}
+              </Button>
+            </Box>
+          </Paper>
+        </form>
       </Container>
     </Box>
   );

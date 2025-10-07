@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -37,14 +38,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/refresh', [AuthController::class, 'refresh']);
-
-    // Project routes
-    Route::apiResource('projects', ProjectController::class);
     
-    // Advanced project features
+    // Profile management routes
+    Route::put('/profile', [AuthController::class, 'updateProfile']);
+    Route::post('/profile/avatar', [AuthController::class, 'uploadAvatar']);
+    Route::delete('/profile/avatar', [AuthController::class, 'deleteAvatar']);
+
+    // Advanced project features (must be before resource routes)
     Route::get('/projects/search/global', [ProjectController::class, 'search']);
     Route::get('/projects/analytics', [ProjectController::class, 'analytics']);
     Route::get('/projects/suggestions', [ProjectController::class, 'suggestions']);
+    
+    // Project routes
+    Route::apiResource('projects', ProjectController::class);
     
     // Project member routes
     Route::get('/projects/{project}/members', [ProjectController::class, 'members']);
@@ -73,7 +79,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/pending-approvals', [ProjectController::class, 'pendingApprovals']);
 
     // Notification routes
-    Route::get('/notifications', [ProjectController::class, 'notifications']);
-    Route::put('/notifications/{notification}/read', [ProjectController::class, 'markNotificationRead']);
-    Route::put('/notifications/read-all', [ProjectController::class, 'markAllNotificationsRead']);
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+    Route::put('/notifications/{notification}/read', [NotificationController::class, 'markAsRead']);
+    Route::put('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+    Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy']);
+    Route::delete('/notifications', [NotificationController::class, 'destroyAll']);
+
+    // Project interaction routes (comments and ratings)
+    Route::post('/projects/{project}/comments', [ProjectController::class, 'addComment']);
+    Route::post('/projects/{project}/rate', [ProjectController::class, 'rateProject']);
 });

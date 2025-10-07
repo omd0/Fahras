@@ -152,6 +152,11 @@ export const UserManagementPage: React.FC = () => {
     setAnchorEl(null);
   };
 
+  const handleProfileClick = () => {
+    setAnchorEl(null);
+    navigate('/profile');
+  };
+
   const handleLogout = () => {
     logout();
     navigate('/login');
@@ -295,7 +300,7 @@ export const UserManagementPage: React.FC = () => {
             open={Boolean(anchorEl)}
             onClose={handleMenuClose}
           >
-            <MenuItem onClick={handleMenuClose}>
+            <MenuItem onClick={handleProfileClick}>
               <AccountCircle sx={{ mr: 1 }} />
               Profile
             </MenuItem>

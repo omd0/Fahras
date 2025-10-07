@@ -55,6 +55,11 @@ class Project extends Model
         return $this->hasMany(File::class);
     }
 
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
     public function getLeadMember()
     {
         return $this->members()->wherePivot('role_in_project', 'LEAD')->first();

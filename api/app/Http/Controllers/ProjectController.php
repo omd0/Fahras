@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Models\User;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
@@ -43,6 +44,11 @@ class ProjectController extends Controller
 
         if ($request->has('created_by')) {
             $query->where('created_by_user_id', $request->created_by);
+        }
+
+        // Filter for user's own projects
+        if ($request->has('my_projects') && $request->boolean('my_projects')) {
+            $query->where('created_by_user_id', $request->user()->id);
         }
 
         if ($request->has('member_id')) {
@@ -358,50 +364,62 @@ class ProjectController extends Controller
     {
         $user = $request->user();
         
-        // Base query - filter by user's access
-        $baseQuery = Project::query();
-        
-        // If user is not admin, filter by their projects
-        if (!$user->hasRole('admin')) {
-            $baseQuery->where(function ($q) use ($user) {
-                $q->where('created_by_user_id', $user->id)
-                  ->orWhereHas('members', function ($memberQuery) use ($user) {
-                      $memberQuery->where('user_id', $user->id);
-                  })
-                  ->orWhereHas('advisors', function ($advisorQuery) use ($user) {
-                      $advisorQuery->where('user_id', $user->id);
-                  });
-            });
-        }
+        // Helper function to create base query with user access filtering
+        $createBaseQuery = function() use ($user) {
+            $query = Project::query();
+            
+            // If user is not admin, filter by their projects
+            if (!$user->hasRole('admin')) {
+                $query->where(function ($q) use ($user) {
+                    $q->where('created_by_user_id', $user->id)
+                      ->orWhereHas('members', function ($memberQuery) use ($user) {
+                          $memberQuery->where('user_id', $user->id);
+                      })
+                      ->orWhereHas('advisors', function ($advisorQuery) use ($user) {
+                          $advisorQuery->where('user_id', $user->id);
+                      });
+                });
+            }
+            
+            return $query;
+        };
 
         // Project status distribution
-        $statusStats = $baseQuery->selectRaw('status, COUNT(*) as count')
+        $statusStats = $createBaseQuery()
+            ->selectRaw('status, COUNT(*) as count')
             ->groupBy('status')
             ->pluck('count', 'status');
 
         // Projects by academic year
-        $yearStats = $baseQuery->selectRaw('academic_year, COUNT(*) as count')
+        $yearStats = $createBaseQuery()
+            ->selectRaw('academic_year, COUNT(*) as count')
             ->groupBy('academic_year')
             ->orderBy('academic_year', 'desc')
             ->get();
 
         // Projects by department
-        $departmentStats = $baseQuery->join('programs', 'projects.program_id', '=', 'programs.id')
+        $departmentStats = $createBaseQuery()
+            ->join('programs', 'projects.program_id', '=', 'programs.id')
             ->join('departments', 'programs.department_id', '=', 'departments.id')
             ->selectRaw('departments.name as department, COUNT(*) as count')
             ->groupBy('departments.id', 'departments.name')
             ->get();
 
         // Recent activity (last 30 days)
-        $recentActivity = $baseQuery->where('updated_at', '>=', now()->subDays(30))
+        $recentActivity = $createBaseQuery()
+            ->where('projects.updated_at', '>=', now()->subDays(30))
             ->count();
 
         // Monthly project creation trend (last 12 months)
-        $monthlyTrend = $baseQuery->selectRaw('DATE_TRUNC(\'month\', created_at) as month, COUNT(*) as count')
-            ->where('created_at', '>=', now()->subMonths(12))
+        $monthlyTrend = $createBaseQuery()
+            ->selectRaw('DATE_TRUNC(\'month\', projects.created_at) as month, COUNT(*) as count')
+            ->where('projects.created_at', '>=', now()->subMonths(12))
             ->groupBy('month')
             ->orderBy('month')
             ->get();
+
+        // Total projects count
+        $totalProjects = $createBaseQuery()->count();
 
         return response()->json([
             'status_distribution' => $statusStats,
@@ -409,7 +427,7 @@ class ProjectController extends Controller
             'department_distribution' => $departmentStats,
             'recent_activity' => $recentActivity,
             'monthly_trend' => $monthlyTrend,
-            'total_projects' => $baseQuery->count(),
+            'total_projects' => $totalProjects,
         ]);
     }
 
@@ -736,55 +754,114 @@ class ProjectController extends Controller
     }
 
     /**
-     * Get notifications for current user
+     * Add a comment to a project
      */
-    public function notifications(Request $request)
+    public function addComment(Request $request, Project $project)
     {
+        $validator = Validator::make($request->all(), [
+            'comment' => 'required|string|max:1000',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
         $user = $request->user();
-        
-        // Mock notifications
-        $notifications = [
-            'data' => [
-                [
-                    'id' => 1,
-                    'type' => 'evaluation_due',
-                    'title' => 'Evaluation Due',
-                    'message' => 'You have a pending evaluation for "AI-Powered Learning System"',
-                    'is_read' => false,
-                    'created_at' => now()->subHours(2)->toISOString(),
-                ],
-                [
-                    'id' => 2,
-                    'type' => 'approval_required',
-                    'title' => 'Approval Required',
-                    'message' => 'Project "Blockchain Voting System" requires your approval',
-                    'is_read' => true,
-                    'created_at' => now()->subDays(1)->toISOString(),
-                ],
-            ],
-            'unread_count' => 1,
-        ];
+        $comment = $request->comment;
 
-        return response()->json($notifications);
-    }
+        // Create notifications for project advisors and creator
+        $title = 'New Comment on Project';
+        $message = "{$user->full_name} commented on \"{$project->title}\": \"{$comment}\"";
 
-    /**
-     * Mark notification as read
-     */
-    public function markNotificationRead(Request $request, $notificationId)
-    {
+        // Notify advisors
+        Notification::createForProjectAdvisors($project, 'comment', $title, $message, [
+            'comment' => $comment,
+            'commenter_name' => $user->full_name,
+            'commenter_id' => $user->id,
+        ]);
+
+        // Notify project creator if they're not the one commenting
+        if ($project->created_by_user_id !== $user->id) {
+            Notification::createForProjectCreator($project, 'comment', $title, $message, [
+                'comment' => $comment,
+                'commenter_name' => $user->full_name,
+                'commenter_id' => $user->id,
+            ]);
+        }
+
         return response()->json([
-            'message' => 'Notification marked as read'
+            'message' => 'Comment added successfully',
+            'comment' => [
+                'id' => rand(1000, 9999),
+                'project_id' => $project->id,
+                'user_id' => $user->id,
+                'user_name' => $user->full_name,
+                'comment' => $comment,
+                'created_at' => now(),
+            ]
         ]);
     }
 
     /**
-     * Mark all notifications as read
+     * Rate a project
      */
-    public function markAllNotificationsRead(Request $request)
+    public function rateProject(Request $request, Project $project)
     {
+        $validator = Validator::make($request->all(), [
+            'rating' => 'required|integer|min:1|max:5',
+            'feedback' => 'nullable|string|max:1000',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $user = $request->user();
+        $rating = $request->rating;
+        $feedback = $request->feedback;
+
+        // Create notifications for project advisors and creator
+        $title = 'Project Rated';
+        $message = "{$user->full_name} rated \"{$project->title}\" with {$rating} star(s)";
+        if ($feedback) {
+            $message .= ": \"{$feedback}\"";
+        }
+
+        // Notify advisors
+        Notification::createForProjectAdvisors($project, 'rating', $title, $message, [
+            'rating' => $rating,
+            'feedback' => $feedback,
+            'rater_name' => $user->full_name,
+            'rater_id' => $user->id,
+        ]);
+
+        // Notify project creator if they're not the one rating
+        if ($project->created_by_user_id !== $user->id) {
+            Notification::createForProjectCreator($project, 'rating', $title, $message, [
+                'rating' => $rating,
+                'feedback' => $feedback,
+                'rater_name' => $user->full_name,
+                'rater_id' => $user->id,
+            ]);
+        }
+
         return response()->json([
-            'message' => 'All notifications marked as read'
+            'message' => 'Project rated successfully',
+            'rating' => [
+                'id' => rand(1000, 9999),
+                'project_id' => $project->id,
+                'user_id' => $user->id,
+                'user_name' => $user->full_name,
+                'rating' => $rating,
+                'feedback' => $feedback,
+                'created_at' => now(),
+            ]
         ]);
     }
 }

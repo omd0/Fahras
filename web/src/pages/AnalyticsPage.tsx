@@ -20,11 +20,21 @@ import {
   AccountCircle,
   ExitToApp,
   ArrowBack as ArrowBackIcon,
+  TrendingUp as TrendingUpIcon,
+  Assessment as AssessmentIcon,
+  BarChart as BarChartIcon,
+  PieChart as PieChartIcon,
+  Timeline as TimelineIcon,
+  School as SchoolIcon,
+  CalendarToday as CalendarIcon,
+  People as PeopleIcon,
+  Assignment as AssignmentIcon,
 } from '@mui/icons-material';
 // Chart components will be implemented with basic MUI components for now
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { apiService } from '../services/api';
+import { TVTCLogo } from '../components/TVTCLogo';
 
 interface AnalyticsData {
   status_distribution: Record<string, number>;
@@ -70,6 +80,11 @@ export const AnalyticsPage: React.FC = () => {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleProfileClick = () => {
+    setAnchorEl(null);
+    navigate('/profile');
   };
 
   const handleLogout = () => {
@@ -131,6 +146,7 @@ export const AnalyticsPage: React.FC = () => {
           >
             <ArrowBackIcon />
           </IconButton>
+          <TVTCLogo size="small" variant="icon" color="inherit" sx={{ mr: 1 }} />
           <AnalyticsIcon sx={{ mr: 2 }} />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Project Analytics
@@ -163,7 +179,7 @@ export const AnalyticsPage: React.FC = () => {
             open={Boolean(anchorEl)}
             onClose={handleMenuClose}
           >
-            <MenuItem onClick={handleMenuClose}>
+            <MenuItem onClick={handleProfileClick}>
               <AccountCircle sx={{ mr: 1 }} />
               Profile
             </MenuItem>
@@ -181,9 +197,12 @@ export const AnalyticsPage: React.FC = () => {
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Card>
               <CardContent>
-                <Typography color="textSecondary" gutterBottom>
-                  Total Projects
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <AssignmentIcon sx={{ color: 'primary.main', mr: 1 }} />
+                  <Typography color="textSecondary" gutterBottom>
+                    Total Projects
+                  </Typography>
+                </Box>
                 <Typography variant="h4">
                   {analytics.total_projects}
                 </Typography>
@@ -193,9 +212,12 @@ export const AnalyticsPage: React.FC = () => {
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Card>
               <CardContent>
-                <Typography color="textSecondary" gutterBottom>
-                  Recent Activity
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <TrendingUpIcon sx={{ color: 'success.main', mr: 1 }} />
+                  <Typography color="textSecondary" gutterBottom>
+                    Recent Activity
+                  </Typography>
+                </Box>
                 <Typography variant="h4">
                   {analytics.recent_activity}
                 </Typography>
@@ -208,9 +230,12 @@ export const AnalyticsPage: React.FC = () => {
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Card>
               <CardContent>
-                <Typography color="textSecondary" gutterBottom>
-                  Departments
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <SchoolIcon sx={{ color: 'info.main', mr: 1 }} />
+                  <Typography color="textSecondary" gutterBottom>
+                    Departments
+                  </Typography>
+                </Box>
                 <Typography variant="h4">
                   {analytics.department_distribution.length}
                 </Typography>
@@ -220,9 +245,12 @@ export const AnalyticsPage: React.FC = () => {
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Card>
               <CardContent>
-                <Typography color="textSecondary" gutterBottom>
-                  Academic Years
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <CalendarIcon sx={{ color: 'warning.main', mr: 1 }} />
+                  <Typography color="textSecondary" gutterBottom>
+                    Academic Years
+                  </Typography>
+                </Box>
                 <Typography variant="h4">
                   {analytics.year_distribution.length}
                 </Typography>

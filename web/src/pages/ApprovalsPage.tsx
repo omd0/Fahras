@@ -14,6 +14,7 @@ import {
   Approval as ApprovalIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { TVTCLogo } from '../components/TVTCLogo';
 
 export const ApprovalsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -30,6 +31,7 @@ export const ApprovalsPage: React.FC = () => {
           >
             <ArrowBackIcon />
           </IconButton>
+          <TVTCLogo size="small" variant="icon" color="inherit" sx={{ mr: 1 }} />
           <ApprovalIcon sx={{ mr: 2 }} />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Approvals

@@ -35,6 +35,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { Project } from '../types';
 import { apiService } from '../services/api';
+import { ProjectInteractions } from '../components/ProjectInteractions';
 
 export const ProjectDetailPage: React.FC = () => {
   const [project, setProject] = useState<Project | null>(null);
@@ -394,6 +395,21 @@ export const ProjectDetailPage: React.FC = () => {
             </Card>
           </Grid>
         </Grid>
+
+        {/* Project Interactions - Comments and Ratings */}
+        {project && (
+          <ProjectInteractions
+            projectId={project.id}
+            onCommentAdded={() => {
+              // Refresh notifications or show success message
+              console.log('Comment added successfully');
+            }}
+            onRatingAdded={() => {
+              // Refresh notifications or show success message
+              console.log('Rating added successfully');
+            }}
+          />
+        )}
       </Container>
     </Box>
   );

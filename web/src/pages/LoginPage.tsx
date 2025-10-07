@@ -8,7 +8,14 @@ import {
   Box,
   Alert,
   CircularProgress,
+  InputAdornment,
 } from '@mui/material';
+import {
+  Email as EmailIcon,
+  Lock as LockIcon,
+  Login as LoginIcon,
+} from '@mui/icons-material';
+import { TVTCLogo } from '../components/TVTCLogo';
 import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { LoginCredentials } from '../types';
@@ -89,9 +96,12 @@ export const LoginPage: React.FC = () => {
               alignItems: 'center',
             }}
           >
-            <Typography component="h1" variant="h4" gutterBottom>
-              Fahras
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <TVTCLogo size="large" variant="full" color="primary" sx={{ mr: 2 }} />
+              <Typography component="h1" variant="h4" gutterBottom>
+                Fahras
+              </Typography>
+            </Box>
             <Typography component="h2" variant="h5" gutterBottom>
               Sign In
             </Typography>
@@ -116,6 +126,13 @@ export const LoginPage: React.FC = () => {
                 onChange={handleChange('email')}
                 error={!!errors.email}
                 helperText={errors.email}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <EmailIcon color="action" />
+                    </InputAdornment>
+                  ),
+                }}
               />
               <TextField
                 margin="normal"
@@ -130,6 +147,13 @@ export const LoginPage: React.FC = () => {
                 onChange={handleChange('password')}
                 error={!!errors.password}
                 helperText={errors.password}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LockIcon color="action" />
+                    </InputAdornment>
+                  ),
+                }}
               />
               <Button
                 type="submit"
@@ -137,8 +161,9 @@ export const LoginPage: React.FC = () => {
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
                 disabled={isLoading}
+                startIcon={isLoading ? <CircularProgress size={20} /> : <LoginIcon />}
               >
-                {isLoading ? <CircularProgress size={24} /> : 'Sign In'}
+                {isLoading ? 'Signing In...' : 'Sign In'}
               </Button>
               <Box textAlign="center">
                 <Typography variant="body2">

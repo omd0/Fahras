@@ -16,6 +16,7 @@ class User extends Authenticatable
         'email',
         'password',
         'status',
+        'avatar_url',
     ];
 
     protected $hidden = [
@@ -57,6 +58,11 @@ class User extends Authenticatable
     public function projectAdvisorships()
     {
         return $this->belongsToMany(Project::class, 'project_advisors');
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
     }
 
     public function hasRole($role)
