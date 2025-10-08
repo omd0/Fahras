@@ -23,7 +23,7 @@ class FileController extends Controller
         ]);
 
         $validator = Validator::make($request->all(), [
-            'file' => 'required|file|max:10240', // 10MB max
+            'file' => 'required|file', // No size limit
             'is_public' => 'nullable|boolean|in:0,1,true,false',
         ]);
 
@@ -119,7 +119,18 @@ class FileController extends Controller
             'filename' => $file->original_filename
         ]);
 
-        return Storage::disk($disk)->download($file->storage_url, $file->original_filename);
+        // Properly encode Arabic/UTF-8 filenames in Content-Disposition header
+        $filename = $file->original_filename;
+        $encodedFilename = rawurlencode($filename);
+        
+        // Use RFC 5987 encoding for proper UTF-8 filename support
+        $headers = [
+            'Content-Type' => $file->mime_type,
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"; filename*=UTF-8''{$encodedFilename}",
+            'Cache-Control' => 'no-cache, must-revalidate',
+        ];
+
+        return Storage::disk($disk)->response($file->storage_url, $filename, $headers);
     }
 
     public function destroy(File $file)

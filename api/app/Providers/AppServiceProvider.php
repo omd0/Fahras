@@ -26,6 +26,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Set UTF-8 as default encoding for proper Arabic/Unicode support
+        mb_internal_encoding('UTF-8');
+        mb_http_output('UTF-8');
+        
         // Register S3 driver (supports MinIO)
         Storage::extend('s3', function ($app, $config) {
             $s3Config = [

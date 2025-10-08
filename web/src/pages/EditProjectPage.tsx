@@ -559,7 +559,7 @@ export const EditProjectPage: React.FC = () => {
                       </Button>
                     </label>
                     <Typography variant="caption" display="block" color="text.secondary">
-                      Supported formats: PDF, DOC, DOCX, TXT, RTF, PPT, PPTX, XLS, XLSX
+                      Supported formats: PDF, DOC, DOCX, TXT, RTF, PPT, PPTX, XLS, XLSX (No size limit)
                     </Typography>
                   </Box>
                   

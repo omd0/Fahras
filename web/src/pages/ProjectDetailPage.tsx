@@ -455,16 +455,10 @@ export const ProjectDetailPage: React.FC = () => {
                   }}>
                     <FileDownloadIcon sx={{ fontSize: 48, mb: 2, opacity: 0.5 }} />
                     <Typography variant="body1" color="text.secondary">
-                      {project.files && project.files.length > 0 ? 
-                        'Files are not visible to you at this time' :
-                        'No files uploaded yet'
-                      }
+                      No files uploaded yet
                     </Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                      {project.files && project.files.length > 0 ? 
-                        'Files may be restricted based on project approval status and your access level' :
-                        'Files uploaded during project creation will appear here'
-                      }
+                      Files uploaded during project creation will appear here
                     </Typography>
                   </Box>
                 )}
