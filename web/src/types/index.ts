@@ -62,18 +62,20 @@ export interface Project {
 }
 
 export interface ProjectMember {
-  id: number;
+  id: number | null;
   full_name: string;
-  email: string;
+  email: string | null;
+  is_custom?: boolean;
   pivot: {
     role_in_project: 'LEAD' | 'MEMBER';
   };
 }
 
 export interface ProjectAdvisor {
-  id: number;
+  id: number | null;
   full_name: string;
-  email: string;
+  email: string | null;
+  is_custom?: boolean;
   pivot: {
     advisor_role: 'MAIN' | 'CO_ADVISOR' | 'REVIEWER';
   };
@@ -89,6 +91,8 @@ export interface File {
   mime_type: string;
   size_bytes: number;
   storage_url: string;
+  public_url?: string;
+  size_human?: string;
   checksum?: string;
   is_public: boolean;
   uploaded_at: string;
@@ -120,10 +124,12 @@ export interface CreateProjectData {
   members: Array<{
     user_id: number;
     role: 'LEAD' | 'MEMBER';
+    customName?: string;
   }>;
   advisors?: Array<{
     user_id: number;
     role: 'MAIN' | 'CO_ADVISOR' | 'REVIEWER';
+    customName?: string;
   }>;
 }
 

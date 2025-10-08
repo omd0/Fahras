@@ -31,6 +31,12 @@ COPY . /var/www/html
 # Copy existing application directory permissions
 COPY --chown=www-data:www-data . /var/www/html
 
+# Install Composer dependencies including cloud storage packages
+RUN composer install --no-dev --optimize-autoloader
+
+# Make init script executable
+RUN chmod +x init-minio.sh
+
 # Change current user to www
 USER www-data
 

@@ -39,7 +39,9 @@ import {
   CheckCircle as ApproveIcon,
   VisibilityOff as HideIcon,
   Refresh as RefreshIcon,
+  Home as HomeIcon,
 } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import { Project, Program, Department } from '../types';
 import { apiService } from '../services/api';
 import ProjectApprovalActions from '../components/ProjectApprovalActions';
@@ -68,6 +70,7 @@ function TabPanel(props: TabPanelProps) {
 }
 
 const AdminProjectApprovalPage: React.FC = () => {
+  const navigate = useNavigate();
   const [tabValue, setTabValue] = useState(0);
   const [projects, setProjects] = useState<Project[]>([]);
   const [pendingProjects, setPendingProjects] = useState<Project[]>([]);
@@ -199,9 +202,19 @@ const AdminProjectApprovalPage: React.FC = () => {
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Project Approval Management
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h4" component="h1">
+          Project Approval Management
+        </Typography>
+        <Button
+          variant="contained"
+          startIcon={<HomeIcon />}
+          onClick={() => navigate('/dashboard')}
+          sx={{ ml: 2 }}
+        >
+          Back to Home
+        </Button>
+      </Box>
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
         <Tabs value={tabValue} onChange={handleTabChange}>

@@ -102,6 +102,7 @@ export const ProjectDetailPage: React.FC = () => {
   };
 
 
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'draft': return 'warning';
@@ -172,8 +173,8 @@ export const ProjectDetailPage: React.FC = () => {
     );
   }
 
-  const canEdit = user?.id === project.created_by_user_id;
-  const canDelete = user?.id === project.created_by_user_id;
+  const canEdit = user?.id === project.created_by_user_id && !user?.roles?.some(role => role.name === 'reviewer');
+  const canDelete = user?.id === project.created_by_user_id && !user?.roles?.some(role => role.name === 'reviewer');
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -356,6 +357,7 @@ export const ProjectDetailPage: React.FC = () => {
                     sx={{ ml: 2 }}
                   />
                 </Box>
+
                 
                 {project.files && project.files.length > 0 ? (
                   <List>
@@ -430,8 +432,8 @@ export const ProjectDetailPage: React.FC = () => {
                               window.URL.revokeObjectURL(url);
                             } catch (error) {
                               console.error('Error downloading file:', error);
-                              // Fallback to opening the storage URL
-                              window.open(file.storage_url, '_blank');
+                              // Fallback to opening the public URL or storage URL
+                              window.open(file.public_url || file.storage_url, '_blank');
                             }
                           }}
                           sx={{ 
@@ -453,10 +455,16 @@ export const ProjectDetailPage: React.FC = () => {
                   }}>
                     <FileDownloadIcon sx={{ fontSize: 48, mb: 2, opacity: 0.5 }} />
                     <Typography variant="body1" color="text.secondary">
-                      No files available for this project
+                      {project.files && project.files.length > 0 ? 
+                        'Files are not visible to you at this time' :
+                        'No files uploaded yet'
+                      }
                     </Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                      Files uploaded by students or faculty will appear here
+                      {project.files && project.files.length > 0 ? 
+                        'Files may be restricted based on project approval status and your access level' :
+                        'Files uploaded during project creation will appear here'
+                      }
                     </Typography>
                   </Box>
                 )}

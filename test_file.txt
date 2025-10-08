@@ -1,0 +1,8 @@
+This is a test file to verify that file upload functionality works correctly in the Fahras project management system.
+
+The file contains:
+- Test content
+- Multiple lines
+- Special characters: !@#$%^&*()
+
+This file should appear in the project files section after successful upload.

@@ -22,12 +22,9 @@ class ProjectController extends Controller
         if (!$user) {
             // Unauthenticated users: only see approved projects
             $query->where('admin_approval_status', 'approved');
-        } elseif ($user->hasRole('admin')) {
-            // Admin: can see all projects (including hidden ones)
+        } elseif ($user->hasRole('admin') || $user->hasRole('reviewer')) {
+            // Admin and Reviewer: can see all projects (including hidden ones)
             // No additional filtering needed
-        } elseif ($user->hasRole('reviewer')) {
-            // Reviewer: only see approved projects (no status indication)
-            $query->where('admin_approval_status', 'approved');
         } else {
             // Regular users: can see approved projects and their own projects (including hidden ones)
             $query->where(function ($q) use ($user) {
@@ -142,10 +139,12 @@ class ProjectController extends Controller
             'academic_year' => 'required|string',
             'semester' => 'required|in:fall,spring,summer',
             'members' => 'required|array|min:1',
-            'members.*.user_id' => 'required|exists:users,id',
+            'members.*.user_id' => 'nullable|integer',
+            'members.*.customName' => 'nullable|string|max:255',
             'members.*.role' => 'required|in:LEAD,MEMBER',
             'advisors' => 'nullable|array',
-            'advisors.*.user_id' => 'required|exists:users,id',
+            'advisors.*.user_id' => 'nullable|integer',
+            'advisors.*.customName' => 'nullable|string|max:255',
             'advisors.*.role' => 'required|in:MAIN,CO_ADVISOR,REVIEWER',
         ]);
 
@@ -154,6 +153,76 @@ class ProjectController extends Controller
                 'message' => 'Validation failed',
                 'errors' => $validator->errors()
             ], 422);
+        }
+
+        // Validate that each member has either a valid user_id or a customName
+        foreach ($request->members as $index => $member) {
+            if (empty($member['customName']) && (empty($member['user_id']) || $member['user_id'] <= 0)) {
+                return response()->json([
+                    'message' => 'Validation failed',
+                    'errors' => ["members.{$index}" => ['Each member must have either a valid user_id or a custom name']]
+                ], 422);
+            }
+            // If user_id is provided and greater than 0, validate it exists
+            if (!empty($member['user_id']) && $member['user_id'] > 0) {
+                if (!User::find($member['user_id'])) {
+                    return response()->json([
+                        'message' => 'Validation failed',
+                        'errors' => ["members.{$index}.user_id" => ['The selected user does not exist']]
+                    ], 422);
+                }
+            }
+        }
+
+        // Validate advisors similarly
+        if ($request->has('advisors')) {
+            foreach ($request->advisors as $index => $advisor) {
+                if (empty($advisor['customName']) && (empty($advisor['user_id']) || $advisor['user_id'] <= 0)) {
+                    return response()->json([
+                        'message' => 'Validation failed',
+                        'errors' => ["advisors.{$index}" => ['Each advisor must have either a valid user_id or a custom name']]
+                    ], 422);
+                }
+                // If user_id is provided and greater than 0, validate it exists
+                if (!empty($advisor['user_id']) && $advisor['user_id'] > 0) {
+                    if (!User::find($advisor['user_id'])) {
+                        return response()->json([
+                            'message' => 'Validation failed',
+                            'errors' => ["advisors.{$index}.user_id" => ['The selected user does not exist']]
+                        ], 422);
+                    }
+                }
+            }
+        }
+
+        // Separate regular members and custom members
+        $customMembers = [];
+        $regularMembers = [];
+        foreach ($request->members as $member) {
+            if (!empty($member['customName'])) {
+                $customMembers[] = [
+                    'name' => $member['customName'],
+                    'role' => $member['role']
+                ];
+            } elseif (!empty($member['user_id']) && $member['user_id'] > 0) {
+                $regularMembers[] = $member;
+            }
+        }
+
+        // Separate regular advisors and custom advisors
+        $customAdvisors = [];
+        $regularAdvisors = [];
+        if ($request->has('advisors')) {
+            foreach ($request->advisors as $advisor) {
+                if (!empty($advisor['customName'])) {
+                    $customAdvisors[] = [
+                        'name' => $advisor['customName'],
+                        'role' => $advisor['role']
+                    ];
+                } elseif (!empty($advisor['user_id']) && $advisor['user_id'] > 0) {
+                    $regularAdvisors[] = $advisor;
+                }
+            }
         }
 
         $project = Project::create([
@@ -165,22 +234,22 @@ class ProjectController extends Controller
             'academic_year' => $request->academic_year,
             'semester' => $request->semester,
             'status' => 'draft',
+            'custom_members' => !empty($customMembers) ? $customMembers : null,
+            'custom_advisors' => !empty($customAdvisors) ? $customAdvisors : null,
         ]);
 
-        // Add members
-        foreach ($request->members as $member) {
+        // Add regular members (with user_id)
+        foreach ($regularMembers as $member) {
             $project->members()->attach($member['user_id'], [
                 'role_in_project' => $member['role']
             ]);
         }
 
-        // Add advisors if provided
-        if ($request->has('advisors')) {
-            foreach ($request->advisors as $advisor) {
-                $project->advisors()->attach($advisor['user_id'], [
-                    'advisor_role' => $advisor['role']
-                ]);
-            }
+        // Add regular advisors (with user_id)
+        foreach ($regularAdvisors as $advisor) {
+            $project->advisors()->attach($advisor['user_id'], [
+                'advisor_role' => $advisor['role']
+            ]);
         }
 
         return response()->json([
@@ -191,28 +260,92 @@ class ProjectController extends Controller
 
     public function show(Project $project)
     {
+        $user = request()->user();
+        
         $projectWithFiles = $project->load([
             'program.department',
             'creator',
             'members',
-            'advisors',
-            'files'
+            'advisors'
         ]);
+
+        // Merge regular members with custom members
+        $members = $projectWithFiles->members->map(function($member) {
+            return [
+                'id' => $member->id,
+                'full_name' => $member->full_name,
+                'email' => $member->email,
+                'pivot' => [
+                    'role_in_project' => $member->pivot->role_in_project
+                ]
+            ];
+        })->toArray();
+
+        // Add custom members
+        if ($project->custom_members) {
+            foreach ($project->custom_members as $customMember) {
+                $members[] = [
+                    'id' => null,
+                    'full_name' => $customMember['name'],
+                    'email' => null,
+                    'is_custom' => true,
+                    'pivot' => [
+                        'role_in_project' => $customMember['role']
+                    ]
+                ];
+            }
+        }
+
+        // Merge regular advisors with custom advisors
+        $advisors = $projectWithFiles->advisors->map(function($advisor) {
+            return [
+                'id' => $advisor->id,
+                'full_name' => $advisor->full_name,
+                'email' => $advisor->email,
+                'pivot' => [
+                    'advisor_role' => $advisor->pivot->advisor_role
+                ]
+            ];
+        })->toArray();
+
+        // Add custom advisors
+        if ($project->custom_advisors) {
+            foreach ($project->custom_advisors as $customAdvisor) {
+                $advisors[] = [
+                    'id' => null,
+                    'full_name' => $customAdvisor['name'],
+                    'email' => null,
+                    'is_custom' => true,
+                    'pivot' => [
+                        'advisor_role' => $customAdvisor['role']
+                    ]
+                ];
+            }
+        }
+
+        // Replace members and advisors with merged arrays
+        $projectData = $projectWithFiles->toArray();
+        $projectData['members'] = $members;
+        $projectData['advisors'] = $advisors;
+
+        // Load all files - no access control
+        $projectData['files'] = $project->files()->orderBy('uploaded_at', 'desc')->get()->toArray();
 
         \Log::info('Project details requested', [
             'project_id' => $project->id,
-            'files_count' => $projectWithFiles->files->count(),
-            'files' => $projectWithFiles->files->map(function($file) {
+            'user_id' => $user->id,
+            'files_count' => count($projectData['files']),
+            'files' => array_map(function($file) {
                 return [
-                    'id' => $file->id,
-                    'original_filename' => $file->original_filename,
-                    'storage_url' => $file->storage_url
+                    'id' => $file['id'],
+                    'original_filename' => $file['original_filename'],
+                    'storage_url' => $file['storage_url']
                 ];
-            })
+            }, $projectData['files'])
         ]);
 
         return response()->json([
-            'project' => $projectWithFiles
+            'project' => $projectData
         ]);
     }
 
@@ -236,6 +369,14 @@ class ProjectController extends Controller
             'is_public' => 'sometimes|boolean',
             'doi' => 'nullable|string',
             'repo_url' => 'nullable|url',
+            'members' => 'sometimes|array',
+            'members.*.user_id' => 'nullable|integer',
+            'members.*.customName' => 'nullable|string|max:255',
+            'members.*.role' => 'required_with:members|in:LEAD,MEMBER',
+            'advisors' => 'sometimes|array',
+            'advisors.*.user_id' => 'nullable|integer',
+            'advisors.*.customName' => 'nullable|string|max:255',
+            'advisors.*.role' => 'required_with:advisors|in:MAIN,CO_ADVISOR,REVIEWER',
         ]);
 
         if ($validator->fails()) {
@@ -245,10 +386,65 @@ class ProjectController extends Controller
             ], 422);
         }
 
+        // Update basic project fields
         $project->update($request->only([
             'title', 'abstract', 'keywords', 'academic_year',
             'semester', 'status', 'is_public', 'doi', 'repo_url'
         ]));
+
+        // Update members if provided
+        if ($request->has('members')) {
+            // Separate regular members and custom members
+            $customMembers = [];
+            $regularMembers = [];
+            foreach ($request->members as $member) {
+                if (!empty($member['customName'])) {
+                    $customMembers[] = [
+                        'name' => $member['customName'],
+                        'role' => $member['role']
+                    ];
+                } elseif (!empty($member['user_id']) && $member['user_id'] > 0) {
+                    $regularMembers[$member['user_id']] = [
+                        'role_in_project' => $member['role']
+                    ];
+                }
+            }
+
+            // Update custom members
+            $project->update([
+                'custom_members' => !empty($customMembers) ? $customMembers : null
+            ]);
+
+            // Sync regular members
+            $project->members()->sync($regularMembers);
+        }
+
+        // Update advisors if provided
+        if ($request->has('advisors')) {
+            // Separate regular advisors and custom advisors
+            $customAdvisors = [];
+            $regularAdvisors = [];
+            foreach ($request->advisors as $advisor) {
+                if (!empty($advisor['customName'])) {
+                    $customAdvisors[] = [
+                        'name' => $advisor['customName'],
+                        'role' => $advisor['role']
+                    ];
+                } elseif (!empty($advisor['user_id']) && $advisor['user_id'] > 0) {
+                    $regularAdvisors[$advisor['user_id']] = [
+                        'advisor_role' => $advisor['role']
+                    ];
+                }
+            }
+
+            // Update custom advisors
+            $project->update([
+                'custom_advisors' => !empty($customAdvisors) ? $customAdvisors : null
+            ]);
+
+            // Sync regular advisors
+            $project->advisors()->sync($regularAdvisors);
+        }
 
         return response()->json([
             'message' => 'Project updated successfully',
@@ -345,12 +541,9 @@ class ProjectController extends Controller
         if (!$user) {
             // Unauthenticated users: only see approved projects
             $query->where('admin_approval_status', 'approved');
-        } elseif ($user->hasRole('admin')) {
-            // Admin: can see all projects (including hidden ones)
+        } elseif ($user->hasRole('admin') || $user->hasRole('reviewer')) {
+            // Admin and Reviewer: can see all projects (including hidden ones)
             // No additional filtering needed
-        } elseif ($user->hasRole('reviewer')) {
-            // Reviewer: only see approved projects (no status indication)
-            $query->where('admin_approval_status', 'approved');
         } else {
             // Regular users: can see approved projects and their own projects (including hidden ones)
             $query->where(function ($q) use ($user) {
@@ -426,12 +619,9 @@ class ProjectController extends Controller
             if (!$user) {
                 // Unauthenticated users: only see approved projects
                 $query->where('admin_approval_status', 'approved');
-            } elseif ($user->hasRole('admin')) {
-                // Admin: can see all projects (including hidden ones)
+            } elseif ($user->hasRole('admin') || $user->hasRole('reviewer')) {
+                // Admin and Reviewer: can see all projects (including hidden ones)
                 // No additional filtering needed
-            } elseif ($user->hasRole('reviewer')) {
-                // Reviewer: only see approved projects (no status indication)
-                $query->where('admin_approval_status', 'approved');
             } else {
                 // Regular users: can see approved projects and their own projects (including hidden ones)
                 $query->where(function ($q) use ($user) {
@@ -1005,6 +1195,9 @@ class ProjectController extends Controller
             'admin_notes' => $request->admin_notes,
         ]);
 
+        // Make all project files public when project is approved
+        $project->files()->update(['is_public' => true]);
+
         // Create notification for project creator
         Notification::createForProjectCreator($project, 'approval', 'Project Approved', 
             "Your project \"{$project->title}\" has been approved and is now visible to everyone.", [
@@ -1048,6 +1241,9 @@ class ProjectController extends Controller
             'approved_at' => now(),
             'admin_notes' => $request->admin_notes,
         ]);
+
+        // Make all project files private when project is hidden
+        $project->files()->update(['is_public' => false]);
 
         // Create notification for project creator
         Notification::createForProjectCreator($project, 'approval', 'Project Hidden', 

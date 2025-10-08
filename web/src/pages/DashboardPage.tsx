@@ -192,7 +192,7 @@ export const DashboardPage: React.FC = () => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Fahras Dashboard
           </Typography>
-          {!user?.roles?.some(role => role.name === 'admin') && (
+          {!user?.roles?.some(role => role.name === 'admin' || role.name === 'reviewer') && (
             <Button
               color="inherit"
               startIcon={<AddIcon />}
@@ -280,7 +280,7 @@ export const DashboardPage: React.FC = () => {
           <Typography variant="h5">
             {searching ? 'Search Results' : (
               user?.roles?.some(role => role.name === 'admin') ? 'All Projects (Admin View)' :
-              user?.roles?.some(role => role.name === 'reviewer') ? 'Approved Projects' :
+              user?.roles?.some(role => role.name === 'reviewer') ? 'All Projects' :
               'My Projects'
             )}
             {pagination.total > 0 && (
@@ -332,7 +332,7 @@ export const DashboardPage: React.FC = () => {
                   : 'Start by creating your first graduation project'
                 }
               </Typography>
-              {!searching && !user?.roles?.some(role => role.name === 'admin') && (
+              {!searching && !user?.roles?.some(role => role.name === 'admin' || role.name === 'reviewer') && (
                 <Button
                   variant="contained"
                   startIcon={<AddIcon />}

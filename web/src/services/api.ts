@@ -288,7 +288,8 @@ class ApiService {
   async uploadFile(projectId: number, file: globalThis.File, isPublic: boolean = false): Promise<{ file: File }> {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('is_public', isPublic.toString());
+    // Send boolean as string '1' for true, '0' for false (Laravel compatible)
+    formData.append('is_public', isPublic ? '1' : '0');
 
     console.log('Uploading file:', file.name, 'to project:', projectId);
 

@@ -39,10 +39,10 @@ fi
 
 # Start Docker services
 echo "🐳 Starting Docker services..."
-$COMPOSE_CMD up -d db redis
+$COMPOSE_CMD up -d db redis minio
 
-# Wait for database to be ready
-echo "⏳ Waiting for database to be ready..."
+# Wait for database and MinIO to be ready
+echo "⏳ Waiting for database and storage services to be ready..."
 sleep 15
 
 # Build and start all services
@@ -77,6 +77,7 @@ echo "1. Access the application:"
 echo "   - Frontend: http://localhost:3000"
 echo "   - API: http://localhost/api"
 echo "   - Database: localhost:5433"
+echo "   - MinIO Console: http://localhost:9001"
 echo ""
 echo "2. To restart services: $COMPOSE_CMD up -d"
 echo "3. To stop services: $COMPOSE_CMD down"
@@ -86,5 +87,11 @@ echo "🔑 Default login credentials:"
 echo "   Admin: admin@fahras.edu / password"
 echo "   Faculty: sarah.johnson@fahras.edu / password"
 echo "   Student: ahmed.almansouri@student.fahras.edu / password"
+echo ""
+echo "☁️ MinIO Storage:"
+echo "   Console: http://localhost:9001"
+echo "   Username: minioadmin"
+echo "   Password: minioadmin123"
+echo "   Bucket: fahras-files (auto-created)"
 echo ""
 echo "Happy coding! 🚀"

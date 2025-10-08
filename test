@@ -1,0 +1,119 @@
+<?php
+
+require_once 'vendor/autoload.php';
+
+// Bootstrap Laravel
+$app = require_once 'bootstrap/app.php';
+$app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
+
+use App\Models\Project;
+use App\Models\User;
+use Illuminate\Http\Request;
+use App\Http\Controllers\FileController;
+use Illuminate\Support\Facades\Auth;
+
+echo "=== API File Upload Test ===\n";
+
+// Get a test project
+$project = Project::where('admin_approval_status', 'approved')->first();
+
+if (!$project) {
+    echo "❌ No approved projects found!\n";
+    exit(1);
+}
+
+echo "Using project: {$project->title} (ID: {$project->id})\n";
+
+// Get admin user and authenticate
+$user = User::where('email', 'admin@fahras.edu')->first();
+Auth::login($user);
+echo "Authenticated as: {$user->email}\n";
+
+// Create test file
+$testContent = 'API Upload Test File - ' . date('Y-m-d H:i:s');
+$testFilename = 'api-test-' . time() . '.txt';
+$testPath = storage_path('app/' . $testFilename);
+
+file_put_contents($testPath, $testContent);
+
+echo "Created test file: $testPath\n";
+
+try {
+    // Create a mock request
+    $request = new Request();
+    $request->setMethod('POST');
+    $request->files->set('file', new \Illuminate\Http\UploadedFile(
+        $testPath,
+        $testFilename,
+        'text/plain',
+        null,
+        true
+    ));
+    $request->merge(['is_public' => '1']);
+    
+    // Set the authenticated user in the request
+    $request->setUserResolver(function () use ($user) {
+        return $user;
+    });
+    
+    echo "\n=== Testing FileController Upload ===\n";
+    
+    // Create FileController instance
+    $controller = new FileController();
+    
+    // Call the upload method
+    $response = $controller->upload($request, $project);
+    
+    echo "Upload response status: " . $response->getStatusCode() . "\n";
+    
+    if ($response->getStatusCode() === 201) {
+        $responseData = json_decode($response->getContent(), true);
+        echo "✅ File uploaded successfully through FileController!\n";
+        echo "Response: " . json_encode($responseData, JSON_PRETTY_PRINT) . "\n";
+        
+        // Check if file was created in database
+        $project->refresh();
+        $filesCount = $project->files()->count();
+        echo "Project files count after upload: $filesCount\n";
+        
+        if ($filesCount > 0) {
+            $latestFile = $project->files()->latest()->first();
+            echo "Latest file: {$latestFile->original_filename}\n";
+            echo "File URL: " . $latestFile->public_url . "\n";
+            
+            // Test file download
+            echo "\n=== Testing File Download ===\n";
+            $downloadResponse = $controller->download($latestFile);
+            echo "Download response status: " . $downloadResponse->getStatusCode() . "\n";
+            
+            if ($downloadResponse->getStatusCode() === 200) {
+                echo "✅ File download working!\n";
+            } else {
+                echo "❌ File download failed!\n";
+            }
+            
+            // Clean up - delete the file
+            echo "\n=== Cleaning Up ===\n";
+            $deleteResponse = $controller->destroy($latestFile);
+            echo "Delete response status: " . $deleteResponse->getStatusCode() . "\n";
+            
+            if ($deleteResponse->getStatusCode() === 200) {
+                echo "✅ File deleted successfully!\n";
+            } else {
+                echo "❌ File deletion failed!\n";
+            }
+        }
+    } else {
+        echo "❌ File upload failed!\n";
+        echo "Response: " . $response->getContent() . "\n";
+    }
+    
+} catch (Exception $e) {
+    echo "❌ Error: " . $e->getMessage() . "\n";
+    echo "Stack trace: " . $e->getTraceAsString() . "\n";
+}
+
+// Clean up local test file
+unlink($testPath);
+
+echo "\n=== API Test Complete ===\n";

@@ -28,6 +28,11 @@ class File extends Model
         'uploaded_at' => 'datetime',
     ];
 
+    protected $appends = [
+        'size_human',
+        'public_url'
+    ];
+
     public function project()
     {
         return $this->belongsTo(Project::class);
@@ -48,5 +53,41 @@ class File extends Model
         }
         
         return round($bytes, 2) . ' ' . $units[$i];
+    }
+
+    public function getPublicUrlAttribute()
+    {
+        $disk = config('filesystems.default', 'local');
+        
+        try {
+            // For S3/MinIO, construct the public URL manually
+            if ($disk === 's3') {
+                $bucket = config('filesystems.disks.s3.bucket');
+                $endpoint = config('filesystems.disks.s3.url') ?? config('filesystems.disks.s3.endpoint');
+                
+                // Remove trailing slash from endpoint
+                $endpoint = rtrim($endpoint, '/');
+                
+                // For MinIO with path-style URLs
+                if (config('filesystems.disks.s3.use_path_style_endpoint')) {
+                    return $endpoint . '/' . $bucket . '/' . $this->storage_url;
+                }
+                
+                // For AWS S3 virtual-hosted style
+                return $endpoint . '/' . $this->storage_url;
+            }
+            
+            // For other storage drivers, use Laravel's url method
+            return \Storage::disk($disk)->url($this->storage_url);
+        } catch (\Exception $e) {
+            \Log::error('Error generating public URL for file', [
+                'file_id' => $this->id,
+                'storage_url' => $this->storage_url,
+                'error' => $e->getMessage()
+            ]);
+            
+            // Fallback to storage URL
+            return $this->storage_url;
+        }
     }
 }

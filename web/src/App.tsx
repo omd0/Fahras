@@ -164,11 +164,11 @@ function App() {
             }
           />
           
-          {/* Project routes - Create and Edit restricted for Reviewer and Admin users */}
+          {/* Project routes - Create and Edit restricted for Reviewer users */}
           <Route
             path="/projects/create"
             element={
-              <RoleProtectedRoute restrictedRoles={['reviewer', 'admin']}>
+              <RoleProtectedRoute restrictedRoles={['reviewer']}>
                 <CreateProjectPage />
               </RoleProtectedRoute>
             }
@@ -184,7 +184,7 @@ function App() {
           <Route
             path="/projects/:id/edit"
             element={
-              <RoleProtectedRoute restrictedRoles={['reviewer', 'admin']}>
+              <RoleProtectedRoute restrictedRoles={['reviewer']}>
                 <EditProjectPage />
               </RoleProtectedRoute>
             }

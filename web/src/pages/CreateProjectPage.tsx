@@ -56,12 +56,19 @@ export const CreateProjectPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [newKeyword, setNewKeyword] = useState('');
-  const [newMember, setNewMember] = useState({ user_id: 0, role: 'MEMBER' as 'LEAD' | 'MEMBER' });
-  const [newAdvisor, setNewAdvisor] = useState({ user_id: 0, role: 'MAIN' as 'MAIN' | 'CO_ADVISOR' | 'REVIEWER' });
+  const [newMember, setNewMember] = useState({ user_id: 0, role: 'MEMBER' as 'LEAD' | 'MEMBER', customName: undefined as string | undefined });
+  const [newAdvisor, setNewAdvisor] = useState({ user_id: 0, role: 'MAIN' as 'MAIN' | 'CO_ADVISOR' | 'REVIEWER', customName: undefined as string | undefined });
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
   const { user } = useAuthStore();
   const navigate = useNavigate();
+
+  // Redirect reviewers and admins away from this page
+  useEffect(() => {
+    if (user?.roles?.some(role => role.name === 'reviewer' || role.name === 'admin')) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
 
   useEffect(() => {
     fetchPrograms();
@@ -117,12 +124,12 @@ export const CreateProjectPage: React.FC = () => {
   };
 
   const handleAddMember = () => {
-    if (newMember.user_id > 0) {
+    if (newMember.user_id > 0 || newMember.customName) {
       setFormData(prev => ({
         ...prev,
         members: [...prev.members, { ...newMember }]
       }));
-      setNewMember({ user_id: 0, role: 'MEMBER' });
+      setNewMember({ user_id: 0, role: 'MEMBER', customName: undefined });
     }
   };
 
@@ -134,12 +141,12 @@ export const CreateProjectPage: React.FC = () => {
   };
 
   const handleAddAdvisor = () => {
-    if (newAdvisor.user_id > 0) {
+    if (newAdvisor.user_id > 0 || newAdvisor.customName) {
       setFormData(prev => ({
         ...prev,
         advisors: [...(prev.advisors || []), { ...newAdvisor }]
       }));
-      setNewAdvisor({ user_id: 0, role: 'MAIN' });
+      setNewAdvisor({ user_id: 0, role: 'MAIN', customName: undefined });
     }
   };
 
@@ -188,29 +195,50 @@ export const CreateProjectPage: React.FC = () => {
         members: membersToSubmit
       };
 
+      console.log('Creating project...', projectData);
+      
       // Create the project first
       const createdProject = await apiService.createProject(projectData);
+      console.log('Project created:', createdProject);
 
       // If files are selected, upload them individually
       if (selectedFiles.length > 0 && createdProject?.project?.id) {
-        console.log('Uploading files to project:', createdProject.project.id, 'Files:', selectedFiles);
-        try {
-          // Upload each file individually
-          for (const file of selectedFiles) {
-            console.log('Uploading file:', file.name);
-            const uploadResponse = await apiService.uploadFile(createdProject.project.id, file, false);
-            console.log('File uploaded successfully:', uploadResponse);
+        console.log(`Starting file upload: ${selectedFiles.length} files to project ${createdProject.project.id}`);
+        
+        let uploadedCount = 0;
+        let failedCount = 0;
+        
+        for (let i = 0; i < selectedFiles.length; i++) {
+          const file = selectedFiles[i];
+          try {
+            console.log(`[${i + 1}/${selectedFiles.length}] Uploading: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`);
+            
+            const uploadResponse = await apiService.uploadFile(createdProject.project.id, file, true);
+            
+            console.log(`✅ File uploaded successfully:`, uploadResponse);
+            uploadedCount++;
+          } catch (uploadError: any) {
+            console.error(`❌ File upload failed for ${file.name}:`, uploadError);
+            console.error('Error details:', uploadError.response?.data);
+            failedCount++;
           }
-          console.log('All files uploaded successfully');
-        } catch (uploadError) {
-          console.error('File upload failed:', uploadError);
-          setError('Project created but file upload failed: ' + (uploadError as any)?.response?.data?.message || 'Unknown error');
-          // Don't fail the entire operation if file upload fails
         }
+        
+        console.log(`File upload complete: ${uploadedCount} succeeded, ${failedCount} failed`);
+        
+        if (failedCount > 0) {
+          setError(`Project created but ${failedCount} file(s) failed to upload. Please try re-uploading them from the project page.`);
+          // Wait a bit before navigating so user can see the error
+          await new Promise(resolve => setTimeout(resolve, 3000));
+        }
+      } else if (selectedFiles.length > 0) {
+        console.warn('Files were selected but project ID is missing!', createdProject);
       }
 
       navigate('/dashboard');
     } catch (error: any) {
+      console.error('Project creation failed:', error);
+      console.error('Error response:', error.response?.data);
       setError(error.response?.data?.message || 'Failed to create project');
     } finally {
       setLoading(false);
@@ -390,11 +418,28 @@ export const CreateProjectPage: React.FC = () => {
                     <Box sx={{ display: 'flex', gap: 2, mb: 2, flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'flex-end' } }}>
                       <Autocomplete
                         sx={{ flexGrow: 1 }}
+                        freeSolo
                         options={users}
-                        getOptionLabel={(option) => `${option.full_name} (${option.email})`}
+                        getOptionLabel={(option) => {
+                          if (typeof option === 'string') return option;
+                          return `${option.full_name} (${option.email})`;
+                        }}
                         value={users.find(u => u.id === newMember.user_id) || null}
-                        onChange={(_, value) => setNewMember(prev => ({ ...prev, user_id: value?.id || 0 }))}
-                        renderInput={(params) => <TextField {...params} label="Select Member" />}
+                        onChange={(_, value) => {
+                          if (typeof value === 'string') {
+                            setNewMember(prev => ({ ...prev, user_id: -1, customName: value }));
+                          } else if (value) {
+                            setNewMember(prev => ({ ...prev, user_id: value.id, customName: undefined }));
+                          } else {
+                            setNewMember(prev => ({ ...prev, user_id: 0, customName: undefined }));
+                          }
+                        }}
+                        onInputChange={(_, value) => {
+                          if (value && !users.find(u => `${u.full_name} (${u.email})` === value)) {
+                            setNewMember(prev => ({ ...prev, customName: value, user_id: -1 }));
+                          }
+                        }}
+                        renderInput={(params) => <TextField {...params} label="Select or Type Member Name" />}
                       />
                       <FormControl sx={{ minWidth: 140 }}>
                         <InputLabel id="member-role-label">Role</InputLabel>
@@ -411,7 +456,7 @@ export const CreateProjectPage: React.FC = () => {
                       <Button
                         variant="outlined"
                         onClick={handleAddMember}
-                        disabled={newMember.user_id === 0}
+                        disabled={newMember.user_id === 0 && !newMember.customName}
                         startIcon={<AddIcon />}
                         sx={{ minWidth: 100 }}
                       >
@@ -421,6 +466,7 @@ export const CreateProjectPage: React.FC = () => {
                     <Stack spacing={1}>
                       {(formData.members || []).map((member, index) => {
                         const user = users.find(u => u.id === member.user_id);
+                        const displayName = member.customName || user?.full_name || 'Unknown';
                         return (
                           <Box key={index} sx={{ 
                             display: 'flex', 
@@ -432,7 +478,7 @@ export const CreateProjectPage: React.FC = () => {
                             backgroundColor: 'background.paper'
                           }}>
                             <Typography variant="body2" sx={{ flexGrow: 1 }}>
-                              {user?.full_name} <Chip label={member.role} size="small" color="primary" variant="outlined" sx={{ ml: 1 }} />
+                              {displayName} <Chip label={member.role} size="small" color="primary" variant="outlined" sx={{ ml: 1 }} />
                             </Typography>
                             <IconButton
                               size="small"
@@ -455,11 +501,28 @@ export const CreateProjectPage: React.FC = () => {
                     <Box sx={{ display: 'flex', gap: 2, mb: 2, flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'flex-end' } }}>
                       <Autocomplete
                         sx={{ flexGrow: 1 }}
+                        freeSolo
                         options={users}
-                        getOptionLabel={(option) => `${option.full_name} (${option.email})`}
+                        getOptionLabel={(option) => {
+                          if (typeof option === 'string') return option;
+                          return `${option.full_name} (${option.email})`;
+                        }}
                         value={users.find(u => u.id === newAdvisor.user_id) || null}
-                        onChange={(_, value) => setNewAdvisor(prev => ({ ...prev, user_id: value?.id || 0 }))}
-                        renderInput={(params) => <TextField {...params} label="Select Advisor" />}
+                        onChange={(_, value) => {
+                          if (typeof value === 'string') {
+                            setNewAdvisor(prev => ({ ...prev, user_id: -1, customName: value }));
+                          } else if (value) {
+                            setNewAdvisor(prev => ({ ...prev, user_id: value.id, customName: undefined }));
+                          } else {
+                            setNewAdvisor(prev => ({ ...prev, user_id: 0, customName: undefined }));
+                          }
+                        }}
+                        onInputChange={(_, value) => {
+                          if (value && !users.find(u => `${u.full_name} (${u.email})` === value)) {
+                            setNewAdvisor(prev => ({ ...prev, customName: value, user_id: -1 }));
+                          }
+                        }}
+                        renderInput={(params) => <TextField {...params} label="Select or Type Advisor Name" />}
                       />
                       <FormControl sx={{ minWidth: 140 }}>
                         <InputLabel id="advisor-role-label">Role</InputLabel>
@@ -477,7 +540,7 @@ export const CreateProjectPage: React.FC = () => {
                       <Button
                         variant="outlined"
                         onClick={handleAddAdvisor}
-                        disabled={newAdvisor.user_id === 0}
+                        disabled={newAdvisor.user_id === 0 && !newAdvisor.customName}
                         startIcon={<AddIcon />}
                         sx={{ minWidth: 100 }}
                       >
@@ -487,6 +550,7 @@ export const CreateProjectPage: React.FC = () => {
                     <Stack spacing={1}>
                       {(formData.advisors || []).map((advisor, index) => {
                         const user = users.find(u => u.id === advisor.user_id);
+                        const displayName = advisor.customName || user?.full_name || 'Unknown';
                         return (
                           <Box key={index} sx={{ 
                             display: 'flex', 
@@ -498,7 +562,7 @@ export const CreateProjectPage: React.FC = () => {
                             backgroundColor: 'background.paper'
                           }}>
                             <Typography variant="body2" sx={{ flexGrow: 1 }}>
-                              {user?.full_name} <Chip label={advisor.role} size="small" color="secondary" variant="outlined" sx={{ ml: 1 }} />
+                              {displayName} <Chip label={advisor.role} size="small" color="secondary" variant="outlined" sx={{ ml: 1 }} />
                             </Typography>
                             <IconButton
                               size="small"

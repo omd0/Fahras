@@ -14,12 +14,24 @@ class FileController extends Controller
 {
     public function upload(Request $request, Project $project)
     {
+        \Log::info('File upload request received', [
+            'project_id' => $project->id,
+            'user_id' => $request->user()->id,
+            'has_file' => $request->hasFile('file'),
+            'is_public' => $request->input('is_public'),
+            'all_input' => $request->all()
+        ]);
+
         $validator = Validator::make($request->all(), [
             'file' => 'required|file|max:10240', // 10MB max
-            'is_public' => 'boolean',
+            'is_public' => 'nullable|boolean|in:0,1,true,false',
         ]);
 
         if ($validator->fails()) {
+            \Log::error('File upload validation failed', [
+                'errors' => $validator->errors()->toArray(),
+                'input' => $request->all()
+            ]);
             return response()->json([
                 'message' => 'Validation failed',
                 'errors' => $validator->errors()
@@ -28,7 +40,10 @@ class FileController extends Controller
 
         $uploadedFile = $request->file('file');
         $filename = Str::uuid() . '.' . $uploadedFile->getClientOriginalExtension();
-        $path = $uploadedFile->storeAs('uploads/projects/' . $project->id, $filename, 'local');
+        
+        // Use cloud storage if configured, otherwise fallback to local
+        $disk = config('filesystems.default', 'local');
+        $path = $uploadedFile->storeAs('uploads/projects/' . $project->id, $filename, $disk);
 
         $file = File::create([
             'project_id' => $project->id,
@@ -40,6 +55,7 @@ class FileController extends Controller
             'storage_url' => $path,
             'checksum' => hash_file('sha256', $uploadedFile->getPathname()),
             'is_public' => $request->boolean('is_public', false),
+            'uploaded_at' => now(),
         ]);
 
         \Log::info('File uploaded successfully', [
@@ -57,10 +73,19 @@ class FileController extends Controller
 
     public function index(Project $project)
     {
+        $user = request()->user();
+        
+        // Load all files with uploader information - no access control
         $files = $project->files()
             ->with('uploader')
-            ->orderBy('created_at', 'desc')
+            ->orderBy('uploaded_at', 'desc')
             ->get();
+
+        \Log::info('Files listed for project', [
+            'project_id' => $project->id,
+            'user_id' => $user->id,
+            'files_count' => $files->count()
+        ]);
 
         return response()->json([
             'files' => $files
@@ -69,43 +94,32 @@ class FileController extends Controller
 
     public function download(File $file)
     {
-        // Check if user has access to this file
         $user = request()->user();
-        $hasAccess = false;
-
-        // Project creator or member can access
-        if ($file->project->created_by_user_id === $user->id) {
-            $hasAccess = true;
-        }
-
-        // Project members can access
-        if ($file->project->members()->where('user_id', $user->id)->exists()) {
-            $hasAccess = true;
-        }
-
-        // Project advisors can access
-        if ($file->project->advisors()->where('user_id', $user->id)->exists()) {
-            $hasAccess = true;
-        }
-
-        // Public files can be accessed by anyone
-        if ($file->is_public) {
-            $hasAccess = true;
-        }
-
-        if (!$hasAccess) {
-            return response()->json([
-                'message' => 'Unauthorized to access this file'
-            ], 403);
-        }
-
-        if (!Storage::exists($file->storage_url)) {
+        $project = $file->project;
+        
+        // No access control - everyone can download files
+        $disk = config('filesystems.default', 'local');
+        
+        if (!Storage::disk($disk)->exists($file->storage_url)) {
+            \Log::error('File not found in storage', [
+                'file_id' => $file->id,
+                'storage_url' => $file->storage_url,
+                'disk' => $disk
+            ]);
+            
             return response()->json([
                 'message' => 'File not found'
             ], 404);
         }
 
-        return Storage::download($file->storage_url, $file->original_filename);
+        \Log::info('File downloaded', [
+            'file_id' => $file->id,
+            'project_id' => $project->id,
+            'user_id' => $user->id,
+            'filename' => $file->original_filename
+        ]);
+
+        return Storage::disk($disk)->download($file->storage_url, $file->original_filename);
     }
 
     public function destroy(File $file)
@@ -121,8 +135,9 @@ class FileController extends Controller
         }
 
         // Delete from storage
-        if (Storage::exists($file->storage_url)) {
-            Storage::delete($file->storage_url);
+        $disk = config('filesystems.default', 'local');
+        if (Storage::disk($disk)->exists($file->storage_url)) {
+            Storage::disk($disk)->delete($file->storage_url);
         }
 
         $file->delete();

@@ -25,10 +25,14 @@ class Project extends Model
         'admin_notes',
         'doi',
         'repo_url',
+        'custom_members',
+        'custom_advisors',
     ];
 
     protected $casts = [
         'keywords' => 'array',
+        'custom_members' => 'array',
+        'custom_advisors' => 'array',
         'is_public' => 'boolean',
         'approved_at' => 'datetime',
     ];

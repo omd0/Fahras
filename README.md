@@ -26,11 +26,14 @@ A comprehensive graduation project archiving system built with Laravel 11 and Re
    ```bash
    docker compose up -d
    ```
+   
+   MinIO cloud storage is included automatically!
 
 4. **Access the application**
    - **Frontend**: http://localhost:3000
    - **API**: http://localhost/api
    - **Database**: localhost:5433 (PostgreSQL)
+   - **MinIO Console**: http://localhost:9001 (if using cloud storage)
 
 ### Manual Setup
 
@@ -105,7 +108,7 @@ Based on the seeded database, these accounts are available:
 - **Framework**: Laravel 11 with API-only configuration
 - **Authentication**: Laravel Sanctum for SPA authentication
 - **Database**: PostgreSQL 16
-- **Storage**: Local file storage (configurable for cloud)
+- **Storage**: Cloud storage with MinIO (S3-compatible) or local file storage
 - **API**: RESTful API with JSON responses
 
 ### Frontend (React 18)
@@ -120,6 +123,7 @@ Based on the seeded database, these accounts are available:
 - **Web Server**: Nginx
 - **Database**: PostgreSQL 16
 - **Cache**: Redis
+- **Storage**: MinIO (S3-compatible object storage)
 
 ## 📁 Project Structure
 
@@ -225,6 +229,71 @@ docker compose down -v
 | node | 3000 | React development server |
 | db | 5433 | PostgreSQL database |
 | redis | 6379 | Redis cache server |
+| minio | 9000 | MinIO S3-compatible storage API |
+| minio-console | 9001 | MinIO web console |
+
+## ☁️ Cloud Storage Setup
+
+Fahras includes built-in support for cloud storage using MinIO (S3-compatible object storage). This provides:
+
+- **Scalable file storage** for project files
+- **S3-compatible API** for easy integration
+- **Web-based management console**
+- **Automatic backup and replication**
+
+### Using MinIO Cloud Storage
+
+MinIO is automatically included in the Docker setup. No additional configuration needed!
+
+1. **Access MinIO Console**:
+   - URL: http://localhost:9001
+   - Username: `minioadmin`
+   - Password: `minioadmin123`
+
+2. **Default bucket**: `fahras-files` (auto-created on first startup)
+
+3. **Files are automatically stored** in MinIO when uploaded through the application
+
+### Cloud Storage Configuration
+
+The system supports multiple cloud storage providers:
+
+- **MinIO** (S3-compatible) - Default for development
+- **AWS S3** - For production
+- **Google Cloud Storage** - Alternative cloud provider
+- **Azure Blob Storage** - Microsoft Azure
+- **Dropbox** - Cloud file hosting
+
+### Environment Variables for Cloud Storage
+
+```env
+# Storage Configuration
+FILESYSTEM_DISK=s3
+
+# MinIO Configuration (Development)
+AWS_ACCESS_KEY_ID=minioadmin
+AWS_SECRET_ACCESS_KEY=minioadmin123
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=fahras-files
+AWS_ENDPOINT=http://minio:9000
+AWS_USE_PATH_STYLE_ENDPOINT=true
+
+# AWS S3 Configuration (Production)
+# AWS_ACCESS_KEY_ID=your_access_key
+# AWS_SECRET_ACCESS_KEY=your_secret_key
+# AWS_DEFAULT_REGION=us-east-1
+# AWS_BUCKET=your-bucket-name
+# AWS_URL=https://your-bucket-name.s3.amazonaws.com
+```
+
+### Testing Cloud Storage
+
+Run the test script to verify cloud storage is working:
+
+```bash
+# Test MinIO connection and file operations
+php test-cloud-storage.php
+```
 
 ## 🔧 API Endpoints
 
