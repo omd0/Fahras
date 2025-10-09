@@ -19,6 +19,9 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 # Install PHP extensions
 RUN docker-php-ext-install pdo_pgsql mbstring exif pcntl bcmath gd
 
+# Install Redis extension
+RUN pecl install redis && docker-php-ext-enable redis
+
 # Copy custom PHP configuration for unlimited file uploads
 COPY php-custom.ini /usr/local/etc/php/conf.d/custom.ini
 
