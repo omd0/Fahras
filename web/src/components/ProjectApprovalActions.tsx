@@ -41,7 +41,7 @@ const ProjectApprovalActions: React.FC<ProjectApprovalActionsProps> = ({
     setError(null);
     
     try {
-      await apiService.approveProject(project.id, adminNotes);
+      await apiService.approveProject(project.id, { admin_notes: adminNotes });
       setApproveDialogOpen(false);
       setAdminNotes('');
       onActionComplete();
@@ -57,7 +57,7 @@ const ProjectApprovalActions: React.FC<ProjectApprovalActionsProps> = ({
     setError(null);
     
     try {
-      await apiService.hideProject(project.id, adminNotes);
+      await apiService.hideProject(project.id, { admin_notes: adminNotes });
       setHideDialogOpen(false);
       setAdminNotes('');
       onActionComplete();

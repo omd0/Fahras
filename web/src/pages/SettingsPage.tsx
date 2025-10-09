@@ -29,13 +29,23 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { TVTCLogo } from '../components/TVTCLogo';
+import { useAuthStore } from '../store/authStore';
+import { getDashboardTheme } from '../config/dashboardThemes';
 
 export const SettingsPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
+  const dashboardTheme = getDashboardTheme(user?.roles);
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
+      <AppBar 
+        position="static"
+        sx={{ 
+          background: dashboardTheme.appBarGradient,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        }}
+      >
         <Toolbar>
           <IconButton
             edge="start"

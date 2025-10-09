@@ -34,6 +34,8 @@ interface SearchFilters {
   is_public: boolean | null;
   sort_by: string;
   sort_order: string;
+  sort_year?: string;
+  sort_title?: string;
 }
 
 interface SearchProps {
@@ -53,6 +55,8 @@ export const ProjectSearch: React.FC<SearchProps> = ({ onSearch, onClear, loadin
     is_public: null,
     sort_by: 'created_at',
     sort_order: 'desc',
+    sort_year: '',
+    sort_title: '',
   });
 
   const [programs, setPrograms] = useState<any[]>([]);
@@ -115,6 +119,8 @@ export const ProjectSearch: React.FC<SearchProps> = ({ onSearch, onClear, loadin
       is_public: null,
       sort_by: 'created_at',
       sort_order: 'desc',
+      sort_year: '',
+      sort_title: '',
     });
     onClear();
   };
@@ -158,7 +164,6 @@ export const ProjectSearch: React.FC<SearchProps> = ({ onSearch, onClear, loadin
     { value: 'updated_at', label: 'Last Updated' },
     { value: 'title', label: 'Title' },
     { value: 'academic_year', label: 'Academic Year' },
-    { value: 'status', label: 'Status' },
   ];
 
   return (
@@ -247,6 +252,34 @@ export const ProjectSearch: React.FC<SearchProps> = ({ onSearch, onClear, loadin
             </Select>
           </FormControl>
         </Grid>
+
+        {/* Conditional Input: Year (for Date Created or Academic Year) */}
+        {(filters.sort_by === 'created_at' || filters.sort_by === 'academic_year') && (
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <TextField
+              fullWidth
+              label={filters.sort_by === 'created_at' ? 'Filter by Year Created' : 'Filter by Academic Year'}
+              placeholder="e.g., 2024"
+              value={filters.sort_year || ''}
+              onChange={(e) => handleInputChange('sort_year', e.target.value)}
+              type="number"
+              inputProps={{ min: 1900, max: 2100 }}
+            />
+          </Grid>
+        )}
+
+        {/* Conditional Input: Title (for Title sorting) */}
+        {filters.sort_by === 'title' && (
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <TextField
+              fullWidth
+              label="Filter by Title"
+              placeholder="Enter title to search for"
+              value={filters.sort_title || ''}
+              onChange={(e) => handleInputChange('sort_title', e.target.value)}
+            />
+          </Grid>
+        )}
 
         {/* Advanced Filters */}
         <Collapse in={showAdvanced} timeout="auto" unmountOnExit>

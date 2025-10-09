@@ -35,6 +35,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { apiService } from '../services/api';
 import { TVTCLogo } from '../components/TVTCLogo';
+import { getDashboardTheme } from '../config/dashboardThemes';
 
 interface AnalyticsData {
   status_distribution: Record<string, number>;
@@ -55,6 +56,7 @@ export const AnalyticsPage: React.FC = () => {
 
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const dashboardTheme = getDashboardTheme(user?.roles);
 
   useEffect(() => {
     fetchAnalytics();
@@ -136,7 +138,13 @@ export const AnalyticsPage: React.FC = () => {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
+      <AppBar 
+        position="static"
+        sx={{ 
+          background: dashboardTheme.appBarGradient,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        }}
+      >
         <Toolbar>
           <IconButton
             edge="start"

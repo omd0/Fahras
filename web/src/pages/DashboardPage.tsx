@@ -27,6 +27,7 @@ import { TVTCLogo } from '../components/TVTCLogo';
 import { NotificationCenter } from '../components/NotificationCenter';
 import { useNotifications } from '../hooks/useNotifications';
 import { useState } from 'react';
+import { getDashboardTheme } from '../config/dashboardThemes';
 
 export const DashboardPage: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -68,6 +69,9 @@ export const DashboardPage: React.FC = () => {
   };
 
   const userRole = getUserRole();
+  
+  // Get theme based on user role
+  const dashboardTheme = getDashboardTheme(user?.roles);
 
   // Render role-specific dashboard
   const renderDashboard = () => {
@@ -87,7 +91,13 @@ export const DashboardPage: React.FC = () => {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
+      <AppBar 
+        position="static" 
+        sx={{ 
+          background: dashboardTheme.appBarGradient,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        }}
+      >
         <Toolbar>
           <TVTCLogo size="medium" variant="icon" color="inherit" sx={{ mr: 2 }} />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>

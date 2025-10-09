@@ -32,6 +32,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { CreateProjectData, Program, User, Project } from '../types';
 import { apiService } from '../services/api';
+import { getDashboardTheme } from '../config/dashboardThemes';
 
 export const EditProjectPage: React.FC = () => {
   const [formData, setFormData] = useState<CreateProjectData>({
@@ -41,6 +42,7 @@ export const EditProjectPage: React.FC = () => {
     keywords: [],
     academic_year: '',
     semester: 'fall',
+    status: 'draft',
     members: [],
     advisors: [],
   });
@@ -57,6 +59,7 @@ export const EditProjectPage: React.FC = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const dashboardTheme = getDashboardTheme(user?.roles);
 
   // Redirect reviewers away from this page
   useEffect(() => {
@@ -86,6 +89,7 @@ export const EditProjectPage: React.FC = () => {
         keywords: project.keywords || [],
         academic_year: project.academic_year,
         semester: project.semester,
+        status: project.status,
         members: (project.members || []).map(member => ({
           user_id: member.id || -1,
           role: member.pivot.role_in_project,
@@ -262,7 +266,13 @@ export const EditProjectPage: React.FC = () => {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
+      <AppBar 
+        position="static"
+        sx={{ 
+          background: dashboardTheme.appBarGradient,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        }}
+      >
         <Toolbar>
           <IconButton
             edge="start"
@@ -389,6 +399,26 @@ export const EditProjectPage: React.FC = () => {
                       <MenuItem value="fall">Fall</MenuItem>
                       <MenuItem value="spring">Spring</MenuItem>
                       <MenuItem value="summer">Summer</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                {/* Project Status */}
+                <Grid size={{ xs: 12 }}>
+                  <FormControl fullWidth>
+                    <InputLabel>Project Status</InputLabel>
+                    <Select
+                      value={formData.status || 'draft'}
+                      onChange={(e) => handleInputChange('status', e.target.value)}
+                      label="Project Status"
+                      required
+                    >
+                      <MenuItem value="draft">Draft</MenuItem>
+                      <MenuItem value="submitted">Submitted</MenuItem>
+                      <MenuItem value="under_review">Under Review</MenuItem>
+                      <MenuItem value="approved">Approved</MenuItem>
+                      <MenuItem value="rejected">Rejected</MenuItem>
+                      <MenuItem value="completed">Completed</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>

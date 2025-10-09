@@ -380,23 +380,19 @@ class ApiService {
   }
 
   // Admin project approval endpoints
-  async approveProject(projectId: number, adminNotes?: string): Promise<{
+  async approveProject(projectId: number, data?: { admin_notes?: string; status?: string }): Promise<{
     message: string;
     project: Project;
   }> {
-    const response: AxiosResponse = await this.api.post(`/projects/${projectId}/approve`, {
-      admin_notes: adminNotes
-    });
+    const response: AxiosResponse = await this.api.post(`/projects/${projectId}/approve`, data || {});
     return response.data;
   }
 
-  async hideProject(projectId: number, adminNotes?: string): Promise<{
+  async hideProject(projectId: number, data?: { admin_notes?: string }): Promise<{
     message: string;
     project: Project;
   }> {
-    const response: AxiosResponse = await this.api.post(`/projects/${projectId}/hide`, {
-      admin_notes: adminNotes
-    });
+    const response: AxiosResponse = await this.api.post(`/projects/${projectId}/hide`, data || {});
     return response.data;
   }
 

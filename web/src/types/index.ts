@@ -121,6 +121,7 @@ export interface CreateProjectData {
   keywords?: string[];
   academic_year: string;
   semester: 'fall' | 'spring' | 'summer';
+  status?: 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected' | 'completed';
   members: Array<{
     user_id: number;
     role: 'LEAD' | 'MEMBER';
