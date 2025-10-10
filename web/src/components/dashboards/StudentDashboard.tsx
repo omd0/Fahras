@@ -176,7 +176,7 @@ export const StudentDashboard: React.FC = () => {
           </Card>
 
           {/* My Projects */}
-          <Card sx={{ borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+          <Card sx={{ mb: 4, borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
             <CardContent>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                 <Typography variant="h6" sx={{ fontWeight: 600 }}>My Projects</Typography>
@@ -217,6 +217,38 @@ export const StudentDashboard: React.FC = () => {
                   >
                     Create Project
                   </Button>
+                </Box>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* All Projects */}
+          <Card sx={{ borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>All Projects</Typography>
+                <Button variant="text" onClick={() => navigate('/analytics')} sx={{ color: theme.primary }}>
+                  View All
+                </Button>
+              </Box>
+
+              <Grid container spacing={3}>
+                {(projects || []).slice(0, 6).map((project) => (
+                  <Grid size={{ xs: 12, md: 6 }} key={`all-${project.id}`}>
+                    <ProjectCard
+                      project={project}
+                      theme={theme}
+                    />
+                  </Grid>
+                ))}
+              </Grid>
+
+              {projects.length === 0 && (
+                <Box sx={{ textAlign: 'center', py: 6 }}>
+                  <SchoolIcon sx={{ fontSize: 64, color: 'text.secondary', opacity: 0.3, mb: 2 }} />
+                  <Alert severity="info">
+                    No projects available yet.
+                  </Alert>
                 </Box>
               )}
             </CardContent>

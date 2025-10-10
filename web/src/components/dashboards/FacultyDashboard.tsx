@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Grid, CircularProgress, Alert } from '@mui/material';
+import { Box, Card, CardContent, Grid, Button, CircularProgress, Alert, Typography } from '@mui/material';
 import {
   Assignment as AssignmentIcon,
   RateReview as RateReviewIcon,
@@ -77,10 +77,6 @@ export const FacultyDashboard: React.FC = () => {
     }
   };
 
-  const myAdvisingProjects = (projects || []).filter(p => 
-    (p.advisors || []).some(advisor => advisor.id === user?.id)
-  );
-
   const quickActions: QuickAction[] = [
     {
       label: 'Evaluate Projects',
@@ -150,22 +146,66 @@ export const FacultyDashboard: React.FC = () => {
 
           <QuickActions theme={theme} actions={quickActions} />
 
-          <Grid container spacing={3}>
-            {myAdvisingProjects.slice(0, 6).map((project) => (
-              <Grid size={{ xs: 12, md: 6 }} key={project.id}>
-                <ProjectCard project={project} theme={theme} />
-              </Grid>
-            ))}
-          </Grid>
+          {/* My Advising Projects Section */}
+          <Card sx={{ mb: 4, borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>My Advising Projects</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {stats.advisingProjects} {stats.advisingProjects === 1 ? 'project' : 'projects'}
+                </Typography>
+              </Box>
 
-          {myAdvisingProjects.length === 0 && (
-            <Box sx={{ textAlign: 'center', py: 6 }}>
-              <SchoolIcon sx={{ fontSize: 64, color: 'text.secondary', opacity: 0.3, mb: 2 }} />
-              <Alert severity="info">
-                No advising projects yet. You will see projects here once students add you as their advisor.
-              </Alert>
-            </Box>
-          )}
+              <Grid container spacing={3}>
+                {(projects || [])
+                  .filter(p => (p.advisors || []).some(advisor => advisor.id === user?.id))
+                  .slice(0, 6)
+                  .map((project) => (
+                    <Grid size={{ xs: 12, md: 6 }} key={project.id}>
+                      <ProjectCard project={project} theme={theme} />
+                    </Grid>
+                  ))}
+              </Grid>
+
+              {stats.advisingProjects === 0 && (
+                <Box sx={{ textAlign: 'center', py: 6 }}>
+                  <SchoolIcon sx={{ fontSize: 64, color: 'text.secondary', opacity: 0.3, mb: 2 }} />
+                  <Alert severity="info">
+                    No advising projects yet. You will see projects here once students add you as their advisor.
+                  </Alert>
+                </Box>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* All Projects Section */}
+          <Card sx={{ borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>All Projects</Typography>
+                <Button variant="text" onClick={() => navigate('/analytics')} sx={{ color: theme.primary }}>
+                  View All
+                </Button>
+              </Box>
+
+              <Grid container spacing={3}>
+                {(projects || []).slice(0, 6).map((project) => (
+                  <Grid size={{ xs: 12, md: 6 }} key={project.id}>
+                    <ProjectCard project={project} theme={theme} />
+                  </Grid>
+                ))}
+              </Grid>
+
+              {projects.length === 0 && (
+                <Box sx={{ textAlign: 'center', py: 6 }}>
+                  <SchoolIcon sx={{ fontSize: 64, color: 'text.secondary', opacity: 0.3, mb: 2 }} />
+                  <Alert severity="info">
+                    No projects available yet.
+                  </Alert>
+                </Box>
+              )}
+            </CardContent>
+          </Card>
         </>
       )}
     </DashboardContainer>

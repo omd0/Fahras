@@ -1179,6 +1179,7 @@ class ProjectController extends Controller
 
         $validator = Validator::make($request->all(), [
             'admin_notes' => 'nullable|string|max:1000',
+            'status' => 'nullable|in:draft,submitted,under_review,approved,rejected,completed',
         ]);
 
         if ($validator->fails()) {
@@ -1188,12 +1189,19 @@ class ProjectController extends Controller
             ], 422);
         }
 
-        $project->update([
+        $updateData = [
             'admin_approval_status' => 'approved',
             'approved_by_user_id' => $request->user()->id,
             'approved_at' => now(),
             'admin_notes' => $request->admin_notes,
-        ]);
+        ];
+
+        // If status is provided, update it as well
+        if ($request->has('status')) {
+            $updateData['status'] = $request->status;
+        }
+
+        $project->update($updateData);
 
         // Make all project files public when project is approved
         $project->files()->update(['is_public' => true]);

@@ -38,16 +38,20 @@ import { apiService } from '../services/api';
 import { CommentSection } from '../components/CommentSection';
 import { RatingSection } from '../components/RatingSection';
 import ProjectVisibilityToggle from '../components/ProjectVisibilityToggle';
+import { StatusSelector } from '../components/StatusSelector';
+import { getDashboardTheme } from '../config/dashboardThemes';
 
 export const ProjectDetailPage: React.FC = () => {
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
 
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const dashboardTheme = getDashboardTheme(user?.roles);
 
   useEffect(() => {
     if (id) {
@@ -99,6 +103,14 @@ export const ProjectDetailPage: React.FC = () => {
     } finally {
       setDeleting(false);
     }
+  };
+
+  const handleStatusChange = async (newStatus: string) => {
+    if (!project) return;
+    
+    await apiService.updateProject(project.id, { status: newStatus as any });
+    // Refresh project data
+    await fetchProject(project.id);
   };
 
 
@@ -178,7 +190,13 @@ export const ProjectDetailPage: React.FC = () => {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
+      <AppBar 
+        position="static"
+        sx={{ 
+          background: dashboardTheme.appBarGradient,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        }}
+      >
         <Toolbar>
           <IconButton
             edge="start"
@@ -237,6 +255,14 @@ export const ProjectDetailPage: React.FC = () => {
                       label={project.status.replace('_', ' ')}
                       color={getStatusColor(project.status)}
                       variant="outlined"
+                      onClick={canEdit ? () => setStatusDialogOpen(true) : undefined}
+                      sx={{ 
+                        cursor: canEdit ? 'pointer' : 'default',
+                        '&:hover': canEdit ? {
+                          backgroundColor: 'action.hover',
+                          boxShadow: 1,
+                        } : {}
+                      }}
                     />
                     {/* Show approval status based on user role */}
                     {project.admin_approval_status && (
@@ -604,6 +630,16 @@ export const ProjectDetailPage: React.FC = () => {
           </Grid>
         )}
       </Container>
+
+      {/* Status Selector Dialog */}
+      {project && (
+        <StatusSelector
+          open={statusDialogOpen}
+          currentStatus={project.status}
+          onClose={() => setStatusDialogOpen(false)}
+          onSave={handleStatusChange}
+        />
+      )}
     </Box>
   );
 };
