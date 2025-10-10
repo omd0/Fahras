@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { LoginCredentials, RegisterData, User, Project, CreateProjectData, File, Program, Comment, Rating, Department } from '../types';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost/api';
 
 class ApiService {
   private api: AxiosInstance;
@@ -38,7 +38,14 @@ class ApiService {
         if (error.response?.status === 401) {
           // Clear auth data on unauthorized
           localStorage.removeItem('auth-storage');
-          window.location.href = '/login';
+          
+          // Only redirect to login if we're not already on a public page
+          const publicPaths = ['/', '/explore', '/login', '/register'];
+          const currentPath = window.location.pathname;
+          
+          if (!publicPaths.includes(currentPath)) {
+            window.location.href = '/login';
+          }
         }
         return Promise.reject(error);
       }

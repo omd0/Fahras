@@ -365,8 +365,8 @@ REDIS_PORT=6379
 
 ### Frontend (web/.env)
 ```env
-REACT_APP_API_URL=http://localhost/api
-REACT_APP_APP_NAME=Fahras
+VITE_API_URL=http://localhost/api
+VITE_APP_NAME=Fahras
 ```
 
 ## 🚨 Troubleshooting

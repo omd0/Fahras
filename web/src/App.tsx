@@ -6,6 +6,7 @@ import { Box } from '@mui/material';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { RoleProtectedRoute } from './components/RoleProtectedRoute';
+import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { DashboardPage } from './pages/DashboardPage';
@@ -154,6 +155,7 @@ function App() {
             <Box sx={{ flexGrow: 1 }}>
               <Routes>
           {/* Public routes */}
+          <Route path="/" element={<HomePage />} />
           <Route path="/explore" element={<PublicDashboardPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -264,11 +266,8 @@ function App() {
             }
           />
           
-          {/* Default redirect */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          
-          {/* Catch all route */}
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          {/* Catch all route - redirect to home */}
+          <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Box>
           
