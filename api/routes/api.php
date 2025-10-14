@@ -64,6 +64,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/files/{file}/download', [FileController::class, 'download']);
     Route::delete('/files/{file}', [FileController::class, 'destroy']);
 
+    // Document export routes
+    Route::get('/projects/{project}/export', [App\Http\Controllers\DocumentExportController::class, 'export']);
+
     // Evaluation routes
     Route::get('/projects/{project}/evaluations', [ProjectController::class, 'evaluations']);
     Route::post('/projects/{project}/evaluations', [ProjectController::class, 'createEvaluation']);

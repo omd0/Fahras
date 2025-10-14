@@ -461,6 +461,30 @@ class ApiService {
     return response.data;
   }
 
+  // Document export endpoints
+  async exportProject(
+    projectId: number,
+    format: 'pdf' | 'docx' | 'pptx',
+    options?: {
+      template?: 'report' | 'presentation';
+      rtl?: 'auto' | 'force' | 'ltr';
+    }
+  ): Promise<Blob> {
+    const params = new URLSearchParams();
+    params.append('format', format);
+    if (options?.template) params.append('template', options.template);
+    if (options?.rtl) params.append('rtl', options.rtl);
+
+    const response: AxiosResponse = await this.api.get(
+      `/projects/${projectId}/export?${params.toString()}`,
+      {
+        responseType: 'blob',
+      }
+    );
+    
+    return response.data;
+  }
+
   // Utility endpoints
 }
 

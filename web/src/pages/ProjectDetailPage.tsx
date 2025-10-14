@@ -30,6 +30,7 @@ import {
   CalendarToday as CalendarIcon,
   Label as LabelIcon,
   FileDownload as FileDownloadIcon,
+  Description as DescriptionIcon,
 } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
@@ -40,6 +41,7 @@ import { RatingSection } from '../components/RatingSection';
 import ProjectVisibilityToggle from '../components/ProjectVisibilityToggle';
 import { StatusSelector } from '../components/StatusSelector';
 import { getDashboardTheme } from '../config/dashboardThemes';
+import { ProjectExportDialog } from '../components/ProjectExportDialog';
 
 export const ProjectDetailPage: React.FC = () => {
   const [project, setProject] = useState<Project | null>(null);
@@ -47,6 +49,7 @@ export const ProjectDetailPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
 
   const { user } = useAuthStore();
   const navigate = useNavigate();
@@ -219,6 +222,14 @@ export const ProjectDetailPage: React.FC = () => {
               Edit
             </Button>
           )}
+          <Button
+            color="inherit"
+            startIcon={<DescriptionIcon />}
+            onClick={() => setExportDialogOpen(true)}
+            sx={{ mr: 1 }}
+          >
+            Export
+          </Button>
           {canDelete && (
             <Button
               color="inherit"
@@ -638,6 +649,15 @@ export const ProjectDetailPage: React.FC = () => {
           currentStatus={project.status}
           onClose={() => setStatusDialogOpen(false)}
           onSave={handleStatusChange}
+        />
+      )}
+
+      {/* Export Dialog */}
+      {project && (
+        <ProjectExportDialog
+          open={exportDialogOpen}
+          onClose={() => setExportDialogOpen(false)}
+          project={project}
         />
       )}
     </Box>
