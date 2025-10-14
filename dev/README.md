@@ -15,7 +15,7 @@ This directory contains comprehensive documentation for the Fahras project's use
 
 - **React 19.1.1** - Frontend framework
 - **Material-UI v7.3.2** - Component library and design system
-- **TypeScript 4.9.5** - Type safety and development experience
+- **TypeScript 4.9.5** - Type safety and development experience  bf
 - **React Router v7.9.1** - Client-side routing
 - **Zustand 5.0.8** - State management
 - **Axios 1.12.2** - HTTP client
