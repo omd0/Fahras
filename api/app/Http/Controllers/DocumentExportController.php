@@ -448,12 +448,24 @@ HTML;
         $html .= '<thead><tr><th>Name</th><th>Role</th><th>Email</th></tr></thead>';
         $html .= '<tbody>';
         
+        // Process regular members (from database relationship)
         foreach ($project->members as $member) {
             $name = htmlspecialchars($member->full_name);
             $role = htmlspecialchars($member->pivot->role_in_project ?? 'MEMBER');
             $email = htmlspecialchars($member->email ?? 'N/A');
             
             $html .= "<tr><td>{$name}</td><td>{$role}</td><td>{$email}</td></tr>";
+        }
+        
+        // Process custom members (from JSON field)
+        if ($project->custom_members) {
+            foreach ($project->custom_members as $customMember) {
+                $name = htmlspecialchars($customMember['name']);
+                $role = htmlspecialchars($customMember['role'] ?? 'MEMBER');
+                $email = 'N/A'; // Custom members don't have email
+                
+                $html .= "<tr><td>{$name}</td><td>{$role}</td><td>{$email}</td></tr>";
+            }
         }
         
         $html .= '</tbody></table>';
@@ -463,7 +475,10 @@ HTML;
 
     private function buildAdvisorsSection(Project $project, string $align): string
     {
-        if ($project->advisors->isEmpty()) {
+        $hasRegularAdvisors = !$project->advisors->isEmpty();
+        $hasCustomAdvisors = !empty($project->custom_advisors);
+        
+        if (!$hasRegularAdvisors && !$hasCustomAdvisors) {
             return '';
         }
         
@@ -472,12 +487,24 @@ HTML;
         $html .= '<thead><tr><th>Name</th><th>Role</th><th>Email</th></tr></thead>';
         $html .= '<tbody>';
         
+        // Process regular advisors (from database relationship)
         foreach ($project->advisors as $advisor) {
             $name = htmlspecialchars($advisor->full_name);
             $role = htmlspecialchars($advisor->pivot->advisor_role ?? 'ADVISOR');
             $email = htmlspecialchars($advisor->email ?? 'N/A');
             
             $html .= "<tr><td>{$name}</td><td>{$role}</td><td>{$email}</td></tr>";
+        }
+        
+        // Process custom advisors (from JSON field)
+        if ($project->custom_advisors) {
+            foreach ($project->custom_advisors as $customAdvisor) {
+                $name = htmlspecialchars($customAdvisor['name']);
+                $role = htmlspecialchars($customAdvisor['role'] ?? 'ADVISOR');
+                $email = 'N/A'; // Custom advisors don't have email
+                
+                $html .= "<tr><td>{$name}</td><td>{$role}</td><td>{$email}</td></tr>";
+            }
         }
         
         $html .= '</tbody></table>';
@@ -547,6 +574,7 @@ HTML;
         $table->addCell(2000)->addText('Role', ['bold' => true]);
         $table->addCell(3000)->addText('Email', ['bold' => true]);
         
+        // Process regular members (from database relationship)
         foreach ($project->members as $member) {
             $table->addRow();
             $table->addCell(3000)->addText($member->full_name);
@@ -554,8 +582,21 @@ HTML;
             $table->addCell(3000)->addText($member->email ?? 'N/A');
         }
         
+        // Process custom members (from JSON field)
+        if ($project->custom_members) {
+            foreach ($project->custom_members as $customMember) {
+                $table->addRow();
+                $table->addCell(3000)->addText($customMember['name']);
+                $table->addCell(2000)->addText($customMember['role'] ?? 'MEMBER');
+                $table->addCell(3000)->addText('N/A'); // Custom members don't have email
+            }
+        }
+        
         // Advisors
-        if ($project->advisors->isNotEmpty()) {
+        $hasRegularAdvisors = $project->advisors->isNotEmpty();
+        $hasCustomAdvisors = !empty($project->custom_advisors);
+        
+        if ($hasRegularAdvisors || $hasCustomAdvisors) {
             $section->addTextBreak(2);
             $section->addText('Project Advisors', 'headingStyle', $isRTL ? 'rightAlign' : null);
             $section->addTextBreak(1);
@@ -566,11 +607,22 @@ HTML;
             $table->addCell(2000)->addText('Role', ['bold' => true]);
             $table->addCell(3000)->addText('Email', ['bold' => true]);
             
+            // Process regular advisors (from database relationship)
             foreach ($project->advisors as $advisor) {
                 $table->addRow();
                 $table->addCell(3000)->addText($advisor->full_name);
                 $table->addCell(2000)->addText($advisor->pivot->advisor_role ?? 'ADVISOR');
                 $table->addCell(3000)->addText($advisor->email ?? 'N/A');
+            }
+            
+            // Process custom advisors (from JSON field)
+            if ($project->custom_advisors) {
+                foreach ($project->custom_advisors as $customAdvisor) {
+                    $table->addRow();
+                    $table->addCell(3000)->addText($customAdvisor['name']);
+                    $table->addCell(2000)->addText($customAdvisor['role'] ?? 'ADVISOR');
+                    $table->addCell(3000)->addText('N/A'); // Custom advisors don't have email
+                }
             }
         }
     }
@@ -652,19 +704,44 @@ HTML;
         $teamContent->getActiveParagraph()->getAlignment()->setHorizontal($isRTL ? 'r' : 'l');
         
         $teamContent->createTextRun('Team Members:')->getFont()->setBold(true)->setSize(18);
+        
+        // Process regular members (from database relationship)
         foreach ($project->members as $member) {
             $role = $member->pivot->role_in_project ?? 'MEMBER';
             $teamContent->createParagraph()->createTextRun("• {$member->full_name} ({$role})")
                 ->getFont()->setSize(14);
         }
         
-        if ($project->advisors->isNotEmpty()) {
+        // Process custom members (from JSON field)
+        if ($project->custom_members) {
+            foreach ($project->custom_members as $customMember) {
+                $role = $customMember['role'] ?? 'MEMBER';
+                $teamContent->createParagraph()->createTextRun("• {$customMember['name']} ({$role})")
+                    ->getFont()->setSize(14);
+            }
+        }
+        
+        $hasRegularAdvisors = $project->advisors->isNotEmpty();
+        $hasCustomAdvisors = !empty($project->custom_advisors);
+        
+        if ($hasRegularAdvisors || $hasCustomAdvisors) {
             $teamContent->createParagraph()->createTextRun("\nAdvisors:")
                 ->getFont()->setBold(true)->setSize(18);
+            
+            // Process regular advisors (from database relationship)
             foreach ($project->advisors as $advisor) {
                 $role = $advisor->pivot->advisor_role ?? 'ADVISOR';
                 $teamContent->createParagraph()->createTextRun("• {$advisor->full_name} ({$role})")
                     ->getFont()->setSize(14);
+            }
+            
+            // Process custom advisors (from JSON field)
+            if ($project->custom_advisors) {
+                foreach ($project->custom_advisors as $customAdvisor) {
+                    $role = $customAdvisor['role'] ?? 'ADVISOR';
+                    $teamContent->createParagraph()->createTextRun("• {$customAdvisor['name']} ({$role})")
+                        ->getFont()->setSize(14);
+                }
             }
         }
     }
