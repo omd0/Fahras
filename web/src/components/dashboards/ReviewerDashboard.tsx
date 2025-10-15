@@ -19,7 +19,7 @@ import { DashboardContainer } from '../shared/DashboardContainer';
 import { DashboardHeader } from '../shared/DashboardHeader';
 import { StatsCard } from '../shared/StatsCard';
 import { ProjectCard } from '../shared/ProjectCard';
-import { ProjectSearch } from '../ProjectSearch';
+import { UniversalSearchBox } from '../shared/UniversalSearchBox';
 
 interface ReviewerStats {
   totalProjects: number;
@@ -55,7 +55,12 @@ export const ReviewerDashboard: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const response = await apiService.getProjects('per_page=100');
+      // Fetch recent projects sorted by updated_at descending to show most recently updated first
+      const response = await apiService.getProjects({
+        per_page: 100,
+        sort_by: 'updated_at',
+        sort_order: 'desc'
+      });
       const projectsData = Array.isArray(response) ? response : response.data || [];
 
       const approvedProjects = projectsData.filter((p: Project) => 
@@ -97,9 +102,12 @@ export const ReviewerDashboard: React.FC = () => {
       if (filters.program_id) params.program_id = filters.program_id;
       if (filters.department_id) params.department_id = filters.department_id;
       if (filters.academic_year) params.academic_year = filters.academic_year;
+      if (filters.academic_year_filter) params.academic_year = filters.academic_year_filter;
       if (filters.semester) params.semester = filters.semester;
       if (filters.sort_by) params.sort_by = filters.sort_by;
       if (filters.sort_order) params.sort_order = filters.sort_order;
+      if (filters.title_search) params.title_search = filters.title_search;
+      if (filters.is_public !== null && filters.is_public !== undefined) params.is_public = filters.is_public;
 
       const response = await apiService.getProjects(params);
       const projectsData = Array.isArray(response) ? response : response.data || [];
@@ -200,10 +208,17 @@ export const ReviewerDashboard: React.FC = () => {
               color: 'white',
             },
           }}>
-            <ProjectSearch 
+            <UniversalSearchBox 
               onSearch={handleSearch}
               onClear={handleClearSearch}
               loading={isSearching}
+              theme={theme}
+              variant="default"
+              showAdvancedFilters={true}
+              roleSpecificFilters={{
+                showPublicFilter: true,
+              }}
+              placeholder="Search projects for review..."
             />
           </Box>
 
@@ -293,12 +308,44 @@ export const ReviewerDashboard: React.FC = () => {
             </Card>
           )}
 
-          {/* Projects Display */}
+          {/* My Projects */}
+          <Card sx={{ mb: 4, borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>My Projects</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {(filteredProjects || []).filter(p => p.created_by_user_id === user?.id).length} {(filteredProjects || []).filter(p => p.created_by_user_id === user?.id).length === 1 ? 'project' : 'projects'}
+                </Typography>
+              </Box>
+
+              <Grid container spacing={3}>
+                {(filteredProjects || [])
+                  .filter(p => p.created_by_user_id === user?.id)
+                  .slice(0, 6)
+                  .map((project) => (
+                    <Grid size={{ xs: 12, md: 6 }} key={project.id}>
+                      <ProjectCard project={project} theme={theme} />
+                    </Grid>
+                  ))}
+              </Grid>
+
+              {(filteredProjects || []).filter(p => p.created_by_user_id === user?.id).length === 0 && (
+                <Box sx={{ textAlign: 'center', py: 6 }}>
+                  <SchoolIcon sx={{ fontSize: 64, color: 'text.secondary', opacity: 0.3, mb: 2 }} />
+                  <Alert severity="info">
+                    No projects created yet. Create your first project to get started.
+                  </Alert>
+                </Box>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* All Projects Display */}
           <Card sx={{ borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
             <CardContent>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                 <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                  {filteredProjects.length !== projects.length ? 'Search Results' : 'Recent Projects'}
+                  {filteredProjects.length !== projects.length ? 'Search Results' : 'All Projects'}
                 </Typography>
                 <Button variant="text" onClick={() => navigate('/analytics')} sx={{ color: theme.primary }}>
                   View All

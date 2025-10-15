@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, Card, CardContent, Grid, Button, CircularProgress, Alert, Typography } from '@mui/material';
 import {
   Assignment as AssignmentIcon,
   RateReview as RateReviewIcon,
   School as SchoolIcon,
   TrendingUp as TrendingUpIcon,
+  FilterAlt as FilterAltIcon,
+  Clear as ClearIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { Project } from '../../types';
@@ -17,6 +19,7 @@ import { DashboardHeader } from '../shared/DashboardHeader';
 import { StatsCard } from '../shared/StatsCard';
 import { QuickActions, QuickAction } from '../shared/QuickActions';
 import { ProjectCard } from '../shared/ProjectCard';
+import { UniversalSearchBox } from '../shared/UniversalSearchBox';
 
 interface FacultyStats {
   advisingProjects: number;
@@ -27,8 +30,10 @@ interface FacultyStats {
 
 export const FacultyDashboard: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
   const [stats, setStats] = useState<FacultyStats>({
     advisingProjects: 0,
     underReview: 0,
@@ -40,6 +45,7 @@ export const FacultyDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const roleInfo = getRoleInfo('faculty');
+  const myProjectsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchDashboardData();
@@ -50,20 +56,26 @@ export const FacultyDashboard: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const response = await apiService.getProjects('per_page=20');
+      // Fetch recent projects sorted by updated_at descending to show most recently updated first
+      const response = await apiService.getProjects({
+        per_page: 20,
+        sort_by: 'updated_at',
+        sort_order: 'desc'
+      });
       const projectsData = Array.isArray(response) ? response : response.data || [];
 
       setProjects(projectsData);
+      setFilteredProjects(projectsData);
 
-      const advisingProjects = projectsData.filter((p: Project) => 
-        (p.advisors || []).some(advisor => advisor.id === user?.id)
+      const myProjects = projectsData.filter((p: Project) => 
+        p.created_by_user_id === user?.id
       );
 
       setStats({
-        advisingProjects: advisingProjects.length,
-        underReview: advisingProjects.filter((p: Project) => p.status === 'under_review').length,
-        completed: advisingProjects.filter((p: Project) => p.status === 'completed').length,
-        thisMonth: advisingProjects.filter((p: Project) => {
+        advisingProjects: myProjects.length,
+        underReview: myProjects.filter((p: Project) => p.status === 'under_review').length,
+        completed: myProjects.filter((p: Project) => p.status === 'completed').length,
+        thisMonth: myProjects.filter((p: Project) => {
           const createdDate = new Date(p.created_at);
           const now = new Date();
           return createdDate.getMonth() === now.getMonth() && createdDate.getFullYear() === now.getFullYear();
@@ -75,6 +87,56 @@ export const FacultyDashboard: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearch = async (filters: any) => {
+    try {
+      setIsSearching(true);
+      setError(null);
+
+      // Build query parameters from filters
+      const params: any = {};
+      if (filters.search) params.search = filters.search;
+      if (filters.status) params.status = filters.status;
+      if (filters.program_id) params.program_id = filters.program_id;
+      if (filters.department_id) params.department_id = filters.department_id;
+      if (filters.academic_year) params.academic_year = filters.academic_year;
+      if (filters.academic_year_filter) params.academic_year = filters.academic_year_filter;
+      if (filters.semester) params.semester = filters.semester;
+      if (filters.sort_by) params.sort_by = filters.sort_by;
+      if (filters.sort_order) params.sort_order = filters.sort_order;
+      if (filters.title_search) params.title_search = filters.title_search;
+      if (filters.is_public !== null && filters.is_public !== undefined) params.is_public = filters.is_public;
+
+      const response = await apiService.getProjects(params);
+      const projectsData = Array.isArray(response) ? response : response.data || [];
+
+      setFilteredProjects(projectsData);
+    } catch (error: any) {
+      console.error('Failed to search projects:', error);
+      setError(error.response?.data?.message || 'Failed to search projects');
+      setFilteredProjects([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setFilteredProjects(projects);
+    setIsSearching(false);
+  };
+
+  const scrollToMyProjects = () => {
+    if (myProjectsRef.current) {
+      myProjectsRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    }
+  };
+
+  const handlePendingApprovalClick = () => {
+    navigate('/faculty/pending-approval');
   };
 
   const quickActions: QuickAction[] = [
@@ -113,17 +175,21 @@ export const FacultyDashboard: React.FC = () => {
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <StatsCard
                 value={stats.advisingProjects}
-                label="Advising Projects"
+                label="My Projects"
                 icon={SchoolIcon}
                 gradient={`linear-gradient(135deg, ${theme.primary} 0%, ${theme.primary}dd 100%)`}
+                onClick={scrollToMyProjects}
+                clickable
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <StatsCard
                 value={stats.underReview}
-                label="Under Review"
+                label="Pending Approval"
                 icon={RateReviewIcon}
                 gradient={`linear-gradient(135deg, ${theme.accent} 0%, ${theme.accent}dd 100%)`}
+                onClick={handlePendingApprovalClick}
+                clickable
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -146,19 +212,97 @@ export const FacultyDashboard: React.FC = () => {
 
           <QuickActions theme={theme} actions={quickActions} />
 
-          {/* My Advising Projects Section */}
-          <Card sx={{ mb: 4, borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+          {/* Search Section */}
+          <Box sx={{ 
+            '& .MuiPaper-root': {
+              borderRadius: 3,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+              border: `2px solid ${theme.primary}20`,
+            },
+            '& .MuiButton-contained': {
+              background: theme.appBarGradient,
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 6px 16px rgba(0,0,0,0.15)',
+              },
+              transition: 'all 0.3s ease',
+            },
+          }}>
+            <UniversalSearchBox 
+              onSearch={handleSearch}
+              onClear={handleClearSearch}
+              loading={isSearching}
+              theme={theme}
+              variant="compact"
+              showAdvancedFilters={true}
+              roleSpecificFilters={{
+                showAdvisorFilter: true,
+              }}
+              placeholder="Search projects and content..."
+            />
+          </Box>
+
+          {/* Search Results Summary and Clear Button */}
+          {filteredProjects.length !== projects.length && (
+            <Box sx={{ mb: 3 }}>
+              <Alert 
+                severity="info" 
+                sx={{ 
+                  mb: 2,
+                  borderRadius: 2,
+                  background: `${theme.primary}10`,
+                  border: `1px solid ${theme.primary}40`,
+                  '& .MuiAlert-icon': {
+                    color: theme.primary,
+                  }
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <FilterAltIcon sx={{ fontSize: 20 }} />
+                    <Typography variant="body2">
+                      Showing <strong>{filteredProjects.length}</strong> of <strong>{projects.length}</strong> projects
+                    </Typography>
+                  </Box>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    startIcon={<ClearIcon />}
+                    onClick={handleClearSearch}
+                    disabled={isSearching}
+                    sx={{
+                      background: theme.appBarGradient,
+                      color: 'white',
+                      fontWeight: 600,
+                      px: 3,
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 6px 16px rgba(0,0,0,0.2)',
+                      },
+                      transition: 'all 0.3s ease',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    Clear All Filters
+                  </Button>
+                </Box>
+              </Alert>
+            </Box>
+          )}
+
+          {/* My Projects Section */}
+          <Card ref={myProjectsRef} sx={{ mb: 4, borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
             <CardContent>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>My Advising Projects</Typography>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>My Projects</Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {stats.advisingProjects} {stats.advisingProjects === 1 ? 'project' : 'projects'}
+                  {(filteredProjects || []).filter(p => p.created_by_user_id === user?.id).length} {(filteredProjects || []).filter(p => p.created_by_user_id === user?.id).length === 1 ? 'project' : 'projects'}
                 </Typography>
               </Box>
 
               <Grid container spacing={3}>
-                {(projects || [])
-                  .filter(p => (p.advisors || []).some(advisor => advisor.id === user?.id))
+                {(filteredProjects || [])
+                  .filter(p => p.created_by_user_id === user?.id)
                   .slice(0, 6)
                   .map((project) => (
                     <Grid size={{ xs: 12, md: 6 }} key={project.id}>
@@ -167,11 +311,11 @@ export const FacultyDashboard: React.FC = () => {
                   ))}
               </Grid>
 
-              {stats.advisingProjects === 0 && (
+              {(filteredProjects || []).filter(p => p.created_by_user_id === user?.id).length === 0 && (
                 <Box sx={{ textAlign: 'center', py: 6 }}>
                   <SchoolIcon sx={{ fontSize: 64, color: 'text.secondary', opacity: 0.3, mb: 2 }} />
                   <Alert severity="info">
-                    No advising projects yet. You will see projects here once students add you as their advisor.
+                    No projects created yet. Create your first project to get started.
                   </Alert>
                 </Box>
               )}
@@ -189,18 +333,30 @@ export const FacultyDashboard: React.FC = () => {
               </Box>
 
               <Grid container spacing={3}>
-                {(projects || []).slice(0, 6).map((project) => (
+                {(filteredProjects || [])
+                  .filter(p => p.created_by_user_id !== user?.id)
+                  .slice(0, 6)
+                  .map((project) => (
                   <Grid size={{ xs: 12, md: 6 }} key={project.id}>
                     <ProjectCard project={project} theme={theme} />
                   </Grid>
                 ))}
               </Grid>
 
+              {(filteredProjects || []).filter(p => p.created_by_user_id !== user?.id).length === 0 && projects.length > 0 && (
+                <Box sx={{ textAlign: 'center', py: 6 }}>
+                  <SchoolIcon sx={{ fontSize: 64, color: 'text.secondary', opacity: 0.3, mb: 2 }} />
+                  <Alert severity="info">
+                    No projects from other users match your search criteria. Try adjusting your filters.
+                  </Alert>
+                </Box>
+              )}
+
               {projects.length === 0 && (
                 <Box sx={{ textAlign: 'center', py: 6 }}>
                   <SchoolIcon sx={{ fontSize: 64, color: 'text.secondary', opacity: 0.3, mb: 2 }} />
                   <Alert severity="info">
-                    No projects available yet.
+                    No projects from other users available yet.
                   </Alert>
                 </Box>
               )}

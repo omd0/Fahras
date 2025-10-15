@@ -36,42 +36,22 @@ import {
   Search as SearchIcon,
   FilterList as FilterIcon,
   Visibility as ViewIcon,
-  CheckCircle as ApproveIcon,
-  VisibilityOff as HideIcon,
   Refresh as RefreshIcon,
   Home as HomeIcon,
 } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Project, Program, Department } from '../types';
 import { apiService } from '../services/api';
 import ProjectApprovalActions from '../components/ProjectApprovalActions';
 import ProjectVisibilityToggle from '../components/ProjectVisibilityToggle';
 
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-    </div>
-  );
-}
 
 const AdminProjectApprovalPage: React.FC = () => {
   const navigate = useNavigate();
-  const [tabValue, setTabValue] = useState(0);
+  const [searchParams] = useSearchParams();
+  
+  // Initialize state from URL parameters
+  const [tabValue, setTabValue] = useState(Number(searchParams.get('tab')) || 0);
   const [projects, setProjects] = useState<Project[]>([]);
   const [pendingProjects, setPendingProjects] = useState<Project[]>([]);
   const [programs, setPrograms] = useState<Program[]>([]);
@@ -79,12 +59,14 @@ const AdminProjectApprovalPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // Filters
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedProgram, setSelectedProgram] = useState<number | ''>('');
-  const [selectedDepartment, setSelectedDepartment] = useState<number | ''>('');
-  const [selectedYear, setSelectedYear] = useState('');
-  const [approvalStatus, setApprovalStatus] = useState<'pending' | 'approved' | 'hidden' | ''>('');
+  // Filters - initialize from URL params
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
+  const [selectedProgram, setSelectedProgram] = useState<number | ''>(Number(searchParams.get('program_id')) || '');
+  const [selectedDepartment, setSelectedDepartment] = useState<number | ''>(Number(searchParams.get('department_id')) || '');
+  const [selectedYear, setSelectedYear] = useState(searchParams.get('academic_year') || '');
+  const [approvalStatus, setApprovalStatus] = useState<'pending' | 'approved' | 'hidden' | ''>(
+    (searchParams.get('approval_status') as 'pending' | 'approved' | 'hidden') || ''
+  );
   
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);

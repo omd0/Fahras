@@ -21,7 +21,11 @@ import { ProfilePage } from './pages/ProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
 import { ApprovalsPage } from './pages/ApprovalsPage';
 import AdminProjectApprovalPage from './pages/AdminProjectApprovalPage';
+import FacultyPendingApprovalPage from './pages/FacultyPendingApprovalPage';
+import StudentMyProjectsPage from './pages/StudentMyProjectsPage';
+import { NotificationsPage } from './pages/NotificationsPage';
 import { TVTCBranding } from './components/TVTCBranding';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 const theme = createTheme({
   palette: {
@@ -263,6 +267,42 @@ function App() {
               <RoleProtectedRoute allowedRoles={['admin']}>
                 <AdminProjectApprovalPage />
               </RoleProtectedRoute>
+            }
+          />
+          
+          {/* Faculty Pending Approval route - faculty only */}
+          <Route
+            path="/faculty/pending-approval"
+            element={
+              <RoleProtectedRoute allowedRoles={['faculty']}>
+                <ErrorBoundary>
+                  <FacultyPendingApprovalPage />
+                </ErrorBoundary>
+              </RoleProtectedRoute>
+            }
+          />
+          
+          {/* Student My Projects route - student only */}
+          <Route
+            path="/student/my-projects"
+            element={
+              <RoleProtectedRoute allowedRoles={['student']}>
+                <ErrorBoundary>
+                  <StudentMyProjectsPage />
+                </ErrorBoundary>
+              </RoleProtectedRoute>
+            }
+          />
+          
+          {/* Notifications route - all authenticated users */}
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute>
+                <ErrorBoundary>
+                  <NotificationsPage />
+                </ErrorBoundary>
+              </ProtectedRoute>
             }
           />
           

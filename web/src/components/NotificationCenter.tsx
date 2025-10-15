@@ -23,7 +23,9 @@ import {
   Info as InfoIcon,
   Assignment as AssignmentIcon,
   Delete as DeleteIcon,
+  OpenInNew as OpenInNewIcon,
 } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import { useNotifications } from '../hooks/useNotifications';
 
 interface NotificationCenterProps {
@@ -32,6 +34,7 @@ interface NotificationCenterProps {
 }
 
 export const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, onClose }) => {
+  const navigate = useNavigate();
   const {
     notifications,
     unreadCount,
@@ -128,16 +131,29 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, on
           </IconButton>
         </Box>
 
-        {unreadCount > 0 && (
+        <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+          {unreadCount > 0 && (
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={markAllAsRead}
+            >
+              Mark All as Read
+            </Button>
+          )}
           <Button
-            variant="outlined"
+            variant="text"
             size="small"
-            onClick={markAllAsRead}
-            sx={{ mb: 2 }}
+            endIcon={<OpenInNewIcon />}
+            onClick={() => {
+              onClose();
+              navigate('/notifications');
+            }}
+            sx={{ ml: 'auto' }}
           >
-            Mark All as Read
+            View All
           </Button>
-        )}
+        </Box>
 
         <Divider sx={{ mb: 2 }} />
 

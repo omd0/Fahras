@@ -632,115 +632,342 @@ HTML;
      */
     private function buildPPTXContent($presentation, Project $project, bool $isRTL)
     {
-        // Slide 1: Title Slide
+        // Define TVTC brand color constants
+        $tvtcBlue = new \PhpOffice\PhpPresentation\Style\Color('FF1e3a8a');      // Primary
+        $tvtcLightBlue = new \PhpOffice\PhpPresentation\Style\Color('FF3b82f6'); // Accent
+        $lightGray = new \PhpOffice\PhpPresentation\Style\Color('FFf9fafb');     // Background
+        $mediumGray = new \PhpOffice\PhpPresentation\Style\Color('FFe5e7eb');    // Borders
+        $white = new \PhpOffice\PhpPresentation\Style\Color('FFffffff');         // Text backgrounds
+        $darkText = new \PhpOffice\PhpPresentation\Style\Color('FF1f2937');      // Text color
+        $lightText = new \PhpOffice\PhpPresentation\Style\Color('FF6b7280');     // Secondary text
+        
+        // Slide dimensions and layout constants
+        $slideWidth = 960;
+        $slideHeight = 540;
+        $margin = 50;
+        $headerHeight = 80;
+        $contentStartY = 100;
+        $spacing = 20;
+        
+        // Slide 1: Title Slide (Enhanced)
         $slide = $presentation->createSlide();
         $slide->setName('Title');
         
+        // Background gradient effect using shapes
+        $bgShape = $slide->createRichTextShape();
+        $bgShape->setWidth($slideWidth)->setHeight($slideHeight)->setOffsetX(0)->setOffsetY(0);
+        $bgShape->getFill()->setFillType(\PhpOffice\PhpPresentation\Style\Fill::FILL_SOLID)
+            ->setStartColor($lightGray);
+        
+        // TVTC Branding Header
+        $brandHeader = $slide->createRichTextShape();
+        $brandHeader->setHeight(60)->setWidth(900)->setOffsetX($margin)->setOffsetY(80);
+        $brandHeader->getActiveParagraph()->getAlignment()->setHorizontal('c');
+        $brandHeader->createTextRun('المؤسسة العامة للتدريب التقني والمهني')
+            ->getFont()->setBold(true)->setSize(20)->setColor($tvtcBlue);
+        $brandHeader->createParagraph()->createTextRun('Technical and Vocational Training Corporation')
+            ->getFont()->setSize(16)->setColor($lightText);
+        
+        // Decorative separator line
+        $separator = $slide->createRichTextShape();
+        $separator->setWidth(200)->setHeight(3)->setOffsetX(380)->setOffsetY(180);
+        $separator->getFill()->setFillType(\PhpOffice\PhpPresentation\Style\Fill::FILL_SOLID)
+            ->setStartColor($tvtcBlue);
+        
+        // Project Title
         $title = $slide->createRichTextShape();
-        $title->setHeight(100)->setWidth(900)->setOffsetX(50)->setOffsetY(200);
+        $title->setHeight(100)->setWidth(900)->setOffsetX($margin)->setOffsetY(220);
         $title->getActiveParagraph()->getAlignment()->setHorizontal($isRTL ? 'r' : 'c');
-        $title->createTextRun('TVTC Fahras')
-            ->getFont()->setBold(true)->setSize(32)->setColor(new \PhpOffice\PhpPresentation\Style\Color('FF1e3a8a'));
+        $title->createTextRun($project->title)
+            ->getFont()->setBold(true)->setSize(28)->setColor($darkText);
         
-        $subtitle = $slide->createRichTextShape();
-        $subtitle->setHeight(60)->setWidth(900)->setOffsetX(50)->setOffsetY(320);
-        $subtitle->getActiveParagraph()->getAlignment()->setHorizontal($isRTL ? 'r' : 'c');
-        $subtitle->createTextRun($project->title)
-            ->getFont()->setSize(24)->setColor(new \PhpOffice\PhpPresentation\Style\Color('FF333333'));
+        // Project Info Container
+        $infoContainer = $slide->createRichTextShape();
+        $infoContainer->setHeight(120)->setWidth(600)->setOffsetX(180)->setOffsetY(360);
+        $infoContainer->getFill()->setFillType(\PhpOffice\PhpPresentation\Style\Fill::FILL_SOLID)
+            ->setStartColor($white);
+        $infoContainer->getBorder()->setLineStyle(\PhpOffice\PhpPresentation\Style\Border::LINE_SINGLE)
+            ->setLineWidth(1)->setColor($mediumGray);
+        $infoContainer->getActiveParagraph()->getAlignment()->setHorizontal('c');
         
-        // Slide 2: Overview
+        $infoContainer->createTextRun('Program: ' . ($project->program->name ?? '') . "\n")
+            ->getFont()->setSize(14)->setColor($darkText);
+        $infoContainer->createParagraph()->createTextRun('Academic Year: ' . $project->academic_year . ' - ' . ucfirst($project->semester))
+            ->getFont()->setSize(14)->setColor($darkText);
+        
+        // Slide 2: Project Overview (Enhanced)
         $slide = $presentation->createSlide();
         $slide->setName('Overview');
         
-        $titleShape = $slide->createRichTextShape();
-        $titleShape->setHeight(50)->setWidth(900)->setOffsetX(50)->setOffsetY(50);
-        $titleShape->getActiveParagraph()->getAlignment()->setHorizontal($isRTL ? 'r' : 'l');
-        $titleShape->createTextRun('Project Overview')
-            ->getFont()->setBold(true)->setSize(28)->setColor(new \PhpOffice\PhpPresentation\Style\Color('FF1e3a8a'));
+        // Header bar
+        $headerBar = $slide->createRichTextShape();
+        $headerBar->setWidth($slideWidth)->setHeight($headerHeight)->setOffsetX(0)->setOffsetY(0);
+        $headerBar->getFill()->setFillType(\PhpOffice\PhpPresentation\Style\Fill::FILL_SOLID)
+            ->setStartColor($tvtcBlue);
         
-        $content = $slide->createRichTextShape();
-        $content->setHeight(400)->setWidth(900)->setOffsetX(50)->setOffsetY(120);
-        $content->getActiveParagraph()->getAlignment()->setHorizontal($isRTL ? 'r' : 'l');
+        $headerText = $slide->createRichTextShape();
+        $headerText->setHeight($headerHeight)->setWidth(900)->setOffsetX($margin)->setOffsetY(0);
+        $headerText->getActiveParagraph()->getAlignment()->setHorizontal($isRTL ? 'r' : 'l');
+        $headerText->createTextRun('Project Overview')
+            ->getFont()->setBold(true)->setSize(24)->setColor($white);
         
-        $content->createTextRun('Program: ' . ($project->program->name ?? '') . "\n")
-            ->getFont()->setSize(16);
-        $content->createParagraph()->createTextRun('Department: ' . ($project->program->department->name ?? '') . "\n")
-            ->getFont()->setSize(16);
-        $content->createParagraph()->createTextRun('Academic Year: ' . $project->academic_year . "\n")
-            ->getFont()->setSize(16);
-        $content->createParagraph()->createTextRun('Semester: ' . ucfirst($project->semester) . "\n")
-            ->getFont()->setSize(16);
-        $content->createParagraph()->createTextRun('Status: ' . ucfirst(str_replace('_', ' ', $project->status)))
-            ->getFont()->setSize(16);
+        // Content container with background
+        $contentContainer = $slide->createRichTextShape();
+        $contentContainer->setWidth(860)->setHeight(380)->setOffsetX($margin)->setOffsetY($contentStartY);
+        $contentContainer->getFill()->setFillType(\PhpOffice\PhpPresentation\Style\Fill::FILL_SOLID)
+            ->setStartColor($lightGray);
+        $contentContainer->getBorder()->setLineStyle(\PhpOffice\PhpPresentation\Style\Border::LINE_SINGLE)
+            ->setLineWidth(1)->setColor($mediumGray);
         
-        // Slide 3: Abstract
+        // Two-column layout using shapes
+        $leftColumn = $slide->createRichTextShape();
+        $leftColumn->setHeight(300)->setWidth(400)->setOffsetX($margin + 30)->setOffsetY($contentStartY + 30);
+        $leftColumn->getActiveParagraph()->getAlignment()->setHorizontal($isRTL ? 'r' : 'l');
+        
+        $leftColumn->createTextRun('📋 Program Information')
+            ->getFont()->setBold(true)->setSize(16)->setColor($tvtcBlue);
+        $leftColumn->createParagraph()->createTextRun('Program: ' . ($project->program->name ?? '') . "\n")
+            ->getFont()->setSize(14)->setColor($darkText);
+        $leftColumn->createParagraph()->createTextRun('Department: ' . ($project->program->department->name ?? '') . "\n")
+            ->getFont()->setSize(14)->setColor($darkText);
+        $leftColumn->createParagraph()->createTextRun('Academic Year: ' . $project->academic_year . "\n")
+            ->getFont()->setSize(14)->setColor($darkText);
+        $leftColumn->createParagraph()->createTextRun('Semester: ' . ucfirst($project->semester))
+            ->getFont()->setSize(14)->setColor($darkText);
+        
+        $rightColumn = $slide->createRichTextShape();
+        $rightColumn->setHeight(300)->setWidth(400)->setOffsetX($margin + 450)->setOffsetY($contentStartY + 30);
+        $rightColumn->getActiveParagraph()->getAlignment()->setHorizontal($isRTL ? 'r' : 'l');
+        
+        $rightColumn->createTextRun('📊 Project Status')
+            ->getFont()->setBold(true)->setSize(16)->setColor($tvtcBlue);
+        $rightColumn->createParagraph()->createTextRun('Status: ' . ucfirst(str_replace('_', ' ', $project->status)) . "\n")
+            ->getFont()->setSize(14)->setColor($darkText);
+        $rightColumn->createParagraph()->createTextRun('Approval: ' . ucfirst($project->admin_approval_status ?? '') . "\n")
+            ->getFont()->setSize(14)->setColor($darkText);
+        if ($project->doi) {
+            $rightColumn->createParagraph()->createTextRun('DOI: ' . $project->doi . "\n")
+                ->getFont()->setSize(14)->setColor($darkText);
+        }
+        if ($project->repo_url) {
+            $rightColumn->createParagraph()->createTextRun('Repository: Available')
+                ->getFont()->setSize(14)->setColor($darkText);
+        }
+        
+        // Slide 3: Abstract (Enhanced)
         $slide = $presentation->createSlide();
         $slide->setName('Abstract');
         
-        $titleShape = $slide->createRichTextShape();
-        $titleShape->setHeight(50)->setWidth(900)->setOffsetX(50)->setOffsetY(50);
-        $titleShape->getActiveParagraph()->getAlignment()->setHorizontal($isRTL ? 'r' : 'l');
-        $titleShape->createTextRun('Abstract')
-            ->getFont()->setBold(true)->setSize(28)->setColor(new \PhpOffice\PhpPresentation\Style\Color('FF1e3a8a'));
+        // Header bar
+        $headerBar = $slide->createRichTextShape();
+        $headerBar->setWidth($slideWidth)->setHeight($headerHeight)->setOffsetX(0)->setOffsetY(0);
+        $headerBar->getFill()->setFillType(\PhpOffice\PhpPresentation\Style\Fill::FILL_SOLID)
+            ->setStartColor($tvtcBlue);
+        
+        $headerText = $slide->createRichTextShape();
+        $headerText->setHeight($headerHeight)->setWidth(900)->setOffsetX($margin)->setOffsetY(0);
+        $headerText->getActiveParagraph()->getAlignment()->setHorizontal($isRTL ? 'r' : 'l');
+        $headerText->createTextRun('Abstract')
+            ->getFont()->setBold(true)->setSize(24)->setColor($white);
+        
+        // Abstract content frame
+        $abstractFrame = $slide->createRichTextShape();
+        $abstractFrame->setWidth(860)->setHeight(380)->setOffsetX($margin)->setOffsetY($contentStartY);
+        $abstractFrame->getFill()->setFillType(\PhpOffice\PhpPresentation\Style\Fill::FILL_SOLID)
+            ->setStartColor($white);
+        $abstractFrame->getBorder()->setLineStyle(\PhpOffice\PhpPresentation\Style\Border::LINE_SINGLE)
+            ->setLineWidth(2)->setColor($tvtcLightBlue);
         
         $abstractText = $slide->createRichTextShape();
-        $abstractText->setHeight(400)->setWidth(900)->setOffsetX(50)->setOffsetY(120);
+        $abstractText->setHeight(350)->setWidth(800)->setOffsetX($margin + 30)->setOffsetY($contentStartY + 20);
         $abstractText->getActiveParagraph()->getAlignment()->setHorizontal($isRTL ? 'r' : 'l');
-        $abstractText->createTextRun(substr($project->abstract, 0, 500) . (strlen($project->abstract) > 500 ? '...' : ''))
-            ->getFont()->setSize(14);
+        $abstractText->createTextRun(substr($project->abstract, 0, 800) . (strlen($project->abstract) > 800 ? '...' : ''))
+            ->getFont()->setSize(14)->setColor($darkText);
         
-        // Slide 4: Team
+        // Slide 4: Keywords (NEW)
+        if (!empty($project->keywords)) {
+            $slide = $presentation->createSlide();
+            $slide->setName('Keywords');
+            
+            // Header bar
+            $headerBar = $slide->createRichTextShape();
+            $headerBar->setWidth($slideWidth)->setHeight($headerHeight)->setOffsetX(0)->setOffsetY(0);
+            $headerBar->getFill()->setFillType(\PhpOffice\PhpPresentation\Style\Fill::FILL_SOLID)
+                ->setStartColor($tvtcBlue);
+            
+            $headerText = $slide->createRichTextShape();
+            $headerText->setHeight($headerHeight)->setWidth(900)->setOffsetX($margin)->setOffsetY(0);
+            $headerText->getActiveParagraph()->getAlignment()->setHorizontal($isRTL ? 'r' : 'l');
+            $headerText->createTextRun('Keywords')
+                ->getFont()->setBold(true)->setSize(24)->setColor($white);
+            
+            // Keywords grid layout
+            $keywords = is_array($project->keywords) ? $project->keywords : [$project->keywords];
+            $keywordsPerRow = 3;
+            $keywordWidth = 250;
+            $keywordHeight = 60;
+            $keywordSpacing = 30;
+            
+            $startX = $margin + 50;
+            $startY = $contentStartY + 50;
+            
+            foreach ($keywords as $index => $keyword) {
+                $row = intval($index / $keywordsPerRow);
+                $col = $index % $keywordsPerRow;
+                
+                $x = $startX + ($col * ($keywordWidth + $keywordSpacing));
+                $y = $startY + ($row * ($keywordHeight + $keywordSpacing));
+                
+                // Keyword chip background
+                $chipBg = $slide->createRichTextShape();
+                $chipBg->setWidth($keywordWidth)->setHeight($keywordHeight)->setOffsetX($x)->setOffsetY($y);
+                $chipBg->getFill()->setFillType(\PhpOffice\PhpPresentation\Style\Fill::FILL_SOLID)
+                    ->setStartColor($tvtcLightBlue);
+                $chipBg->getBorder()->setLineStyle(\PhpOffice\PhpPresentation\Style\Border::LINE_SINGLE)
+                    ->setLineWidth(1)->setColor($tvtcBlue);
+                
+                // Keyword text
+                $keywordText = $slide->createRichTextShape();
+                $keywordText->setHeight($keywordHeight)->setWidth($keywordWidth)->setOffsetX($x)->setOffsetY($y);
+                $keywordText->getActiveParagraph()->getAlignment()->setHorizontal('c');
+                $keywordText->createTextRun($keyword)
+                    ->getFont()->setBold(true)->setSize(14)->setColor($white);
+            }
+        }
+        
+        // Slide 5: Team Members (Enhanced)
         $slide = $presentation->createSlide();
         $slide->setName('Team');
         
-        $titleShape = $slide->createRichTextShape();
-        $titleShape->setHeight(50)->setWidth(900)->setOffsetX(50)->setOffsetY(50);
-        $titleShape->getActiveParagraph()->getAlignment()->setHorizontal($isRTL ? 'r' : 'l');
-        $titleShape->createTextRun('Team Members & Advisors')
-            ->getFont()->setBold(true)->setSize(28)->setColor(new \PhpOffice\PhpPresentation\Style\Color('FF1e3a8a'));
+        // Header bar
+        $headerBar = $slide->createRichTextShape();
+        $headerBar->setWidth($slideWidth)->setHeight($headerHeight)->setOffsetX(0)->setOffsetY(0);
+        $headerBar->getFill()->setFillType(\PhpOffice\PhpPresentation\Style\Fill::FILL_SOLID)
+            ->setStartColor($tvtcBlue);
         
-        $teamContent = $slide->createRichTextShape();
-        $teamContent->setHeight(400)->setWidth(900)->setOffsetX(50)->setOffsetY(120);
-        $teamContent->getActiveParagraph()->getAlignment()->setHorizontal($isRTL ? 'r' : 'l');
+        $headerText = $slide->createRichTextShape();
+        $headerText->setHeight($headerHeight)->setWidth(900)->setOffsetX($margin)->setOffsetY(0);
+        $headerText->getActiveParagraph()->getAlignment()->setHorizontal($isRTL ? 'r' : 'l');
+        $headerText->createTextRun('Team Members & Advisors')
+            ->getFont()->setBold(true)->setSize(24)->setColor($white);
         
-        $teamContent->createTextRun('Team Members:')->getFont()->setBold(true)->setSize(18);
+        // Team Members Section
+        $teamSection = $slide->createRichTextShape();
+        $teamSection->setHeight(180)->setWidth(860)->setOffsetX($margin)->setOffsetY($contentStartY);
+        $teamSection->getFill()->setFillType(\PhpOffice\PhpPresentation\Style\Fill::FILL_SOLID)
+            ->setStartColor($lightGray);
+        $teamSection->getBorder()->setLineStyle(\PhpOffice\PhpPresentation\Style\Border::LINE_SINGLE)
+            ->setLineWidth(1)->setColor($mediumGray);
+        $teamSection->getActiveParagraph()->getAlignment()->setHorizontal($isRTL ? 'r' : 'l');
+        
+        $teamSection->createTextRun('👥 Team Members')
+            ->getFont()->setBold(true)->setSize(18)->setColor($tvtcBlue);
+        
+        $memberY = $contentStartY + 40;
+        $memberIndex = 0;
         
         // Process regular members (from database relationship)
         foreach ($project->members as $member) {
             $role = $member->pivot->role_in_project ?? 'MEMBER';
-            $teamContent->createParagraph()->createTextRun("• {$member->full_name} ({$role})")
-                ->getFont()->setSize(14);
+            $roleColor = $role === 'LEAD' ? $tvtcBlue : $tvtcLightBlue;
+            
+            $memberCard = $slide->createRichTextShape();
+            $memberCard->setWidth(400)->setHeight(40)->setOffsetX($margin + 20 + (($memberIndex % 2) * 420))->setOffsetY($memberY + (intval($memberIndex / 2) * 50));
+            $memberCard->getFill()->setFillType(\PhpOffice\PhpPresentation\Style\Fill::FILL_SOLID)
+                ->setStartColor($white);
+            $memberCard->getBorder()->setLineStyle(\PhpOffice\PhpPresentation\Style\Border::LINE_SINGLE)
+                ->setLineWidth(1)->setColor($roleColor);
+            
+            $memberText = $slide->createRichTextShape();
+            $memberText->setHeight(40)->setWidth(400)->setOffsetX($margin + 20 + (($memberIndex % 2) * 420))->setOffsetY($memberY + (intval($memberIndex / 2) * 50));
+            $memberText->getActiveParagraph()->getAlignment()->setHorizontal($isRTL ? 'r' : 'l');
+            $memberText->createTextRun("• {$member->full_name} ({$role})")
+                ->getFont()->setSize(14)->setColor($darkText);
+            
+            $memberIndex++;
         }
         
         // Process custom members (from JSON field)
         if ($project->custom_members) {
             foreach ($project->custom_members as $customMember) {
                 $role = $customMember['role'] ?? 'MEMBER';
-                $teamContent->createParagraph()->createTextRun("• {$customMember['name']} ({$role})")
-                    ->getFont()->setSize(14);
+                $roleColor = $role === 'LEAD' ? $tvtcBlue : $tvtcLightBlue;
+                
+                $memberCard = $slide->createRichTextShape();
+                $memberCard->setWidth(400)->setHeight(40)->setOffsetX($margin + 20 + (($memberIndex % 2) * 420))->setOffsetY($memberY + (intval($memberIndex / 2) * 50));
+                $memberCard->getFill()->setFillType(\PhpOffice\PhpPresentation\Style\Fill::FILL_SOLID)
+                    ->setStartColor($white);
+                $memberCard->getBorder()->setLineStyle(\PhpOffice\PhpPresentation\Style\Border::LINE_SINGLE)
+                    ->setLineWidth(1)->setColor($roleColor);
+                
+                $memberText = $slide->createRichTextShape();
+                $memberText->setHeight(40)->setWidth(400)->setOffsetX($margin + 20 + (($memberIndex % 2) * 420))->setOffsetY($memberY + (intval($memberIndex / 2) * 50));
+                $memberText->getActiveParagraph()->getAlignment()->setHorizontal($isRTL ? 'r' : 'l');
+                $memberText->createTextRun("• {$customMember['name']} ({$role})")
+                    ->getFont()->setSize(14)->setColor($darkText);
+                
+                $memberIndex++;
             }
         }
         
+        // Advisors Section
         $hasRegularAdvisors = $project->advisors->isNotEmpty();
         $hasCustomAdvisors = !empty($project->custom_advisors);
         
         if ($hasRegularAdvisors || $hasCustomAdvisors) {
-            $teamContent->createParagraph()->createTextRun("\nAdvisors:")
-                ->getFont()->setBold(true)->setSize(18);
+            $advisorSection = $slide->createRichTextShape();
+            $advisorSection->setHeight(180)->setWidth(860)->setOffsetX($margin)->setOffsetY($contentStartY + 200);
+            $advisorSection->getFill()->setFillType(\PhpOffice\PhpPresentation\Style\Fill::FILL_SOLID)
+                ->setStartColor($lightGray);
+            $advisorSection->getBorder()->setLineStyle(\PhpOffice\PhpPresentation\Style\Border::LINE_SINGLE)
+                ->setLineWidth(1)->setColor($mediumGray);
+            $advisorSection->getActiveParagraph()->getAlignment()->setHorizontal($isRTL ? 'r' : 'l');
+            
+            $advisorSection->createTextRun('🎓 Project Advisors')
+                ->getFont()->setBold(true)->setSize(18)->setColor($tvtcBlue);
+            
+            $advisorY = $contentStartY + 240;
+            $advisorIndex = 0;
             
             // Process regular advisors (from database relationship)
             foreach ($project->advisors as $advisor) {
                 $role = $advisor->pivot->advisor_role ?? 'ADVISOR';
-                $teamContent->createParagraph()->createTextRun("• {$advisor->full_name} ({$role})")
-                    ->getFont()->setSize(14);
+                
+                $advisorCard = $slide->createRichTextShape();
+                $advisorCard->setWidth(400)->setHeight(40)->setOffsetX($margin + 20 + (($advisorIndex % 2) * 420))->setOffsetY($advisorY + (intval($advisorIndex / 2) * 50));
+                $advisorCard->getFill()->setFillType(\PhpOffice\PhpPresentation\Style\Fill::FILL_SOLID)
+                    ->setStartColor($white);
+                $advisorCard->getBorder()->setLineStyle(\PhpOffice\PhpPresentation\Style\Border::LINE_SINGLE)
+                    ->setLineWidth(1)->setColor($tvtcBlue);
+                
+                $advisorText = $slide->createRichTextShape();
+                $advisorText->setHeight(40)->setWidth(400)->setOffsetX($margin + 20 + (($advisorIndex % 2) * 420))->setOffsetY($advisorY + (intval($advisorIndex / 2) * 50));
+                $advisorText->getActiveParagraph()->getAlignment()->setHorizontal($isRTL ? 'r' : 'l');
+                $advisorText->createTextRun("• {$advisor->full_name} ({$role})")
+                    ->getFont()->setSize(14)->setColor($darkText);
+                
+                $advisorIndex++;
             }
             
             // Process custom advisors (from JSON field)
             if ($project->custom_advisors) {
                 foreach ($project->custom_advisors as $customAdvisor) {
                     $role = $customAdvisor['role'] ?? 'ADVISOR';
-                    $teamContent->createParagraph()->createTextRun("• {$customAdvisor['name']} ({$role})")
-                        ->getFont()->setSize(14);
+                    
+                    $advisorCard = $slide->createRichTextShape();
+                    $advisorCard->setWidth(400)->setHeight(40)->setOffsetX($margin + 20 + (($advisorIndex % 2) * 420))->setOffsetY($advisorY + (intval($advisorIndex / 2) * 50));
+                    $advisorCard->getFill()->setFillType(\PhpOffice\PhpPresentation\Style\Fill::FILL_SOLID)
+                        ->setStartColor($white);
+                    $advisorCard->getBorder()->setLineStyle(\PhpOffice\PhpPresentation\Style\Border::LINE_SINGLE)
+                        ->setLineWidth(1)->setColor($tvtcBlue);
+                    
+                    $advisorText = $slide->createRichTextShape();
+                    $advisorText->setHeight(40)->setWidth(400)->setOffsetX($margin + 20 + (($advisorIndex % 2) * 420))->setOffsetY($advisorY + (intval($advisorIndex / 2) * 50));
+                    $advisorText->getActiveParagraph()->getAlignment()->setHorizontal($isRTL ? 'r' : 'l');
+                    $advisorText->createTextRun("• {$customAdvisor['name']} ({$role})")
+                        ->getFont()->setSize(14)->setColor($darkText);
+                    
+                    $advisorIndex++;
                 }
             }
         }

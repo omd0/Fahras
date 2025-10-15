@@ -7,6 +7,8 @@ interface StatsCardProps {
   label: string;
   icon: SvgIconComponent;
   gradient: string;
+  onClick?: () => void;
+  clickable?: boolean;
 }
 
 export const StatsCard: React.FC<StatsCardProps> = ({
@@ -14,6 +16,8 @@ export const StatsCard: React.FC<StatsCardProps> = ({
   label,
   icon: Icon,
   gradient,
+  onClick,
+  clickable = false,
 }) => {
   return (
     <Card
@@ -22,7 +26,14 @@ export const StatsCard: React.FC<StatsCardProps> = ({
         color: 'white',
         borderRadius: 3,
         boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+        cursor: clickable ? 'pointer' : 'default',
+        transition: 'all 0.3s ease',
+        '&:hover': clickable ? {
+          transform: 'translateY(-4px)',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+        } : {},
       }}
+      onClick={clickable ? onClick : undefined}
     >
       <CardContent>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

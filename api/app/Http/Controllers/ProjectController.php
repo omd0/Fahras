@@ -103,8 +103,8 @@ class ProjectController extends Controller
         }
 
         // Sorting options
-        $sortBy = $request->get('sort_by', 'created_at');
-        $sortOrder = $request->get('sort_order', 'desc');
+        $sortBy = $request->get('sort_by', 'title');
+        $sortOrder = $request->get('sort_order', 'asc');
         
         $allowedSortFields = ['created_at', 'updated_at', 'title', 'academic_year', 'status'];
         if (in_array($sortBy, $allowedSortFields)) {
