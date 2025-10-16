@@ -49,17 +49,21 @@ export const PublicDashboardPage: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const response = await apiService.getProjects('per_page=50');
+      // Fetch projects with is_public filter - the API will automatically 
+      // return only approved projects for unauthenticated users
+      const response = await apiService.getProjects({
+        per_page: 50,
+        is_public: true,
+        sort_by: 'created_at',
+        sort_order: 'desc'
+      });
       const projectsData = Array.isArray(response)
         ? response
         : response.data || [];
 
-      // Filter only approved and public projects
-      const publicProjects = projectsData.filter((p: Project) => 
-        p.admin_approval_status === 'approved' && p.is_public === true
-      );
-
-      setProjects(publicProjects);
+      // The API already filters for approved projects for unauthenticated users,
+      // so we just need to ensure we have the data
+      setProjects(projectsData || []);
     } catch (error: any) {
       console.error('Failed to fetch public projects:', error);
       setError(error.response?.data?.message || 'Failed to fetch projects');

@@ -262,6 +262,24 @@ class ProjectController extends Controller
     {
         $user = request()->user();
         
+        // Apply visibility rules based on user role
+        if (!$user) {
+            // Unauthenticated users: only see approved projects
+            if ($project->admin_approval_status !== 'approved') {
+                return response()->json([
+                    'message' => 'Project not found or not accessible'
+                ], 404);
+            }
+        } elseif (!$user->hasRole('admin') && !$user->hasRole('reviewer')) {
+            // Regular users: can see approved projects and their own projects (including hidden ones)
+            if ($project->admin_approval_status !== 'approved' && $project->created_by_user_id !== $user->id) {
+                return response()->json([
+                    'message' => 'Project not found or not accessible'
+                ], 404);
+            }
+        }
+        // Admin and Reviewer: can see all projects (including hidden ones)
+        
         $projectWithFiles = $project->load([
             'program.department',
             'creator',
@@ -333,7 +351,7 @@ class ProjectController extends Controller
 
         \Log::info('Project details requested', [
             'project_id' => $project->id,
-            'user_id' => $user->id,
+            'user_id' => $user ? $user->id : 'unauthenticated',
             'files_count' => count($projectData['files']),
             'files' => array_map(function($file) {
                 return [
@@ -1194,6 +1212,7 @@ class ProjectController extends Controller
             'approved_by_user_id' => $request->user()->id,
             'approved_at' => now(),
             'admin_notes' => $request->admin_notes,
+            'is_public' => true, // Automatically make project public when approved
         ];
 
         // If status is provided, update it as well
@@ -1248,6 +1267,7 @@ class ProjectController extends Controller
             'approved_by_user_id' => $request->user()->id,
             'approved_at' => now(),
             'admin_notes' => $request->admin_notes,
+            'is_public' => false, // Make project private when hidden
         ]);
 
         // Make all project files private when project is hidden
@@ -1292,12 +1312,14 @@ class ProjectController extends Controller
 
         // Toggle between approved and hidden
         $newStatus = $project->admin_approval_status === 'approved' ? 'hidden' : 'approved';
+        $isPublic = $newStatus === 'approved'; // Public when approved, private when hidden
         
         $project->update([
             'admin_approval_status' => $newStatus,
             'approved_by_user_id' => $request->user()->id,
             'approved_at' => now(),
             'admin_notes' => $request->admin_notes,
+            'is_public' => $isPublic,
         ]);
 
         // Create notification for project creator
@@ -1370,6 +1392,44 @@ class ProjectController extends Controller
                 'last_page' => $projects->lastPage(),
                 'has_more_pages' => $projects->hasMorePages(),
             ]
+        ]);
+    }
+
+    /**
+     * Get count of projects pending approval (admin only)
+     */
+    public function adminPendingApprovalCount(Request $request)
+    {
+        // Check if user is admin
+        if (!$request->user()->hasRole('admin')) {
+            return response()->json([
+                'message' => 'Unauthorized. Admin access required.'
+            ], 403);
+        }
+
+        $count = Project::where('admin_approval_status', 'pending')->count();
+
+        return response()->json([
+            'count' => $count
+        ]);
+    }
+
+    /**
+     * Get count of projects pending approval (admin and faculty)
+     */
+    public function getPendingApprovalCount(Request $request)
+    {
+        // Check if user is admin or faculty
+        if (!$request->user()->hasRole('admin') && !$request->user()->hasRole('faculty')) {
+            return response()->json([
+                'message' => 'Unauthorized. Admin or faculty access required.'
+            ], 403);
+        }
+
+        $count = Project::where('admin_approval_status', 'pending')->count();
+
+        return response()->json([
+            'count' => $count
         ]);
     }
 

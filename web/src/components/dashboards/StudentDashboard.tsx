@@ -335,7 +335,7 @@ export const StudentDashboard: React.FC = () => {
                                 handleMarkNotificationRead(notification.id);
                               }
                               if (notification.project?.id) {
-                                navigate(`/projects/${notification.project.id}`);
+                                navigate(`/dashboard/projects/${notification.project.id}`);
                               }
                             }}
                           >

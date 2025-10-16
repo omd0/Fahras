@@ -246,7 +246,7 @@ export const EditProjectPage: React.FC = () => {
         }
       }
 
-      navigate(`/projects/${id}`);
+      navigate(`/dashboard/projects/${id}`);
     } catch (error: any) {
       console.error('Project update failed:', error);
       console.error('Error response:', error.response?.data);
@@ -277,7 +277,7 @@ export const EditProjectPage: React.FC = () => {
           <IconButton
             edge="start"
             color="inherit"
-            onClick={() => navigate(`/projects/${id}`)}
+            onClick={() => navigate(`/dashboard/projects/${id}`)}
             sx={{ mr: 2 }}
           >
             <ArrowBackIcon />
@@ -641,7 +641,7 @@ export const EditProjectPage: React.FC = () => {
                   <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
                     <Button
                       variant="outlined"
-                      onClick={() => navigate(`/projects/${id}`)}
+                      onClick={() => navigate(`/dashboard/projects/${id}`)}
                       disabled={loading}
                     >
                       Cancel

@@ -23,7 +23,7 @@ import { UniversalSearchBox } from '../shared/UniversalSearchBox';
 
 interface FacultyStats {
   advisingProjects: number;
-  underReview: number;
+  pendingApprovals: number;
   completed: number;
   thisMonth: number;
 }
@@ -36,7 +36,7 @@ export const FacultyDashboard: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [stats, setStats] = useState<FacultyStats>({
     advisingProjects: 0,
-    underReview: 0,
+    pendingApprovals: 0,
     completed: 0,
     thisMonth: 0,
   });
@@ -71,9 +71,19 @@ export const FacultyDashboard: React.FC = () => {
         p.created_by_user_id === user?.id
       );
 
+      // Fetch pending approval count separately
+      let pendingApprovalsCount = 0;
+      try {
+        const pendingCountResponse = await apiService.getPendingApprovalCount();
+        pendingApprovalsCount = pendingCountResponse.count;
+      } catch (error) {
+        console.warn('Failed to fetch pending approval count:', error);
+        // Don't fail the entire dashboard if this fails
+      }
+
       setStats({
         advisingProjects: myProjects.length,
-        underReview: myProjects.filter((p: Project) => p.status === 'under_review').length,
+        pendingApprovals: pendingApprovalsCount,
         completed: myProjects.filter((p: Project) => p.status === 'completed').length,
         thisMonth: myProjects.filter((p: Project) => {
           const createdDate = new Date(p.created_at);
@@ -184,7 +194,7 @@ export const FacultyDashboard: React.FC = () => {
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <StatsCard
-                value={stats.underReview}
+                value={stats.pendingApprovals}
                 label="Pending Approval"
                 icon={RateReviewIcon}
                 gradient={`linear-gradient(135deg, ${theme.accent} 0%, ${theme.accent}dd 100%)`}

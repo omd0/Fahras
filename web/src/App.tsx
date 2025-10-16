@@ -14,6 +14,7 @@ import { PublicDashboardPage } from './pages/PublicDashboardPage';
 import { CreateProjectPage } from './pages/CreateProjectPage';
 import { EditProjectPage } from './pages/EditProjectPage';
 import { ProjectDetailPage } from './pages/ProjectDetailPage';
+import { PublicProjectDetailPage } from './pages/PublicProjectDetailPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
 import { EvaluationsPage } from './pages/EvaluationsPage';
 import { UserManagementPage } from './pages/UserManagementPage';
@@ -183,8 +184,15 @@ function App() {
               </RoleProtectedRoute>
             }
           />
+          {/* Public project detail route */}
           <Route
             path="/projects/:id"
+            element={<PublicProjectDetailPage />}
+          />
+          
+          {/* Protected project detail route for authenticated users */}
+          <Route
+            path="/dashboard/projects/:id"
             element={
               <ProtectedRoute>
                 <ProjectDetailPage />

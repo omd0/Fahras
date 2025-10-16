@@ -32,6 +32,17 @@ Route::get('/users', function () {
     return response()->json(\App\Models\User::all());
 });
 
+// Public project routes (for unauthenticated users)
+Route::get('/projects', [ProjectController::class, 'index']);
+Route::get('/projects/{project}', [ProjectController::class, 'show']);
+
+// Public project interaction routes (read-only for unauthenticated users)
+Route::get('/projects/{project}/comments', [ProjectController::class, 'getComments']);
+Route::get('/projects/{project}/ratings', [ProjectController::class, 'getRatings']);
+
+// Public file download route (for approved projects only)
+Route::get('/files/{file}/download', [FileController::class, 'download']);
+
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     // Authentication routes
@@ -49,8 +60,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/projects/analytics', [ProjectController::class, 'analytics']);
     Route::get('/projects/suggestions', [ProjectController::class, 'suggestions']);
     
-    // Project routes
-    Route::apiResource('projects', ProjectController::class);
+    // Project routes (protected actions only)
+    Route::post('/projects', [ProjectController::class, 'store']);
+    Route::put('/projects/{project}', [ProjectController::class, 'update']);
+    Route::delete('/projects/{project}', [ProjectController::class, 'destroy']);
     
     // Project member routes
     Route::get('/projects/{project}/members', [ProjectController::class, 'members']);
@@ -58,10 +71,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/projects/{project}/members/{user}', [ProjectController::class, 'updateMember']);
     Route::delete('/projects/{project}/members/{user}', [ProjectController::class, 'removeMember']);
 
+    // Pending approval count (admin and faculty)
+    Route::get('/projects/pending-count', [ProjectController::class, 'getPendingApprovalCount']);
+
     // File routes
     Route::post('/projects/{project}/files', [FileController::class, 'upload']);
     Route::get('/projects/{project}/files', [FileController::class, 'index']);
-    Route::get('/files/{file}/download', [FileController::class, 'download']);
     Route::delete('/files/{file}', [FileController::class, 'destroy']);
 
     // Document export routes
@@ -89,10 +104,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy']);
     Route::delete('/notifications', [NotificationController::class, 'destroyAll']);
 
-    // Project interaction routes (comments and ratings)
-    Route::get('/projects/{project}/comments', [ProjectController::class, 'getComments']);
+    // Project interaction routes (comments and ratings) - write operations only
     Route::post('/projects/{project}/comments', [ProjectController::class, 'addComment']);
-    Route::get('/projects/{project}/ratings', [ProjectController::class, 'getRatings']);
     Route::post('/projects/{project}/rate', [ProjectController::class, 'rateProject']);
 
     // Admin-only project approval routes
@@ -102,5 +115,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/projects/{project}/toggle-visibility', [ProjectController::class, 'toggleProjectVisibility']);
         Route::get('/admin/projects', [ProjectController::class, 'adminProjects']);
         Route::get('/admin/projects/pending', [ProjectController::class, 'adminPendingApprovals']);
+        Route::get('/admin/projects/pending-count', [ProjectController::class, 'adminPendingApprovalCount']);
     });
 });

@@ -200,10 +200,23 @@ export const RegisterPage: React.FC = () => {
                 {isLoading ? <CircularProgress size={24} /> : 'Create Account'}
               </Button>
               <Box textAlign="center">
-                <Typography variant="body2">
+                <Typography variant="body2" sx={{ mb: 1 }}>
                   Already have an account?{' '}
                   <RouterLink to="/login" style={{ textDecoration: 'none' }}>
                     Sign In
+                  </RouterLink>
+                </Typography>
+                <Typography variant="body2">
+                  or{' '}
+                  <RouterLink 
+                    to="/explore" 
+                    style={{ 
+                      textDecoration: 'none',
+                      color: '#1e3a8a',
+                      fontWeight: 500
+                    }}
+                  >
+                    Continue as Guest
                   </RouterLink>
                 </Typography>
               </Box>

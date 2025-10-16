@@ -97,7 +97,24 @@ class FileController extends Controller
         $user = request()->user();
         $project = $file->project;
         
-        // No access control - everyone can download files
+        // Access control: only allow downloads for approved projects
+        if (!$user) {
+            // Unauthenticated users: only see files from approved projects
+            if ($project->admin_approval_status !== 'approved') {
+                return response()->json([
+                    'message' => 'File not found or not accessible'
+                ], 404);
+            }
+        } elseif (!$user->hasRole('admin') && !$user->hasRole('reviewer')) {
+            // Regular users: can see files from approved projects and their own projects
+            if ($project->admin_approval_status !== 'approved' && $project->created_by_user_id !== $user->id) {
+                return response()->json([
+                    'message' => 'File not found or not accessible'
+                ], 404);
+            }
+        }
+        // Admin and Reviewer: can see all files
+        
         $disk = config('filesystems.default', 'local');
         
         if (!Storage::disk($disk)->exists($file->storage_url)) {
@@ -115,7 +132,7 @@ class FileController extends Controller
         \Log::info('File downloaded', [
             'file_id' => $file->id,
             'project_id' => $project->id,
-            'user_id' => $user->id,
+            'user_id' => $user ? $user->id : 'unauthenticated',
             'filename' => $file->original_filename
         ]);
 

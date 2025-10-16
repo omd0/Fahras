@@ -166,10 +166,23 @@ export const LoginPage: React.FC = () => {
                 {isLoading ? 'Signing In...' : 'Sign In'}
               </Button>
               <Box textAlign="center">
-                <Typography variant="body2">
+                <Typography variant="body2" sx={{ mb: 1 }}>
                   Don't have an account?{' '}
                   <RouterLink to="/register" style={{ textDecoration: 'none' }}>
                     Sign Up
+                  </RouterLink>
+                </Typography>
+                <Typography variant="body2">
+                  or{' '}
+                  <RouterLink 
+                    to="/explore" 
+                    style={{ 
+                      textDecoration: 'none',
+                      color: '#1e3a8a',
+                      fontWeight: 500
+                    }}
+                  >
+                    Continue as Guest
                   </RouterLink>
                 </Typography>
               </Box>

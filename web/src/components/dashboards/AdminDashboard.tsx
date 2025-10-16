@@ -73,9 +73,20 @@ export const AdminDashboard: React.FC = () => {
       setProjects(recentProjectsData);
       setFilteredProjects(recentProjectsData);
 
+      // Fetch pending approval count separately using the dedicated API endpoint
+      let pendingApprovalsCount = 0;
+      try {
+        const pendingCountResponse = await apiService.getPendingApprovalCount();
+        pendingApprovalsCount = pendingCountResponse.count;
+      } catch (error) {
+        console.warn('Failed to fetch pending approval count:', error);
+        // Fallback to local calculation if API fails
+        pendingApprovalsCount = allProjectsData.filter((p: Project) => p.admin_approval_status === 'pending').length;
+      }
+
       setStats({
         totalProjects: allProjectsData.length,
-        pendingApprovals: allProjectsData.filter((p: Project) => p.admin_approval_status === 'pending').length,
+        pendingApprovals: pendingApprovalsCount,
         approvedProjects: allProjectsData.filter((p: Project) => p.admin_approval_status === 'approved').length,
         recentActivity: allProjectsData.filter((p: Project) => {
           const createdDate = new Date(p.created_at);
@@ -329,7 +340,7 @@ export const AdminDashboard: React.FC = () => {
                           borderColor: theme.primary,
                         },
                       }}
-                      onClick={() => navigate(`/projects/${project.id}`)}
+                      onClick={() => navigate(`/dashboard/projects/${project.id}`)}
                     >
                       <CardContent>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>

@@ -296,7 +296,7 @@ export const ApprovalsPage: React.FC = () => {
                           fullWidth
                           variant="outlined"
                           startIcon={<VisibilityIcon />}
-                          onClick={() => navigate(`/projects/${project.id}`)}
+                          onClick={() => navigate(`/dashboard/projects/${project.id}`)}
                         >
                           View Details
                         </Button>

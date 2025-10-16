@@ -76,7 +76,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           borderColor: theme.primary,
         },
       }}
-      onClick={() => navigate(`/projects/${project.id}`)}
+      onClick={() => navigate(`/dashboard/projects/${project.id}`)}
     >
       <CardContent>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
@@ -168,7 +168,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               size="small" 
               onClick={(e) => { 
                 e.stopPropagation(); 
-                navigate(`/projects/${project.id}`); 
+                navigate(`/dashboard/projects/${project.id}`); 
               }}
               sx={{ color: theme.primary }}
             >

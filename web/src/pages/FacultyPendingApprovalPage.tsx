@@ -632,7 +632,7 @@ const FacultyPendingApprovalPage: React.FC = () => {
                                 transition: 'all 0.3s ease',
                                 cursor: 'pointer',
                               }}
-                              onClick={() => navigate(`/projects/${project.id}`)}
+                              onClick={() => navigate(`/dashboard/projects/${project.id}`)}
                             >
                               <TableCell>
                                 <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>

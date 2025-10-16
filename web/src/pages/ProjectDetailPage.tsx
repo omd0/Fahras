@@ -32,7 +32,7 @@ import {
   FileDownload as FileDownloadIcon,
   Description as DescriptionIcon,
 } from '@mui/icons-material';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { Project } from '../types';
 import { apiService } from '../services/api';
@@ -53,8 +53,18 @@ export const ProjectDetailPage: React.FC = () => {
 
   const { user } = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation();
   const { id } = useParams<{ id: string }>();
   const dashboardTheme = getDashboardTheme(user?.roles);
+
+  const handleBackClick = () => {
+    // Go back to the previous page or to dashboard if no history
+    if (location.state?.from) {
+      navigate(-1);
+    } else {
+      navigate('/dashboard');
+    }
+  };
 
   useEffect(() => {
     if (id) {
@@ -158,7 +168,7 @@ export const ProjectDetailPage: React.FC = () => {
         <Button
           variant="outlined"
           startIcon={<ArrowBackIcon />}
-          onClick={() => navigate('/dashboard')}
+          onClick={handleBackClick}
           sx={{ mt: 2 }}
         >
           Back to Dashboard
@@ -179,7 +189,7 @@ export const ProjectDetailPage: React.FC = () => {
         <Button
           variant="outlined"
           startIcon={<ArrowBackIcon />}
-          onClick={() => navigate('/dashboard')}
+          onClick={handleBackClick}
           sx={{ mt: 2 }}
         >
           Back to Dashboard
@@ -204,7 +214,7 @@ export const ProjectDetailPage: React.FC = () => {
           <IconButton
             edge="start"
             color="inherit"
-            onClick={() => navigate('/dashboard')}
+            onClick={handleBackClick}
             sx={{ mr: 2 }}
           >
             <ArrowBackIcon />

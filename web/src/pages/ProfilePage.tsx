@@ -239,7 +239,7 @@ export const ProfilePage: React.FC = () => {
   }, [loadUserProjects, isRestrictedUser]);
 
   const handleProjectClick = (projectId: number) => {
-    navigate(`/projects/${projectId}`);
+    navigate(`/dashboard/projects/${projectId}`);
   };
 
   const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {

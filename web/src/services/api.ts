@@ -40,16 +40,38 @@ class ApiService {
           localStorage.removeItem('auth-storage');
           
           // Only redirect to login if we're not already on a public page
-          const publicPaths = ['/', '/explore', '/login', '/register'];
           const currentPath = window.location.pathname;
           
-          if (!publicPaths.includes(currentPath)) {
+          // Check if we're on a public route
+          const isPublicRoute = this.isPublicRoute(currentPath);
+          
+          if (!isPublicRoute) {
             window.location.href = '/login';
           }
         }
         return Promise.reject(error);
       }
     );
+  }
+
+  /**
+   * Check if a given path is a public route that doesn't require authentication
+   */
+  private isPublicRoute(path: string): boolean {
+    // Static public paths
+    const staticPublicPaths = ['/', '/explore', '/login', '/register'];
+    
+    // Check static paths first
+    if (staticPublicPaths.includes(path)) {
+      return true;
+    }
+    
+    // Check dynamic public paths using regex patterns
+    const publicPathPatterns = [
+      /^\/projects\/\d+$/, // /projects/:id (public project detail)
+    ];
+    
+    return publicPathPatterns.some(pattern => pattern.test(path));
   }
 
   // Authentication endpoints
@@ -458,6 +480,11 @@ class ApiService {
     };
   }> {
     const response: AxiosResponse = await this.api.get('/admin/projects/pending', { params });
+    return response.data;
+  }
+
+  async getPendingApprovalCount(): Promise<{ count: number }> {
+    const response: AxiosResponse = await this.api.get('/projects/pending-count');
     return response.data;
   }
 
