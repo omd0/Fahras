@@ -265,250 +265,501 @@ export const ProjectDetailPage: React.FC = () => {
         <Grid container spacing={3}>
           {/* Main Project Information */}
           <Grid size={{ xs: 12, md: 8 }}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                  <Typography variant="h4" gutterBottom>
-                    {project.title}
-                  </Typography>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'flex-end' }}>
-                    <Chip
-                      label={project.status.replace('_', ' ')}
-                      color={getStatusColor(project.status)}
-                      variant="outlined"
-                      onClick={canEdit ? () => setStatusDialogOpen(true) : undefined}
-                      sx={{ 
-                        cursor: canEdit ? 'pointer' : 'default',
-                        '&:hover': canEdit ? {
-                          backgroundColor: 'action.hover',
-                          boxShadow: 1,
-                        } : {}
-                      }}
-                    />
-                    {/* Show approval status based on user role */}
-                    {project.admin_approval_status && (
-                      (() => {
-                        // Admin: show all statuses
-                        if (user?.roles?.some(role => role.name === 'admin')) {
-                          return (
-                            <Chip
-                              label={project.admin_approval_status === 'pending' ? 'Pending Approval' : 
-                                     project.admin_approval_status === 'approved' ? 'Approved' : 'Hidden'}
-                              color={project.admin_approval_status === 'approved' ? 'success' : 
-                                     project.admin_approval_status === 'hidden' ? 'error' : 'warning'}
-                              variant="filled"
-                              size="small"
-                            />
-                          );
-                        }
-                        // Project owner: show status for their own projects
-                        else if (project.created_by_user_id === user?.id) {
-                          return (
-                            <Chip
-                              label={project.admin_approval_status === 'pending' ? 'Pending Approval' : 
-                                     project.admin_approval_status === 'approved' ? 'Approved' : 'Hidden'}
-                              color={project.admin_approval_status === 'approved' ? 'success' : 
-                                     project.admin_approval_status === 'hidden' ? 'error' : 'warning'}
-                              variant="filled"
-                              size="small"
-                            />
-                          );
-                        }
-                        // Reviewer and other users: don't show approval status
-                        return null;
-                      })()
-                    )}
+            <Card 
+              elevation={0}
+              sx={{ 
+                borderRadius: 3,
+                border: '1px solid',
+                borderColor: 'divider',
+                overflow: 'hidden',
+                background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                transition: 'all 0.3s ease-in-out',
+                '&:hover': {
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+                  transform: 'translateY(-2px)',
+                }
+              }}
+            >
+              <CardContent sx={{ p: 0 }}>
+                {/* Header with gradient background */}
+                <Box 
+                  sx={{ 
+                    background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+                    color: 'white',
+                    p: 3,
+                    position: 'relative',
+                    overflow: 'hidden',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      width: '100px',
+                      height: '100px',
+                      background: 'rgba(255,255,255,0.1)',
+                      borderRadius: '50%',
+                      transform: 'translate(30px, -30px)',
+                    }
+                  }}
+                >
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                    <Box sx={{ flex: 1, mr: 2 }}>
+                      <Typography variant="h4" fontWeight="700" sx={{ mb: 1, lineHeight: 1.2 }}>
+                        {project.title}
+                      </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+                        <Chip
+                          label={project.status.replace('_', ' ')}
+                          color={getStatusColor(project.status)}
+                          variant="filled"
+                          onClick={canEdit ? () => setStatusDialogOpen(true) : undefined}
+                          sx={{ 
+                            cursor: canEdit ? 'pointer' : 'default',
+                            fontWeight: 600,
+                            background: 'rgba(255,255,255,0.2)',
+                            backdropFilter: 'blur(10px)',
+                            '&:hover': canEdit ? {
+                              backgroundColor: 'rgba(255,255,255,0.3)',
+                              boxShadow: 1,
+                            } : {}
+                          }}
+                        />
+                        {/* Show approval status based on user role */}
+                        {project.admin_approval_status && (
+                          (() => {
+                            // Admin: show all statuses
+                            if (user?.roles?.some(role => role.name === 'admin')) {
+                              return (
+                                <Chip
+                                  label={project.admin_approval_status === 'pending' ? 'Pending Approval' : 
+                                         project.admin_approval_status === 'approved' ? 'Approved' : 'Hidden'}
+                                  color={project.admin_approval_status === 'approved' ? 'success' : 
+                                         project.admin_approval_status === 'hidden' ? 'error' : 'warning'}
+                                  variant="filled"
+                                  size="small"
+                                  sx={{ fontWeight: 600 }}
+                                />
+                              );
+                            }
+                            // Project owner: show status for their own projects
+                            else if (project.created_by_user_id === user?.id) {
+                              return (
+                                <Chip
+                                  label={project.admin_approval_status === 'pending' ? 'Pending Approval' : 
+                                         project.admin_approval_status === 'approved' ? 'Approved' : 'Hidden'}
+                                  color={project.admin_approval_status === 'approved' ? 'success' : 
+                                         project.admin_approval_status === 'hidden' ? 'error' : 'warning'}
+                                  variant="filled"
+                                  size="small"
+                                  sx={{ fontWeight: 600 }}
+                                />
+                              );
+                            }
+                            // Reviewer and other users: don't show approval status
+                            return null;
+                          })()
+                        )}
+                      </Box>
+                    </Box>
                   </Box>
                 </Box>
 
-                <Typography variant="body1" paragraph sx={{ mb: 3 }}>
-                  {project.abstract}
-                </Typography>
+                <Box sx={{ p: 3 }}>
+                  {/* Project Abstract */}
+                  <Paper 
+                    elevation={0}
+                    sx={{ 
+                      p: 3, 
+                      mb: 3, 
+                      borderRadius: 2,
+                      background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: '4px',
+                        background: 'linear-gradient(90deg, #1e3a8a 0%, #3b82f6 50%, #059669 100%)',
+                      }
+                    }}
+                  >
+                    <Typography variant="h6" fontWeight="600" sx={{ mb: 2, color: 'text.primary' }}>
+                      Project Abstract
+                    </Typography>
+                    <Typography variant="body1" sx={{ lineHeight: 1.7, color: 'text.primary' }}>
+                      {project.abstract}
+                    </Typography>
+                  </Paper>
 
-                {/* Admin Notes */}
-                {project.admin_notes && (
-                  <Box sx={{ mb: 3, p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>
-                    <Typography variant="subtitle2" gutterBottom color="text.secondary">
-                      Admin Notes:
-                    </Typography>
-                    <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
-                      {project.admin_notes}
-                    </Typography>
-                    {project.approver && (
-                      <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-                        — {project.approver.full_name} on {new Date(project.approved_at || '').toLocaleDateString()}
+                  {/* Admin Notes */}
+                  {project.admin_notes && (
+                    <Paper 
+                      elevation={0}
+                      sx={{ 
+                        mb: 3, 
+                        p: 3, 
+                        borderRadius: 2,
+                        background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+                        border: '1px solid',
+                        borderColor: 'warning.light',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        '&::before': {
+                          content: '""',
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          height: '4px',
+                          background: 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)',
+                        }
+                      }}
+                    >
+                      <Typography variant="h6" fontWeight="600" sx={{ mb: 2, color: 'text.primary' }}>
+                        Admin Notes
                       </Typography>
-                    )}
-                  </Box>
-                )}
+                      <Typography variant="body2" sx={{ fontStyle: 'italic', lineHeight: 1.6, color: 'text.primary' }}>
+                        {project.admin_notes}
+                      </Typography>
+                      {project.approver && (
+                        <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block', fontWeight: 500 }}>
+                          — {project.approver.full_name} on {new Date(project.approved_at || '').toLocaleDateString()}
+                        </Typography>
+                      )}
+                    </Paper>
+                  )}
 
-                {/* Keywords */}
-                {project.keywords && project.keywords.length > 0 && (
-                  <Box sx={{ mb: 3 }}>
-                    <Typography variant="subtitle2" gutterBottom>
-                      Keywords
-                    </Typography>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                      {(project.keywords || []).map((keyword, index) => (
-                        <Chip
-                          key={index}
-                          label={keyword}
-                          size="small"
-                          color="primary"
-                          variant="outlined"
-                        />
-                      ))}
-                    </Box>
-                  </Box>
-                )}
+                  {/* Keywords */}
+                  {project.keywords && project.keywords.length > 0 && (
+                    <Paper 
+                      elevation={0}
+                      sx={{ 
+                        mb: 3, 
+                        p: 3, 
+                        borderRadius: 2,
+                        background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+                        border: '1px solid',
+                        borderColor: 'primary.light',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        '&::before': {
+                          content: '""',
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          height: '4px',
+                          background: 'linear-gradient(90deg, #059669 0%, #10b981 100%)',
+                        }
+                      }}
+                    >
+                      <Typography variant="h6" fontWeight="600" sx={{ mb: 2, color: 'text.primary' }}>
+                        Keywords
+                      </Typography>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                        {(project.keywords || []).map((keyword, index) => (
+                          <Chip
+                            key={index}
+                            label={keyword}
+                            size="small"
+                            color="primary"
+                            variant="filled"
+                            sx={{ 
+                              fontWeight: 600,
+                              background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+                            }}
+                          />
+                        ))}
+                      </Box>
+                    </Paper>
+                  )}
 
-                <Divider sx={{ my: 3 }} />
-
-                {/* Academic Information */}
-                <Grid container spacing={2}>
-                  <Grid size={{ xs: 12, sm: 6 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                      <CalendarIcon sx={{ mr: 1, color: 'text.secondary' }} />
-                      <Typography variant="subtitle2">Academic Year</Typography>
-                    </Box>
-                    <Typography variant="body2" color="text.secondary">
-                      {project.academic_year}
+                  {/* Academic Information */}
+                  <Paper 
+                    elevation={0}
+                    sx={{ 
+                      p: 3, 
+                      borderRadius: 2,
+                      background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: '4px',
+                        background: 'linear-gradient(90deg, #1e3a8a 0%, #3b82f6 50%, #059669 100%)',
+                      }
+                    }}
+                  >
+                    <Typography variant="h6" fontWeight="600" sx={{ mb: 3, color: 'text.primary' }}>
+                      Academic Information
                     </Typography>
-                  </Grid>
-                  <Grid size={{ xs: 12, sm: 6 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                      <SchoolIcon sx={{ mr: 1, color: 'text.secondary' }} />
-                      <Typography variant="subtitle2">Semester</Typography>
-                    </Box>
-                    <Typography variant="body2" color="text.secondary" sx={{ textTransform: 'capitalize' }}>
-                      {project.semester}
-                    </Typography>
-                  </Grid>
-                </Grid>
+                    <Grid container spacing={3}>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                          <CalendarIcon sx={{ mr: 1.5, color: 'primary.main', fontSize: 20 }} />
+                          <Typography variant="subtitle1" fontWeight="600" color="text.primary">
+                            Academic Year
+                          </Typography>
+                        </Box>
+                        <Typography variant="body1" color="text.secondary" sx={{ ml: 4, fontWeight: 500 }}>
+                          {project.academic_year}
+                        </Typography>
+                      </Grid>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                          <SchoolIcon sx={{ mr: 1.5, color: 'primary.main', fontSize: 20 }} />
+                          <Typography variant="subtitle1" fontWeight="600" color="text.primary">
+                            Semester
+                          </Typography>
+                        </Box>
+                        <Typography variant="body1" color="text.secondary" sx={{ ml: 4, fontWeight: 500, textTransform: 'capitalize' }}>
+                          {project.semester}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                  </Paper>
+                </Box>
               </CardContent>
             </Card>
 
             {/* Files Section */}
-            <Card sx={{ mt: 3 }}>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <FileDownloadIcon sx={{ mr: 1, color: 'primary.main' }} />
-                  <Typography variant="h6" component="h2">
-                    Project Files
-                  </Typography>
-                  <Chip 
-                    label={`${project.files?.length || 0} files`} 
-                    size="small" 
-                    color="primary" 
-                    variant="outlined"
-                    sx={{ ml: 2 }}
-                  />
+            <Card 
+              elevation={0}
+              sx={{ 
+                mt: 3,
+                borderRadius: 3,
+                border: '1px solid',
+                borderColor: 'divider',
+                overflow: 'hidden',
+                background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                transition: 'all 0.3s ease-in-out',
+                '&:hover': {
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+                  transform: 'translateY(-2px)',
+                }
+              }}
+            >
+              <CardContent sx={{ p: 0 }}>
+                {/* Header with gradient background */}
+                <Box 
+                  sx={{ 
+                    background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                    color: 'white',
+                    p: 3,
+                    position: 'relative',
+                    overflow: 'hidden',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      width: '100px',
+                      height: '100px',
+                      background: 'rgba(255,255,255,0.1)',
+                      borderRadius: '50%',
+                      transform: 'translate(30px, -30px)',
+                    }
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Box
+                      sx={{
+                        p: 1.5,
+                        borderRadius: 2,
+                        background: 'rgba(255,255,255,0.2)',
+                        backdropFilter: 'blur(10px)',
+                      }}
+                    >
+                      <FileDownloadIcon sx={{ fontSize: 28, color: 'white' }} />
+                    </Box>
+                    <Box>
+                      <Typography variant="h5" fontWeight="700" sx={{ mb: 0.5 }}>
+                        Project Files
+                      </Typography>
+                      <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                        {project.files?.length || 0} {project.files?.length !== 1 ? 'files' : 'file'} available
+                      </Typography>
+                    </Box>
+                  </Box>
                 </Box>
 
-                
-                {project.files && project.files.length > 0 ? (
-                  <List>
-                    {(project.files || []).map((file, index) => (
-                      <ListItem 
-                        key={file.id} 
-                        divider={index < (project.files || []).length - 1}
-                        sx={{ 
-                          borderRadius: 1,
-                          mb: 1,
-                          '&:hover': { backgroundColor: 'action.hover' }
-                        }}
-                      >
-                        <ListItemIcon>
-                          <FileDownloadIcon color="primary" />
-                        </ListItemIcon>
-                        <ListItemText
-                          primary={
-                            <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
-                              {file.original_filename}
-                            </Typography>
-                          }
-                          secondary={
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 0.5 }}>
-                              <Typography variant="body2" color="text.secondary">
-                                {(file.size_bytes / 1024).toFixed(1)} KB
-                              </Typography>
-                              <Typography variant="body2" color="text.secondary">
-                                •
-                              </Typography>
-                              <Typography variant="body2" color="text.secondary">
-                                {new Date(file.uploaded_at).toLocaleDateString()}
-                              </Typography>
-                              <Typography variant="body2" color="text.secondary">
-                                •
-                              </Typography>
-                              <Typography variant="body2" color="text.secondary">
-                                {file.mime_type}
-                              </Typography>
-                              {file.is_public && (
-                                <>
-                                  <Typography variant="body2" color="text.secondary">
-                                    •
-                                  </Typography>
-                                  <Chip 
-                                    label="Public" 
-                                    size="small" 
-                                    color="success" 
-                                    variant="outlined"
-                                    sx={{ height: 20, fontSize: '0.75rem' }}
-                                  />
-                                </>
-                              )}
-                            </Box>
-                          }
-                        />
-                        <Button
-                          variant="contained"
-                          size="small"
-                          startIcon={<FileDownloadIcon />}
-                          onClick={async () => {
-                            try {
-                              // Use the API service to download the file
-                              const blob = await apiService.downloadFile(file.id);
-                              const url = window.URL.createObjectURL(blob);
-                              const link = document.createElement('a');
-                              link.href = url;
-                              link.download = file.original_filename;
-                              document.body.appendChild(link);
-                              link.click();
-                              document.body.removeChild(link);
-                              window.URL.revokeObjectURL(url);
-                            } catch (error) {
-                              console.error('Error downloading file:', error);
-                              // Fallback to opening the public URL or storage URL
-                              window.open(file.public_url || file.storage_url, '_blank');
+                <Box sx={{ p: 3 }}>
+                  {project.files && project.files.length > 0 ? (
+                    <List sx={{ p: 0 }}>
+                      {(project.files || []).map((file, index) => (
+                        <Paper 
+                          key={file.id}
+                          elevation={0}
+                          sx={{ 
+                            mb: 2,
+                            borderRadius: 2,
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            overflow: 'hidden',
+                            transition: 'all 0.2s ease-in-out',
+                            '&:hover': {
+                              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                              transform: 'translateY(-1px)',
                             }
                           }}
-                          sx={{ 
-                            minWidth: 100,
-                            textTransform: 'none',
-                            fontWeight: 500
-                          }}
                         >
-                          Download
-                        </Button>
-                      </ListItem>
-                    ))}
-                  </List>
-                ) : (
-                  <Box sx={{ 
-                    textAlign: 'center', 
-                    py: 4,
-                    color: 'text.secondary'
-                  }}>
-                    <FileDownloadIcon sx={{ fontSize: 48, mb: 2, opacity: 0.5 }} />
-                    <Typography variant="body1" color="text.secondary">
-                      No files uploaded yet
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                      Files uploaded during project creation will appear here
-                    </Typography>
-                  </Box>
-                )}
+                          <ListItem sx={{ p: 2 }}>
+                            <ListItemIcon>
+                              <Box
+                                sx={{
+                                  p: 1,
+                                  borderRadius: 1.5,
+                                  background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                                  color: 'white',
+                                }}
+                              >
+                                <FileDownloadIcon sx={{ fontSize: 20 }} />
+                              </Box>
+                            </ListItemIcon>
+                            <ListItemText
+                              primary={
+                                <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                                  {file.original_filename}
+                                </Typography>
+                              }
+                              secondary={
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1, flexWrap: 'wrap' }}>
+                                  <Chip 
+                                    label={`${(file.size_bytes / 1024).toFixed(1)} KB`} 
+                                    size="small" 
+                                    variant="filled"
+                                    sx={{ 
+                                      background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
+                                      color: 'text.secondary',
+                                      fontWeight: 500,
+                                    }}
+                                  />
+                                  <Chip 
+                                    label={new Date(file.uploaded_at).toLocaleDateString()} 
+                                    size="small" 
+                                    variant="filled"
+                                    sx={{ 
+                                      background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
+                                      color: 'text.secondary',
+                                      fontWeight: 500,
+                                    }}
+                                  />
+                                  <Chip 
+                                    label={file.mime_type} 
+                                    size="small" 
+                                    variant="filled"
+                                    sx={{ 
+                                      background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
+                                      color: 'text.secondary',
+                                      fontWeight: 500,
+                                    }}
+                                  />
+                                  {file.is_public && (
+                                    <Chip 
+                                      label="Public" 
+                                      size="small" 
+                                      color="success" 
+                                      variant="filled"
+                                      sx={{ 
+                                        fontWeight: 600,
+                                        background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                                      }}
+                                    />
+                                  )}
+                                </Box>
+                              }
+                            />
+                            <Button
+                              variant="contained"
+                              size="small"
+                              startIcon={<FileDownloadIcon />}
+                              onClick={async () => {
+                                try {
+                                  // Use the API service to download the file
+                                  const blob = await apiService.downloadFile(file.id);
+                                  const url = window.URL.createObjectURL(blob);
+                                  const link = document.createElement('a');
+                                  link.href = url;
+                                  link.download = file.original_filename;
+                                  document.body.appendChild(link);
+                                  link.click();
+                                  document.body.removeChild(link);
+                                  window.URL.revokeObjectURL(url);
+                                } catch (error) {
+                                  console.error('Error downloading file:', error);
+                                  // Fallback to opening the public URL or storage URL
+                                  window.open(file.public_url || file.storage_url, '_blank');
+                                }
+                              }}
+                              sx={{ 
+                                minWidth: 100,
+                                textTransform: 'none',
+                                fontWeight: 600,
+                                background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+                                borderRadius: 1.5,
+                                '&:hover': {
+                                  background: 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)',
+                                  transform: 'translateY(-1px)',
+                                  boxShadow: '0 4px 12px rgba(30, 58, 138, 0.3)',
+                                },
+                                transition: 'all 0.2s ease-in-out',
+                              }}
+                            >
+                              Download
+                            </Button>
+                          </ListItem>
+                        </Paper>
+                      ))}
+                    </List>
+                  ) : (
+                    <Paper 
+                      elevation={0}
+                      sx={{ 
+                        p: 6, 
+                        textAlign: 'center',
+                        borderRadius: 3,
+                        background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+                        border: '2px dashed',
+                        borderColor: 'divider',
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          p: 2,
+                          borderRadius: '50%',
+                          background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                          color: 'white',
+                          width: 64,
+                          height: 64,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          mx: 'auto',
+                          mb: 2,
+                        }}
+                      >
+                        <FileDownloadIcon sx={{ fontSize: 32 }} />
+                      </Box>
+                      <Typography variant="h6" fontWeight="600" color="text.primary" sx={{ mb: 1 }}>
+                        No files uploaded yet
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Files uploaded during project creation will appear here
+                      </Typography>
+                    </Paper>
+                  )}
+                </Box>
               </CardContent>
             </Card>
           </Grid>
@@ -516,123 +767,387 @@ export const ProjectDetailPage: React.FC = () => {
           {/* Sidebar */}
           <Grid size={{ xs: 12, md: 4 }}>
             {/* Program Information */}
-            <Card sx={{ mb: 3 }}>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Program Information
-                </Typography>
-                {project.program && (
-                  <Box>
-                    <Typography variant="subtitle2" gutterBottom>
-                      Program
+            <Card 
+              elevation={0}
+              sx={{ 
+                mb: 3,
+                borderRadius: 3,
+                border: '1px solid',
+                borderColor: 'divider',
+                overflow: 'hidden',
+                background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                transition: 'all 0.3s ease-in-out',
+                '&:hover': {
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+                  transform: 'translateY(-2px)',
+                }
+              }}
+            >
+              <CardContent sx={{ p: 0 }}>
+                <Box 
+                  sx={{ 
+                    background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+                    color: 'white',
+                    p: 2.5,
+                    position: 'relative',
+                    overflow: 'hidden',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      width: '60px',
+                      height: '60px',
+                      background: 'rgba(255,255,255,0.1)',
+                      borderRadius: '50%',
+                      transform: 'translate(20px, -20px)',
+                    }
+                  }}
+                >
+                  <Typography variant="h6" fontWeight="700" sx={{ mb: 0.5 }}>
+                    Program Information
+                  </Typography>
+                </Box>
+                <Box sx={{ p: 3 }}>
+                  {project.program ? (
+                    <Box>
+                      <Box sx={{ mb: 2 }}>
+                        <Typography variant="subtitle2" fontWeight="600" color="text.primary" sx={{ mb: 1 }}>
+                          Program
+                        </Typography>
+                        <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500 }}>
+                          {project.program.name}
+                        </Typography>
+                      </Box>
+                      <Box>
+                        <Typography variant="subtitle2" fontWeight="600" color="text.primary" sx={{ mb: 1 }}>
+                          Degree Level
+                        </Typography>
+                        <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500 }}>
+                          {project.program.degree_level}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  ) : (
+                    <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
+                      No program information available
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                      {project.program.name}
-                    </Typography>
-                    <Typography variant="subtitle2" gutterBottom>
-                      Degree Level
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {project.program.degree_level}
-                    </Typography>
-                  </Box>
-                )}
+                  )}
+                </Box>
               </CardContent>
             </Card>
 
             {/* Project Members */}
-            <Card sx={{ mb: 3 }}>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Project Members
-                </Typography>
-                {project.members && project.members.length > 0 ? (
-                  <List dense>
-                    {(project.members || []).map((member) => (
-                      <ListItem key={member.id}>
-                        <ListItemIcon>
-                          <Avatar sx={{ width: 32, height: 32 }}>
-                            {member.full_name.charAt(0).toUpperCase()}
-                          </Avatar>
-                        </ListItemIcon>
-                        <ListItemText
-                          primary={member.full_name}
-                          secondary={
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Chip
-                                label={member.pivot.role_in_project}
-                                size="small"
-                                color={getRoleColor(member.pivot.role_in_project)}
-                                variant="outlined"
-                              />
-                            </Box>
-                          }
-                        />
-                      </ListItem>
-                    ))}
-                  </List>
-                ) : (
-                  <Typography variant="body2" color="text.secondary">
-                    No members assigned
+            <Card 
+              elevation={0}
+              sx={{ 
+                mb: 3,
+                borderRadius: 3,
+                border: '1px solid',
+                borderColor: 'divider',
+                overflow: 'hidden',
+                background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                transition: 'all 0.3s ease-in-out',
+                '&:hover': {
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+                  transform: 'translateY(-2px)',
+                }
+              }}
+            >
+              <CardContent sx={{ p: 0 }}>
+                <Box 
+                  sx={{ 
+                    background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                    color: 'white',
+                    p: 2.5,
+                    position: 'relative',
+                    overflow: 'hidden',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      width: '60px',
+                      height: '60px',
+                      background: 'rgba(255,255,255,0.1)',
+                      borderRadius: '50%',
+                      transform: 'translate(20px, -20px)',
+                    }
+                  }}
+                >
+                  <Typography variant="h6" fontWeight="700" sx={{ mb: 0.5 }}>
+                    Project Members
                   </Typography>
-                )}
+                  <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                    {project.members?.length || 0} {project.members?.length !== 1 ? 'members' : 'member'}
+                  </Typography>
+                </Box>
+                <Box sx={{ p: 3 }}>
+                  {project.members && project.members.length > 0 ? (
+                    <List sx={{ p: 0 }}>
+                      {(project.members || []).map((member) => (
+                        <Paper 
+                          key={member.id}
+                          elevation={0}
+                          sx={{ 
+                            mb: 1.5,
+                            borderRadius: 2,
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            overflow: 'hidden',
+                            transition: 'all 0.2s ease-in-out',
+                            '&:hover': {
+                              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                              transform: 'translateY(-1px)',
+                            }
+                          }}
+                        >
+                          <ListItem sx={{ p: 2 }}>
+                            <ListItemIcon>
+                              <Avatar 
+                                sx={{ 
+                                  width: 40, 
+                                  height: 40,
+                                  background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                                  fontWeight: 600,
+                                  fontSize: '1rem',
+                                }}
+                              >
+                                {member.full_name.charAt(0).toUpperCase()}
+                              </Avatar>
+                            </ListItemIcon>
+                            <ListItemText
+                              primary={
+                                <Typography variant="subtitle1" fontWeight="600" color="text.primary">
+                                  {member.full_name}
+                                </Typography>
+                              }
+                              secondary={
+                                <Chip
+                                  label={member.pivot.role_in_project}
+                                  size="small"
+                                  color={getRoleColor(member.pivot.role_in_project)}
+                                  variant="filled"
+                                  sx={{ 
+                                    fontWeight: 600,
+                                    background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+                                  }}
+                                />
+                              }
+                            />
+                          </ListItem>
+                        </Paper>
+                      ))}
+                    </List>
+                  ) : (
+                    <Paper 
+                      elevation={0}
+                      sx={{ 
+                        p: 4, 
+                        textAlign: 'center',
+                        borderRadius: 2,
+                        background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+                        border: '2px dashed',
+                        borderColor: 'divider',
+                      }}
+                    >
+                      <Typography variant="body2" color="text.secondary">
+                        No members assigned
+                      </Typography>
+                    </Paper>
+                  )}
+                </Box>
               </CardContent>
             </Card>
 
             {/* Project Advisors */}
             {project.advisors && project.advisors.length > 0 && (
-              <Card sx={{ mb: 3 }}>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    Project Advisors
-                  </Typography>
-                  <List dense>
-                    {(project.advisors || []).map((advisor) => (
-                      <ListItem key={advisor.id}>
-                        <ListItemIcon>
-                          <Avatar sx={{ width: 32, height: 32 }}>
-                            {advisor.full_name.charAt(0).toUpperCase()}
-                          </Avatar>
-                        </ListItemIcon>
-                        <ListItemText
-                          primary={advisor.full_name}
-                          secondary={
-                            <Chip
-                              label={advisor.pivot.advisor_role}
-                              size="small"
-                              color={getRoleColor(advisor.pivot.advisor_role)}
-                              variant="outlined"
+              <Card 
+                elevation={0}
+                sx={{ 
+                  mb: 3,
+                  borderRadius: 3,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  overflow: 'hidden',
+                  background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                  transition: 'all 0.3s ease-in-out',
+                  '&:hover': {
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+                    transform: 'translateY(-2px)',
+                  }
+                }}
+              >
+                <CardContent sx={{ p: 0 }}>
+                  <Box 
+                    sx={{ 
+                      background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                      color: 'white',
+                      p: 2.5,
+                      position: 'relative',
+                      overflow: 'hidden',
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        right: 0,
+                        width: '60px',
+                        height: '60px',
+                        background: 'rgba(255,255,255,0.1)',
+                        borderRadius: '50%',
+                        transform: 'translate(20px, -20px)',
+                      }
+                    }}
+                  >
+                    <Typography variant="h6" fontWeight="700" sx={{ mb: 0.5 }}>
+                      Project Advisors
+                    </Typography>
+                    <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                      {project.advisors.length} {project.advisors.length !== 1 ? 'advisors' : 'advisor'}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ p: 3 }}>
+                    <List sx={{ p: 0 }}>
+                      {(project.advisors || []).map((advisor) => (
+                        <Paper 
+                          key={advisor.id}
+                          elevation={0}
+                          sx={{ 
+                            mb: 1.5,
+                            borderRadius: 2,
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            overflow: 'hidden',
+                            transition: 'all 0.2s ease-in-out',
+                            '&:hover': {
+                              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                              transform: 'translateY(-1px)',
+                            }
+                          }}
+                        >
+                          <ListItem sx={{ p: 2 }}>
+                            <ListItemIcon>
+                              <Avatar 
+                                sx={{ 
+                                  width: 40, 
+                                  height: 40,
+                                  background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                                  fontWeight: 600,
+                                  fontSize: '1rem',
+                                }}
+                              >
+                                {advisor.full_name.charAt(0).toUpperCase()}
+                              </Avatar>
+                            </ListItemIcon>
+                            <ListItemText
+                              primary={
+                                <Typography variant="subtitle1" fontWeight="600" color="text.primary">
+                                  {advisor.full_name}
+                                </Typography>
+                              }
+                              secondary={
+                                <Chip
+                                  label={advisor.pivot.advisor_role}
+                                  size="small"
+                                  color={getRoleColor(advisor.pivot.advisor_role)}
+                                  variant="filled"
+                                  sx={{ 
+                                    fontWeight: 600,
+                                    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                                  }}
+                                />
+                              }
                             />
-                          }
-                        />
-                      </ListItem>
-                    ))}
-                  </List>
+                          </ListItem>
+                        </Paper>
+                      ))}
+                    </List>
+                  </Box>
                 </CardContent>
               </Card>
             )}
 
             {/* Project Creator */}
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Project Creator
-                </Typography>
-                {project.creator && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Avatar>
-                      {project.creator.full_name.charAt(0).toUpperCase()}
-                    </Avatar>
-                    <Box>
-                      <Typography variant="subtitle2">
-                        {project.creator.full_name}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {project.creator.email}
-                      </Typography>
-                    </Box>
-                  </Box>
-                )}
+            <Card 
+              elevation={0}
+              sx={{ 
+                borderRadius: 3,
+                border: '1px solid',
+                borderColor: 'divider',
+                overflow: 'hidden',
+                background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                transition: 'all 0.3s ease-in-out',
+                '&:hover': {
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+                  transform: 'translateY(-2px)',
+                }
+              }}
+            >
+              <CardContent sx={{ p: 0 }}>
+                <Box 
+                  sx={{ 
+                    background: 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)',
+                    color: 'white',
+                    p: 2.5,
+                    position: 'relative',
+                    overflow: 'hidden',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      width: '60px',
+                      height: '60px',
+                      background: 'rgba(255,255,255,0.1)',
+                      borderRadius: '50%',
+                      transform: 'translate(20px, -20px)',
+                    }
+                  }}
+                >
+                  <Typography variant="h6" fontWeight="700" sx={{ mb: 0.5 }}>
+                    Project Creator
+                  </Typography>
+                </Box>
+                <Box sx={{ p: 3 }}>
+                  {project.creator ? (
+                    <Paper 
+                      elevation={0}
+                      sx={{ 
+                        p: 2,
+                        borderRadius: 2,
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Avatar 
+                          sx={{ 
+                            width: 48, 
+                            height: 48,
+                            background: 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)',
+                            fontWeight: 600,
+                            fontSize: '1.2rem',
+                          }}
+                        >
+                          {project.creator.full_name.charAt(0).toUpperCase()}
+                        </Avatar>
+                        <Box>
+                          <Typography variant="subtitle1" fontWeight="600" color="text.primary">
+                            {project.creator.full_name}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                            {project.creator.email}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Paper>
+                  ) : (
+                    <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
+                      No creator information available
+                    </Typography>
+                  )}
+                </Box>
               </CardContent>
             </Card>
           </Grid>

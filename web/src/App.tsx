@@ -25,6 +25,7 @@ import AdminProjectApprovalPage from './pages/AdminProjectApprovalPage';
 import FacultyPendingApprovalPage from './pages/FacultyPendingApprovalPage';
 import StudentMyProjectsPage from './pages/StudentMyProjectsPage';
 import { NotificationsPage } from './pages/NotificationsPage';
+import { TestAuthPage } from './pages/TestAuthPage';
 import { TVTCBranding } from './components/TVTCBranding';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
@@ -312,6 +313,12 @@ function App() {
                 </ErrorBoundary>
               </ProtectedRoute>
             }
+          />
+          
+          {/* Test route for debugging */}
+          <Route
+            path="/test-auth"
+            element={<TestAuthPage />}
           />
           
           {/* Catch all route - redirect to home */}
