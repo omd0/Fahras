@@ -203,6 +203,15 @@ export const ProjectDetailPage: React.FC = () => {
     );
   }
 
+  // Additional null check to prevent errors
+  if (!project) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   const canEdit = user?.id === project.created_by_user_id && !user?.roles?.some(role => role.name === 'reviewer');
   const canDelete = user?.id === project.created_by_user_id && !user?.roles?.some(role => role.name === 'reviewer');
 

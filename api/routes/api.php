@@ -32,6 +32,14 @@ Route::get('/users', function () {
     return response()->json(\App\Models\User::all());
 });
 
+// Public project routes (accessible to guests)
+Route::get('/projects', [ProjectController::class, 'index']);
+Route::get('/projects/{project}', [ProjectController::class, 'show']);
+
+// Public project interaction routes (comments and ratings) - read-only for guests
+Route::get('/projects/{project}/comments', [ProjectController::class, 'getComments']);
+Route::get('/projects/{project}/ratings', [ProjectController::class, 'getRatings']);
+
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     // Authentication routes
@@ -49,8 +57,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/projects/analytics', [ProjectController::class, 'analytics']);
     Route::get('/projects/suggestions', [ProjectController::class, 'suggestions']);
     
-    // Project routes
-    Route::apiResource('projects', ProjectController::class);
+    // Project routes (excluding GET /projects and GET /projects/{project} which are public)
+    Route::post('/projects', [ProjectController::class, 'store']);
+    Route::put('/projects/{project}', [ProjectController::class, 'update']);
+    Route::delete('/projects/{project}', [ProjectController::class, 'destroy']);
     
     // Project member routes
     Route::get('/projects/{project}/members', [ProjectController::class, 'members']);
@@ -86,10 +96,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy']);
     Route::delete('/notifications', [NotificationController::class, 'destroyAll']);
 
-    // Project interaction routes (comments and ratings)
-    Route::get('/projects/{project}/comments', [ProjectController::class, 'getComments']);
+    // Project interaction routes (comments and ratings) - write operations require auth
     Route::post('/projects/{project}/comments', [ProjectController::class, 'addComment']);
-    Route::get('/projects/{project}/ratings', [ProjectController::class, 'getRatings']);
     Route::post('/projects/{project}/rate', [ProjectController::class, 'rateProject']);
 
     // Admin-only project approval routes

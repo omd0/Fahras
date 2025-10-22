@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   Typography,
@@ -6,681 +6,994 @@ import {
   Card,
   CardContent,
   Grid,
+  TextField,
+  IconButton,
   Button,
+  Chip,
+  Avatar,
+  Rating,
   CircularProgress,
   Alert,
-  Chip,
-  AppBar,
-  Toolbar,
-  TextField,
-  InputAdornment,
+  Paper,
+  Stack,
   Divider,
   FormControl,
+  InputLabel,
   Select,
   MenuItem,
-  Rating,
-  Avatar,
+  Collapse,
+  Tooltip,
+  Badge,
+  alpha,
+  useTheme as useMuiTheme,
+  CardActions,
   Fade,
+  Slide,
 } from '@mui/material';
+import { guestColors, guestTheme, createDecorativeElements, backgroundPatterns } from '../theme/guestTheme';
 import {
-  School as SchoolIcon,
-  Visibility as VisibilityIcon,
   Search as SearchIcon,
+  FilterList as FilterIcon,
+  Clear as ClearIcon,
+  ExpandMore as ExpandMoreIcon,
+  ExpandLess as ExpandLessIcon,
+  School as SchoolIcon,
   Person as PersonIcon,
   CalendarToday as CalendarIcon,
-  Login as LoginIcon,
-  AppRegistration as RegisterIcon,
-  Public as PublicIcon,
-  TrendingUp as TrendingIcon,
-  Clear as ClearIcon,
-  FilterList as FilterIcon,
+  Star as StarIcon,
+  AttachFile as AttachFileIcon,
+  Group as GroupIcon,
+  Visibility as VisibilityIcon,
+  TrendingUp as TrendingUpIcon,
+  Psychology as PsychologyIcon,
+  AutoAwesome as AutoAwesomeIcon,
+  EmojiEvents as EmojiEventsIcon,
+  Lightbulb as LightbulbIcon,
+  Rocket as RocketIcon,
+  Science as ScienceIcon,
+  Code as CodeIcon,
+  DesignServices as DesignIcon,
+  Business as BusinessIcon,
+  Engineering as EngineeringIcon,
+  Computer as ComputerIcon,
+  Comment as CommentIcon,
+  ThumbUp as ThumbUpIcon,
+  Share as ShareIcon,
+  Bookmark as BookmarkIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { Project } from '../types';
 import { apiService } from '../services/api';
-import { TVTCLogo } from '../components/TVTCLogo';
-import { TVTCBranding } from '../components/TVTCBranding';
+import { useTheme } from '../contexts/ThemeContext';
 
-// Modern color scheme
-const colors = {
-  primary: '#4FC3F7',      // Light Sky Blue
-  white: '#FFFFFF',        // White
-  lightGray: '#F5F5F5',    // Very Light Gray
-  accent: '#BA68C8',        // Soft Purple
-  accentAlt: '#FFA726',     // Soft Orange
-  text: '#2C3E50',         // Dark text
-  textSecondary: '#7F8C8D', // Secondary text
-  success: '#27AE60',      // Success green
-  warning: '#F39C12',      // Warning orange
-};
-
-interface FilterState {
-  academicYear: string;
-  type: string;
-  rating: string;
+interface SearchFilters {
+  search: string;
+  program_id: string;
+  department_id: string;
+  academic_year: string;
+  semester: string;
+  sort_by: string;
+  sort_order: string;
 }
+
+
+// Use the new guest theme colors
+const COLORS = guestColors;
+const decorativeElements = createDecorativeElements();
 
 export const ExplorePage: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [topProjects, setTopProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState<FilterState>({
-    academicYear: '',
-    type: '',
-    rating: '',
-  });
   const [showFilters, setShowFilters] = useState(false);
+  const [programs, setPrograms] = useState<any[]>([]);
+  const [departments, setDepartments] = useState<any[]>([]);
+
+  const [filters, setFilters] = useState<SearchFilters>({
+    search: '',
+    program_id: '',
+    department_id: '',
+    academic_year: '',
+    semester: '',
+    sort_by: 'created_at',
+    sort_order: 'desc',
+  });
+
+  const { theme } = useTheme();
   const navigate = useNavigate();
+  const muiTheme = useMuiTheme();
 
   useEffect(() => {
-    fetchProjects();
+    fetchData();
+    fetchPrograms();
+    fetchDepartments();
   }, []);
 
-  // Debounced search function
-  const debouncedSearch = useCallback(
-    (() => {
-      let timeoutId: NodeJS.Timeout;
-      return (searchTerm: string) => {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-          setSearching(true);
-          fetchProjects(searchTerm).finally(() => setSearching(false));
-        }, 300); // 300ms delay
-      };
-    })(),
-    []
-  );
-
-  // Handle search input change
-  const handleSearchChange = (value: string) => {
-    setSearchTerm(value);
-    if (value.trim()) {
-      debouncedSearch(value);
-    } else {
-      // If search is cleared, fetch all projects
-      setSearching(true);
-      fetchProjects().finally(() => setSearching(false));
-    }
-  };
-
-  const fetchProjects = async (searchQuery?: string) => {
+  const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const params: any = {
-        per_page: 100,
-        is_public: true,
+      // Fetch all approved projects for guest users
+      const response = await apiService.getProjects({
+        per_page: 1000, // Get all projects
         sort_by: 'created_at',
         sort_order: 'desc'
-      };
-
-      // Add search parameter if provided and sanitize it
-      if (searchQuery && searchQuery.trim()) {
-        // Sanitize search query to prevent potential issues
-        const sanitizedQuery = searchQuery.trim().replace(/[<>]/g, '');
-        if (sanitizedQuery.length > 0) {
-          params.search = sanitizedQuery;
-        }
-      }
-
-      const response = await apiService.getProjects(params);
+      });
       
-      const projectsData = Array.isArray(response)
-        ? response
-        : response.data || [];
+      const projectsData = Array.isArray(response) ? response : response.data || [];
+      setProjects(projectsData);
+      setFilteredProjects(projectsData);
 
-      setProjects(projectsData || []);
-      
-      // Get top projects (most viewed or highest rated)
-      const topProjectsData = projectsData
-        .sort((a, b) => (b.views || 0) - (a.views || 0))
+      // Get top projects (only those with actual ratings and high scores)
+      const topProjectsData = [...projectsData]
+        .filter(project => project.average_rating && project.average_rating >= 4.0 && project.rating_count && project.rating_count > 0)
+        .sort((a, b) => (b.average_rating || 0) - (a.average_rating || 0))
         .slice(0, 6);
       setTopProjects(topProjectsData);
+
     } catch (error: any) {
       console.error('Failed to fetch projects:', error);
-      const errorMessage = error.response?.data?.message || 
-                          (error.response?.status === 500 ? 'Server error. Please try again.' : 'Failed to fetch projects');
-      setError(errorMessage);
-      setProjects([]);
-      setTopProjects([]);
+      setError(error.response?.data?.message || 'Failed to fetch projects');
     } finally {
       setLoading(false);
     }
   };
 
-
-  // Filter projects based on additional filters (search is handled server-side)
-  const filteredProjects = (projects || []).filter((project) => {
-    // Academic Year filter
-    if (filters.academicYear && project.academic_year !== filters.academicYear) {
-      return false;
+  const fetchPrograms = async () => {
+    try {
+      const response = await apiService.getPrograms();
+      setPrograms(response.data || response || []);
+    } catch (error) {
+      console.error('Failed to fetch programs:', error);
+      setPrograms([]);
     }
-
-    // Type filter (based on keywords or title)
-    if (filters.type) {
-      const type = filters.type.toLowerCase();
-      const matchesType = (
-        project.title.toLowerCase().includes(type) ||
-        (project.keywords || []).some(k => k.toLowerCase().includes(type))
-      );
-      if (!matchesType) return false;
-    }
-
-    // Rating filter
-    if (filters.rating) {
-      const minRating = parseInt(filters.rating);
-      const projectRating = project.average_rating || 0;
-      if (projectRating < minRating) return false;
-    }
-
-    return true;
-  });
-
-  const clearFilters = () => {
-    setFilters({
-      academicYear: '',
-      type: '',
-      rating: '',
-    });
-    setSearchTerm('');
-    fetchProjects(); // Refetch all projects
   };
 
-  const ProjectCard: React.FC<{ project: Project; featured?: boolean }> = ({ project, featured = false }) => (
-    <Card
-      sx={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        cursor: 'pointer',
-        borderRadius: 4,
-        boxShadow: featured 
-          ? '0 12px 32px rgba(79, 195, 247, 0.2)' 
-          : '0 4px 16px rgba(0,0,0,0.08)',
-        border: featured 
-          ? `2px solid ${colors.primary}` 
-          : '1px solid #E8F4FD',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        background: featured 
-          ? `linear-gradient(135deg, ${colors.white} 0%, #F0F9FF 100%)`
-          : colors.white,
-        '&:hover': {
-          boxShadow: featured 
-            ? '0 16px 40px rgba(79, 195, 247, 0.3)' 
-            : '0 8px 24px rgba(0,0,0,0.15)',
-          transform: 'translateY(-6px)',
-          borderColor: colors.primary,
-        },
-      }}
-      onClick={() => navigate(`/projects/${project.id}`)}
-    >
-      {/* Project Thumbnail */}
-      <Box
-        sx={{
-          height: featured ? 200 : 160,
-          background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.accent} 100%)`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        {featured && (
-          <Chip
-            label="Featured"
-            sx={{
-              position: 'absolute',
-              top: 12,
-              right: 12,
-              background: colors.accent,
-              color: colors.white,
-              fontWeight: 600,
-              zIndex: 1,
-            }}
+  const fetchDepartments = async () => {
+    try {
+      const response = await apiService.getDepartments();
+      setDepartments(response || []);
+    } catch (error) {
+      console.error('Failed to fetch departments:', error);
+      setDepartments([]);
+    }
+  };
+
+  const handleSearch = async () => {
+    try {
+      setSearching(true);
+      setError(null);
+
+      // Build query parameters from filters
+      const params: any = {};
+      if (filters.search) params.search = filters.search;
+      if (filters.program_id) params.program_id = filters.program_id;
+      if (filters.department_id) params.department_id = filters.department_id;
+      if (filters.academic_year) params.academic_year = filters.academic_year;
+      if (filters.semester) params.semester = filters.semester;
+      if (filters.sort_by) params.sort_by = filters.sort_by;
+      if (filters.sort_order) params.sort_order = filters.sort_order;
+
+      const response = await apiService.getProjects(params);
+      const projectsData = Array.isArray(response) ? response : response.data || [];
+
+      setFilteredProjects(projectsData);
+    } catch (error: any) {
+      console.error('Failed to search projects:', error);
+      setError(error.response?.data?.message || 'Failed to search projects');
+      setFilteredProjects([]);
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setFilters({
+      search: '',
+      program_id: '',
+      department_id: '',
+      academic_year: '',
+      semester: '',
+      sort_by: 'created_at',
+      sort_order: 'desc',
+    });
+    setFilteredProjects(projects);
+    setShowFilters(false);
+  };
+
+  const handleInputChange = (field: keyof SearchFilters, value: string) => {
+    setFilters(prev => ({ ...prev, [field]: value }));
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'draft': return 'warning';
+      case 'submitted': return 'info';
+      case 'under_review': return 'primary';
+      case 'approved': return 'success';
+      case 'rejected': return 'error';
+      case 'completed': return 'success';
+      default: return 'default';
+    }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const getProjectIcon = (title: string) => {
+    const lowerTitle = title.toLowerCase();
+    if (lowerTitle.includes('web') || lowerTitle.includes('app') || lowerTitle.includes('software')) {
+      return <CodeIcon />;
+    } else if (lowerTitle.includes('design') || lowerTitle.includes('ui') || lowerTitle.includes('ux')) {
+      return <DesignIcon />;
+    } else if (lowerTitle.includes('business') || lowerTitle.includes('management') || lowerTitle.includes('marketing')) {
+      return <BusinessIcon />;
+    } else if (lowerTitle.includes('engineering') || lowerTitle.includes('mechanical') || lowerTitle.includes('electrical')) {
+      return <EngineeringIcon />;
+    } else if (lowerTitle.includes('computer') || lowerTitle.includes('ai') || lowerTitle.includes('machine learning')) {
+      return <ComputerIcon />;
+    } else {
+      return <ScienceIcon />;
+    }
+  };
+
+
+  const academicYearOptions = [
+    '2020-2021', '2021-2022', '2022-2023', '2023-2024', '2024-2025', '2025-2026'
+  ];
+
+  const semesterOptions = [
+    { value: 'fall', label: 'Fall' },
+    { value: 'spring', label: 'Spring' },
+    { value: 'summer', label: 'Summer' },
+  ];
+
+  const sortOptions = [
+    { value: 'created_at', label: 'Date Created' },
+    { value: 'updated_at', label: 'Last Updated' },
+    { value: 'title', label: 'Title' },
+    { value: 'academic_year', label: 'Academic Year' },
+    { value: 'average_rating', label: 'Rating' },
+  ];
+
+  if (loading) {
+    return (
+      <Box sx={{ 
+        minHeight: '100vh', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        ...backgroundPatterns.hero,
+        position: 'relative',
+        '&::before': decorativeElements.largeCircle,
+        '&::after': decorativeElements.mediumCircle,
+      }}>
+        <Stack alignItems="center" spacing={3}>
+          <CircularProgress 
+            size={60} 
+            sx={{ 
+              color: COLORS.darkBlue,
+              '& .MuiCircularProgress-circle': {
+                strokeLinecap: 'round',
+              },
+            }} 
           />
-        )}
-        <SchoolIcon sx={{ fontSize: featured ? 80 : 60, color: colors.white, opacity: 0.9 }} />
-      </Box>
-
-      <CardContent sx={{ flexGrow: 1, p: 3 }}>
-        {/* Project Title */}
-        <Typography 
-          variant={featured ? "h6" : "subtitle1"} 
-          component="h2" 
-          sx={{ 
-            fontWeight: 600, 
-            mb: 1.5,
-            color: colors.text,
-            lineHeight: 1.3,
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-          }}
-        >
-          {project.title}
-        </Typography>
-        
-        {/* University/Program */}
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
-          <SchoolIcon sx={{ fontSize: 16, color: colors.primary, mr: 1 }} />
-          <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
-            {project.program?.name || 'TVTC Program'}
+          <Typography variant="h6" sx={{ color: COLORS.textSecondary, fontWeight: 500 }}>
+            Loading amazing projects...
           </Typography>
-        </Box>
-        
-        {/* Abstract Preview */}
-        <Typography 
-          variant="body2" 
-          color="text.secondary" 
-          sx={{ 
-            mb: 2, 
-            minHeight: featured ? 60 : 40,
-            display: '-webkit-box',
-            WebkitLineClamp: featured ? 3 : 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            lineHeight: 1.5,
-          }}
-        >
-          {project.abstract}
-        </Typography>
-        
-        {/* Keywords */}
-        {project.keywords && project.keywords.length > 0 && (
-          <Box sx={{ mb: 2, display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-            {project.keywords.slice(0, featured ? 4 : 3).map((keyword, index) => (
-              <Chip
-                key={index}
-                label={keyword}
-                size="small"
-                variant="outlined"
-                sx={{ 
-                  borderColor: colors.primary,
-                  color: colors.primary,
-                  fontSize: '0.75rem',
-                  '&:hover': {
-                    backgroundColor: colors.primary,
-                    color: colors.white,
-                  },
-                }}
-              />
-            ))}
-          </Box>
-        )}
-
-        <Divider sx={{ my: 2 }} />
-        
-        {/* Project Stats */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <CalendarIcon sx={{ fontSize: 16, color: colors.textSecondary, mr: 0.5 }} />
-            <Typography variant="caption" color="text.secondary">
-              {project.academic_year} • {project.semester}
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <VisibilityIcon sx={{ fontSize: 16, color: colors.textSecondary, mr: 0.5 }} />
-            <Typography variant="caption" color="text.secondary">
-              {project.views || 0} views
-            </Typography>
-          </Box>
-        </Box>
-        
-        {/* Author and Rating */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Avatar sx={{ width: 24, height: 24, mr: 1, bgcolor: colors.primary }}>
-              <PersonIcon sx={{ fontSize: 16 }} />
-            </Avatar>
-            <Typography variant="caption" color="text.secondary">
-              {project.creator?.full_name || 'Unknown'}
-            </Typography>
-          </Box>
-          
-          {/* Star Rating */}
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Rating
-              value={project.average_rating || 0}
-              readOnly
-              size="small"
-              sx={{ mr: 0.5 }}
-            />
-            <Typography variant="caption" color="text.secondary">
-              ({project.rating_count || 0})
-            </Typography>
-          </Box>
-        </Box>
-      </CardContent>
-    </Card>
-  );
+        </Stack>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ 
-      flexGrow: 1, 
-      minHeight: '100vh', 
-      background: `linear-gradient(135deg, ${colors.lightGray} 0%, #E8F4FD 100%)` 
+      minHeight: '100vh',
+      ...backgroundPatterns.content,
+      position: 'relative',
+      '&::before': decorativeElements.geometricBackground,
+      '&::after': {
+        content: '""',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: `
+          radial-gradient(circle at 20% 20%, rgba(123, 176, 216, 0.12) 0%, transparent 50%),
+          radial-gradient(circle at 80% 80%, rgba(159, 227, 193, 0.1) 0%, transparent 50%),
+          radial-gradient(circle at 50% 50%, rgba(245, 233, 216, 0.08) 0%, transparent 50%)
+        `,
+        pointerEvents: 'none',
+      },
     }}>
-      {/* Modern Navigation Bar */}
-      <AppBar 
-        position="static" 
-        sx={{ 
-          background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.accent} 100%)`,
-          boxShadow: '0 4px 20px rgba(79, 195, 247, 0.3)',
-        }}
-      >
-        <Toolbar>
-          <TVTCLogo size="medium" variant="icon" color="inherit" sx={{ mr: 2 }} />
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 600 }}>
-            Explore Projects
-          </Typography>
-          <Button
-            color="inherit"
-            startIcon={<LoginIcon />}
-            onClick={() => navigate('/login')}
-            sx={{ mr: 1, fontWeight: 500 }}
-          >
-            Login
-          </Button>
-          <Button
-            variant="outlined"
-            color="inherit"
-            startIcon={<RegisterIcon />}
-            onClick={() => navigate('/register')}
-            sx={{ 
-              borderColor: colors.white, 
-              fontWeight: 500,
-              '&:hover': { 
-                borderColor: colors.white, 
-                backgroundColor: 'rgba(255,255,255,0.1)' 
-              } 
-            }}
-          >
-            Register
-          </Button>
-        </Toolbar>
-      </AppBar>
-
       <Container maxWidth="xl" sx={{ py: 6 }}>
         {/* Hero Section */}
         <Fade in timeout={800}>
-          <Box
+          <Paper
+            elevation={0}
             sx={{
-              background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.accent} 100%)`,
-              borderRadius: 6,
-              p: 6,
               mb: 6,
-              color: colors.white,
-              boxShadow: '0 16px 40px rgba(79, 195, 247, 0.3)',
-              textAlign: 'center',
+              p: 6,
+              ...backgroundPatterns.hero,
+              color: COLORS.textPrimary,
               position: 'relative',
               overflow: 'hidden',
+              boxShadow: '0 12px 40px rgba(123, 176, 216, 0.3), 0 6px 20px rgba(159, 227, 193, 0.18)',
               '&::before': {
-                content: '""',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                background: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.05"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
-                opacity: 0.3,
+                ...decorativeElements.largeCircle,
+                background: 'rgba(123, 176, 216, 0.18)',
+                transform: 'translate(100px, -100px)',
+              },
+              '&::after': {
+                ...decorativeElements.mediumCircle,
+                background: 'rgba(159, 227, 193, 0.12)',
+                transform: 'translate(-50px, 50px)',
               },
             }}
           >
-            <PublicIcon sx={{ fontSize: 80, mb: 3, opacity: 0.9 }} />
-            <Typography variant="h2" sx={{ fontWeight: 700, mb: 2, color: colors.white }}>
-              Discover Innovation
-            </Typography>
-            <Typography variant="h5" sx={{ opacity: 0.9, mb: 4, color: colors.white, fontWeight: 400 }}>
-              Explore cutting-edge graduation projects from TVTC students
-            </Typography>
-            
-            {/* Search Tips */}
-            {!searchTerm && (
-              <Box sx={{ mb: 3, opacity: 0.8 }}>
-                <Typography variant="body2" sx={{ color: colors.white, mb: 1 }}>
-                  💡 Search tips: Try searching by project title, keywords, author name, or technology
+            <Stack direction="row" alignItems="center" spacing={4} sx={{ position: 'relative', zIndex: 1 }}>
+              <Avatar
+                sx={{
+                  width: 100,
+                  height: 100,
+                  background: guestColors.primaryGradient,
+                  backdropFilter: 'blur(10px)',
+                  border: '3px solid rgba(123, 176, 216, 0.35)',
+                  boxShadow: '0 8px 32px rgba(123, 176, 216, 0.35)',
+                }}
+              >
+                <RocketIcon sx={{ fontSize: 50, color: COLORS.white }} />
+              </Avatar>
+              <Box>
+                <Typography variant="h2" sx={{ 
+                  fontWeight: 800, 
+                  mb: 2, 
+                  textShadow: '0 2px 4px rgba(123, 176, 216, 0.25)', 
+                  color: COLORS.textPrimary,
+                  fontSize: { xs: '2.5rem', md: '3.5rem' }
+                }}>
+                  Explore Innovation 🚀
                 </Typography>
-                <Typography variant="body2" sx={{ color: colors.white }}>
-                  Examples: "web development", "machine learning", "mobile app", "IoT"
+                <Typography variant="h5" sx={{ 
+                  opacity: 0.9, 
+                  fontWeight: 400,
+                  fontSize: { xs: '1.1rem', md: '1.3rem' },
+                  maxWidth: '600px',
+                  color: COLORS.textSecondary
+                }}>
+                  Discover groundbreaking graduation projects from TVTC students. 
+                  Browse, learn, and get inspired by the next generation of innovators!
                 </Typography>
               </Box>
-            )}
+            </Stack>
+          </Paper>
+        </Fade>
 
-            {/* Enhanced Search Bar with Filter Button */}
-            <Box sx={{ maxWidth: 800, mx: 'auto', position: 'relative', zIndex: 1 }}>
-              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+
+
+        {/* Search and Filter Section */}
+        <Fade in timeout={1400}>
+          <Paper
+            elevation={0}
+            sx={{
+              mb: 6,
+              p: 5,
+              ...backgroundPatterns.card,
+              position: 'relative',
+              '&::before': decorativeElements.smallCircle,
+              '&::after': {
+                content: '""',
+                position: 'absolute',
+                top: '20%',
+                right: '5%',
+                width: '60px',
+                height: '60px',
+                background: 'rgba(159, 227, 193, 0.12)',
+                borderRadius: '50%',
+                pointerEvents: 'none',
+              },
+            }}
+          >
+            <Stack direction="row" alignItems="center" spacing={3} sx={{ mb: 4 }}>
+              <Avatar
+                sx={{
+                  width: 56,
+                  height: 56,
+                  background: guestColors.primaryGradient,
+                  boxShadow: '0 4px 16px rgba(123, 176, 216, 0.35)',
+                }}
+              >
+                <SearchIcon sx={{ fontSize: 28, color: COLORS.white }} />
+              </Avatar>
+              <Box>
+                <Typography variant="h4" sx={{ fontWeight: 700, color: COLORS.textPrimary, mb: 1 }}>
+                  Smart Project Discovery
+                </Typography>
+                <Typography variant="h6" sx={{ color: COLORS.textSecondary, fontWeight: 400 }}>
+                  Find projects that match your interests and expertise
+                </Typography>
+              </Box>
+            </Stack>
+
+            <Grid container spacing={3} sx={{ mb: 4 }}>
+              <Grid size={{ xs: 12, md: 8 }}>
                 <TextField
                   fullWidth
-                  placeholder="Search projects by title, keywords, or author..."
-                  value={searchTerm}
-                  onChange={(e) => handleSearchChange(e.target.value)}
+                  placeholder="Search by project name, title, or keywords..."
+                  value={filters.search}
+                  onChange={(e) => handleInputChange('search', e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                   InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon sx={{ color: colors.white }} />
-                      </InputAdornment>
+                    startAdornment: <SearchIcon sx={{ mr: 2, color: COLORS.lightBlue, fontSize: 24 }} />,
+                    endAdornment: filters.search && (
+                      <IconButton 
+                        size="small" 
+                        onClick={() => handleInputChange('search', '')}
+                        sx={{ color: COLORS.textSecondary }}
+                      >
+                        <ClearIcon />
+                      </IconButton>
                     ),
-                    endAdornment: searching ? (
-                      <InputAdornment position="end">
-                        <CircularProgress size={20} sx={{ color: colors.white }} />
-                      </InputAdornment>
-                    ) : null,
-                    sx: {
-                      backgroundColor: 'rgba(255,255,255,0.15)',
-                      borderRadius: 3,
-                      color: colors.white,
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 4,
+                      backgroundColor: COLORS.white,
                       fontSize: '1.1rem',
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'rgba(255,255,255,0.3)',
+                      py: 1,
+                      '&:hover': {
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: COLORS.lightBlue,
+                          borderWidth: 2,
+                        },
                       },
-                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'rgba(255,255,255,0.5)',
-                      },
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: colors.white,
-                      },
-                      '& input::placeholder': {
-                        color: 'rgba(255,255,255,0.7)',
-                        opacity: 1,
+                      '&.Mui-focused': {
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: COLORS.lightBlue,
+                          borderWidth: 2,
+                        },
                       },
                     },
                   }}
                 />
-                <Button
-                  variant="outlined"
-                  startIcon={<FilterIcon />}
-                  onClick={() => setShowFilters(!showFilters)}
-                  sx={{
-                    borderColor: 'rgba(255,255,255,0.5)',
-                    color: colors.white,
-                    px: 3,
-                    py: 1.5,
-                    borderRadius: 3,
-                    fontWeight: 600,
-                    fontSize: '1rem',
-                    minWidth: 120,
-                    '&:hover': {
-                      borderColor: colors.white,
-                      backgroundColor: 'rgba(255,255,255,0.1)',
-                    },
-                  }}
-                >
-                  Filter
-                </Button>
+              </Grid>
+              <Grid size={{ xs: 12, md: 4 }}>
+                <Stack direction="row" spacing={2}>
+                  <Button
+                    variant="outlined"
+                    startIcon={<FilterIcon />}
+                    onClick={() => setShowFilters(!showFilters)}
+                    sx={{
+                      borderColor: COLORS.lightBlue,
+                      color: COLORS.lightBlue,
+                      borderRadius: 4,
+                      px: 4,
+                      py: 1.5,
+                      fontWeight: 600,
+                      fontSize: '1rem',
+                      '&:hover': {
+                        borderColor: COLORS.lightBlue,
+                        backgroundColor: alpha(COLORS.lightBlue, 0.08),
+                        transform: 'translateY(-2px)',
+                      },
+                    }}
+                  >
+                    Filters
+                    {showFilters ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                  </Button>
+                  <Button
+                    variant="contained"
+                    onClick={handleSearch}
+                    disabled={searching}
+                    sx={{
+                      background: guestColors.primaryGradient,
+                      borderRadius: 4,
+                      px: 4,
+                      py: 1.5,
+                      fontWeight: 600,
+                      fontSize: '1rem',
+                      textTransform: 'none',
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: `0 8px 25px ${alpha(COLORS.lightBlue, 0.4)}`,
+                      },
+                    }}
+                  >
+                    {searching ? <CircularProgress size={20} color="inherit" /> : 'Search'}
+                  </Button>
+                </Stack>
+              </Grid>
+            </Grid>
+
+            {/* Advanced Filters */}
+            <Collapse in={showFilters}>
+              <Box sx={{ 
+                p: 4, 
+                backgroundColor: alpha(COLORS.lightBlue, 0.08), 
+                borderRadius: 4,
+                border: `1px solid ${alpha(COLORS.lightBlue, 0.2)}`,
+              }}>
+                <Grid container spacing={3}>
+                  <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                    <FormControl fullWidth>
+                      <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>Program</InputLabel>
+                      <Select
+                        value={filters.program_id}
+                        onChange={(e) => handleInputChange('program_id', e.target.value)}
+                        label="Program"
+                        sx={{ 
+                          borderRadius: 3,
+                          backgroundColor: COLORS.white,
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: alpha(COLORS.lightBlue, 0.3),
+                          },
+                          '&:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: COLORS.lightBlue,
+                          },
+                        }}
+                      >
+                        <MenuItem value="">All Programs</MenuItem>
+                        {(programs || []).map((program) => (
+                          <MenuItem key={program.id} value={program.id}>
+                            {program.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+
+                  <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                    <FormControl fullWidth>
+                      <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>Department</InputLabel>
+                      <Select
+                        value={filters.department_id}
+                        onChange={(e) => handleInputChange('department_id', e.target.value)}
+                        label="Department"
+                        sx={{ 
+                          borderRadius: 3,
+                          backgroundColor: COLORS.white,
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: alpha(COLORS.lightBlue, 0.3),
+                          },
+                          '&:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: COLORS.lightBlue,
+                          },
+                        }}
+                      >
+                        <MenuItem value="">All Departments</MenuItem>
+                        {(departments || []).map((dept) => (
+                          <MenuItem key={dept.id} value={dept.id}>
+                            {dept.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+
+                  <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                    <FormControl fullWidth>
+                      <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>Academic Year</InputLabel>
+                      <Select
+                        value={filters.academic_year}
+                        onChange={(e) => handleInputChange('academic_year', e.target.value)}
+                        label="Academic Year"
+                        sx={{ 
+                          borderRadius: 3,
+                          backgroundColor: COLORS.white,
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: alpha(COLORS.lightBlue, 0.3),
+                          },
+                          '&:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: COLORS.lightBlue,
+                          },
+                        }}
+                      >
+                        <MenuItem value="">All Years</MenuItem>
+                        {academicYearOptions.map((year) => (
+                          <MenuItem key={year} value={year}>
+                            {year}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+
+                  <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                    <FormControl fullWidth>
+                      <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>Semester</InputLabel>
+                      <Select
+                        value={filters.semester}
+                        onChange={(e) => handleInputChange('semester', e.target.value)}
+                        label="Semester"
+                        sx={{ 
+                          borderRadius: 3,
+                          backgroundColor: COLORS.white,
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: alpha(COLORS.lightBlue, 0.3),
+                          },
+                          '&:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: COLORS.lightBlue,
+                          },
+                        }}
+                      >
+                        <MenuItem value="">All Semesters</MenuItem>
+                        {semesterOptions.map((semester) => (
+                          <MenuItem key={semester.value} value={semester.value}>
+                            {semester.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+
+                  <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                    <FormControl fullWidth>
+                      <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>Sort By</InputLabel>
+                      <Select
+                        value={filters.sort_by}
+                        onChange={(e) => handleInputChange('sort_by', e.target.value)}
+                        label="Sort By"
+                        sx={{ 
+                          borderRadius: 3,
+                          backgroundColor: COLORS.white,
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: alpha(COLORS.lightBlue, 0.3),
+                          },
+                          '&:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: COLORS.lightBlue,
+                          },
+                        }}
+                      >
+                        {sortOptions.map((option) => (
+                          <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+
+                  <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                    <FormControl fullWidth>
+                      <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>Order</InputLabel>
+                      <Select
+                        value={filters.sort_order}
+                        onChange={(e) => handleInputChange('sort_order', e.target.value)}
+                        label="Order"
+                        sx={{ 
+                          borderRadius: 3,
+                          backgroundColor: COLORS.white,
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: alpha(COLORS.lightBlue, 0.3),
+                          },
+                          '&:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: COLORS.lightBlue,
+                          },
+                        }}
+                      >
+                        <MenuItem value="desc">Newest First</MenuItem>
+                        <MenuItem value="asc">Oldest First</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                </Grid>
+
+                <Stack direction="row" spacing={3} sx={{ mt: 4, justifyContent: 'flex-end' }}>
+                  <Button
+                    variant="outlined"
+                    onClick={handleClearSearch}
+                    startIcon={<ClearIcon />}
+                    sx={{
+                      borderColor: COLORS.textSecondary,
+                      color: COLORS.textSecondary,
+                      borderRadius: 3,
+                      px: 4,
+                      py: 1.5,
+                      fontWeight: 600,
+                      '&:hover': {
+                        borderColor: COLORS.textSecondary,
+                        backgroundColor: alpha(COLORS.textSecondary, 0.05),
+                        transform: 'translateY(-2px)',
+                      },
+                    }}
+                  >
+                    Clear All
+                  </Button>
+                  <Button
+                    variant="contained"
+                    onClick={handleSearch}
+                    disabled={searching}
+                    sx={{
+                      background: guestColors.primaryGradient,
+                      borderRadius: 3,
+                      px: 4,
+                      py: 1.5,
+                      fontWeight: 600,
+                      textTransform: 'none',
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: `0 8px 25px ${alpha(COLORS.lightBlue, 0.4)}`,
+                      },
+                    }}
+                  >
+                    Apply Filters
+                  </Button>
+                </Stack>
               </Box>
-            </Box>
-          </Box>
+            </Collapse>
+          </Paper>
         </Fade>
 
-        {/* Expandable Filter Section */}
-        <Fade in={showFilters} timeout={300}>
-          <Box sx={{ display: showFilters ? 'block' : 'none', mb: 4 }}>
-            <Box
-              sx={{
-                background: colors.white,
+        {/* Error Alert */}
+        {error && (
+          <Fade in timeout={600}>
+            <Alert 
+              severity="error" 
+              sx={{ 
+                mb: 4, 
                 borderRadius: 4,
-                p: 4,
-                boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-                border: `1px solid ${colors.primary}20`,
+                boxShadow: `0 8px 24px ${alpha(COLORS.error, 0.2)}`,
+                border: `2px solid ${alpha(COLORS.error, 0.3)}`,
+                fontSize: '1.1rem',
+                fontWeight: 500,
               }}
             >
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                <FilterIcon sx={{ color: colors.primary, mr: 1, fontSize: 24 }} />
-                <Typography variant="h6" sx={{ fontWeight: 600, color: colors.text }}>
-                  Filter Projects
-                </Typography>
-                <Box sx={{ flexGrow: 1 }} />
-                <Button
-                  startIcon={<ClearIcon />}
-                  onClick={clearFilters}
-                  sx={{ 
-                    color: colors.textSecondary,
-                    fontWeight: 500,
-                    '&:hover': {
-                      backgroundColor: `${colors.textSecondary}10`,
-                    }
-                  }}
-                >
-                  Clear All
-                </Button>
-              </Box>
+              {error}
+            </Alert>
+          </Fade>
+        )}
 
-              <Grid container spacing={3}>
-                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                  <FormControl fullWidth>
-                    <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600, color: colors.text }}>
-                      Academic Year
+        {/* Search Results Summary */}
+        {filteredProjects.length !== projects.length && (
+          <Fade in timeout={800}>
+            <Box sx={{ mb: 4 }}>
+              <Alert 
+                severity="info" 
+                sx={{ 
+                  borderRadius: 4,
+                  background: `linear-gradient(135deg, ${alpha(COLORS.lightBlue, 0.12)} 0%, ${alpha(COLORS.mintGreen, 0.12)} 100%)`,
+                  border: `2px solid ${alpha(COLORS.lightBlue, 0.35)}`,
+                  '& .MuiAlert-icon': {
+                    color: COLORS.lightBlue,
+                    fontSize: 24,
+                  }
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <FilterIcon sx={{ fontSize: 24, color: COLORS.lightBlue }} />
+                    <Typography variant="h6" sx={{ fontWeight: 600, color: COLORS.textPrimary }}>
+                      Showing <strong style={{ color: COLORS.lightBlue }}>{filteredProjects.length}</strong> of <strong style={{ color: COLORS.textSecondary }}>{projects.length}</strong> projects
                     </Typography>
-                    <Select
-                      value={filters.academicYear}
-                      onChange={(e) => setFilters({...filters, academicYear: e.target.value})}
-                      displayEmpty
-                      sx={{
-                        backgroundColor: colors.lightGray,
-                        borderRadius: 2,
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: colors.primary,
-                        },
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: colors.accent,
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor: colors.primary,
-                        },
-                      }}
-                    >
-                      <MenuItem value="">
-                        <em style={{ color: colors.textSecondary, fontStyle: 'normal' }}>All Years</em>
-                      </MenuItem>
-                      <MenuItem value="2024" sx={{ color: colors.text, fontWeight: 500 }}>2024</MenuItem>
-                      <MenuItem value="2023" sx={{ color: colors.text, fontWeight: 500 }}>2023</MenuItem>
-                      <MenuItem value="2022" sx={{ color: colors.text, fontWeight: 500 }}>2022</MenuItem>
-                      <MenuItem value="2021" sx={{ color: colors.text, fontWeight: 500 }}>2021</MenuItem>
-                      <MenuItem value="2020" sx={{ color: colors.text, fontWeight: 500 }}>2020</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-
-                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                  <FormControl fullWidth>
-                    <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600, color: colors.text }}>
-                      Project Type
-                    </Typography>
-                    <Select
-                      value={filters.type}
-                      onChange={(e) => setFilters({...filters, type: e.target.value})}
-                      displayEmpty
-                      sx={{
-                        backgroundColor: colors.lightGray,
-                        borderRadius: 2,
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: colors.primary,
-                        },
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: colors.accent,
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor: colors.primary,
-                        },
-                      }}
-                    >
-                      <MenuItem value="">
-                        <em style={{ color: colors.textSecondary, fontStyle: 'normal' }}>All Types</em>
-                      </MenuItem>
-                      <MenuItem value="web" sx={{ color: colors.text, fontWeight: 500 }}>Web Development</MenuItem>
-                      <MenuItem value="mobile" sx={{ color: colors.text, fontWeight: 500 }}>Mobile App</MenuItem>
-                      <MenuItem value="ai" sx={{ color: colors.text, fontWeight: 500 }}>AI/ML</MenuItem>
-                      <MenuItem value="iot" sx={{ color: colors.text, fontWeight: 500 }}>IoT</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-
-                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                  <FormControl fullWidth>
-                    <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600, color: colors.text }}>
-                      Minimum Rating
-                    </Typography>
-                    <Select
-                      value={filters.rating}
-                      onChange={(e) => setFilters({...filters, rating: e.target.value})}
-                      displayEmpty
-                      sx={{
-                        backgroundColor: colors.lightGray,
-                        borderRadius: 2,
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: colors.primary,
-                        },
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: colors.accent,
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor: colors.primary,
-                        },
-                      }}
-                    >
-                      <MenuItem value="">
-                        <em style={{ color: colors.textSecondary, fontStyle: 'normal' }}>Any Rating</em>
-                      </MenuItem>
-                      <MenuItem value="4" sx={{ color: colors.text, fontWeight: 500 }}>4+ Stars</MenuItem>
-                      <MenuItem value="3" sx={{ color: colors.text, fontWeight: 500 }}>3+ Stars</MenuItem>
-                      <MenuItem value="2" sx={{ color: colors.text, fontWeight: 500 }}>2+ Stars</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-              </Grid>
+                  </Box>
+                  <Button
+                    variant="contained"
+                    size="large"
+                    startIcon={<ClearIcon />}
+                    onClick={handleClearSearch}
+                    disabled={searching}
+                    sx={{
+                      background: guestColors.primaryGradient,
+                      color: COLORS.white,
+                      fontWeight: 600,
+                      px: 4,
+                      py: 1.5,
+                      borderRadius: 3,
+                      fontSize: '1rem',
+                      textTransform: 'none',
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: `0 8px 25px ${alpha(COLORS.lightBlue, 0.4)}`,
+                      },
+                      transition: 'all 0.3s ease',
+                    }}
+                  >
+                    Clear Filters
+                  </Button>
+                </Box>
+              </Alert>
             </Box>
-          </Box>
-        </Fade>
+          </Fade>
+        )}
 
         {/* Top Projects Section */}
-        {!loading && topProjects.length > 0 && (
+        {topProjects.length > 0 && (
           <Fade in timeout={1200}>
             <Box sx={{ mb: 6 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                <TrendingIcon sx={{ color: colors.accent, mr: 1, fontSize: 28 }} />
-                <Typography variant="h4" sx={{ fontWeight: 700, color: colors.text }}>
-                  Top Projects
-                </Typography>
-                <Chip
-                  label="Most Popular"
+              <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 4 }}>
+                <Avatar
                   sx={{
-                    ml: 2,
-                    background: colors.accent,
-                    color: colors.white,
-                    fontWeight: 600,
+                    width: 56,
+                    height: 56,
+                    background: guestColors.secondaryGradient,
                   }}
-                />
-              </Box>
-              <Grid container spacing={3}>
-                {topProjects.slice(0, 3).map((project) => (
-                  <Grid size={{ xs: 12, md: 4 }} key={project.id}>
-                    <ProjectCard project={project} featured={true} />
+                >
+                  <EmojiEventsIcon sx={{ fontSize: 28, color: COLORS.textPrimary }} />
+                </Avatar>
+                <Box>
+                  <Typography variant="h4" sx={{ fontWeight: 700, color: COLORS.textPrimary, mb: 1 }}>
+                    Top Projects ⭐
+                  </Typography>
+                  <Typography variant="h6" sx={{ color: COLORS.textSecondary, fontWeight: 400 }}>
+                    Most highly rated and innovative projects
+                  </Typography>
+                </Box>
+              </Stack>
+
+              <Grid container spacing={4}>
+                {topProjects.map((project, index) => (
+                  <Grid size={{ xs: 12, md: 6, lg: 4 }} key={project.id}>
+                  <Card
+                    sx={{
+                      ...backgroundPatterns.card,
+                      cursor: 'pointer',
+                      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      height: '100%',
+                      border: `2px solid ${alpha(COLORS.mintGreen, 0.25)}`,
+                      '&:hover': {
+                        transform: 'translateY(-12px) scale(1.03)',
+                        boxShadow: `0 24px 48px ${alpha(COLORS.mintGreen, 0.35)}`,
+                        borderColor: COLORS.mintGreen,
+                      },
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: '6px',
+                        background: guestColors.secondaryGradient,
+                      },
+                    }}
+                    onClick={() => navigate(`/projects/${project.id}`)}
+                  >
+                      <CardContent sx={{ p: 3 }}>
+                        <Stack direction="row" alignItems="flex-start" justifyContent="space-between" sx={{ mb: 2 }}>
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <Typography 
+                              variant="h6" 
+                              sx={{ 
+                                fontWeight: 700, 
+                                color: COLORS.textPrimary,
+                                mb: 1,
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                display: '-webkit-box',
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: 'vertical',
+                              }}
+                            >
+                              {project.title}
+                            </Typography>
+                            <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+                              <Chip
+                                label={project.academic_year}
+                                size="small"
+                                sx={{
+                                  background: guestColors.primaryGradient,
+                                  color: COLORS.white,
+                                  fontWeight: 600,
+                                  fontSize: '0.75rem',
+                                }}
+                              />
+                              <Chip
+                                label={project.semester}
+                                size="small"
+                                sx={{
+                                  background: guestColors.secondaryGradient,
+                                  color: COLORS.textPrimary,
+                                  fontWeight: 600,
+                                  fontSize: '0.75rem',
+                                  textTransform: 'capitalize',
+                                }}
+                              />
+                            </Stack>
+                          </Box>
+                          <Badge
+                            badgeContent={index + 1}
+                            sx={{
+                              '& .MuiBadge-badge': {
+                                background: guestColors.accentGradient,
+                                color: COLORS.white,
+                                fontWeight: 700,
+                                fontSize: '0.8rem',
+                              },
+                            }}
+                          >
+                            <Avatar
+                              sx={{
+                                width: 40,
+                                height: 40,
+                                background: guestColors.primaryGradient,
+                              }}
+                            >
+                              {getProjectIcon(project.title)}
+                            </Avatar>
+                          </Badge>
+                        </Stack>
+
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            color: COLORS.textSecondary,
+                            mb: 3, 
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: 'vertical',
+                            lineHeight: 1.6,
+                          }}
+                        >
+                          {project.abstract}
+                        </Typography>
+
+                        {project.average_rating && project.rating_count && (
+                          <Box sx={{ mb: 3 }}>
+                            <Stack direction="row" alignItems="center" spacing={1}>
+                              <Rating
+                                value={project.average_rating}
+                                readOnly
+                                precision={0.1}
+                                size="small"
+                                sx={{
+                                  '& .MuiRating-iconFilled': {
+                                    color: COLORS.mintGreen,
+                                  },
+                                }}
+                              />
+                              <Typography variant="body2" sx={{ color: COLORS.textSecondary, fontWeight: 600 }}>
+                                {project.average_rating.toFixed(1)} ({project.rating_count} ratings)
+                              </Typography>
+                            </Stack>
+                          </Box>
+                        )}
+
+                        <CardActions sx={{ p: 0, justifyContent: 'space-between' }}>
+                          <Button
+                            variant="contained"
+                            startIcon={<VisibilityIcon />}
+                            sx={{
+                              background: guestColors.primaryGradient,
+                              borderRadius: 3,
+                              px: 3,
+                              py: 1,
+                              fontWeight: 600,
+                              textTransform: 'none',
+                              '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: `0 8px 25px ${alpha(COLORS.darkBlue, 0.4)}`,
+                              },
+                            }}
+                          >
+                            View Project
+                          </Button>
+                          <Stack direction="row" spacing={1}>
+                            <IconButton size="small" sx={{ color: COLORS.textSecondary }}>
+                              <CommentIcon fontSize="small" />
+                            </IconButton>
+                            <IconButton size="small" sx={{ color: COLORS.textSecondary }}>
+                              <ThumbUpIcon fontSize="small" />
+                            </IconButton>
+                            <IconButton size="small" sx={{ color: COLORS.textSecondary }}>
+                              <ShareIcon fontSize="small" />
+                            </IconButton>
+                          </Stack>
+                        </CardActions>
+                      </CardContent>
+                    </Card>
                   </Grid>
                 ))}
               </Grid>
@@ -688,175 +1001,392 @@ export const ExplorePage: React.FC = () => {
           </Fade>
         )}
 
-        {/* All Projects Section */}
-        <Box sx={{ mb: 4 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
-            <Typography variant="h4" sx={{ fontWeight: 700, color: colors.text }}>
-              {searchTerm ? `Search Results` : 'All Projects'}
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              {searching ? 'Searching...' : (
-                <>
-                  {filteredProjects.length} {filteredProjects.length === 1 ? 'project' : 'projects'} 
-                  {searchTerm && ` matching "${searchTerm}"`}
-                </>
-              )}
-            </Typography>
-          </Box>
-          
-          {/* Search Results Summary */}
-          {searchTerm && !searching && (
-            <Box sx={{ mb: 3, p: 2, backgroundColor: `${colors.primary}10`, borderRadius: 2 }}>
-              <Typography variant="body2" color="text.secondary">
-                <strong>Searching for:</strong> "{searchTerm}" • 
-                <strong> Results:</strong> {filteredProjects.length} {filteredProjects.length === 1 ? 'project' : 'projects'} found
-              </Typography>
-            </Box>
-          )}
-          
-          <Divider sx={{ mb: 4 }} />
-        </Box>
-
-        {error && (
-          <Alert 
-            severity="error" 
-            sx={{ mb: 3, borderRadius: 3 }}
-            action={
-              <Button 
-                color="inherit" 
-                size="small" 
-                onClick={() => fetchProjects(searchTerm)}
-                sx={{ fontWeight: 600 }}
+        {/* All Projects Grid */}
+        <Fade in timeout={1600}>
+          <Box>
+            <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 4 }}>
+              <Avatar
+                sx={{
+                  width: 48,
+                  height: 48,
+                  background: guestColors.primaryGradient,
+                }}
               >
-                Retry
-              </Button>
-            }
-          >
-            {error}
-          </Alert>
-        )}
-
-        {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-            <CircularProgress size={60} sx={{ color: colors.primary }} />
-          </Box>
-        ) : filteredProjects.length === 0 ? (
-          <Card sx={{ borderRadius: 4, boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }}>
-            <CardContent sx={{ textAlign: 'center', py: 8 }}>
-              <SchoolIcon sx={{ fontSize: 80, color: colors.textSecondary, opacity: 0.3, mb: 2 }} />
-              <Typography variant="h5" gutterBottom sx={{ color: colors.text }}>
-                {searchTerm ? 'No projects found' : 'No public projects yet'}
-              </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                {searchTerm 
-                  ? `No projects match "${searchTerm}". Try different keywords or check your spelling.`
-                  : 'Public projects will appear here once students publish their work'
-                }
-              </Typography>
-              {searchTerm && (
-                <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
-                  <Button
-                    variant="outlined"
-                    startIcon={<ClearIcon />}
-                    onClick={clearFilters}
-                    sx={{ 
-                      borderColor: colors.primary, 
-                      color: colors.primary,
-                      '&:hover': {
-                        borderColor: colors.primary,
-                        backgroundColor: `${colors.primary}10`,
-                      }
-                    }}
-                  >
-                    Clear Search
-                  </Button>
-                  <Button
-                    variant="text"
-                    onClick={() => handleSearchChange('')}
-                    sx={{ color: colors.primary }}
-                  >
-                    Show All Projects
-                  </Button>
-                </Box>
-              )}
-            </CardContent>
-          </Card>
-        ) : (
-          <Grid container spacing={3}>
-            {filteredProjects.map((project) => (
-              <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={project.id}>
-                <ProjectCard project={project} />
-              </Grid>
-            ))}
-          </Grid>
-        )}
-
-        {/* Call to Action */}
-        {!loading && projects.length > 0 && (
-          <Fade in timeout={1400}>
-            <Box
-              sx={{
-                mt: 8,
-                p: 6,
-                borderRadius: 4,
-                background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.accent} 100%)`,
-                textAlign: 'center',
-                color: colors.white,
-                boxShadow: '0 16px 40px rgba(79, 195, 247, 0.3)',
-              }}
-            >
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 2 }}>
-                Ready to Showcase Your Work?
-              </Typography>
-              <Typography variant="h6" sx={{ opacity: 0.9, mb: 4, fontWeight: 400 }}>
-                Join our community and publish your graduation project today
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 3, justifyContent: 'center', flexWrap: 'wrap' }}>
-                <Button
-                  variant="contained"
-                  size="large"
-                  startIcon={<RegisterIcon />}
-                  onClick={() => navigate('/register')}
-                  sx={{
-                    background: colors.white,
-                    color: colors.primary,
-                    px: 4,
-                    py: 1.5,
-                    fontWeight: 600,
-                    '&:hover': {
-                      background: colors.lightGray,
-                    },
-                  }}
-                >
-                  Get Started
-                </Button>
-                <Button
-                  variant="outlined"
-                  size="large"
-                  startIcon={<LoginIcon />}
-                  onClick={() => navigate('/login')}
-                  sx={{
-                    borderColor: colors.white,
-                    color: colors.white,
-                    px: 4,
-                    py: 1.5,
-                    fontWeight: 600,
-                    '&:hover': {
-                      borderColor: colors.white,
-                      backgroundColor: 'rgba(255,255,255,0.1)',
-                    },
-                  }}
-                >
-                  Sign In
-                </Button>
+                <RocketIcon sx={{ fontSize: 24, color: COLORS.white }} />
+              </Avatar>
+              <Box>
+                <Typography variant="h4" sx={{ fontWeight: 700, color: COLORS.textPrimary, mb: 1 }}>
+                  All Projects
+                </Typography>
+                <Typography variant="h6" sx={{ color: COLORS.textSecondary, fontWeight: 400 }}>
+                  Explore all available graduation projects
+                </Typography>
               </Box>
+            </Stack>
+
+            <Grid container spacing={4}>
+              {(filteredProjects || []).map((project, index) => (
+                <Grid size={{ xs: 12, md: 6, lg: 4 }} key={project.id}>
+                  <Card
+                    sx={{
+                      ...backgroundPatterns.card,
+                      cursor: 'pointer',
+                      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      height: '100%',
+                      '&:hover': {
+                        transform: 'translateY(-12px) scale(1.03)',
+                        boxShadow: `0 24px 48px ${alpha(COLORS.lightBlue, 0.3)}`,
+                        borderColor: COLORS.lightBlue,
+                      },
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: '6px',
+                        background: guestColors.primaryGradient,
+                        opacity: 0,
+                        transition: 'opacity 0.3s ease',
+                      },
+                      '&:hover::before': {
+                        opacity: 1,
+                      },
+                    }}
+                    onClick={() => navigate(`/projects/${project.id}`)}
+                  >
+                    <CardContent sx={{ p: 4, height: '100%', display: 'flex', flexDirection: 'column' }}>
+                      {/* Project Header */}
+                      <Stack direction="row" alignItems="flex-start" justifyContent="space-between" sx={{ mb: 3 }}>
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Typography 
+                            variant="h6" 
+                            sx={{ 
+                              fontWeight: 700, 
+                              color: COLORS.textPrimary,
+                              mb: 2,
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              fontSize: '1.2rem',
+                              lineHeight: 1.3,
+                            }}
+                          >
+                            {project.title}
+                          </Typography>
+                          <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+                            <Chip
+                              label={project.academic_year}
+                              size="small"
+                              sx={{
+                                background: guestColors.primaryGradient,
+                                color: COLORS.white,
+                                fontWeight: 600,
+                                fontSize: '0.8rem',
+                                height: 28,
+                              }}
+                            />
+                            <Chip
+                              label={project.semester}
+                              size="small"
+                              sx={{
+                                background: guestColors.secondaryGradient,
+                                color: COLORS.textPrimary,
+                                fontWeight: 600,
+                                fontSize: '0.8rem',
+                                height: 28,
+                                textTransform: 'capitalize',
+                              }}
+                            />
+                          </Stack>
+                        </Box>
+                        <Avatar
+                          sx={{
+                            width: 48,
+                            height: 48,
+                            background: guestColors.primaryGradient,
+                            ml: 2,
+                          }}
+                        >
+                          {getProjectIcon(project.title)}
+                        </Avatar>
+                      </Stack>
+
+                      {/* Project Abstract */}
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          color: COLORS.textSecondary,
+                          mb: 4, 
+                          flex: 1,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: 'vertical',
+                          lineHeight: 1.6,
+                          fontSize: '1rem',
+                        }}
+                      >
+                        {project.abstract}
+                      </Typography>
+
+                      {/* Keywords */}
+                      {project.keywords && project.keywords.length > 0 && (
+                        <Box sx={{ mb: 4 }}>
+                          <Stack direction="row" spacing={1} flexWrap="wrap" gap={1}>
+                            {project.keywords.slice(0, 3).map((keyword, idx) => (
+                              <Chip
+                                key={idx}
+                                label={keyword}
+                                size="small"
+                                variant="outlined"
+                                sx={{
+                                  fontSize: '0.75rem',
+                                  height: 28,
+                                  borderColor: alpha(COLORS.mintGreen, 0.45),
+                                  color: COLORS.mintGreen,
+                                  fontWeight: 500,
+                                  '&:hover': {
+                                    backgroundColor: alpha(COLORS.mintGreen, 0.12),
+                                    borderColor: COLORS.mintGreen,
+                                  },
+                                }}
+                              />
+                            ))}
+                            {project.keywords.length > 3 && (
+                              <Chip
+                                label={`+${project.keywords.length - 3} more`}
+                                size="small"
+                                variant="outlined"
+                                sx={{
+                                  fontSize: '0.75rem',
+                                  height: 28,
+                                  borderColor: alpha(COLORS.mintGreen, 0.45),
+                                  color: COLORS.mintGreen,
+                                  fontWeight: 500,
+                                }}
+                              />
+                            )}
+                          </Stack>
+                        </Box>
+                      )}
+
+                      {/* Project Stats */}
+                      <Box sx={{ mb: 4 }}>
+                        <Grid container spacing={3}>
+                          <Grid size={6}>
+                            <Stack direction="row" alignItems="center" spacing={1.5}>
+                              <AttachFileIcon sx={{ fontSize: 18, color: COLORS.lightBlue }} />
+                              <Typography variant="body2" sx={{ color: COLORS.textSecondary, fontWeight: 600 }}>
+                                {project.files?.length || 0} files
+                              </Typography>
+                            </Stack>
+                          </Grid>
+                          <Grid size={6}>
+                            <Stack direction="row" alignItems="center" spacing={1.5}>
+                              <GroupIcon sx={{ fontSize: 18, color: COLORS.mintGreen }} />
+                              <Typography variant="body2" sx={{ color: COLORS.textSecondary, fontWeight: 600 }}>
+                                {(project.members?.length || 0) + (project.advisors?.length || 0) + 1} members
+                              </Typography>
+                            </Stack>
+                          </Grid>
+                        </Grid>
+                      </Box>
+
+                      {/* Rating */}
+                      {project.average_rating && project.rating_count && (
+                        <Box sx={{ mb: 4 }}>
+                          <Stack direction="row" alignItems="center" spacing={1.5}>
+                            <Rating
+                              value={project.average_rating}
+                              readOnly
+                              precision={0.1}
+                              size="small"
+                              sx={{
+                                '& .MuiRating-iconFilled': {
+                                  color: COLORS.mintGreen,
+                                },
+                              }}
+                            />
+                            <Typography variant="body2" sx={{ color: COLORS.textSecondary, fontWeight: 600 }}>
+                              {project.average_rating.toFixed(1)} ({project.rating_count} ratings)
+                            </Typography>
+                          </Stack>
+                        </Box>
+                      )}
+
+                      {/* Project Footer */}
+                      <Box sx={{ mt: 'auto' }}>
+                        <Divider sx={{ mb: 3, borderColor: alpha(COLORS.lightBlue, 0.25) }} />
+                        <Stack direction="row" alignItems="center" justifyContent="space-between">
+                          <Stack direction="row" alignItems="center" spacing={1.5}>
+                            <PersonIcon sx={{ fontSize: 18, color: COLORS.lightBlue }} />
+                            <Typography variant="body2" sx={{ color: COLORS.textSecondary, fontWeight: 600 }}>
+                              {project.creator?.full_name || 'Unknown'}
+                            </Typography>
+                          </Stack>
+                          <Stack direction="row" alignItems="center" spacing={1.5}>
+                            <CalendarIcon sx={{ fontSize: 18, color: COLORS.mintGreen }} />
+                            <Typography variant="body2" sx={{ color: COLORS.textSecondary, fontWeight: 600 }}>
+                              {new Date(project.created_at).toLocaleDateString()}
+                            </Typography>
+                          </Stack>
+                        </Stack>
+                      </Box>
+
+                      {/* Action Buttons */}
+                      <CardActions sx={{ p: 0, mt: 3, justifyContent: 'space-between' }}>
+                        <Button
+                          variant="contained"
+                          startIcon={<VisibilityIcon />}
+                          sx={{
+                            background: guestColors.primaryGradient,
+                            borderRadius: 3,
+                            px: 4,
+                            py: 1.5,
+                            fontWeight: 600,
+                            textTransform: 'none',
+                            fontSize: '1rem',
+                            '&:hover': {
+                              transform: 'translateY(-2px)',
+                              boxShadow: `0 8px 25px ${alpha(COLORS.lightBlue, 0.4)}`,
+                            },
+                          }}
+                        >
+                          View Project
+                        </Button>
+                        <Stack direction="row" spacing={1}>
+                          <Tooltip title="View Comments">
+                            <IconButton size="small" sx={{ color: COLORS.textSecondary }}>
+                              <CommentIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Like Project">
+                            <IconButton size="small" sx={{ color: COLORS.textSecondary }}>
+                              <ThumbUpIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Share Project">
+                            <IconButton size="small" sx={{ color: COLORS.textSecondary }}>
+                              <ShareIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        </Stack>
+                      </CardActions>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+        </Fade>
+
+        {/* No Results */}
+        {filteredProjects.length === 0 && projects.length > 0 && (
+          <Fade in timeout={1000}>
+            <Box sx={{ textAlign: 'center', py: 12 }}>
+              <Avatar
+                sx={{
+                  width: 140,
+                  height: 140,
+                  background: `linear-gradient(135deg, ${alpha(COLORS.lightBlue, 0.12)} 0%, ${alpha(COLORS.mintGreen, 0.12)} 100%)`,
+                  mx: 'auto',
+                  mb: 4,
+                  border: `3px solid ${alpha(COLORS.lightBlue, 0.25)}`,
+                }}
+              >
+                <SearchIcon sx={{ fontSize: 70, color: COLORS.lightBlue }} />
+              </Avatar>
+              <Typography variant="h4" sx={{ color: COLORS.textPrimary, fontWeight: 700, mb: 3 }}>
+                No projects found
+              </Typography>
+              <Typography variant="h6" sx={{ color: COLORS.textSecondary, mb: 6, maxWidth: 500, mx: 'auto', lineHeight: 1.6 }}>
+                We couldn't find any projects matching your search criteria. 
+                Try adjusting your filters to discover more amazing projects!
+              </Typography>
+              <Button
+                variant="contained"
+                size="large"
+                startIcon={<ClearIcon />}
+                onClick={handleClearSearch}
+                sx={{
+                  background: guestColors.primaryGradient,
+                  color: COLORS.white,
+                  px: 8,
+                  py: 2.5,
+                  fontSize: '1.2rem',
+                  fontWeight: 600,
+                  borderRadius: 4,
+                  textTransform: 'none',
+                  '&:hover': {
+                    transform: 'translateY(-3px)',
+                    boxShadow: `0 12px 30px ${alpha(COLORS.lightBlue, 0.4)}`,
+                  },
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                }}
+              >
+                Clear All Filters
+              </Button>
+            </Box>
+          </Fade>
+        )}
+
+        {/* No Projects at All */}
+        {projects.length === 0 && (
+          <Fade in timeout={1000}>
+            <Box sx={{ textAlign: 'center', py: 12 }}>
+              <Avatar
+                sx={{
+                  width: 140,
+                  height: 140,
+                  background: `linear-gradient(135deg, ${alpha(COLORS.lightBlue, 0.12)} 0%, ${alpha(COLORS.mintGreen, 0.12)} 100%)`,
+                  mx: 'auto',
+                  mb: 4,
+                  border: `3px solid ${alpha(COLORS.lightBlue, 0.25)}`,
+                }}
+              >
+                <RocketIcon sx={{ fontSize: 70, color: COLORS.lightBlue }} />
+              </Avatar>
+              <Typography variant="h4" sx={{ color: COLORS.textPrimary, fontWeight: 700, mb: 3 }}>
+                No projects available yet
+              </Typography>
+              <Typography variant="h6" sx={{ color: COLORS.textSecondary, mb: 6, maxWidth: 500, mx: 'auto', lineHeight: 1.6 }}>
+                Check back later to discover amazing graduation projects from TVTC students! 
+                We're constantly adding new innovative projects to explore.
+              </Typography>
+              <Button
+                variant="outlined"
+                size="large"
+                startIcon={<RocketIcon />}
+                onClick={() => window.location.reload()}
+                sx={{
+                  borderColor: COLORS.lightBlue,
+                  color: COLORS.lightBlue,
+                  px: 6,
+                  py: 2,
+                  fontSize: '1.1rem',
+                  fontWeight: 600,
+                  borderRadius: 4,
+                  textTransform: 'none',
+                  '&:hover': {
+                    borderColor: COLORS.lightBlue,
+                    backgroundColor: alpha(COLORS.lightBlue, 0.08),
+                    transform: 'translateY(-2px)',
+                  },
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                }}
+              >
+                Refresh Page
+              </Button>
             </Box>
           </Fade>
         )}
       </Container>
-
-      {/* Footer */}
-      <TVTCBranding variant="footer" showDescription={true} />
     </Box>
   );
 };

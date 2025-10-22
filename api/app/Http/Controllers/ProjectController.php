@@ -262,6 +262,24 @@ class ProjectController extends Controller
     {
         $user = request()->user();
         
+        // Apply visibility rules based on user role
+        if (!$user) {
+            // Unauthenticated users: only see approved projects
+            if ($project->admin_approval_status !== 'approved') {
+                return response()->json([
+                    'message' => 'Project not found or not available'
+                ], 404);
+            }
+        } elseif (!$user->hasRole('admin') && !$user->hasRole('reviewer')) {
+            // Regular users: can see approved projects and their own projects (including hidden ones)
+            if ($project->admin_approval_status !== 'approved' && $project->created_by_user_id !== $user->id) {
+                return response()->json([
+                    'message' => 'Project not found or not available'
+                ], 404);
+            }
+        }
+        // Admin and Reviewer: can see all projects (including hidden ones)
+        
         $projectWithFiles = $project->load([
             'program.department',
             'creator',
@@ -333,7 +351,7 @@ class ProjectController extends Controller
 
         \Log::info('Project details requested', [
             'project_id' => $project->id,
-            'user_id' => $user->id,
+            'user_id' => $user ? $user->id : 'guest',
             'files_count' => count($projectData['files']),
             'files' => array_map(function($file) {
                 return [

@@ -43,7 +43,10 @@ class ApiService {
           const publicPaths = ['/', '/explore', '/login', '/register'];
           const currentPath = window.location.pathname;
           
-          if (!publicPaths.includes(currentPath)) {
+          // Check if we're on a project detail page (pattern: /projects/{id})
+          const isProjectDetailPage = /^\/projects\/\d+$/.test(currentPath);
+          
+          if (!publicPaths.includes(currentPath) && !isProjectDetailPage) {
             window.location.href = '/login';
           }
         }

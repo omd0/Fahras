@@ -19,6 +19,7 @@ import {
   Paper,
   Grid,
 } from '@mui/material';
+import { guestColors } from '../theme/guestTheme';
 import {
   Star as StarIcon,
   StarBorder as StarBorderIcon,
@@ -64,7 +65,15 @@ export const RatingSection: React.FC<RatingSectionProps> = ({ projectId }) => {
         setUserReview(existingRating.review || '');
       }
     } catch (error: any) {
-      setError(error.response?.data?.message || 'Failed to fetch ratings');
+      // For guest users, don't show error if it's an authentication issue
+      if (error.response?.status === 401 && !user) {
+        setRatings([]);
+        setAverageRating(null);
+        setTotalRatings(0);
+        setError(null);
+      } else {
+        setError(error.response?.data?.message || 'Failed to fetch ratings');
+      }
     } finally {
       setLoading(false);
     }
@@ -128,7 +137,12 @@ export const RatingSection: React.FC<RatingSectionProps> = ({ projectId }) => {
   }
 
   return (
-    <Card>
+    <Card sx={{
+      borderRadius: '8px',
+      border: '1px solid rgba(189, 195, 199, 0.3)',
+      background: guestColors.white,
+      boxShadow: '0 2px 8px rgba(44, 62, 80, 0.1)',
+    }}>
       <CardContent>
         <Typography variant="h6" gutterBottom>
           Ratings & Reviews ({totalRatings})
@@ -156,7 +170,7 @@ export const RatingSection: React.FC<RatingSectionProps> = ({ projectId }) => {
                 </Typography>
               </Box>
             </Grid>
-            {(
+            {user && (
               <Grid size={{ xs: 12, md: 8 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
                   <Typography variant="body1">Your Rating:</Typography>
@@ -192,11 +206,37 @@ export const RatingSection: React.FC<RatingSectionProps> = ({ projectId }) => {
                 )}
               </Grid>
             )}
+
+            {!user && (
+              <Grid size={{ xs: 12, md: 8 }}>
+                <Box sx={{ 
+                  p: 2, 
+                  borderRadius: 2,
+                  background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+                  border: '1px solid',
+                  borderColor: 'primary.light',
+                  textAlign: 'center',
+                }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Want to rate this project? 
+                    <Button
+                      variant="text"
+                      size="small"
+                      onClick={() => window.location.href = '/login'}
+                      sx={{ ml: 1, color: 'primary.main', fontWeight: 600 }}
+                    >
+                      Sign in
+                    </Button>
+                    to add your rating and review!
+                  </Typography>
+                </Box>
+              </Grid>
+            )}
           </Grid>
         </Paper>
 
-        {/* Review Form */}
-        {showReviewForm && (
+        {/* Review Form - Only show for authenticated users */}
+        {user && showReviewForm && (
           <Box sx={{ mb: 3, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
             <Typography variant="subtitle1" gutterBottom>
               Write a Review
@@ -226,6 +266,21 @@ export const RatingSection: React.FC<RatingSectionProps> = ({ projectId }) => {
                 startIcon={submitting ? <CircularProgress size={16} /> : <StarIcon />}
                 onClick={handleRatingSubmit}
                 disabled={userRating === 0 || submitting}
+                sx={{
+                  background: guestColors.softYellow,
+                  color: guestColors.white,
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                  '&:hover': {
+                    background: guestColors.softOrange,
+                    transform: 'translateY(-1px)',
+                    boxShadow: '0 4px 12px rgba(241, 196, 15, 0.3)',
+                  },
+                  '&:disabled': {
+                    background: guestColors.lightGray,
+                    color: guestColors.darkGray,
+                  },
+                }}
               >
                 {submitting ? 'Submitting...' : 'Submit Rating'}
               </Button>

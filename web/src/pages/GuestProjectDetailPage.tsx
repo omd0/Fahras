@@ -25,6 +25,7 @@ import {
   ListItemText,
   ListItemIcon,
 } from '@mui/material';
+import { guestColors, guestTheme, createDecorativeElements, backgroundPatterns } from '../theme/guestTheme';
 import {
   ArrowBack as ArrowBackIcon,
   School as SchoolIcon,
@@ -51,26 +52,17 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Project } from '../types';
 import { apiService } from '../services/api';
 import { TVTCLogo } from '../components/TVTCLogo';
+import { CommentSection } from '../components/CommentSection';
+import { RatingSection } from '../components/RatingSection';
 
-// Modern color scheme
-const colors = {
-  primary: '#4FC3F7',      // Light Sky Blue
-  white: '#FFFFFF',        // White
-  lightGray: '#F5F5F5',    // Very Light Gray
-  accent: '#BA68C8',        // Soft Purple
-  accentAlt: '#FFA726',     // Soft Orange
-  text: '#2C3E50',         // Dark text
-  textSecondary: '#7F8C8D', // Secondary text
-  success: '#27AE60',      // Success green
-  warning: '#F39C12',      // Warning orange
-};
+// Use the new guest theme colors
+const colors = guestColors;
+const decorativeElements = createDecorativeElements();
 
 export const GuestProjectDetailPage: React.FC = () => {
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [comments, setComments] = useState<any[]>([]);
-  const [ratings, setRatings] = useState<any[]>([]);
 
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -78,8 +70,6 @@ export const GuestProjectDetailPage: React.FC = () => {
   useEffect(() => {
     if (id) {
       fetchProject(parseInt(id));
-      fetchComments(parseInt(id));
-      fetchRatings(parseInt(id));
     }
   }, [id]);
 
@@ -98,25 +88,6 @@ export const GuestProjectDetailPage: React.FC = () => {
     }
   };
 
-  const fetchComments = async (projectId: number) => {
-    try {
-      const response = await apiService.getComments(projectId);
-      setComments(response.comments || []);
-    } catch (error) {
-      console.error('Failed to fetch comments:', error);
-      setComments([]);
-    }
-  };
-
-  const fetchRatings = async (projectId: number) => {
-    try {
-      const response = await apiService.getRatings(projectId);
-      setRatings(response.ratings || []);
-    } catch (error) {
-      console.error('Failed to fetch ratings:', error);
-      setRatings([]);
-    }
-  };
 
 
   const averageRating = project?.average_rating || 0;
@@ -129,9 +100,12 @@ export const GuestProjectDetailPage: React.FC = () => {
         justifyContent: 'center', 
         alignItems: 'center', 
         minHeight: '100vh',
-        background: `linear-gradient(135deg, ${colors.lightGray} 0%, #E8F4FD 100%)`
+        ...backgroundPatterns.hero,
+        position: 'relative',
+        '&::before': decorativeElements.largeCircle,
+        '&::after': decorativeElements.mediumCircle,
       }}>
-        <CircularProgress size={60} sx={{ color: colors.primary }} />
+        <CircularProgress size={60} sx={{ color: colors.darkBlue }} />
       </Box>
     );
   }
@@ -140,13 +114,15 @@ export const GuestProjectDetailPage: React.FC = () => {
     return (
       <Box sx={{ 
         minHeight: '100vh',
-        background: `linear-gradient(135deg, ${colors.lightGray} 0%, #E8F4FD 100%)`
+        ...backgroundPatterns.content,
+        position: 'relative',
+        '&::before': decorativeElements.geometricBackground,
       }}>
         <AppBar 
           position="static" 
           sx={{ 
-            background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.accent} 100%)`,
-            boxShadow: '0 4px 20px rgba(79, 195, 247, 0.3)',
+            background: guestColors.primaryGradient,
+            boxShadow: '0 4px 20px rgba(44, 62, 80, 0.3)',
           }}
         >
           <Toolbar>
@@ -173,7 +149,7 @@ export const GuestProjectDetailPage: React.FC = () => {
             variant="contained"
             startIcon={<ArrowBackIcon />}
             onClick={() => navigate('/explore')}
-            sx={{ mt: 3, background: colors.primary }}
+            sx={{ mt: 3, background: guestColors.primaryGradient }}
           >
             Back to Explore
           </Button>
@@ -185,14 +161,30 @@ export const GuestProjectDetailPage: React.FC = () => {
   return (
     <Box sx={{ 
       minHeight: '100vh',
-      background: `linear-gradient(135deg, ${colors.lightGray} 0%, #E8F4FD 100%)`
+      ...backgroundPatterns.content,
+      position: 'relative',
+      '&::before': decorativeElements.geometricBackground,
+      '&::after': {
+        content: '""',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: `
+          radial-gradient(circle at 20% 20%, rgba(123, 176, 216, 0.1) 0%, transparent 50%),
+          radial-gradient(circle at 80% 80%, rgba(159, 227, 193, 0.08) 0%, transparent 50%),
+          radial-gradient(circle at 50% 50%, rgba(245, 233, 216, 0.06) 0%, transparent 50%)
+        `,
+        pointerEvents: 'none',
+      },
     }}>
       {/* Modern Navigation Bar */}
       <AppBar 
         position="static" 
         sx={{ 
-          background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.accent} 100%)`,
-          boxShadow: '0 4px 20px rgba(79, 195, 247, 0.3)',
+          background: guestColors.primaryGradient,
+          boxShadow: '0 4px 20px rgba(44, 62, 80, 0.3)',
         }}
       >
         <Toolbar>
@@ -242,11 +234,14 @@ export const GuestProjectDetailPage: React.FC = () => {
             <Grid size={{ xs: 12, lg: 8 }}>
               {/* Project Header */}
               <Card sx={{ 
-                borderRadius: 4, 
+                ...backgroundPatterns.card,
                 mb: 4,
-                background: colors.white,
-                boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-                border: `1px solid ${colors.primary}20`,
+                position: 'relative',
+                borderRadius: '12px',
+                boxShadow: '0 4px 16px rgba(123, 176, 216, 0.15), 0 2px 8px rgba(159, 227, 193, 0.1)',
+                border: '1px solid rgba(123, 176, 216, 0.25)',
+                '&::before': decorativeElements.smallCircle,
+                '&::after': decorativeElements.smallTriangle,
               }}>
                 <CardContent sx={{ p: 4 }}>
                   <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 3 }}>
@@ -254,12 +249,13 @@ export const GuestProjectDetailPage: React.FC = () => {
                       width: 80, 
                       height: 80, 
                       borderRadius: 3,
-                      background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.accent} 100%)`,
+                      background: guestColors.primaryGradient,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       mr: 3,
                       flexShrink: 0,
+                      boxShadow: '0 8px 32px rgba(123, 176, 216, 0.35)',
                     }}>
                       <SchoolIcon sx={{ fontSize: 40, color: colors.white }} />
                     </Box>
@@ -285,12 +281,6 @@ export const GuestProjectDetailPage: React.FC = () => {
                           />
                           <Typography variant="body2" color="text.secondary">
                             {averageRating.toFixed(1)} ({ratingCount} ratings)
-                          </Typography>
-                        </Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <CommentIcon sx={{ fontSize: 16, color: colors.textSecondary, mr: 0.5 }} />
-                          <Typography variant="body2" color="text.secondary">
-                            {comments.length} comments
                           </Typography>
                         </Box>
                       </Box>
@@ -323,10 +313,10 @@ export const GuestProjectDetailPage: React.FC = () => {
                             label={keyword}
                             variant="outlined"
                             sx={{ 
-                              borderColor: colors.primary,
-                              color: colors.primary,
+                              borderColor: colors.darkBlue,
+                              color: colors.darkBlue,
                               '&:hover': {
-                                backgroundColor: colors.primary,
+                                backgroundColor: colors.darkBlue,
                                 color: colors.white,
                               },
                             }}
@@ -342,13 +332,13 @@ export const GuestProjectDetailPage: React.FC = () => {
                   <Grid container spacing={3}>
                     <Grid size={{ xs: 12, sm: 6 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                        <PersonIcon sx={{ color: colors.primary, mr: 1 }} />
+                        <PersonIcon sx={{ color: colors.lightBlue, mr: 1 }} />
                         <Typography variant="body1" sx={{ fontWeight: 500 }}>
                           {project.creator?.full_name || 'Unknown'}
                         </Typography>
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                        <SchoolIcon sx={{ color: colors.primary, mr: 1 }} />
+                        <SchoolIcon sx={{ color: colors.lightBlue, mr: 1 }} />
                         <Typography variant="body1" sx={{ fontWeight: 500 }}>
                           {project.program?.name || 'TVTC Program'}
                         </Typography>
@@ -356,13 +346,13 @@ export const GuestProjectDetailPage: React.FC = () => {
                     </Grid>
                     <Grid size={{ xs: 12, sm: 6 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                        <CalendarIcon sx={{ color: colors.primary, mr: 1 }} />
+                        <CalendarIcon sx={{ color: colors.mintGreen, mr: 1 }} />
                         <Typography variant="body1" sx={{ fontWeight: 500 }}>
                           {project.academic_year} • {project.semester}
                         </Typography>
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                        <BusinessIcon sx={{ color: colors.primary, mr: 1 }} />
+                        <BusinessIcon sx={{ color: colors.mintGreen, mr: 1 }} />
                         <Typography variant="body1" sx={{ fontWeight: 500 }}>
                           {project.department?.name || 'Department'}
                         </Typography>
@@ -374,14 +364,18 @@ export const GuestProjectDetailPage: React.FC = () => {
 
               {/* Project Files Section */}
               <Card sx={{ 
-                borderRadius: 4, 
+                ...backgroundPatterns.card,
                 mb: 4,
-                background: colors.white,
-                boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+                position: 'relative',
+                borderRadius: '12px',
+                boxShadow: '0 4px 16px rgba(123, 176, 216, 0.15), 0 2px 8px rgba(159, 227, 193, 0.1)',
+                border: '1px solid rgba(123, 176, 216, 0.25)',
+                '&::before': decorativeElements.smallCircle,
+                '&::after': decorativeElements.mediumTriangle,
               }}>
                 <CardContent sx={{ p: 4 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                    <FileDownloadIcon sx={{ color: colors.primary, mr: 1, fontSize: 24 }} />
+                    <FileDownloadIcon sx={{ color: colors.lightBlue, mr: 1, fontSize: 24 }} />
                     <Typography variant="h5" sx={{ fontWeight: 600, color: colors.text }}>
                       Project Files ({project.files?.length || 0})
                     </Typography>
@@ -397,7 +391,7 @@ export const GuestProjectDetailPage: React.FC = () => {
                             mb: 2,
                             borderRadius: 3,
                             background: colors.lightGray,
-                            border: `1px solid ${colors.primary}20`,
+                            border: `1px solid ${colors.mediumNavy}20`,
                             transition: 'all 0.2s ease-in-out',
                             '&:hover': {
                               boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
@@ -411,7 +405,7 @@ export const GuestProjectDetailPage: React.FC = () => {
                                 sx={{
                                   p: 1,
                                   borderRadius: 1.5,
-                                  background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.accent} 100%)`,
+                                  background: guestColors.primaryGradient,
                                   color: colors.white,
                                 }}
                               >
@@ -499,12 +493,13 @@ export const GuestProjectDetailPage: React.FC = () => {
                                 minWidth: 100,
                                 textTransform: 'none',
                                 fontWeight: 600,
-                                background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.accent} 100%)`,
-                                borderRadius: 1.5,
+                                background: colors.softYellow,
+                                color: colors.white,
+                                borderRadius: '8px',
                                 '&:hover': {
-                                  background: `linear-gradient(135deg, #1e40af 0%, #2563eb 100%)`,
+                                  background: colors.softOrange,
                                   transform: 'translateY(-1px)',
-                                  boxShadow: '0 4px 12px rgba(30, 58, 138, 0.3)',
+                                  boxShadow: '0 4px 12px rgba(241, 196, 15, 0.3)',
                                 },
                                 transition: 'all 0.2s ease-in-out',
                               }}
@@ -526,314 +521,195 @@ export const GuestProjectDetailPage: React.FC = () => {
                 </CardContent>
               </Card>
 
-              {/* Team Members Section */}
+              {/* Team Members & Project Advisors Section */}
               <Card sx={{ 
-                borderRadius: 4, 
+                ...backgroundPatterns.card,
                 mb: 4,
-                background: colors.white,
-                boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+                position: 'relative',
+                borderRadius: '12px',
+                boxShadow: '0 4px 16px rgba(123, 176, 216, 0.15), 0 2px 8px rgba(159, 227, 193, 0.1)',
+                border: '1px solid rgba(123, 176, 216, 0.25)',
+                '&::before': decorativeElements.smallCircle,
+                '&::after': decorativeElements.smallTriangle,
               }}>
                 <CardContent sx={{ p: 4 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                    <GroupIcon sx={{ color: colors.primary, mr: 1, fontSize: 24 }} />
-                    <Typography variant="h5" sx={{ fontWeight: 600, color: colors.text }}>
-                      Team Members ({project.members?.length || 0})
-                    </Typography>
-                  </Box>
-                  
-                  {project.members && project.members.length > 0 ? (
-                    <List sx={{ p: 0 }}>
-                      {project.members.map((member) => (
-                        <Paper
-                          key={member.id}
-                          sx={{
-                            p: 3,
-                            mb: 2,
-                            borderRadius: 3,
-                            background: colors.lightGray,
-                            border: `1px solid ${colors.primary}20`,
-                            transition: 'all 0.2s ease-in-out',
-                            '&:hover': {
-                              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                              transform: 'translateY(-1px)',
-                            }
-                          }}
-                        >
-                          <ListItem sx={{ p: 0 }}>
-                            <ListItemIcon>
-                              <Avatar 
-                                sx={{ 
-                                  width: 40, 
-                                  height: 40,
-                                  background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.accent} 100%)`,
-                                  fontWeight: 600,
-                                  fontSize: '1rem',
-                                }}
-                              >
-                                {member.full_name.charAt(0).toUpperCase()}
-                              </Avatar>
-                            </ListItemIcon>
-                            <ListItemText
-                              primary={
-                                <Typography variant="subtitle1" fontWeight="600" color={colors.text}>
-                                  {member.full_name}
-                                </Typography>
-                              }
-                              secondary={
-                                <Chip
-                                  label={member.pivot.role_in_project}
-                                  size="small"
-                                  color="primary"
-                                  variant="filled"
-                                  sx={{ 
-                                    fontWeight: 600,
-                                    background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.accent} 100%)`,
-                                  }}
+                  <Grid container spacing={4}>
+                    {/* Team Members */}
+                    <Grid size={{ xs: 12, md: 6 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                        <GroupIcon sx={{ color: colors.lightBlue, mr: 1, fontSize: 24 }} />
+                        <Typography variant="h5" sx={{ fontWeight: 600, color: colors.text }}>
+                          Team Members ({project.members?.length || 0})
+                        </Typography>
+                      </Box>
+                      
+                      {project.members && project.members.length > 0 ? (
+                        <List sx={{ p: 0 }}>
+                          {project.members.map((member) => (
+                            <Paper
+                              key={member.id}
+                              sx={{
+                                p: 3,
+                                mb: 2,
+                                borderRadius: 3,
+                                background: colors.lightGray,
+                                border: `1px solid ${colors.mediumNavy}20`,
+                                transition: 'all 0.2s ease-in-out',
+                                '&:hover': {
+                                  boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                                  transform: 'translateY(-1px)',
+                                }
+                              }}
+                            >
+                              <ListItem sx={{ p: 0 }}>
+                                <ListItemIcon>
+                                  <Avatar 
+                                    sx={{ 
+                                      width: 40, 
+                                      height: 40,
+                                      background: `linear-gradient(135deg, ${colors.mediumNavy} 0%, ${colors.softYellow} 100%)`,
+                                      fontWeight: 600,
+                                      fontSize: '1rem',
+                                    }}
+                                  >
+                                    {member.full_name.charAt(0).toUpperCase()}
+                                  </Avatar>
+                                </ListItemIcon>
+                                <ListItemText
+                                  primary={
+                                    <Typography variant="subtitle1" fontWeight="600" color={colors.text}>
+                                      {member.full_name}
+                                    </Typography>
+                                  }
+                                  secondary={
+                                    <Chip
+                                      label={member.pivot.role_in_project}
+                                      size="small"
+                                      color="primary"
+                                      variant="filled"
+                                      sx={{ 
+                                        fontWeight: 600,
+                                        background: `linear-gradient(135deg, ${colors.mediumNavy} 0%, ${colors.softYellow} 100%)`,
+                                      }}
+                                    />
+                                  }
                                 />
-                              }
-                            />
-                          </ListItem>
-                        </Paper>
-                      ))}
-                    </List>
-                  ) : (
-                    <Box sx={{ textAlign: 'center', py: 4 }}>
-                      <GroupIcon sx={{ fontSize: 48, color: colors.textSecondary, opacity: 0.3, mb: 2 }} />
-                      <Typography variant="body1" color="text.secondary">
-                        No team members assigned
-                      </Typography>
-                    </Box>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Project Advisors Section */}
-              {project.advisors && project.advisors.length > 0 && (
-                <Card sx={{ 
-                  borderRadius: 4, 
-                  mb: 4,
-                  background: colors.white,
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
-                }}>
-                  <CardContent sx={{ p: 4 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                      <SupervisorAccountIcon sx={{ color: colors.accent, mr: 1, fontSize: 24 }} />
-                      <Typography variant="h5" sx={{ fontWeight: 600, color: colors.text }}>
-                        Project Advisors ({project.advisors.length})
-                      </Typography>
-                    </Box>
-                    
-                    <List sx={{ p: 0 }}>
-                      {project.advisors.map((advisor) => (
-                        <Paper
-                          key={advisor.id}
-                          sx={{
-                            p: 3,
-                            mb: 2,
-                            borderRadius: 3,
-                            background: colors.lightGray,
-                            border: `1px solid ${colors.accent}20`,
-                            transition: 'all 0.2s ease-in-out',
-                            '&:hover': {
-                              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                              transform: 'translateY(-1px)',
-                            }
-                          }}
-                        >
-                          <ListItem sx={{ p: 0 }}>
-                            <ListItemIcon>
-                              <Avatar 
-                                sx={{ 
-                                  width: 40, 
-                                  height: 40,
-                                  background: `linear-gradient(135deg, ${colors.accent} 0%, #d97706 100%)`,
-                                  fontWeight: 600,
-                                  fontSize: '1rem',
-                                }}
-                              >
-                                {advisor.full_name.charAt(0).toUpperCase()}
-                              </Avatar>
-                            </ListItemIcon>
-                            <ListItemText
-                              primary={
-                                <Typography variant="subtitle1" fontWeight="600" color={colors.text}>
-                                  {advisor.full_name}
-                                </Typography>
-                              }
-                              secondary={
-                                <Chip
-                                  label={advisor.pivot.advisor_role}
-                                  size="small"
-                                  color="warning"
-                                  variant="filled"
-                                  sx={{ 
-                                    fontWeight: 600,
-                                    background: `linear-gradient(135deg, ${colors.accent} 0%, #d97706 100%)`,
-                                  }}
-                                />
-                              }
-                            />
-                          </ListItem>
-                        </Paper>
-                      ))}
-                    </List>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Comments Section - Read Only */}
-              <Card sx={{ 
-                borderRadius: 4, 
-                mb: 4,
-                background: colors.white,
-                boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
-              }}>
-                <CardContent sx={{ p: 4 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                    <CommentIcon sx={{ color: colors.primary, mr: 1, fontSize: 24 }} />
-                    <Typography variant="h5" sx={{ fontWeight: 600, color: colors.text }}>
-                      Comments ({comments.length})
-                    </Typography>
-                  </Box>
-                  
-                  {comments.length === 0 ? (
-                    <Box sx={{ textAlign: 'center', py: 4 }}>
-                      <CommentIcon sx={{ fontSize: 48, color: colors.textSecondary, opacity: 0.3, mb: 2 }} />
-                      <Typography variant="body1" color="text.secondary">
-                        No comments yet.
-                      </Typography>
-                    </Box>
-                  ) : (
-                    <Box sx={{ maxHeight: 400, overflowY: 'auto' }}>
-                      {comments.map((comment, index) => (
-                        <Paper
-                          key={index}
-                          sx={{
-                            p: 3,
-                            mb: 2,
-                            borderRadius: 3,
-                            background: colors.lightGray,
-                            border: `1px solid ${colors.primary}20`,
-                          }}
-                        >
-                          <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>
-                            <Avatar sx={{ bgcolor: colors.primary, mr: 2, width: 32, height: 32 }}>
-                              <PersonIcon sx={{ fontSize: 16 }} />
-                            </Avatar>
-                            <Box sx={{ flexGrow: 1 }}>
-                              <Typography variant="subtitle2" sx={{ fontWeight: 600, color: colors.text }}>
-                                {comment.user?.full_name || 'Anonymous'}
-                              </Typography>
-                              <Typography variant="caption" color="text.secondary">
-                                {new Date(comment.created_at).toLocaleDateString()}
-                              </Typography>
-                            </Box>
-                          </Box>
-                          <Typography variant="body2" sx={{ color: colors.text, lineHeight: 1.6 }}>
-                            {comment.content}
+                              </ListItem>
+                            </Paper>
+                          ))}
+                        </List>
+                      ) : (
+                        <Box sx={{ textAlign: 'center', py: 4 }}>
+                          <GroupIcon sx={{ fontSize: 48, color: colors.textSecondary, opacity: 0.3, mb: 2 }} />
+                          <Typography variant="body1" color="text.secondary">
+                            No team members assigned
                           </Typography>
-                        </Paper>
-                      ))}
-                    </Box>
-                  )}
-                  
-                  <Box sx={{ mt: 3, p: 3, borderRadius: 3, background: `${colors.primary}10` }}>
-                    <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
-                      Want to leave a comment? 
-                      <Button
-                        variant="text"
-                        onClick={() => navigate('/login')}
-                        sx={{ ml: 1, color: colors.primary, fontWeight: 600 }}
-                      >
-                        Sign in
-                      </Button>
-                      to join the discussion!
-                    </Typography>
-                  </Box>
+                        </Box>
+                      )}
+                    </Grid>
+
+                    {/* Project Advisors */}
+                    <Grid size={{ xs: 12, md: 6 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                        <SupervisorAccountIcon sx={{ color: colors.mintGreen, mr: 1, fontSize: 24 }} />
+                        <Typography variant="h5" sx={{ fontWeight: 600, color: colors.text }}>
+                          Project Advisor ({project.advisors?.length || 0})
+                        </Typography>
+                      </Box>
+                      
+                      {project.advisors && project.advisors.length > 0 ? (
+                        <List sx={{ p: 0 }}>
+                          {project.advisors.map((advisor) => (
+                            <Paper
+                              key={advisor.id}
+                              sx={{
+                                p: 3,
+                                mb: 2,
+                                borderRadius: 3,
+                                background: colors.lightGray,
+                                border: `1px solid ${colors.softYellow}20`,
+                                transition: 'all 0.2s ease-in-out',
+                                '&:hover': {
+                                  boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                                  transform: 'translateY(-1px)',
+                                }
+                              }}
+                            >
+                              <ListItem sx={{ p: 0 }}>
+                                <ListItemIcon>
+                                  <Avatar 
+                                    sx={{ 
+                                      width: 40, 
+                                      height: 40,
+                                      background: `linear-gradient(135deg, ${colors.softYellow} 0%, #d97706 100%)`,
+                                      fontWeight: 600,
+                                      fontSize: '1rem',
+                                    }}
+                                  >
+                                    {advisor.full_name.charAt(0).toUpperCase()}
+                                  </Avatar>
+                                </ListItemIcon>
+                                <ListItemText
+                                  primary={
+                                    <Typography variant="subtitle1" fontWeight="600" color={colors.text}>
+                                      {advisor.full_name}
+                                    </Typography>
+                                  }
+                                  secondary={
+                                    <Chip
+                                      label={advisor.pivot.advisor_role}
+                                      size="small"
+                                      color="warning"
+                                      variant="filled"
+                                      sx={{ 
+                                        fontWeight: 600,
+                                        background: `linear-gradient(135deg, ${colors.softYellow} 0%, #d97706 100%)`,
+                                      }}
+                                    />
+                                  }
+                                />
+                              </ListItem>
+                            </Paper>
+                          ))}
+                        </List>
+                      ) : (
+                        <Box sx={{ textAlign: 'center', py: 4 }}>
+                          <SupervisorAccountIcon sx={{ fontSize: 48, color: colors.textSecondary, opacity: 0.3, mb: 2 }} />
+                          <Typography variant="body1" color="text.secondary">
+                            No project advisor assigned
+                          </Typography>
+                        </Box>
+                      )}
+                    </Grid>
+                  </Grid>
                 </CardContent>
               </Card>
 
-              {/* Ratings Section - Read Only */}
-              <Card sx={{ 
-                borderRadius: 4,
-                background: colors.white,
-                boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
-              }}>
-                <CardContent sx={{ p: 4 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                    <StarIcon sx={{ color: colors.accent, mr: 1, fontSize: 24 }} />
-                    <Typography variant="h5" sx={{ fontWeight: 600, color: colors.text }}>
-                      Ratings ({ratings.length})
-                    </Typography>
-                  </Box>
-                  
-                  {ratings.length === 0 ? (
-                    <Box sx={{ textAlign: 'center', py: 4 }}>
-                      <StarIcon sx={{ fontSize: 48, color: colors.textSecondary, opacity: 0.3, mb: 2 }} />
-                      <Typography variant="body1" color="text.secondary">
-                        No ratings yet.
-                      </Typography>
-                    </Box>
-                  ) : (
-                    <Box sx={{ maxHeight: 300, overflowY: 'auto' }}>
-                      {ratings.map((rating, index) => (
-                        <Paper
-                          key={index}
-                          sx={{
-                            p: 3,
-                            mb: 2,
-                            borderRadius: 3,
-                            background: colors.lightGray,
-                            border: `1px solid ${colors.accent}20`,
-                          }}
-                        >
-                          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                            <Avatar sx={{ bgcolor: colors.accent, mr: 2, width: 32, height: 32 }}>
-                              <PersonIcon sx={{ fontSize: 16 }} />
-                            </Avatar>
-                            <Box sx={{ flexGrow: 1 }}>
-                              <Typography variant="subtitle2" sx={{ fontWeight: 600, color: colors.text }}>
-                                {rating.user?.full_name || 'Anonymous'}
-                              </Typography>
-                            </Box>
-                            <Rating value={rating.rating} readOnly size="small" />
-                          </Box>
-                          {rating.comment && (
-                            <Typography variant="body2" sx={{ color: colors.text, lineHeight: 1.6, ml: 5 }}>
-                              {rating.comment}
-                            </Typography>
-                          )}
-                        </Paper>
-                      ))}
-                    </Box>
-                  )}
-                  
-                  <Box sx={{ mt: 3, p: 3, borderRadius: 3, background: `${colors.accent}10` }}>
-                    <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
-                      Want to rate this project? 
-                      <Button
-                        variant="text"
-                        onClick={() => navigate('/login')}
-                        sx={{ ml: 1, color: colors.accent, fontWeight: 600 }}
-                      >
-                        Sign in
-                      </Button>
-                      to share your rating!
-                    </Typography>
-                  </Box>
-                </CardContent>
-              </Card>
+              {/* Comments and Ratings Sections */}
+              {project && (
+                <Grid container spacing={3}>
+                  <Grid size={{ xs: 12 }}>
+                    <RatingSection projectId={project.id} />
+                  </Grid>
+                  <Grid size={{ xs: 12 }}>
+                    <CommentSection projectId={project.id} />
+                  </Grid>
+                </Grid>
+              )}
             </Grid>
 
             {/* Sidebar */}
             <Grid size={{ xs: 12, lg: 4 }}>
               {/* Call to Action */}
               <Card sx={{ 
-                borderRadius: 4, 
+                ...backgroundPatterns.hero,
                 mb: 4,
-                background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.accent} 100%)`,
-                color: colors.white,
-                boxShadow: '0 8px 32px rgba(79, 195, 247, 0.3)',
+                color: colors.textPrimary,
+                borderRadius: '12px',
+                boxShadow: '0 8px 32px rgba(123, 176, 216, 0.3), 0 4px 16px rgba(159, 227, 193, 0.18)',
+                position: 'relative',
+                '&::before': decorativeElements.largeCircle,
+                '&::after': decorativeElements.mediumCircle,
               }}>
                 <CardContent sx={{ p: 4, textAlign: 'center' }}>
                   <TrendingIcon sx={{ fontSize: 48, mb: 2, opacity: 0.9 }} />
@@ -850,11 +726,14 @@ export const GuestProjectDetailPage: React.FC = () => {
                       startIcon={<RegisterIcon />}
                       onClick={() => navigate('/register')}
                       sx={{
-                        background: colors.white,
-                        color: colors.primary,
+                        background: colors.mintGreen,
+                        color: colors.textPrimary,
                         fontWeight: 600,
+                        borderRadius: '12px',
                         '&:hover': {
-                          background: colors.lightGray,
+                          background: colors.cream,
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 6px 20px rgba(159, 227, 193, 0.45)',
                         },
                       }}
                     >
@@ -866,12 +745,14 @@ export const GuestProjectDetailPage: React.FC = () => {
                       startIcon={<LoginIcon />}
                       onClick={() => navigate('/login')}
                       sx={{
-                        borderColor: colors.white,
-                        color: colors.white,
+                        borderColor: colors.lightBlue,
+                        color: colors.lightBlue,
                         fontWeight: 600,
+                        borderRadius: '12px',
                         '&:hover': {
-                          borderColor: colors.white,
-                          backgroundColor: 'rgba(255,255,255,0.1)',
+                          borderColor: colors.lightBlue,
+                          backgroundColor: alpha(colors.lightBlue, 0.1),
+                          transform: 'translateY(-2px)',
                         },
                       }}
                     >
@@ -881,77 +762,16 @@ export const GuestProjectDetailPage: React.FC = () => {
                 </CardContent>
               </Card>
 
-              {/* Project Stats */}
-              <Card sx={{ 
-                borderRadius: 4,
-                background: colors.white,
-                boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
-              }}>
-                <CardContent sx={{ p: 4 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 3, color: colors.text }}>
-                    Project Statistics
-                  </Typography>
-                  
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                    <Typography variant="body2" color="text.secondary">Views</Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      {project.views || 0}
-                    </Typography>
-                  </Box>
-                  
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                    <Typography variant="body2" color="text.secondary">Files</Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      {project.files?.length || 0}
-                    </Typography>
-                  </Box>
-                  
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                    <Typography variant="body2" color="text.secondary">Team Members</Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      {project.members?.length || 0}
-                    </Typography>
-                  </Box>
-                  
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                    <Typography variant="body2" color="text.secondary">Advisors</Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      {project.advisors?.length || 0}
-                    </Typography>
-                  </Box>
-                  
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                    <Typography variant="body2" color="text.secondary">Comments</Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      {comments.length}
-                    </Typography>
-                  </Box>
-                  
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                    <Typography variant="body2" color="text.secondary">Ratings</Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      {ratings.length}
-                    </Typography>
-                  </Box>
-                  
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                    <Typography variant="body2" color="text.secondary">Average Rating</Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Rating value={averageRating} readOnly size="small" />
-                      <Typography variant="body2" sx={{ fontWeight: 600, ml: 1 }}>
-                        {averageRating.toFixed(1)}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  
-                </CardContent>
-              </Card>
 
               {/* Project Information - Read Only (Status Hidden) */}
               <Card sx={{ 
-                borderRadius: 4,
-                background: colors.white,
-                boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+                ...backgroundPatterns.card,
+                position: 'relative',
+                borderRadius: '12px',
+                boxShadow: '0 4px 16px rgba(123, 176, 216, 0.15), 0 2px 8px rgba(159, 227, 193, 0.1)',
+                border: '1px solid rgba(123, 176, 216, 0.25)',
+                '&::before': decorativeElements.smallCircle,
+                '&::after': decorativeElements.mediumTriangle,
               }}>
                 <CardContent sx={{ p: 4 }}>
                   <Typography variant="h6" sx={{ fontWeight: 600, mb: 3, color: colors.text }}>

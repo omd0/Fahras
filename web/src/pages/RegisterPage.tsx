@@ -89,16 +89,89 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <Container component="main" maxWidth="sm">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <Paper elevation={3} sx={{ padding: 4, width: '100%' }}>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        background: `
+          linear-gradient(135deg, #7BB0D8 0%, #9FE3C1 50%, #F5E9D8 100%),
+          radial-gradient(circle at 20% 80%, rgba(123, 176, 216, 0.35) 0%, transparent 50%),
+          radial-gradient(circle at 80% 20%, rgba(159, 227, 193, 0.4) 0%, transparent 50%),
+          radial-gradient(circle at 40% 40%, rgba(245, 233, 216, 0.45) 0%, transparent 50%)
+        `,
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        py: 4,
+        overflow: 'hidden',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: '-50%',
+          left: '-50%',
+          width: '200%',
+          height: '200%',
+          background: `
+            radial-gradient(circle at 30% 20%, rgba(160, 216, 241, 0.1) 0%, transparent 25%),
+            radial-gradient(circle at 70% 80%, rgba(207, 255, 229, 0.15) 0%, transparent 25%),
+            radial-gradient(circle at 10% 60%, rgba(255, 248, 231, 0.2) 0%, transparent 25%)
+          `,
+          animation: 'float 20s ease-in-out infinite',
+        },
+        '&::after': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: `
+            linear-gradient(45deg, transparent 30%, rgba(160, 216, 241, 0.05) 50%, transparent 70%),
+            linear-gradient(-45deg, transparent 30%, rgba(207, 255, 229, 0.05) 50%, transparent 70%)
+          `,
+          animation: 'slide 15s linear infinite',
+        },
+        '@keyframes float': {
+          '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+          '50%': { transform: 'translateY(-20px) rotate(180deg)' },
+        },
+        '@keyframes slide': {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' },
+        },
+      }}
+    >
+      <Container component="main" maxWidth="sm" sx={{ position: 'relative', zIndex: 1 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+        <Paper 
+          elevation={12} 
+          sx={{ 
+            padding: 4, 
+            width: '100%',
+            borderRadius: 4,
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(15px)',
+            boxShadow: `
+              0 20px 40px rgba(160, 216, 241, 0.15),
+              0 10px 20px rgba(207, 255, 229, 0.1),
+              0 0 0 1px rgba(255, 255, 255, 0.2)
+            `,
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            '&:hover': {
+              boxShadow: `
+                0 25px 50px rgba(160, 216, 241, 0.2),
+                0 15px 30px rgba(207, 255, 229, 0.15),
+                0 0 0 1px rgba(255, 255, 255, 0.3)
+              `,
+            },
+          }}
+        >
           <Box
             sx={{
               display: 'flex',
@@ -210,7 +283,8 @@ export const RegisterPage: React.FC = () => {
             </Box>
           </Box>
         </Paper>
-      </Box>
-    </Container>
+        </Box>
+      </Container>
+    </Box>
   );
 };
