@@ -102,7 +102,7 @@ class FileController extends Controller
         
         if (!Storage::disk($disk)->exists($file->storage_url)) {
             \Log::error('File not found in storage', [
-                'file_id' => $file->id,
+Please change the colors of the "Recent Activity" section. Use colors that are visually pleasing and well-coordinated with the rest of the page design.                'file_id' => $file->id,
                 'storage_url' => $file->storage_url,
                 'disk' => $disk
             ]);

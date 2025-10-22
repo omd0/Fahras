@@ -23,6 +23,7 @@ import {
   Person as PersonIcon,
   CalendarToday as CalendarIcon,
   Business as BusinessIcon,
+  Explore as ExploreIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { TVTCLogo } from '../components/TVTCLogo';
@@ -185,7 +186,7 @@ export const HomePage: React.FC = () => {
               <Button
                 variant="outlined"
                 size="large"
-                endIcon={<ArrowForwardIcon />}
+                startIcon={<ExploreIcon />}
                 onClick={() => navigate('/explore')}
                 sx={{
                   borderColor: 'white',
@@ -201,7 +202,7 @@ export const HomePage: React.FC = () => {
                   },
                 }}
               >
-                Browse All Projects
+                Explore Projects
               </Button>
             </Box>
           </Box>

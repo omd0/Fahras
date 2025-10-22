@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Container,
   Typography,
@@ -11,21 +11,10 @@ import {
   Grid,
   Avatar,
   Chip,
-  List,
-  ListItemText,
-  ListItemButton,
-  Divider,
   CircularProgress,
   Alert,
-  Paper,
   Button,
-  Pagination,
   TextField,
-  InputAdornment,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -36,17 +25,13 @@ import {
   ArrowBack as ArrowBackIcon,
   Person as PersonIcon,
   Email as EmailIcon,
-  Work as WorkIcon,
-  Search as SearchIcon,
-  CalendarToday as CalendarIcon,
-  School as SchoolIcon,
   Edit as EditIcon,
   PhotoCamera as PhotoCameraIcon,
   Delete as DeleteIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
-import { User, Project } from '../types';
+import { User } from '../types';
 import { getDashboardTheme } from '../config/dashboardThemes';
 
 export const ProfilePage: React.FC = () => {
@@ -54,20 +39,8 @@ export const ProfilePage: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [user, setUser] = useState<User | null>(null);
   const dashboardTheme = getDashboardTheme(user?.roles);
-  const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [projectsLoading, setProjectsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalProjects, setTotalProjects] = useState(0);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [yearFilter, setYearFilter] = useState('');
-
-  // Check if user is restricted from creating/editing projects
-  const isRestrictedUser = user?.roles?.some(role => role.name === 'admin');
-  const isReviewer = user?.roles?.some(role => role.name === 'reviewer');
   
   // Profile editing state
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -195,89 +168,9 @@ export const ProfilePage: React.FC = () => {
     }
   };
 
-  const loadUserProjects = useCallback(async () => {
-    try {
-      setProjectsLoading(true);
-      const params: any = {
-        page: currentPage,
-        per_page: 10,
-        sort_by: 'created_at',
-        sort_order: 'desc',
-      };
-
-      if (searchTerm) {
-        params.search = searchTerm;
-      }
-      if (statusFilter) {
-        params.status = statusFilter;
-      }
-      if (yearFilter) {
-        params.academic_year = yearFilter;
-      }
-
-      const response = await apiService.getMyProjects(params);
-      setProjects(response.data || []);
-      setTotalPages(response.last_page || 1);
-      setTotalProjects(response.total || 0);
-    } catch (err) {
-      console.error('Error loading user projects:', err);
-      setError('Failed to load projects');
-    } finally {
-      setProjectsLoading(false);
-    }
-  }, [currentPage, searchTerm, statusFilter, yearFilter]);
-
   useEffect(() => {
     loadUserProfile();
   }, []);
-
-  useEffect(() => {
-    // Load projects for all users except Admins
-    if (!isRestrictedUser) {
-      loadUserProjects();
-    }
-  }, [loadUserProjects, isRestrictedUser]);
-
-  const handleProjectClick = (projectId: number) => {
-    navigate(`/projects/${projectId}`);
-  };
-
-  const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
-    setCurrentPage(page);
-  };
-
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
-    setCurrentPage(1); // Reset to first page when searching
-  };
-
-  const handleStatusFilterChange = (event: any) => {
-    setStatusFilter(event.target.value);
-    setCurrentPage(1);
-  };
-
-  const handleYearFilterChange = (event: any) => {
-    setYearFilter(event.target.value);
-    setCurrentPage(1);
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed': return 'success';
-      case 'approved': return 'success';
-      case 'under_review': return 'warning';
-      case 'submitted': return 'info';
-      case 'rejected': return 'error';
-      case 'draft': return 'default';
-      default: return 'default';
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
-    return status.split('_').map(word => 
-      word.charAt(0).toUpperCase() + word.slice(1)
-    ).join(' ');
-  };
 
   if (loading) {
     return (
@@ -347,7 +240,7 @@ export const ProfilePage: React.FC = () => {
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         {/* User Profile Information */}
         <Grid container spacing={3}>
-          <Grid size={{ xs: 12, md: isRestrictedUser ? 12 : 4 }}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Card sx={{ mb: 3 }}>
               <CardContent sx={{ textAlign: 'center' }}>
                 <Box sx={{ position: 'relative', display: 'inline-block' }}>
@@ -458,189 +351,6 @@ export const ProfilePage: React.FC = () => {
             </Card>
           </Grid>
 
-          {/* My Projects Section - Show for all users except Admins */}
-          {!isRestrictedUser && (
-            <Grid size={{ xs: 12, md: 8 }}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                  <WorkIcon sx={{ mr: 2, color: 'primary.main' }} />
-                  <Typography variant="h6">
-                    My Projects ({totalProjects})
-                  </Typography>
-                </Box>
-
-                {/* Search and Filters */}
-                <Box sx={{ mb: 3 }}>
-                  <Grid container spacing={2} alignItems="center">
-                    <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                      <TextField
-                        fullWidth
-                        size="small"
-                        placeholder="Search projects..."
-                        value={searchTerm}
-                        onChange={handleSearchChange}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <SearchIcon />
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                    </Grid>
-                    <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                      <FormControl fullWidth size="small">
-                        <InputLabel>Status</InputLabel>
-                        <Select
-                          value={statusFilter}
-                          label="Status"
-                          onChange={handleStatusFilterChange}
-                        >
-                          <MenuItem value="">All Statuses</MenuItem>
-                          <MenuItem value="draft">Draft</MenuItem>
-                          <MenuItem value="submitted">Submitted</MenuItem>
-                          <MenuItem value="under_review">Under Review</MenuItem>
-                          <MenuItem value="approved">Approved</MenuItem>
-                          <MenuItem value="rejected">Rejected</MenuItem>
-                          <MenuItem value="completed">Completed</MenuItem>
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                    <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                      <FormControl fullWidth size="small">
-                        <InputLabel>Academic Year</InputLabel>
-                        <Select
-                          value={yearFilter}
-                          label="Academic Year"
-                          onChange={handleYearFilterChange}
-                        >
-                          <MenuItem value="">All Years</MenuItem>
-                          <MenuItem value="2023-2024">2023-2024</MenuItem>
-                          <MenuItem value="2024-2025">2024-2025</MenuItem>
-                          <MenuItem value="2025-2026">2025-2026</MenuItem>
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                  </Grid>
-                </Box>
-
-                {/* Projects List */}
-                {error && (
-                  <Alert severity="error" sx={{ mb: 2 }}>
-                    {error}
-                  </Alert>
-                )}
-
-                {projectsLoading ? (
-                  <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-                    <CircularProgress />
-                  </Box>
-                ) : projects.length === 0 ? (
-                  <Paper sx={{ p: 4, textAlign: 'center' }}>
-                    <WorkIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
-                    <Typography variant="h6" color="text.secondary" gutterBottom>
-                      No projects found
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                      {searchTerm || statusFilter || yearFilter
-                        ? 'Try adjusting your search criteria'
-                        : 'You haven\'t created any projects yet'}
-                    </Typography>
-                    {!searchTerm && !statusFilter && !yearFilter && !isReviewer && (
-                      <Button
-                        variant="contained"
-                        onClick={() => navigate('/create-project')}
-                      >
-                        Create Your First Project
-                      </Button>
-                    )}
-                  </Paper>
-                ) : (
-                  <>
-                    <List>
-                      {projects.map((project, index) => (
-                        <React.Fragment key={project.id}>
-                          <ListItemButton
-                            onClick={() => handleProjectClick(project.id)}
-                            sx={{
-                              borderRadius: 1,
-                              mb: 1,
-                              '&:hover': {
-                                backgroundColor: 'action.hover',
-                              },
-                            }}
-                          >
-                            <ListItemText
-                              primary={
-                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                                  <Typography variant="h6" sx={{ flexGrow: 1 }}>
-                                    {project.title}
-                                  </Typography>
-                                  <Chip
-                                    label={getStatusLabel(project.status)}
-                                    color={getStatusColor(project.status) as any}
-                                    size="small"
-                                  />
-                                </Box>
-                              }
-                              secondary={
-                                <Box>
-                                  <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                    sx={{
-                                      display: '-webkit-box',
-                                      WebkitLineClamp: 2,
-                                      WebkitBoxOrient: 'vertical',
-                                      overflow: 'hidden',
-                                      mb: 1,
-                                    }}
-                                  >
-                                    {project.abstract}
-                                  </Typography>
-                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                      <CalendarIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
-                                      <Typography variant="caption" color="text.secondary">
-                                        {project.academic_year} - {project.semester}
-                                      </Typography>
-                                    </Box>
-                                    {project.program && (
-                                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                        <SchoolIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
-                                        <Typography variant="caption" color="text.secondary">
-                                          {project.program.name}
-                                        </Typography>
-                                      </Box>
-                                    )}
-                                  </Box>
-                                </Box>
-                              }
-                            />
-                          </ListItemButton>
-                          {index < projects.length - 1 && <Divider />}
-                        </React.Fragment>
-                      ))}
-                    </List>
-
-                    {/* Pagination */}
-                    {totalPages > 1 && (
-                      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-                        <Pagination
-                          count={totalPages}
-                          page={currentPage}
-                          onChange={handlePageChange}
-                          color="primary"
-                        />
-                      </Box>
-                    )}
-                  </>
-                )}
-              </CardContent>
-            </Card>
-            </Grid>
-          )}
         </Grid>
       </Container>
 

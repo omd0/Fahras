@@ -51,6 +51,10 @@ export interface Project {
   admin_notes?: string;
   doi?: string;
   repo_url?: string;
+  views?: number;
+  average_rating?: number;
+  rating_count?: number;
+  department?: Department;
   program?: Program;
   creator?: User;
   approver?: User;

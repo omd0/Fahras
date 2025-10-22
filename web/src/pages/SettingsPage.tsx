@@ -84,7 +84,7 @@ export const SettingsPage: React.FC = () => {
               
               <ListItem>
                 <ListItemIcon>
-                  <NotificationsIcon color="primary" />
+                  <NotificationsIcon sx={{ color: '#FF4500' }} />
                 </ListItemIcon>
                 <ListItemText 
                   primary="Notifications" 

@@ -18,11 +18,19 @@ import {
   Menu,
   MenuItem,
   Chip,
+  Paper,
+  Stack,
+  Fade,
+  Slide,
 } from '@mui/material';
 import {
   Send as SendIcon,
   MoreVert as MoreVertIcon,
   Reply as ReplyIcon,
+  Chat as ChatIcon,
+  Message as MessageIcon,
+  ThumbUp as ThumbUpIcon,
+  Person as PersonIcon,
 } from '@mui/icons-material';
 import { Comment } from '../types';
 import { apiService } from '../services/api';
@@ -117,64 +125,125 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
     const hasReplies = comment.replies && comment.replies.length > 0;
 
     return (
-      <ListItem key={comment.id} sx={{ pl: isReply ? 4 : 0 }}>
-        <ListItemAvatar>
-          <Avatar src={comment.user?.avatar_url}>
-            {comment.user?.full_name?.charAt(0)}
-          </Avatar>
-        </ListItemAvatar>
-        <ListItemText
-          primary={
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography variant="subtitle2" fontWeight="medium">
-                {comment.user?.full_name}
-              </Typography>
-              <Chip 
-                size="small" 
-                label={formatDate(comment.created_at)} 
-                variant="outlined"
-                sx={{ fontSize: '0.75rem' }}
-              />
-              {isOwner && (
+      <Paper 
+        elevation={0}
+        sx={{ 
+          mb: 2,
+          borderRadius: 3,
+          border: '1px solid',
+          borderColor: 'divider',
+          overflow: 'hidden',
+          transition: 'all 0.2s ease-in-out',
+          '&:hover': {
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+            transform: 'translateY(-1px)',
+          }
+        }}
+      >
+        <ListItem sx={{ p: 2, pl: isReply ? 4 : 2 }}>
+          <ListItemAvatar>
+            <Avatar 
+              src={comment.user?.avatar_url}
+              sx={{ 
+                width: 40, 
+                height: 40,
+                background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                fontWeight: 600,
+                fontSize: '1rem',
+              }}
+            >
+              {comment.user?.full_name?.charAt(0)}
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText
+            primary={
+              <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 1.5 }}>
+                <Typography variant="subtitle1" fontWeight="600" color="text.primary">
+                  {comment.user?.full_name}
+                </Typography>
                 <Chip 
                   size="small" 
-                  label="You" 
-                  color="primary" 
-                  variant="outlined"
-                  sx={{ fontSize: '0.75rem' }}
+                  label={formatDate(comment.created_at)} 
+                  variant="filled"
+                  sx={{ 
+                    fontSize: '0.75rem',
+                    background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
+                    color: 'text.secondary',
+                    fontWeight: 500,
+                  }}
                 />
-              )}
-            </Box>
-          }
-          secondary={
-            <Box>
-              <Typography variant="body2" sx={{ mt: 1, mb: 2 }}>
-                {comment.content}
-              </Typography>
-              {!isReply && (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <IconButton
-                    size="small"
-                    onClick={() => setReplyingTo(comment.id)}
-                    sx={{ fontSize: '0.875rem' }}
-                  >
-                    <ReplyIcon fontSize="small" />
-                    Reply
-                  </IconButton>
-                  {isOwner && (
-                    <IconButton
+                {isOwner && (
+                  <Chip 
+                    size="small" 
+                    label="You" 
+                    color="primary" 
+                    variant="filled"
+                    sx={{ 
+                      fontSize: '0.75rem',
+                      background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+                      fontWeight: 600,
+                    }}
+                  />
+                )}
+              </Stack>
+            }
+            secondary={
+              <Box>
+                <Paper 
+                  elevation={0}
+                  sx={{ 
+                    p: 1.5, 
+                    mb: 1.5,
+                    borderRadius: 1.5,
+                    background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                  }}
+                >
+                  <Typography variant="body2" sx={{ lineHeight: 1.6, color: 'text.primary' }}>
+                    {comment.content}
+                  </Typography>
+                </Paper>
+                {!isReply && (
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <Button
                       size="small"
-                      onClick={(e) => handleMenuOpen(e, comment.id)}
+                      startIcon={<ReplyIcon />}
+                      onClick={() => setReplyingTo(comment.id)}
+                      sx={{
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        color: 'primary.main',
+                        '&:hover': {
+                          backgroundColor: 'primary.light',
+                          color: 'primary.dark',
+                        },
+                      }}
                     >
-                      <MoreVertIcon fontSize="small" />
-                    </IconButton>
-                  )}
-                </Box>
-              )}
-            </Box>
-          }
-        />
-      </ListItem>
+                      Reply
+                    </Button>
+                    {isOwner && (
+                      <IconButton
+                        size="small"
+                        onClick={(e) => handleMenuOpen(e, comment.id)}
+                        sx={{
+                          color: 'text.secondary',
+                          '&:hover': {
+                            color: 'text.primary',
+                            backgroundColor: 'action.hover',
+                          },
+                        }}
+                      >
+                        <MoreVertIcon fontSize="small" />
+                      </IconButton>
+                    )}
+                  </Stack>
+                )}
+              </Box>
+            }
+          />
+        </ListItem>
+      </Paper>
     );
   };
 
@@ -187,115 +256,435 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
   }
 
   return (
-    <Card>
-      <CardContent>
-        <Typography variant="h6" gutterBottom>
-          Comments ({comments.length})
-        </Typography>
-
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
-            {error}
-          </Alert>
-        )}
-
-        {/* Add new comment */}
-        {(
-          <Box sx={{ mb: 3 }}>
-            <TextField
-              fullWidth
-              multiline
-              rows={3}
-              placeholder="Add a comment..."
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              variant="outlined"
-              sx={{ mb: 2 }}
-            />
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Button
-                variant="contained"
-                startIcon={submitting ? <CircularProgress size={16} /> : <SendIcon />}
-                onClick={handleSubmitComment}
-                disabled={!newComment.trim() || submitting}
-              >
-                {submitting ? 'Posting...' : 'Post Comment'}
-              </Button>
+    <Card 
+      elevation={0}
+      sx={{ 
+        borderRadius: 3,
+        border: '1px solid',
+        borderColor: 'divider',
+        overflow: 'hidden',
+        background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+        transition: 'all 0.3s ease-in-out',
+        '&:hover': {
+          boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+          transform: 'translateY(-2px)',
+        }
+      }}
+    >
+      <CardContent sx={{ p: 0 }}>
+        {/* Header with gradient background */}
+        <Box 
+          sx={{ 
+            background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+            color: 'white',
+            p: 3,
+            position: 'relative',
+            overflow: 'hidden',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              right: 0,
+              width: '100px',
+              height: '100px',
+              background: 'rgba(255,255,255,0.1)',
+              borderRadius: '50%',
+              transform: 'translate(30px, -30px)',
+            }
+          }}
+        >
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <Box
+              sx={{
+                p: 1.5,
+                borderRadius: 2,
+                background: 'rgba(255,255,255,0.2)',
+                backdropFilter: 'blur(10px)',
+              }}
+            >
+              <ChatIcon sx={{ fontSize: 28, color: 'white' }} />
             </Box>
-          </Box>
-        )}
+            <Box>
+              <Typography variant="h5" fontWeight="700" sx={{ mb: 0.5 }}>
+                Comments & Discussion
+              </Typography>
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <MessageIcon sx={{ fontSize: 16 }} />
+                <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                  {comments.length} {comments.length !== 1 ? 'comments' : 'comment'}
+                </Typography>
+              </Stack>
+            </Box>
+          </Stack>
+        </Box>
 
-        <Divider sx={{ mb: 2 }} />
+        <Box sx={{ p: 2 }}>
+          {error && (
+            <Fade in={!!error}>
+              <Alert 
+                severity="error" 
+                sx={{ 
+                  mb: 3, 
+                  borderRadius: 2,
+                  '& .MuiAlert-message': {
+                    width: '100%'
+                  }
+                }} 
+                onClose={() => setError(null)}
+              >
+                {error}
+              </Alert>
+            </Fade>
+          )}
 
-        {/* Comments list */}
-        {comments.length === 0 ? (
-          <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 3 }}>
-            No comments yet. Be the first to comment!
-          </Typography>
-        ) : (
-          <List>
-            {comments.map((comment) => (
-              <Box key={comment.id}>
-                {renderComment(comment)}
-                {comment.replies && comment.replies.map((reply) => (
-                  <Box key={reply.id}>
-                    <Divider variant="inset" component="li" />
-                    {renderComment(reply, true)}
-                  </Box>
-                ))}
-                <Divider sx={{ my: 1 }} />
-              </Box>
-            ))}
-          </List>
-        )}
-
-        {/* Reply form */}
-        {replyingTo && (
-          <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
-            <Typography variant="subtitle2" gutterBottom>
-              Reply to comment
-            </Typography>
+          {/* Enhanced Add Comment Form */}
+          <Paper 
+            elevation={0}
+            sx={{ 
+              mb: 2, 
+              p: 1.5, 
+              borderRadius: 2,
+              background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+              border: '1px solid',
+              borderColor: 'primary.light',
+              position: 'relative',
+              overflow: 'hidden',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '3px',
+                background: 'linear-gradient(90deg, #059669 0%, #10b981 100%)',
+              }
+            }}
+          >
+              <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
+                <Box
+                  sx={{
+                    p: 1,
+                    borderRadius: 1.5,
+                    background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                    color: 'white',
+                  }}
+                >
+                  <MessageIcon sx={{ fontSize: 20 }} />
+                </Box>
+                <Typography variant="h6" fontWeight="600" color="text.primary">
+                  Share Your Thoughts
+                </Typography>
+              </Stack>
+            
             <TextField
               fullWidth
               multiline
               rows={2}
-              placeholder="Write a reply..."
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
+              placeholder="What are your thoughts on this project? Share your insights..."
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
               variant="outlined"
-              sx={{ mb: 2 }}
+              size="medium"
+              sx={{ 
+                mb: 2,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  minHeight: '56px',
+                  fontSize: '0.875rem',
+                  padding: '8px 12px',
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'primary.main',
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'primary.main',
+                    borderWidth: 2,
+                  },
+                },
+                '& .MuiInputBase-input': {
+                  padding: '8px 12px',
+                  fontSize: '0.875rem',
+                  lineHeight: 1.4,
+                },
+              }}
             />
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  setReplyingTo(null);
-                  setReplyText('');
-                }}
-              >
-                Cancel
-              </Button>
+            
+            <Stack direction="row" justifyContent="flex-end">
               <Button
                 variant="contained"
-                startIcon={submitting ? <CircularProgress size={16} /> : <SendIcon />}
-                onClick={() => handleSubmitReply(replyingTo)}
-                disabled={!replyText.trim() || submitting}
+                size="small"
+                startIcon={submitting ? <CircularProgress size={12} /> : <SendIcon sx={{ fontSize: 16 }} />}
+                onClick={handleSubmitComment}
+                disabled={!newComment.trim() || submitting}
+                sx={{
+                  background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                  borderRadius: 1,
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  px: 2.5,
+                  py: 0.5,
+                  fontSize: '0.75rem',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #047857 0%, #059669 100%)',
+                    transform: 'translateY(-1px)',
+                    boxShadow: '0 4px 12px rgba(5, 150, 105, 0.3)',
+                  },
+                  '&:disabled': {
+                    background: 'grey.300',
+                    color: 'grey.500',
+                  },
+                  transition: 'all 0.2s ease-in-out',
+                }}
               >
-                {submitting ? 'Posting...' : 'Reply'}
+                {submitting ? 'Posting...' : 'Post Comment'}
               </Button>
-            </Box>
+            </Stack>
+          </Paper>
+
+          {/* Enhanced Divider */}
+          <Box sx={{ mb: 3 }}>
+            <Divider 
+              sx={{ 
+                '&::before, &::after': {
+                  borderColor: 'divider',
+                }
+              }}
+            >
+              <Chip 
+                label="Discussion" 
+                size="small" 
+                sx={{ 
+                  background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                  color: 'white',
+                  fontWeight: 600,
+                }}
+              />
+            </Divider>
           </Box>
-        )}
+
+          {/* Enhanced Comments List */}
+          {comments.length === 0 ? (
+            <Paper 
+              elevation={0}
+              sx={{ 
+                p: 6, 
+                textAlign: 'center',
+                borderRadius: 3,
+                background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+                border: '2px dashed',
+                borderColor: 'divider',
+              }}
+            >
+              <Box
+                sx={{
+                  p: 2,
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                  color: 'white',
+                  width: 64,
+                  height: 64,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  mx: 'auto',
+                  mb: 2,
+                }}
+              >
+                <ChatIcon sx={{ fontSize: 32 }} />
+              </Box>
+              <Typography variant="h6" fontWeight="600" color="text.primary" sx={{ mb: 1 }}>
+                No comments yet
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Be the first to start the discussion and share your thoughts!
+              </Typography>
+            </Paper>
+          ) : (
+            <List sx={{ p: 0 }}>
+              {comments.map((comment, index) => (
+                <Fade in timeout={600 + index * 100} key={comment.id}>
+                  <Box>
+                    {renderComment(comment)}
+                    {comment.replies && comment.replies.map((reply, replyIndex) => (
+                      <Box key={reply.id}>
+                        <Divider variant="inset" component="li" sx={{ ml: 6 }} />
+                        {renderComment(reply, true)}
+                      </Box>
+                    ))}
+                    <Divider sx={{ my: 2 }} />
+                  </Box>
+                </Fade>
+              ))}
+            </List>
+          )}
+
+          {/* Enhanced Reply form */}
+          <Slide direction="up" in={!!replyingTo} timeout={500}>
+            <Paper 
+              elevation={0}
+              sx={{ 
+                mt: 2, 
+                p: 1.5, 
+                borderRadius: 2,
+                background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+                border: '1px solid',
+                borderColor: 'warning.light',
+                position: 'relative',
+                overflow: 'hidden',
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: '3px',
+                  background: 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)',
+                }
+              }}
+            >
+              <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
+                <Box
+                  sx={{
+                    p: 1,
+                    borderRadius: 1.5,
+                    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                    color: 'white',
+                  }}
+                >
+                  <ReplyIcon sx={{ fontSize: 20 }} />
+                </Box>
+                <Typography variant="h6" fontWeight="600" color="text.primary">
+                  Write a Reply
+                </Typography>
+              </Stack>
+              
+              <TextField
+                fullWidth
+                multiline
+                rows={2}
+                placeholder="Write your reply..."
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                variant="outlined"
+                size="medium"
+                sx={{ 
+                  mb: 2,
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    minHeight: '56px',
+                    fontSize: '0.875rem',
+                    padding: '8px 12px',
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'warning.main',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'warning.main',
+                      borderWidth: 2,
+                    },
+                  },
+                  '& .MuiInputBase-input': {
+                    padding: '8px 12px',
+                    fontSize: '0.875rem',
+                    lineHeight: 1.4,
+                  },
+                }}
+              />
+              
+              <Stack direction="row" justifyContent="flex-end" spacing={2}>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() => {
+                    setReplyingTo(null);
+                    setReplyText('');
+                  }}
+                  sx={{
+                    borderRadius: 1,
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    px: 2,
+                    py: 0.5,
+                    fontSize: '0.75rem',
+                    borderColor: 'text.secondary',
+                    color: 'text.secondary',
+                    '&:hover': {
+                      borderColor: 'text.primary',
+                      color: 'text.primary',
+                      backgroundColor: 'action.hover',
+                    },
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="contained"
+                  size="small"
+                  startIcon={submitting ? <CircularProgress size={12} /> : <SendIcon sx={{ fontSize: 16 }} />}
+                  onClick={() => replyingTo && handleSubmitReply(replyingTo)}
+                  disabled={!replyText.trim() || submitting}
+                  sx={{
+                    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                    borderRadius: 1,
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    px: 2.5,
+                    py: 0.5,
+                    fontSize: '0.75rem',
+                    '&:hover': {
+                      background: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
+                      transform: 'translateY(-1px)',
+                      boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)',
+                    },
+                    '&:disabled': {
+                      background: 'grey.300',
+                      color: 'grey.500',
+                    },
+                    transition: 'all 0.2s ease-in-out',
+                  }}
+                >
+                  {submitting ? 'Posting...' : 'Reply'}
+                </Button>
+              </Stack>
+            </Paper>
+          </Slide>
+        </Box>
       </CardContent>
 
-      {/* Comment menu */}
+      {/* Enhanced Comment menu */}
       <Menu
         anchorEl={menuAnchor}
         open={Boolean(menuAnchor)}
         onClose={handleMenuClose}
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            minWidth: 160,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+          }
+        }}
       >
-        <MenuItem onClick={handleMenuClose}>Edit Comment</MenuItem>
-        <MenuItem onClick={handleMenuClose} sx={{ color: 'error.main' }}>
+        <MenuItem 
+          onClick={handleMenuClose}
+          sx={{ 
+            fontWeight: 500,
+            '&:hover': {
+              backgroundColor: 'primary.light',
+              color: 'primary.dark',
+            }
+          }}
+        >
+          Edit Comment
+        </MenuItem>
+        <MenuItem 
+          onClick={handleMenuClose} 
+          sx={{ 
+            color: 'error.main',
+            fontWeight: 500,
+            '&:hover': {
+              backgroundColor: 'error.light',
+              color: 'error.dark',
+            }
+          }}
+        >
           Delete Comment
         </MenuItem>
       </Menu>

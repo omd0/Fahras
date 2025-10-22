@@ -67,20 +67,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, on
   };
 
   const getNotificationColor = (type: string) => {
-    switch (type) {
-      case 'comment':
-        return 'info';
-      case 'rating':
-        return 'success';
-      case 'evaluation_due':
-        return 'warning';
-      case 'approval_required':
-        return 'error';
-      case 'project_updated':
-        return 'info';
-      default:
-        return 'default';
-    }
+    return '#87CEEB'; // Sky blue for all notification types
   };
 
   const formatDate = (dateString: string) => {
@@ -95,6 +82,23 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, on
     } else {
       const diffInDays = Math.floor(diffInHours / 24);
       return `${diffInDays}d ago`;
+    }
+  };
+
+  const handleNotificationClick = async (notification: any) => {
+    // Mark notification as read if it's not already read
+    if (!notification.is_read) {
+      await markAsRead(notification.id);
+    }
+
+    // Check if this is a project-related notification
+    if (notification.project && notification.project.id) {
+      // Close the notification center
+      onClose();
+      // Navigate to the protected project detail page (for authenticated users)
+      navigate(`/dashboard/projects/${notification.project.id}`, { 
+        state: { from: '/notifications' } 
+      });
     }
   };
 
@@ -170,7 +174,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, on
                     backgroundColor: 'action.selected',
                   },
                 }}
-                onClick={() => !notification.is_read && markAsRead(notification.id)}
+                onClick={() => handleNotificationClick(notification)}
               >
                 <ListItemIcon>
                   {getNotificationIcon(notification.type)}
@@ -182,7 +186,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, on
                         variant="subtitle2" 
                         sx={{ 
                           fontWeight: notification.is_read ? 'normal' : 'bold',
-                          color: `${getNotificationColor(notification.type)}.main`,
+                          color: getNotificationColor(notification.type),
                         }}
                       >
                         {notification.title}
@@ -193,7 +197,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, on
                             width: 8,
                             height: 8,
                             borderRadius: '50%',
-                            backgroundColor: 'primary.main',
+                            backgroundColor: getNotificationColor(notification.type),
                           }}
                         />
                       )}

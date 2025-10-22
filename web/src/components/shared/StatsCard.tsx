@@ -27,10 +27,10 @@ export const StatsCard: React.FC<StatsCardProps> = ({
       <CardContent>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Box>
-            <Typography variant="h3" sx={{ fontWeight: 700, color: 'white' }}>
+            <Typography variant="h3" sx={{ fontWeight: 700, color: 'white !important' }}>
               {value}
             </Typography>
-            <Typography variant="body2" sx={{ opacity: 0.9, color: 'white' }}>
+            <Typography variant="body2" sx={{ opacity: 0.9, color: 'white !important' }}>
               {label}
             </Typography>
           </Box>

@@ -10,10 +10,11 @@ import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { DashboardPage } from './pages/DashboardPage';
-import { PublicDashboardPage } from './pages/PublicDashboardPage';
+import { ExplorePage } from './pages/ExplorePage';
 import { CreateProjectPage } from './pages/CreateProjectPage';
 import { EditProjectPage } from './pages/EditProjectPage';
 import { ProjectDetailPage } from './pages/ProjectDetailPage';
+import { GuestProjectDetailPage } from './pages/GuestProjectDetailPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
 import { EvaluationsPage } from './pages/EvaluationsPage';
 import { UserManagementPage } from './pages/UserManagementPage';
@@ -21,7 +22,12 @@ import { ProfilePage } from './pages/ProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
 import { ApprovalsPage } from './pages/ApprovalsPage';
 import AdminProjectApprovalPage from './pages/AdminProjectApprovalPage';
+import FacultyPendingApprovalPage from './pages/FacultyPendingApprovalPage';
+import StudentMyProjectsPage from './pages/StudentMyProjectsPage';
+import { NotificationsPage } from './pages/NotificationsPage';
+import { TestAuthPage } from './pages/TestAuthPage';
 import { TVTCBranding } from './components/TVTCBranding';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 const theme = createTheme({
   palette: {
@@ -156,7 +162,7 @@ function App() {
               <Routes>
           {/* Public routes */}
           <Route path="/" element={<HomePage />} />
-          <Route path="/explore" element={<PublicDashboardPage />} />
+          <Route path="/explore" element={<ExplorePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           
@@ -179,8 +185,15 @@ function App() {
               </RoleProtectedRoute>
             }
           />
+          {/* Public project detail route */}
           <Route
             path="/projects/:id"
+            element={<GuestProjectDetailPage />}
+          />
+          
+          {/* Protected project detail route for authenticated users */}
+          <Route
+            path="/dashboard/projects/:id"
             element={
               <ProtectedRoute>
                 <ProjectDetailPage />
@@ -264,6 +277,48 @@ function App() {
                 <AdminProjectApprovalPage />
               </RoleProtectedRoute>
             }
+          />
+          
+          {/* Faculty Pending Approval route - faculty only */}
+          <Route
+            path="/faculty/pending-approval"
+            element={
+              <RoleProtectedRoute allowedRoles={['faculty']}>
+                <ErrorBoundary>
+                  <FacultyPendingApprovalPage />
+                </ErrorBoundary>
+              </RoleProtectedRoute>
+            }
+          />
+          
+          {/* Student My Projects route - student only */}
+          <Route
+            path="/student/my-projects"
+            element={
+              <RoleProtectedRoute allowedRoles={['student']}>
+                <ErrorBoundary>
+                  <StudentMyProjectsPage />
+                </ErrorBoundary>
+              </RoleProtectedRoute>
+            }
+          />
+          
+          {/* Notifications route - all authenticated users */}
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute>
+                <ErrorBoundary>
+                  <NotificationsPage />
+                </ErrorBoundary>
+              </ProtectedRoute>
+            }
+          />
+          
+          {/* Test route for debugging */}
+          <Route
+            path="/test-auth"
+            element={<TestAuthPage />}
           />
           
           {/* Catch all route - redirect to home */}

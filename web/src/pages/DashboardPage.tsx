@@ -11,31 +11,24 @@ import {
   Menu,
   MenuItem,
   Avatar,
-  Badge,
   Typography,
   Box,
 } from '@mui/material';
 import {
-  Add as AddIcon,
   AccountCircle,
   ExitToApp,
-  Notifications as NotificationsIcon,
   Assignment as AssignmentIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { TVTCLogo } from '../components/TVTCLogo';
-import { NotificationCenter } from '../components/NotificationCenter';
-import { useNotifications } from '../hooks/useNotifications';
 import { useState } from 'react';
 import { getDashboardTheme } from '../config/dashboardThemes';
 
 export const DashboardPage: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [notificationOpen, setNotificationOpen] = useState(false);
 
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
-  const { unreadCount: unreadNotifications } = useNotifications();
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -103,26 +96,6 @@ export const DashboardPage: React.FC = () => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Fahras Dashboard
           </Typography>
-          {!user?.roles?.some(role => role.name === 'admin' || role.name === 'reviewer') && (
-            <IconButton
-              color="inherit"
-              onClick={() => navigate('/projects/create')}
-              sx={{ mr: 1 }}
-            >
-              <AddIcon />
-            </IconButton>
-          )}
-          <IconButton
-            size="large"
-            edge="end"
-            aria-label="notifications"
-            onClick={() => setNotificationOpen(true)}
-            color="inherit"
-          >
-            <Badge badgeContent={unreadNotifications} color="error">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
           <IconButton
             size="large"
             edge="end"
@@ -171,12 +144,6 @@ export const DashboardPage: React.FC = () => {
 
       {/* Render role-specific dashboard */}
       {renderDashboard()}
-
-      {/* Notification Center */}
-      <NotificationCenter
-        open={notificationOpen}
-        onClose={() => setNotificationOpen(false)}
-      />
     </Box>
   );
 };
