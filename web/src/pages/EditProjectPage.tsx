@@ -57,7 +57,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { CreateProjectData, Program, User, Project } from '../types';
 import { apiService } from '../services/api';
-import { getDashboardTheme } from '../config/dashboardThemes';
 
 export const EditProjectPage: React.FC = () => {
   const [formData, setFormData] = useState<CreateProjectData>({
@@ -84,7 +83,6 @@ export const EditProjectPage: React.FC = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const dashboardTheme = getDashboardTheme(user?.roles);
 
   // Redirect reviewers away from this page
   useEffect(() => {
@@ -290,12 +288,27 @@ export const EditProjectPage: React.FC = () => {
   }
 
   return (
-    <Box sx={{ flexGrow: 1, background: dashboardTheme.background, minHeight: '100vh' }}>
+    <Box sx={{ 
+      flexGrow: 1, 
+      display: 'flex', 
+      flexDirection: 'column', 
+      minHeight: '100vh',
+      backgroundColor: '#FFFFFF', // Pure White background
+      position: 'relative',
+      zIndex: 1,
+      // Override any inherited dashboard theme styles
+      '& *': {
+        backgroundColor: 'transparent !important',
+        backgroundImage: 'none !important',
+        background: 'transparent !important',
+      }
+    }}>
       <AppBar 
         position="static"
         sx={{ 
-          background: dashboardTheme.appBarGradient,
+          backgroundColor: '#FFFFFF',
           boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+          color: '#000000',
         }}
       >
         <Toolbar>
@@ -312,10 +325,10 @@ export const EditProjectPage: React.FC = () => {
               <EditIcon />
             </Avatar>
             <Box>
-              <Typography variant="h6" component="div" sx={{ fontWeight: 600 }}>
+              <Typography variant="h6" component="div" sx={{ fontWeight: 600, color: '#000000' }}>
                 Edit Project
               </Typography>
-              <Typography variant="body2" sx={{ opacity: 0.9, color: 'white' }}>
+              <Typography variant="body2" sx={{ opacity: 0.9, color: '#000000' }}>
                 Update project details and information
               </Typography>
             </Box>
@@ -323,7 +336,27 @@ export const EditProjectPage: React.FC = () => {
         </Toolbar>
       </AppBar>
 
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      <Container 
+        maxWidth="lg" 
+        sx={{ 
+          mt: 4, 
+          mb: 4,
+          backgroundColor: '#FFFFFF',
+          position: 'relative',
+          zIndex: 2,
+          // Ensure clean white background overrides any inherited styles
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: '#FFFFFF',
+            zIndex: -1,
+          }
+        }}
+      >
         {error && (
           <Fade in={!!error}>
             <Alert 

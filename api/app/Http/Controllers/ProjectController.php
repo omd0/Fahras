@@ -60,6 +60,10 @@ class ProjectController extends Controller
             $query->where('is_public', $request->boolean('is_public'));
         }
 
+        if ($request->has('admin_approval_status')) {
+            $query->where('admin_approval_status', $request->admin_approval_status);
+        }
+
         if ($request->has('created_by')) {
             $query->where('created_by_user_id', $request->created_by);
         }

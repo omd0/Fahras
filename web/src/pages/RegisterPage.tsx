@@ -12,7 +12,16 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  InputAdornment,
+  Link,
 } from '@mui/material';
+import {
+  Person as PersonIcon,
+  Email as EmailIcon,
+  Lock as LockIcon,
+  PersonAdd as PersonAddIcon,
+} from '@mui/icons-material';
+import { TVTCLogo } from '../components/TVTCLogo';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { RegisterData } from '../types';
@@ -92,84 +101,22 @@ export const RegisterPage: React.FC = () => {
     <Box
       sx={{
         minHeight: '100vh',
-        background: `
-          linear-gradient(135deg, #7BB0D8 0%, #9FE3C1 50%, #F5E9D8 100%),
-          radial-gradient(circle at 20% 80%, rgba(123, 176, 216, 0.35) 0%, transparent 50%),
-          radial-gradient(circle at 80% 20%, rgba(159, 227, 193, 0.4) 0%, transparent 50%),
-          radial-gradient(circle at 40% 40%, rgba(245, 233, 216, 0.45) 0%, transparent 50%)
-        `,
-        position: 'relative',
+        backgroundColor: '#F8F9FA', // Very Light Cool Gray background
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         py: 4,
-        overflow: 'hidden',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: '-50%',
-          left: '-50%',
-          width: '200%',
-          height: '200%',
-          background: `
-            radial-gradient(circle at 30% 20%, rgba(160, 216, 241, 0.1) 0%, transparent 25%),
-            radial-gradient(circle at 70% 80%, rgba(207, 255, 229, 0.15) 0%, transparent 25%),
-            radial-gradient(circle at 10% 60%, rgba(255, 248, 231, 0.2) 0%, transparent 25%)
-          `,
-          animation: 'float 20s ease-in-out infinite',
-        },
-        '&::after': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: `
-            linear-gradient(45deg, transparent 30%, rgba(160, 216, 241, 0.05) 50%, transparent 70%),
-            linear-gradient(-45deg, transparent 30%, rgba(207, 255, 229, 0.05) 50%, transparent 70%)
-          `,
-          animation: 'slide 15s linear infinite',
-        },
-        '@keyframes float': {
-          '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
-          '50%': { transform: 'translateY(-20px) rotate(180deg)' },
-        },
-        '@keyframes slide': {
-          '0%': { transform: 'translateX(-100%)' },
-          '100%': { transform: 'translateX(100%)' },
-        },
       }}
     >
-      <Container component="main" maxWidth="sm" sx={{ position: 'relative', zIndex: 1 }}>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
+      <Container component="main" maxWidth="sm">
         <Paper 
-          elevation={12} 
+          elevation={3} 
           sx={{ 
             padding: 4, 
             width: '100%',
-            borderRadius: 4,
-            background: 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(15px)',
-            boxShadow: `
-              0 20px 40px rgba(160, 216, 241, 0.15),
-              0 10px 20px rgba(207, 255, 229, 0.1),
-              0 0 0 1px rgba(255, 255, 255, 0.2)
-            `,
-            border: '1px solid rgba(255, 255, 255, 0.3)',
-            '&:hover': {
-              boxShadow: `
-                0 25px 50px rgba(160, 216, 241, 0.2),
-                0 15px 30px rgba(207, 255, 229, 0.15),
-                0 0 0 1px rgba(255, 255, 255, 0.3)
-              `,
-            },
+            borderRadius: 3,
+            backgroundColor: '#FFFFFF', // Pure White form box
+            border: '1px solid rgba(0, 0, 0, 0.05)',
           }}
         >
           <Box
@@ -179,15 +126,48 @@ export const RegisterPage: React.FC = () => {
               alignItems: 'center',
             }}
           >
-            <Typography component="h1" variant="h4" gutterBottom>
-              Fahras
-            </Typography>
-            <Typography component="h2" variant="h5" gutterBottom>
+            {/* Header with Logo and Title */}
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+              <TVTCLogo size="large" variant="full" color="primary" sx={{ mr: 2 }} />
+              <Typography 
+                component="h1" 
+                variant="h4" 
+                sx={{ 
+                  fontWeight: 'bold',
+                  color: '#343A40', // Dark Gray/Navy for headings
+                }}
+              >
+                Fahras
+              </Typography>
+            </Box>
+            
+            <Typography 
+              component="h2" 
+              variant="h5" 
+              gutterBottom
+              sx={{ 
+                color: '#343A40', // Dark Gray/Navy for headings
+                fontWeight: 600,
+                mb: 3
+              }}
+            >
               Create Account
             </Typography>
 
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                color: '#666',
+                textAlign: 'center',
+                mb: 3,
+                maxWidth: '300px'
+              }}
+            >
+              Join Fahras to start your academic project journey
+            </Typography>
+
             {error && (
-              <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
+              <Alert severity="error" sx={{ width: '100%', mb: 2, borderRadius: 2 }}>
                 {error}
               </Alert>
             )}
@@ -206,6 +186,28 @@ export const RegisterPage: React.FC = () => {
                 onChange={handleChange('full_name')}
                 error={!!errors.full_name}
                 helperText={errors.full_name}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#CED4DA', // Light Gray for hover
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#007BFF', // Academic Blue for focus
+                      borderWidth: 2,
+                    },
+                    '&.Mui-error .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#DC3545', // Light Red for errors
+                    },
+                  }
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PersonIcon sx={{ color: '#666' }} />
+                    </InputAdornment>
+                  ),
+                }}
               />
               <TextField
                 margin="normal"
@@ -219,8 +221,48 @@ export const RegisterPage: React.FC = () => {
                 onChange={handleChange('email')}
                 error={!!errors.email}
                 helperText={errors.email}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#CED4DA', // Light Gray for hover
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#007BFF', // Academic Blue for focus
+                      borderWidth: 2,
+                    },
+                    '&.Mui-error .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#DC3545', // Light Red for errors
+                    },
+                  }
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <EmailIcon sx={{ color: '#666' }} />
+                    </InputAdornment>
+                  ),
+                }}
               />
-              <FormControl fullWidth margin="normal">
+              <FormControl 
+                fullWidth 
+                margin="normal"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#CED4DA', // Light Gray for hover
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#007BFF', // Academic Blue for focus
+                      borderWidth: 2,
+                    },
+                    '&.Mui-error .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#DC3545', // Light Red for errors
+                    },
+                  }
+                }}
+              >
                 <InputLabel id="role-label">Role</InputLabel>
                 <Select
                   labelId="role-label"
@@ -248,6 +290,28 @@ export const RegisterPage: React.FC = () => {
                 onChange={handleChange('password')}
                 error={!!errors.password}
                 helperText={errors.password}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#CED4DA', // Light Gray for hover
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#007BFF', // Academic Blue for focus
+                      borderWidth: 2,
+                    },
+                    '&.Mui-error .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#DC3545', // Light Red for errors
+                    },
+                  }
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LockIcon sx={{ color: '#666' }} />
+                    </InputAdornment>
+                  ),
+                }}
               />
               <TextField
                 margin="normal"
@@ -262,28 +326,72 @@ export const RegisterPage: React.FC = () => {
                 onChange={handleChange('password_confirmation')}
                 error={!!errors.password_confirmation}
                 helperText={errors.password_confirmation}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#CED4DA', // Light Gray for hover
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#007BFF', // Academic Blue for focus
+                      borderWidth: 2,
+                    },
+                    '&.Mui-error .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#DC3545', // Light Red for errors
+                    },
+                  }
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LockIcon sx={{ color: '#666' }} />
+                    </InputAdornment>
+                  ),
+                }}
               />
               <Button
                 type="submit"
                 fullWidth
                 variant="contained"
-                sx={{ mt: 3, mb: 2 }}
+                sx={{ 
+                  mt: 3, 
+                  mb: 2,
+                  py: 1.5,
+                  borderRadius: 2,
+                  backgroundColor: '#007BFF', // Academic Blue/Dark
+                  '&:hover': {
+                    backgroundColor: '#0056B3', // Darker blue for hover
+                  },
+                  fontWeight: 600,
+                  fontSize: '1.1rem',
+                }}
                 disabled={isLoading}
+                startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <PersonAddIcon />}
               >
-                {isLoading ? <CircularProgress size={24} /> : 'Create Account'}
+                {isLoading ? 'Creating Account...' : 'Create Account'}
               </Button>
               <Box textAlign="center">
-                <Typography variant="body2">
+                <Typography variant="body2" sx={{ color: '#666' }}>
                   Already have an account?{' '}
-                  <RouterLink to="/login" style={{ textDecoration: 'none' }}>
+                  <Link
+                    component={RouterLink}
+                    to="/login"
+                    sx={{
+                      color: '#007BFF', // Academic Blue for links
+                      textDecoration: 'none',
+                      fontWeight: 600,
+                      '&:hover': {
+                        textDecoration: 'underline',
+                      }
+                    }}
+                  >
                     Sign In
-                  </RouterLink>
+                  </Link>
                 </Typography>
               </Box>
             </Box>
           </Box>
         </Paper>
-        </Box>
       </Container>
     </Box>
   );

@@ -42,6 +42,8 @@ import ProjectVisibilityToggle from '../components/ProjectVisibilityToggle';
 import { StatusSelector } from '../components/StatusSelector';
 import { getDashboardTheme } from '../config/dashboardThemes';
 import { ProjectExportDialog } from '../components/ProjectExportDialog';
+import { professorTheme, professorColors, professorDecorativeStyles } from '../theme/professorTheme';
+import { ThemeProvider } from '@mui/material/styles';
 
 export const ProjectDetailPage: React.FC = () => {
   const [project, setProject] = useState<Project | null>(null);
@@ -56,6 +58,9 @@ export const ProjectDetailPage: React.FC = () => {
   const location = useLocation();
   const { id } = useParams<{ id: string }>();
   const dashboardTheme = getDashboardTheme(user?.roles);
+  
+  // Check if user is a professor
+  const isProfessor = user?.roles?.some(role => role.name === 'faculty');
 
   const handleBackClick = () => {
     // Go back to the previous page or to dashboard if no history
@@ -134,14 +139,26 @@ export const ProjectDetailPage: React.FC = () => {
 
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'draft': return 'warning';
-      case 'submitted': return 'info';
-      case 'under_review': return 'primary';
-      case 'approved': return 'success';
-      case 'rejected': return 'error';
-      case 'completed': return 'success';
-      default: return 'default';
+    if (isProfessor) {
+      switch (status) {
+        case 'draft': return 'warning';
+        case 'submitted': return 'info';
+        case 'under_review': return 'primary';
+        case 'approved': return 'success';
+        case 'rejected': return 'error';
+        case 'completed': return 'success';
+        default: return 'default';
+      }
+    } else {
+      switch (status) {
+        case 'draft': return 'warning';
+        case 'submitted': return 'info';
+        case 'under_review': return 'primary';
+        case 'approved': return 'success';
+        case 'rejected': return 'error';
+        case 'completed': return 'success';
+        default: return 'default';
+      }
     }
   };
 
@@ -215,14 +232,47 @@ export const ProjectDetailPage: React.FC = () => {
   const canEdit = user?.id === project.created_by_user_id && !user?.roles?.some(role => role.name === 'reviewer');
   const canDelete = user?.id === project.created_by_user_id && !user?.roles?.some(role => role.name === 'reviewer');
 
-  return (
+  // Professor-specific styling with new color scheme
+  const professorAppBarStyle = isProfessor ? {
+    background: professorColors.primaryGradient,
+    color: '#FFFFFF',
+    boxShadow: '0 4px 16px rgba(0, 74, 173, 0.2)',
+  } : {
+    backgroundColor: '#FFFFFF',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+    color: '#000000',
+  };
+
+  const professorCardStyle = isProfessor ? {
+    background: professorColors.backgroundGradient,
+    border: `1px solid ${professorColors.border}`,
+    borderRadius: '16px',
+    boxShadow: '0 4px 16px rgba(0, 74, 173, 0.15)',
+  } : {};
+
+  const professorHeaderStyle = isProfessor ? {
+    background: professorColors.primaryGradient,
+    color: '#FFFFFF',
+    position: 'relative' as const,
+    overflow: 'hidden' as const,
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      width: '120px',
+      height: '120px',
+      background: `radial-gradient(circle, rgba(78, 205, 196, 0.2) 0%, transparent 70%)`,
+      borderRadius: '50%',
+      transform: 'translate(30px, -30px)',
+    },
+  } : {};
+
+  const content = (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar 
         position="static"
-        sx={{ 
-          background: dashboardTheme.appBarGradient,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        }}
+        sx={professorAppBarStyle}
       >
         <Toolbar>
           <IconButton
@@ -233,7 +283,7 @@ export const ProjectDetailPage: React.FC = () => {
           >
             <ArrowBackIcon />
           </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: 'white' }}>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: isProfessor ? '#FFFFFF' : '#000000' }}>
             {project.title}
           </Typography>
           {canEdit && (
@@ -241,7 +291,14 @@ export const ProjectDetailPage: React.FC = () => {
               color="inherit"
               startIcon={<EditIcon />}
               onClick={() => navigate(`/projects/${project.id}/edit`)}
-              sx={{ mr: 1 }}
+              sx={{ 
+                mr: 1,
+                color: isProfessor ? professorColors.secondary : '#4CAF50', // Light Blue/Turquoise for Edit
+                '&:hover': {
+                  backgroundColor: isProfessor ? 'rgba(78, 205, 196, 0.1)' : 'rgba(76, 175, 80, 0.1)',
+                  color: isProfessor ? professorColors.tertiary : '#2E7D32'
+                }
+              }}
             >
               Edit
             </Button>
@@ -250,7 +307,14 @@ export const ProjectDetailPage: React.FC = () => {
             color="inherit"
             startIcon={<DescriptionIcon />}
             onClick={() => setExportDialogOpen(true)}
-            sx={{ mr: 1 }}
+            sx={{ 
+              mr: 1,
+              color: isProfessor ? professorColors.accent : '#2196F3', // Soft Orange for Export
+              '&:hover': {
+                backgroundColor: isProfessor ? 'rgba(255, 152, 0, 0.1)' : 'rgba(33, 150, 243, 0.1)',
+                color: isProfessor ? '#E65100' : '#1565C0'
+              }
+            }}
           >
             Export
           </Button>
@@ -260,6 +324,16 @@ export const ProjectDetailPage: React.FC = () => {
               startIcon={deleting ? <CircularProgress size={20} /> : <DeleteIcon />}
               onClick={handleDelete}
               disabled={deleting}
+              sx={{
+                color: isProfessor ? professorColors.error : '#F44336', // Dark Red/Burgundy for Delete
+                '&:hover': {
+                  backgroundColor: isProfessor ? 'rgba(183, 28, 28, 0.1)' : 'rgba(244, 67, 54, 0.1)',
+                  color: isProfessor ? '#8B0000' : '#C62828'
+                },
+                '&:disabled': {
+                  color: isProfessor ? 'rgba(183, 28, 28, 0.5)' : 'rgba(244, 67, 54, 0.5)'
+                }
+              }}
             >
               Delete
             </Button>
@@ -284,21 +358,22 @@ export const ProjectDetailPage: React.FC = () => {
               sx={{ 
                 borderRadius: 3,
                 border: '1px solid',
-                borderColor: 'divider',
+                borderColor: isProfessor ? professorColors.border : 'divider',
                 overflow: 'hidden',
-                background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                background: isProfessor ? professorColors.backgroundGradient : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
                 transition: 'all 0.3s ease-in-out',
                 '&:hover': {
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+                  boxShadow: isProfessor ? '0 8px 32px rgba(0, 74, 173, 0.2)' : '0 8px 32px rgba(0,0,0,0.08)',
                   transform: 'translateY(-2px)',
-                }
+                },
+                ...professorCardStyle
               }}
             >
               <CardContent sx={{ p: 0 }}>
                 {/* Header with gradient background */}
                 <Box 
                   sx={{ 
-                    background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+                    background: isProfessor ? professorColors.primaryGradient : 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
                     color: 'white',
                     p: 3,
                     position: 'relative',
@@ -313,7 +388,8 @@ export const ProjectDetailPage: React.FC = () => {
                       background: 'rgba(255,255,255,0.1)',
                       borderRadius: '50%',
                       transform: 'translate(30px, -30px)',
-                    }
+                    },
+                    ...professorHeaderStyle
                   }}
                 >
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
@@ -485,7 +561,7 @@ export const ProjectDetailPage: React.FC = () => {
                             variant="filled"
                             sx={{ 
                               fontWeight: 600,
-                              background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+                              background: isProfessor ? professorColors.primaryGradient : 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
                             }}
                           />
                         ))}
@@ -568,7 +644,7 @@ export const ProjectDetailPage: React.FC = () => {
                 {/* Header with gradient background */}
                 <Box 
                   sx={{ 
-                    background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                    background: isProfessor ? professorColors.successGradient : 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
                     color: 'white',
                     p: 3,
                     position: 'relative',
@@ -634,7 +710,7 @@ export const ProjectDetailPage: React.FC = () => {
                                 sx={{
                                   p: 1,
                                   borderRadius: 1.5,
-                                  background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                                  background: isProfessor ? professorColors.successGradient : 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
                                   color: 'white',
                                 }}
                               >
@@ -691,7 +767,7 @@ export const ProjectDetailPage: React.FC = () => {
                                       variant="filled"
                                       sx={{ 
                                         fontWeight: 600,
-                                        background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                                        background: isProfessor ? professorColors.successGradient : 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
                                       }}
                                     />
                                   )}
@@ -724,12 +800,12 @@ export const ProjectDetailPage: React.FC = () => {
                                 minWidth: 100,
                                 textTransform: 'none',
                                 fontWeight: 600,
-                                background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+                                background: isProfessor ? professorColors.primaryGradient : 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
                                 borderRadius: 1.5,
                                 '&:hover': {
-                                  background: 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)',
+                                  background: isProfessor ? 'linear-gradient(135deg, #003d8f 0%, #00695c 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)',
                                   transform: 'translateY(-1px)',
-                                  boxShadow: '0 4px 12px rgba(30, 58, 138, 0.3)',
+                                  boxShadow: isProfessor ? '0 4px 12px rgba(0, 74, 173, 0.3)' : '0 4px 12px rgba(30, 58, 138, 0.3)',
                                 },
                                 transition: 'all 0.2s ease-in-out',
                               }}
@@ -756,7 +832,7 @@ export const ProjectDetailPage: React.FC = () => {
                         sx={{
                           p: 2,
                           borderRadius: '50%',
-                          background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                          background: isProfessor ? professorColors.successGradient : 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
                           color: 'white',
                           width: 64,
                           height: 64,
@@ -791,20 +867,21 @@ export const ProjectDetailPage: React.FC = () => {
                 mb: 3,
                 borderRadius: 3,
                 border: '1px solid',
-                borderColor: 'divider',
+                borderColor: isProfessor ? professorColors.border : 'divider',
                 overflow: 'hidden',
-                background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                background: isProfessor ? professorColors.backgroundGradient : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
                 transition: 'all 0.3s ease-in-out',
                 '&:hover': {
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+                  boxShadow: isProfessor ? '0 8px 32px rgba(0, 74, 173, 0.2)' : '0 8px 32px rgba(0,0,0,0.08)',
                   transform: 'translateY(-2px)',
-                }
+                },
+                ...professorCardStyle
               }}
             >
               <CardContent sx={{ p: 0 }}>
                 <Box 
                   sx={{ 
-                    background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+                    background: isProfessor ? professorColors.secondaryGradient : 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
                     color: 'white',
                     p: 2.5,
                     position: 'relative',
@@ -822,7 +899,7 @@ export const ProjectDetailPage: React.FC = () => {
                     }
                   }}
                 >
-                  <Typography variant="h6" fontWeight="700" sx={{ mb: 0.5 }}>
+                  <Typography variant="h6" fontWeight="700" sx={{ mb: 0.5, color: 'white' }}>
                     Program Information
                   </Typography>
                 </Box>
@@ -862,20 +939,21 @@ export const ProjectDetailPage: React.FC = () => {
                 mb: 3,
                 borderRadius: 3,
                 border: '1px solid',
-                borderColor: 'divider',
+                borderColor: isProfessor ? professorColors.border : 'divider',
                 overflow: 'hidden',
-                background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                background: isProfessor ? professorColors.backgroundGradient : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
                 transition: 'all 0.3s ease-in-out',
                 '&:hover': {
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+                  boxShadow: isProfessor ? '0 8px 32px rgba(0, 74, 173, 0.2)' : '0 8px 32px rgba(0,0,0,0.08)',
                   transform: 'translateY(-2px)',
-                }
+                },
+                ...professorCardStyle
               }}
             >
               <CardContent sx={{ p: 0 }}>
                 <Box 
                   sx={{ 
-                    background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                    background: isProfessor ? professorColors.primaryGradient : 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
                     color: 'white',
                     p: 2.5,
                     position: 'relative',
@@ -893,10 +971,10 @@ export const ProjectDetailPage: React.FC = () => {
                     }
                   }}
                 >
-                  <Typography variant="h6" fontWeight="700" sx={{ mb: 0.5 }}>
+                  <Typography variant="h6" fontWeight="700" sx={{ mb: 0.5, color: 'white' }}>
                     Project Members
                   </Typography>
-                  <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                  <Typography variant="body2" sx={{ opacity: 0.9, color: 'white' }}>
                     {project.members?.length || 0} {project.members?.length !== 1 ? 'members' : 'member'}
                   </Typography>
                 </Box>
@@ -926,7 +1004,7 @@ export const ProjectDetailPage: React.FC = () => {
                                 sx={{ 
                                   width: 40, 
                                   height: 40,
-                                  background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                                  background: isProfessor ? professorColors.successGradient : 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
                                   fontWeight: 600,
                                   fontSize: '1rem',
                                 }}
@@ -948,7 +1026,7 @@ export const ProjectDetailPage: React.FC = () => {
                                   variant="filled"
                                   sx={{ 
                                     fontWeight: 600,
-                                    background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+                                    background: isProfessor ? professorColors.primaryGradient : 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
                                   }}
                                 />
                               }
@@ -1049,7 +1127,7 @@ export const ProjectDetailPage: React.FC = () => {
                                 sx={{ 
                                   width: 40, 
                                   height: 40,
-                                  background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                                  background: isProfessor ? professorColors.warningGradient : 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                                   fontWeight: 600,
                                   fontSize: '1rem',
                                 }}
@@ -1071,7 +1149,7 @@ export const ProjectDetailPage: React.FC = () => {
                                   variant="filled"
                                   sx={{ 
                                     fontWeight: 600,
-                                    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                                    background: isProfessor ? professorColors.secondaryGradient : 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                                   }}
                                 />
                               }
@@ -1143,7 +1221,7 @@ export const ProjectDetailPage: React.FC = () => {
                           sx={{ 
                             width: 48, 
                             height: 48,
-                            background: 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)',
+                            background: isProfessor ? professorColors.errorGradient : 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)',
                             fontWeight: 600,
                             fontSize: '1.2rem',
                           }}
@@ -1205,4 +1283,15 @@ export const ProjectDetailPage: React.FC = () => {
       )}
     </Box>
   );
+
+  // Wrap with professor theme if user is a professor
+  if (isProfessor) {
+    return (
+      <ThemeProvider theme={professorTheme}>
+        {content}
+      </ThemeProvider>
+    );
+  }
+
+  return content;
 };

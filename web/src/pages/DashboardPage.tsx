@@ -2,6 +2,7 @@ import React from 'react';
 import { useAuthStore } from '../store/authStore';
 import { AdminDashboard } from '../components/dashboards/AdminDashboard';
 import { FacultyDashboard } from '../components/dashboards/FacultyDashboard';
+import { FacultyHomeDashboard } from '../components/dashboards/FacultyHomeDashboard';
 import { StudentDashboard } from '../components/dashboards/StudentDashboard';
 import { ReviewerDashboard } from '../components/dashboards/ReviewerDashboard';
 import {
@@ -72,7 +73,7 @@ export const DashboardPage: React.FC = () => {
       case 'admin':
         return <AdminDashboard />;
       case 'faculty':
-        return <FacultyDashboard />;
+        return <FacultyHomeDashboard />;
       case 'student':
         return <StudentDashboard />;
       case 'reviewer':
@@ -87,13 +88,14 @@ export const DashboardPage: React.FC = () => {
       <AppBar 
         position="static" 
         sx={{ 
-          background: dashboardTheme.appBarGradient,
+          backgroundColor: '#FFFFFF',
           boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          color: '#000000',
         }}
       >
         <Toolbar>
           <TVTCLogo size="medium" variant="icon" color="inherit" sx={{ mr: 2 }} />
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: '#000000' }}>
             Fahras Dashboard
           </Typography>
           <IconButton
@@ -103,7 +105,7 @@ export const DashboardPage: React.FC = () => {
             aria-controls="menu-appbar"
             aria-haspopup="true"
             onClick={handleMenuOpen}
-            color="inherit"
+            sx={{ color: '#000000' }}
           >
             <Avatar sx={{ width: 32, height: 32 }}>
               {user?.full_name?.charAt(0)?.toUpperCase()}

@@ -42,8 +42,9 @@ export const SettingsPage: React.FC = () => {
       <AppBar 
         position="static"
         sx={{ 
-          background: dashboardTheme.appBarGradient,
+          backgroundColor: '#FFFFFF',
           boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          color: '#000000',
         }}
       >
         <Toolbar>
@@ -57,7 +58,7 @@ export const SettingsPage: React.FC = () => {
           </IconButton>
           <TVTCLogo size="small" variant="icon" color="inherit" sx={{ mr: 1 }} />
           <SettingsIcon sx={{ mr: 2 }} />
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: '#000000' }}>
             Settings
           </Typography>
         </Toolbar>

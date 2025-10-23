@@ -68,7 +68,7 @@ export const ApprovalsPage: React.FC = () => {
     try {
       setLoading(true);
       const response = await apiService.getPendingApprovals();
-      setProjects(response.projects || []);
+      setProjects(response?.projects || []);
       setError(null);
     } catch (err: any) {
       console.error('Failed to fetch pending approvals:', err);
@@ -147,8 +147,9 @@ export const ApprovalsPage: React.FC = () => {
       <AppBar 
         position="static"
         sx={{ 
-          background: dashboardTheme.appBarGradient,
+          backgroundColor: '#FFFFFF',
           boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          color: '#000000',
         }}
       >
         <Toolbar>
@@ -162,7 +163,7 @@ export const ApprovalsPage: React.FC = () => {
           </IconButton>
           <TVTCLogo size="small" variant="icon" color="inherit" sx={{ mr: 1 }} />
           <ApprovalIcon sx={{ mr: 2 }} />
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: '#000000' }}>
             Project Approvals
           </Typography>
           <Chip 
@@ -199,31 +200,31 @@ export const ApprovalsPage: React.FC = () => {
           </Paper>
         ) : (
           <Stack spacing={2}>
-            {projects.map((project) => (
+            {(projects || []).map((project) => (
               <Card key={project.id} sx={{ '&:hover': { boxShadow: 3 } }}>
                 <CardContent>
                   <Grid container spacing={2}>
                     <Grid size={{ xs: 12, md: 8 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                         <Typography variant="h6" component="h2">
-                          {project.title}
+                          {project.title || 'Untitled Project'}
                         </Typography>
                         <Chip
-                          label={project.status.replace('_', ' ')}
-                          color={getStatusColor(project.status)}
+                          label={(project.status || 'unknown').replace('_', ' ')}
+                          color={getStatusColor(project.status || 'unknown')}
                           size="small"
                           variant="outlined"
                         />
                       </Box>
                       
                       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                        {project.abstract.length > 200 
-                          ? `${project.abstract.substring(0, 200)}...` 
-                          : project.abstract}
+                        {(project.abstract || '').length > 200 
+                          ? `${(project.abstract || '').substring(0, 200)}...` 
+                          : (project.abstract || '')}
                       </Typography>
 
                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
-                        {project.program && (
+                        {project.program?.name && (
                           <Chip 
                             label={project.program.name} 
                             size="small" 
@@ -231,11 +232,11 @@ export const ApprovalsPage: React.FC = () => {
                           />
                         )}
                         <Chip 
-                          label={`${project.academic_year} - ${project.semester}`} 
+                          label={`${project.academic_year || 'N/A'} - ${project.semester || 'N/A'}`} 
                           size="small" 
                           variant="outlined"
                         />
-                        {project.creator && (
+                        {project.creator?.full_name && (
                           <Chip 
                             label={`By: ${project.creator.full_name}`} 
                             size="small" 
@@ -244,9 +245,9 @@ export const ApprovalsPage: React.FC = () => {
                         )}
                       </Box>
 
-                      {project.keywords && project.keywords.length > 0 && (
+                      {(project.keywords || []).length > 0 && (
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 1 }}>
-                          {project.keywords.slice(0, 5).map((keyword, idx) => (
+                          {(project.keywords || []).slice(0, 5).map((keyword, idx) => (
                             <Chip 
                               key={idx}
                               label={keyword} 
@@ -255,9 +256,9 @@ export const ApprovalsPage: React.FC = () => {
                               variant="outlined"
                             />
                           ))}
-                          {project.keywords.length > 5 && (
+                          {(project.keywords || []).length > 5 && (
                             <Chip 
-                              label={`+${project.keywords.length - 5} more`} 
+                              label={`+${(project.keywords || []).length - 5} more`} 
                               size="small" 
                               variant="outlined"
                             />
@@ -296,7 +297,7 @@ export const ApprovalsPage: React.FC = () => {
                           fullWidth
                           variant="outlined"
                           startIcon={<VisibilityIcon />}
-                          onClick={() => navigate(`/projects/${project.id}`)}
+                          onClick={() => navigate(`/dashboard/projects/${project.id}`)}
                         >
                           View Details
                         </Button>

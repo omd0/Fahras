@@ -60,6 +60,7 @@ import {
   ThumbUp as ThumbUpIcon,
   Share as ShareIcon,
   Bookmark as BookmarkIcon,
+  Login as LoginIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { Project } from '../types';
@@ -281,7 +282,7 @@ export const ExplorePage: React.FC = () => {
           <CircularProgress 
             size={60} 
             sx={{ 
-              color: COLORS.darkBlue,
+              color: COLORS.deepPurple,
               '& .MuiCircularProgress-circle': {
                 strokeLinecap: 'round',
               },
@@ -309,9 +310,9 @@ export const ExplorePage: React.FC = () => {
         right: 0,
         bottom: 0,
         background: `
-          radial-gradient(circle at 20% 20%, rgba(123, 176, 216, 0.12) 0%, transparent 50%),
-          radial-gradient(circle at 80% 80%, rgba(159, 227, 193, 0.1) 0%, transparent 50%),
-          radial-gradient(circle at 50% 50%, rgba(245, 233, 216, 0.08) 0%, transparent 50%)
+          radial-gradient(circle at 20% 20%, rgba(81, 45, 168, 0.08) 0%, transparent 50%),
+          radial-gradient(circle at 80% 80%, rgba(174, 223, 247, 0.06) 0%, transparent 50%),
+          radial-gradient(circle at 50% 50%, rgba(28, 40, 51, 0.04) 0%, transparent 50%)
         `,
         pointerEvents: 'none',
       },
@@ -328,19 +329,64 @@ export const ExplorePage: React.FC = () => {
               color: COLORS.textPrimary,
               position: 'relative',
               overflow: 'hidden',
-              boxShadow: '0 12px 40px rgba(123, 176, 216, 0.3), 0 6px 20px rgba(159, 227, 193, 0.18)',
+              boxShadow: '0 12px 40px rgba(81, 45, 168, 0.2), 0 6px 20px rgba(28, 40, 51, 0.12)',
               '&::before': {
                 ...decorativeElements.largeCircle,
-                background: 'rgba(123, 176, 216, 0.18)',
+                background: 'rgba(81, 45, 168, 0.12)',
                 transform: 'translate(100px, -100px)',
               },
               '&::after': {
                 ...decorativeElements.mediumCircle,
-                background: 'rgba(159, 227, 193, 0.12)',
+                background: 'rgba(174, 223, 247, 0.08)',
                 transform: 'translate(-50px, 50px)',
               },
             }}
           >
+            {/* Header with Login Button */}
+            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4, position: 'relative', zIndex: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Avatar
+                  sx={{
+                    width: 48,
+                    height: 48,
+                    background: guestColors.primaryGradient,
+                    boxShadow: '0 4px 16px rgba(81, 45, 168, 0.25)',
+                  }}
+                >
+                  <RocketIcon sx={{ fontSize: 24, color: COLORS.white }} />
+                </Avatar>
+                <Typography variant="h5" sx={{ 
+                  fontWeight: 700, 
+                  color: COLORS.textPrimary,
+                  fontSize: { xs: '1.5rem', md: '1.8rem' }
+                }}>
+                  TVTC Project Explorer
+                </Typography>
+              </Box>
+              <Button
+                variant="contained"
+                startIcon={<LoginIcon />}
+                onClick={() => navigate('/login')}
+                sx={{
+                  background: guestColors.primaryGradient,
+                  borderRadius: 4,
+                  px: 4,
+                  py: 1.5,
+                  fontWeight: 600,
+                  fontSize: '1rem',
+                  textTransform: 'none',
+                  boxShadow: '0 4px 16px rgba(81, 45, 168, 0.25)',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: `0 8px 25px ${alpha(COLORS.almostBlack, 0.3)}`,
+                  },
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                }}
+              >
+                Login
+              </Button>
+            </Stack>
+
             <Stack direction="row" alignItems="center" spacing={4} sx={{ position: 'relative', zIndex: 1 }}>
               <Avatar
                 sx={{
@@ -348,8 +394,8 @@ export const ExplorePage: React.FC = () => {
                   height: 100,
                   background: guestColors.primaryGradient,
                   backdropFilter: 'blur(10px)',
-                  border: '3px solid rgba(123, 176, 216, 0.35)',
-                  boxShadow: '0 8px 32px rgba(123, 176, 216, 0.35)',
+                  border: '3px solid rgba(81, 45, 168, 0.25)',
+                  boxShadow: '0 8px 32px rgba(81, 45, 168, 0.25)',
                 }}
               >
                 <RocketIcon sx={{ fontSize: 50, color: COLORS.white }} />
@@ -358,7 +404,7 @@ export const ExplorePage: React.FC = () => {
                 <Typography variant="h2" sx={{ 
                   fontWeight: 800, 
                   mb: 2, 
-                  textShadow: '0 2px 4px rgba(123, 176, 216, 0.25)', 
+                  textShadow: '0 2px 4px rgba(81, 45, 168, 0.2)', 
                   color: COLORS.textPrimary,
                   fontSize: { xs: '2.5rem', md: '3.5rem' }
                 }}>
@@ -398,7 +444,7 @@ export const ExplorePage: React.FC = () => {
                 right: '5%',
                 width: '60px',
                 height: '60px',
-                background: 'rgba(159, 227, 193, 0.12)',
+                background: 'rgba(174, 223, 247, 0.08)',
                 borderRadius: '50%',
                 pointerEvents: 'none',
               },
@@ -410,7 +456,7 @@ export const ExplorePage: React.FC = () => {
                   width: 56,
                   height: 56,
                   background: guestColors.primaryGradient,
-                  boxShadow: '0 4px 16px rgba(123, 176, 216, 0.35)',
+                  boxShadow: '0 4px 16px rgba(81, 45, 168, 0.25)',
                 }}
               >
                 <SearchIcon sx={{ fontSize: 28, color: COLORS.white }} />
@@ -434,7 +480,7 @@ export const ExplorePage: React.FC = () => {
                   onChange={(e) => handleInputChange('search', e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                   InputProps={{
-                    startAdornment: <SearchIcon sx={{ mr: 2, color: COLORS.lightBlue, fontSize: 24 }} />,
+                    startAdornment: <SearchIcon sx={{ mr: 2, color: COLORS.almostBlack, fontSize: 24 }} />,
                     endAdornment: filters.search && (
                       <IconButton 
                         size="small" 
@@ -453,13 +499,13 @@ export const ExplorePage: React.FC = () => {
                       py: 1,
                       '&:hover': {
                         '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: COLORS.lightBlue,
+                          borderColor: COLORS.almostBlack,
                           borderWidth: 2,
                         },
                       },
                       '&.Mui-focused': {
                         '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: COLORS.lightBlue,
+                          borderColor: COLORS.almostBlack,
                           borderWidth: 2,
                         },
                       },
@@ -474,16 +520,16 @@ export const ExplorePage: React.FC = () => {
                     startIcon={<FilterIcon />}
                     onClick={() => setShowFilters(!showFilters)}
                     sx={{
-                      borderColor: COLORS.lightBlue,
-                      color: COLORS.lightBlue,
+                      borderColor: COLORS.almostBlack,
+                      color: COLORS.almostBlack,
                       borderRadius: 4,
                       px: 4,
                       py: 1.5,
                       fontWeight: 600,
                       fontSize: '1rem',
                       '&:hover': {
-                        borderColor: COLORS.lightBlue,
-                        backgroundColor: alpha(COLORS.lightBlue, 0.08),
+                        borderColor: COLORS.almostBlack,
+                        backgroundColor: alpha(COLORS.almostBlack, 0.08),
                         transform: 'translateY(-2px)',
                       },
                     }}
@@ -505,7 +551,7 @@ export const ExplorePage: React.FC = () => {
                       textTransform: 'none',
                       '&:hover': {
                         transform: 'translateY(-2px)',
-                        boxShadow: `0 8px 25px ${alpha(COLORS.lightBlue, 0.4)}`,
+                        boxShadow: `0 8px 25px ${alpha(COLORS.almostBlack, 0.3)}`,
                       },
                     }}
                   >
@@ -519,9 +565,9 @@ export const ExplorePage: React.FC = () => {
             <Collapse in={showFilters}>
               <Box sx={{ 
                 p: 4, 
-                backgroundColor: alpha(COLORS.lightBlue, 0.08), 
+                backgroundColor: alpha(COLORS.almostBlack, 0.06), 
                 borderRadius: 4,
-                border: `1px solid ${alpha(COLORS.lightBlue, 0.2)}`,
+                border: `1px solid ${alpha(COLORS.almostBlack, 0.15)}`,
               }}>
                 <Grid container spacing={3}>
                   <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -535,10 +581,10 @@ export const ExplorePage: React.FC = () => {
                           borderRadius: 3,
                           backgroundColor: COLORS.white,
                           '& .MuiOutlinedInput-notchedOutline': {
-                            borderColor: alpha(COLORS.lightBlue, 0.3),
+                            borderColor: alpha(COLORS.almostBlack, 0.2),
                           },
                           '&:hover .MuiOutlinedInput-notchedOutline': {
-                            borderColor: COLORS.lightBlue,
+                            borderColor: COLORS.almostBlack,
                           },
                         }}
                       >
@@ -563,10 +609,10 @@ export const ExplorePage: React.FC = () => {
                           borderRadius: 3,
                           backgroundColor: COLORS.white,
                           '& .MuiOutlinedInput-notchedOutline': {
-                            borderColor: alpha(COLORS.lightBlue, 0.3),
+                            borderColor: alpha(COLORS.almostBlack, 0.2),
                           },
                           '&:hover .MuiOutlinedInput-notchedOutline': {
-                            borderColor: COLORS.lightBlue,
+                            borderColor: COLORS.almostBlack,
                           },
                         }}
                       >
@@ -591,10 +637,10 @@ export const ExplorePage: React.FC = () => {
                           borderRadius: 3,
                           backgroundColor: COLORS.white,
                           '& .MuiOutlinedInput-notchedOutline': {
-                            borderColor: alpha(COLORS.lightBlue, 0.3),
+                            borderColor: alpha(COLORS.almostBlack, 0.2),
                           },
                           '&:hover .MuiOutlinedInput-notchedOutline': {
-                            borderColor: COLORS.lightBlue,
+                            borderColor: COLORS.almostBlack,
                           },
                         }}
                       >
@@ -619,10 +665,10 @@ export const ExplorePage: React.FC = () => {
                           borderRadius: 3,
                           backgroundColor: COLORS.white,
                           '& .MuiOutlinedInput-notchedOutline': {
-                            borderColor: alpha(COLORS.lightBlue, 0.3),
+                            borderColor: alpha(COLORS.almostBlack, 0.2),
                           },
                           '&:hover .MuiOutlinedInput-notchedOutline': {
-                            borderColor: COLORS.lightBlue,
+                            borderColor: COLORS.almostBlack,
                           },
                         }}
                       >
@@ -647,10 +693,10 @@ export const ExplorePage: React.FC = () => {
                           borderRadius: 3,
                           backgroundColor: COLORS.white,
                           '& .MuiOutlinedInput-notchedOutline': {
-                            borderColor: alpha(COLORS.lightBlue, 0.3),
+                            borderColor: alpha(COLORS.almostBlack, 0.2),
                           },
                           '&:hover .MuiOutlinedInput-notchedOutline': {
-                            borderColor: COLORS.lightBlue,
+                            borderColor: COLORS.almostBlack,
                           },
                         }}
                       >
@@ -674,10 +720,10 @@ export const ExplorePage: React.FC = () => {
                           borderRadius: 3,
                           backgroundColor: COLORS.white,
                           '& .MuiOutlinedInput-notchedOutline': {
-                            borderColor: alpha(COLORS.lightBlue, 0.3),
+                            borderColor: alpha(COLORS.almostBlack, 0.2),
                           },
                           '&:hover .MuiOutlinedInput-notchedOutline': {
-                            borderColor: COLORS.lightBlue,
+                            borderColor: COLORS.almostBlack,
                           },
                         }}
                       >
@@ -722,7 +768,7 @@ export const ExplorePage: React.FC = () => {
                       textTransform: 'none',
                       '&:hover': {
                         transform: 'translateY(-2px)',
-                        boxShadow: `0 8px 25px ${alpha(COLORS.lightBlue, 0.4)}`,
+                        boxShadow: `0 8px 25px ${alpha(COLORS.almostBlack, 0.3)}`,
                       },
                     }}
                   >
@@ -742,8 +788,8 @@ export const ExplorePage: React.FC = () => {
               sx={{ 
                 mb: 4, 
                 borderRadius: 4,
-                boxShadow: `0 8px 24px ${alpha(COLORS.error, 0.2)}`,
-                border: `2px solid ${alpha(COLORS.error, 0.3)}`,
+                boxShadow: `0 8px 24px ${alpha(COLORS.error, 0.15)}`,
+                border: `2px solid ${alpha(COLORS.error, 0.25)}`,
                 fontSize: '1.1rem',
                 fontWeight: 500,
               }}
@@ -761,19 +807,19 @@ export const ExplorePage: React.FC = () => {
                 severity="info" 
                 sx={{ 
                   borderRadius: 4,
-                  background: `linear-gradient(135deg, ${alpha(COLORS.lightBlue, 0.12)} 0%, ${alpha(COLORS.mintGreen, 0.12)} 100%)`,
-                  border: `2px solid ${alpha(COLORS.lightBlue, 0.35)}`,
+                  background: `linear-gradient(135deg, ${alpha(COLORS.almostBlack, 0.08)} 0%, ${alpha(COLORS.lightSkyBlue, 0.08)} 100%)`,
+                  border: `2px solid ${alpha(COLORS.almostBlack, 0.2)}`,
                   '& .MuiAlert-icon': {
-                    color: COLORS.lightBlue,
+                    color: COLORS.almostBlack,
                     fontSize: 24,
                   }
                 }}
               >
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 3 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <FilterIcon sx={{ fontSize: 24, color: COLORS.lightBlue }} />
+                    <FilterIcon sx={{ fontSize: 24, color: COLORS.almostBlack }} />
                     <Typography variant="h6" sx={{ fontWeight: 600, color: COLORS.textPrimary }}>
-                      Showing <strong style={{ color: COLORS.lightBlue }}>{filteredProjects.length}</strong> of <strong style={{ color: COLORS.textSecondary }}>{projects.length}</strong> projects
+                      Showing <strong style={{ color: COLORS.almostBlack }}>{filteredProjects.length}</strong> of <strong style={{ color: COLORS.textSecondary }}>{projects.length}</strong> projects
                     </Typography>
                   </Box>
                   <Button
@@ -793,7 +839,7 @@ export const ExplorePage: React.FC = () => {
                       textTransform: 'none',
                       '&:hover': {
                         transform: 'translateY(-2px)',
-                        boxShadow: `0 8px 25px ${alpha(COLORS.lightBlue, 0.4)}`,
+                        boxShadow: `0 8px 25px ${alpha(COLORS.almostBlack, 0.3)}`,
                       },
                       transition: 'all 0.3s ease',
                     }}
@@ -841,11 +887,11 @@ export const ExplorePage: React.FC = () => {
                       position: 'relative',
                       overflow: 'hidden',
                       height: '100%',
-                      border: `2px solid ${alpha(COLORS.mintGreen, 0.25)}`,
+                      border: `2px solid ${alpha(COLORS.lightSkyBlue, 0.2)}`,
                       '&:hover': {
                         transform: 'translateY(-12px) scale(1.03)',
-                        boxShadow: `0 24px 48px ${alpha(COLORS.mintGreen, 0.35)}`,
-                        borderColor: COLORS.mintGreen,
+                        boxShadow: `0 24px 48px ${alpha(COLORS.lightSkyBlue, 0.25)}`,
+                        borderColor: COLORS.deepPurple,
                       },
                       '&::before': {
                         content: '""',
@@ -950,7 +996,7 @@ export const ExplorePage: React.FC = () => {
                                 size="small"
                                 sx={{
                                   '& .MuiRating-iconFilled': {
-                                    color: COLORS.mintGreen,
+                                    color: COLORS.deepPurple,
                                   },
                                 }}
                               />
@@ -974,7 +1020,7 @@ export const ExplorePage: React.FC = () => {
                               textTransform: 'none',
                               '&:hover': {
                                 transform: 'translateY(-2px)',
-                                boxShadow: `0 8px 25px ${alpha(COLORS.darkBlue, 0.4)}`,
+                                boxShadow: `0 8px 25px ${alpha(COLORS.almostBlack, 0.3)}`,
                               },
                             }}
                           >
@@ -1037,8 +1083,8 @@ export const ExplorePage: React.FC = () => {
                       height: '100%',
                       '&:hover': {
                         transform: 'translateY(-12px) scale(1.03)',
-                        boxShadow: `0 24px 48px ${alpha(COLORS.lightBlue, 0.3)}`,
-                        borderColor: COLORS.lightBlue,
+                        boxShadow: `0 24px 48px ${alpha(COLORS.almostBlack, 0.2)}`,
+                        borderColor: COLORS.almostBlack,
                       },
                       '&::before': {
                         content: '""',
@@ -1148,12 +1194,12 @@ export const ExplorePage: React.FC = () => {
                                 sx={{
                                   fontSize: '0.75rem',
                                   height: 28,
-                                  borderColor: alpha(COLORS.mintGreen, 0.45),
-                                  color: COLORS.mintGreen,
+                      borderColor: alpha(COLORS.lightSkyBlue, 0.35),
+                      color: COLORS.deepPurple,
                                   fontWeight: 500,
                                   '&:hover': {
-                                    backgroundColor: alpha(COLORS.mintGreen, 0.12),
-                                    borderColor: COLORS.mintGreen,
+                                    backgroundColor: alpha(COLORS.lightSkyBlue, 0.1),
+                                    borderColor: COLORS.deepPurple,
                                   },
                                 }}
                               />
@@ -1166,8 +1212,8 @@ export const ExplorePage: React.FC = () => {
                                 sx={{
                                   fontSize: '0.75rem',
                                   height: 28,
-                                  borderColor: alpha(COLORS.mintGreen, 0.45),
-                                  color: COLORS.mintGreen,
+                      borderColor: alpha(COLORS.lightSkyBlue, 0.35),
+                      color: COLORS.deepPurple,
                                   fontWeight: 500,
                                 }}
                               />
@@ -1181,7 +1227,7 @@ export const ExplorePage: React.FC = () => {
                         <Grid container spacing={3}>
                           <Grid size={6}>
                             <Stack direction="row" alignItems="center" spacing={1.5}>
-                              <AttachFileIcon sx={{ fontSize: 18, color: COLORS.lightBlue }} />
+                              <AttachFileIcon sx={{ fontSize: 18, color: COLORS.almostBlack }} />
                               <Typography variant="body2" sx={{ color: COLORS.textSecondary, fontWeight: 600 }}>
                                 {project.files?.length || 0} files
                               </Typography>
@@ -1189,7 +1235,7 @@ export const ExplorePage: React.FC = () => {
                           </Grid>
                           <Grid size={6}>
                             <Stack direction="row" alignItems="center" spacing={1.5}>
-                              <GroupIcon sx={{ fontSize: 18, color: COLORS.mintGreen }} />
+                              <GroupIcon sx={{ fontSize: 18, color: COLORS.deepPurple }} />
                               <Typography variant="body2" sx={{ color: COLORS.textSecondary, fontWeight: 600 }}>
                                 {(project.members?.length || 0) + (project.advisors?.length || 0) + 1} members
                               </Typography>
@@ -1209,7 +1255,7 @@ export const ExplorePage: React.FC = () => {
                               size="small"
                               sx={{
                                 '& .MuiRating-iconFilled': {
-                                  color: COLORS.mintGreen,
+                                  color: COLORS.deepPurple,
                                 },
                               }}
                             />
@@ -1222,16 +1268,16 @@ export const ExplorePage: React.FC = () => {
 
                       {/* Project Footer */}
                       <Box sx={{ mt: 'auto' }}>
-                        <Divider sx={{ mb: 3, borderColor: alpha(COLORS.lightBlue, 0.25) }} />
+                        <Divider sx={{ mb: 3, borderColor: alpha(COLORS.almostBlack, 0.2) }} />
                         <Stack direction="row" alignItems="center" justifyContent="space-between">
                           <Stack direction="row" alignItems="center" spacing={1.5}>
-                            <PersonIcon sx={{ fontSize: 18, color: COLORS.lightBlue }} />
+                            <PersonIcon sx={{ fontSize: 18, color: COLORS.almostBlack }} />
                             <Typography variant="body2" sx={{ color: COLORS.textSecondary, fontWeight: 600 }}>
                               {project.creator?.full_name || 'Unknown'}
                             </Typography>
                           </Stack>
                           <Stack direction="row" alignItems="center" spacing={1.5}>
-                            <CalendarIcon sx={{ fontSize: 18, color: COLORS.mintGreen }} />
+                            <CalendarIcon sx={{ fontSize: 18, color: COLORS.deepPurple }} />
                             <Typography variant="body2" sx={{ color: COLORS.textSecondary, fontWeight: 600 }}>
                               {new Date(project.created_at).toLocaleDateString()}
                             </Typography>
@@ -1252,10 +1298,10 @@ export const ExplorePage: React.FC = () => {
                             fontWeight: 600,
                             textTransform: 'none',
                             fontSize: '1rem',
-                            '&:hover': {
-                              transform: 'translateY(-2px)',
-                              boxShadow: `0 8px 25px ${alpha(COLORS.lightBlue, 0.4)}`,
-                            },
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: `0 8px 25px ${alpha(COLORS.almostBlack, 0.3)}`,
+                      },
                           }}
                         >
                           View Project
@@ -1294,13 +1340,13 @@ export const ExplorePage: React.FC = () => {
                 sx={{
                   width: 140,
                   height: 140,
-                  background: `linear-gradient(135deg, ${alpha(COLORS.lightBlue, 0.12)} 0%, ${alpha(COLORS.mintGreen, 0.12)} 100%)`,
+                  background: `linear-gradient(135deg, ${alpha(COLORS.almostBlack, 0.08)} 0%, ${alpha(COLORS.lightSkyBlue, 0.08)} 100%)`,
                   mx: 'auto',
                   mb: 4,
-                  border: `3px solid ${alpha(COLORS.lightBlue, 0.25)}`,
+                  border: `3px solid ${alpha(COLORS.almostBlack, 0.2)}`,
                 }}
               >
-                <SearchIcon sx={{ fontSize: 70, color: COLORS.lightBlue }} />
+                <SearchIcon sx={{ fontSize: 70, color: COLORS.almostBlack }} />
               </Avatar>
               <Typography variant="h4" sx={{ color: COLORS.textPrimary, fontWeight: 700, mb: 3 }}>
                 No projects found
@@ -1325,7 +1371,7 @@ export const ExplorePage: React.FC = () => {
                   textTransform: 'none',
                   '&:hover': {
                     transform: 'translateY(-3px)',
-                    boxShadow: `0 12px 30px ${alpha(COLORS.lightBlue, 0.4)}`,
+                        boxShadow: `0 12px 30px ${alpha(COLORS.almostBlack, 0.3)}`,
                   },
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
@@ -1344,13 +1390,13 @@ export const ExplorePage: React.FC = () => {
                 sx={{
                   width: 140,
                   height: 140,
-                  background: `linear-gradient(135deg, ${alpha(COLORS.lightBlue, 0.12)} 0%, ${alpha(COLORS.mintGreen, 0.12)} 100%)`,
+                  background: `linear-gradient(135deg, ${alpha(COLORS.almostBlack, 0.08)} 0%, ${alpha(COLORS.lightSkyBlue, 0.08)} 100%)`,
                   mx: 'auto',
                   mb: 4,
-                  border: `3px solid ${alpha(COLORS.lightBlue, 0.25)}`,
+                  border: `3px solid ${alpha(COLORS.almostBlack, 0.2)}`,
                 }}
               >
-                <RocketIcon sx={{ fontSize: 70, color: COLORS.lightBlue }} />
+                <RocketIcon sx={{ fontSize: 70, color: COLORS.almostBlack }} />
               </Avatar>
               <Typography variant="h4" sx={{ color: COLORS.textPrimary, fontWeight: 700, mb: 3 }}>
                 No projects available yet
@@ -1365,8 +1411,8 @@ export const ExplorePage: React.FC = () => {
                 startIcon={<RocketIcon />}
                 onClick={() => window.location.reload()}
                 sx={{
-                  borderColor: COLORS.lightBlue,
-                  color: COLORS.lightBlue,
+                  borderColor: COLORS.almostBlack,
+                  color: COLORS.almostBlack,
                   px: 6,
                   py: 2,
                   fontSize: '1.1rem',
@@ -1374,8 +1420,8 @@ export const ExplorePage: React.FC = () => {
                   borderRadius: 4,
                   textTransform: 'none',
                   '&:hover': {
-                    borderColor: COLORS.lightBlue,
-                    backgroundColor: alpha(COLORS.lightBlue, 0.08),
+                    borderColor: COLORS.almostBlack,
+                    backgroundColor: alpha(COLORS.almostBlack, 0.08),
                     transform: 'translateY(-2px)',
                   },
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',

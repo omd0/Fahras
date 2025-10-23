@@ -11,15 +11,12 @@ import {
   InputAdornment,
   Divider,
   Link,
-  Stack,
 } from '@mui/material';
 import {
   Email as EmailIcon,
   Lock as LockIcon,
   Login as LoginIcon,
-  PersonAdd as PersonAddIcon,
   Visibility as VisibilityIcon,
-  School as SchoolIcon,
 } from '@mui/icons-material';
 import { TVTCLogo } from '../components/TVTCLogo';
 import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
@@ -92,79 +89,22 @@ export const LoginPage: React.FC = () => {
     <Box
       sx={{
         minHeight: '100vh',
-        background: `
-          linear-gradient(135deg, #7BB0D8 0%, #9FE3C1 50%, #F5E9D8 100%),
-          radial-gradient(circle at 20% 80%, rgba(123, 176, 216, 0.35) 0%, transparent 50%),
-          radial-gradient(circle at 80% 20%, rgba(159, 227, 193, 0.4) 0%, transparent 50%),
-          radial-gradient(circle at 40% 40%, rgba(245, 233, 216, 0.45) 0%, transparent 50%)
-        `,
-        position: 'relative',
+        backgroundColor: '#F8F9FA', // Very Light Cool Gray background
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         py: 4,
-        overflow: 'hidden',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: '-50%',
-          left: '-50%',
-          width: '200%',
-          height: '200%',
-          background: `
-            radial-gradient(circle at 30% 20%, rgba(123, 176, 216, 0.18) 0%, transparent 25%),
-            radial-gradient(circle at 70% 80%, rgba(159, 227, 193, 0.15) 0%, transparent 25%),
-            radial-gradient(circle at 10% 60%, rgba(245, 233, 216, 0.12) 0%, transparent 25%),
-            radial-gradient(circle at 50% 50%, rgba(123, 176, 216, 0.1) 0%, transparent 30%)
-          `,
-          animation: 'float 20s ease-in-out infinite',
-        },
-        '&::after': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: `
-            linear-gradient(45deg, transparent 30%, rgba(123, 176, 216, 0.1) 50%, transparent 70%),
-            linear-gradient(-45deg, transparent 30%, rgba(159, 227, 193, 0.08) 50%, transparent 70%),
-            linear-gradient(90deg, transparent 20%, rgba(245, 233, 216, 0.06) 50%, transparent 80%)
-          `,
-          animation: 'slide 15s linear infinite',
-        },
-        '@keyframes float': {
-          '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
-          '50%': { transform: 'translateY(-20px) rotate(180deg)' },
-        },
-        '@keyframes slide': {
-          '0%': { transform: 'translateX(-100%)' },
-          '100%': { transform: 'translateX(100%)' },
-        },
       }}
     >
-      <Container component="main" maxWidth="sm" sx={{ position: 'relative', zIndex: 1 }}>
+      <Container component="main" maxWidth="sm">
         <Paper 
-          elevation={12} 
+          elevation={3} 
           sx={{ 
             padding: 4, 
             width: '100%',
-            borderRadius: 4,
-            background: 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(15px)',
-            boxShadow: `
-              0 20px 40px rgba(123, 176, 216, 0.18),
-              0 10px 20px rgba(159, 227, 193, 0.12),
-              0 0 0 1px rgba(255, 255, 255, 0.2)
-            `,
-            border: '1px solid rgba(255, 255, 255, 0.3)',
-            '&:hover': {
-              boxShadow: `
-                0 25px 50px rgba(123, 176, 216, 0.25),
-                0 15px 30px rgba(159, 227, 193, 0.18),
-                0 0 0 1px rgba(255, 255, 255, 0.3)
-              `,
-            },
+            borderRadius: 3,
+            backgroundColor: '#FFFFFF', // Pure White form box
+            border: '1px solid rgba(0, 0, 0, 0.05)',
           }}
         >
           <Box
@@ -182,10 +122,7 @@ export const LoginPage: React.FC = () => {
                 variant="h4" 
                 sx={{ 
                   fontWeight: 'bold',
-                  background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
+                  color: '#343A40', // Dark Gray/Navy for headings
                 }}
               >
                 Fahras
@@ -197,7 +134,7 @@ export const LoginPage: React.FC = () => {
               variant="h5" 
               gutterBottom
               sx={{ 
-                color: '#333',
+                color: '#343A40', // Dark Gray/Navy for headings
                 fontWeight: 600,
                 mb: 3
               }}
@@ -240,12 +177,22 @@ export const LoginPage: React.FC = () => {
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     borderRadius: 2,
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#CED4DA', // Light Gray for hover
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#007BFF', // Academic Blue for focus
+                      borderWidth: 2,
+                    },
+                    '&.Mui-error .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#DC3545', // Light Red for errors
+                    },
                   }
                 }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <EmailIcon sx={{ color: '#667eea' }} />
+                      <EmailIcon sx={{ color: '#666' }} />
                     </InputAdornment>
                   ),
                 }}
@@ -266,12 +213,22 @@ export const LoginPage: React.FC = () => {
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     borderRadius: 2,
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#CED4DA', // Light Gray for hover
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#007BFF', // Academic Blue for focus
+                      borderWidth: 2,
+                    },
+                    '&.Mui-error .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#DC3545', // Light Red for errors
+                    },
                   }
                 }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <LockIcon sx={{ color: '#667eea' }} />
+                      <LockIcon sx={{ color: '#666' }} />
                     </InputAdornment>
                   ),
                 }}
@@ -283,7 +240,7 @@ export const LoginPage: React.FC = () => {
                   component="button"
                   variant="body2"
                   sx={{
-                    color: '#667eea',
+                    color: '#007BFF', // Academic Blue for links
                     textDecoration: 'none',
                     '&:hover': {
                       textDecoration: 'underline',
@@ -308,9 +265,9 @@ export const LoginPage: React.FC = () => {
                   mb: 3,
                   py: 1.5,
                   borderRadius: 2,
-                  background: 'linear-gradient(45deg, #667eea 30%, #764ba2 90%)',
+                  backgroundColor: '#007BFF', // Academic Blue/Dark
                   '&:hover': {
-                    background: 'linear-gradient(45deg, #5a6fd8 30%, #6a4190 90%)',
+                    backgroundColor: '#0056B3', // Darker blue for hover
                   },
                   fontWeight: 600,
                   fontSize: '1.1rem',
@@ -339,11 +296,11 @@ export const LoginPage: React.FC = () => {
                   mb: 3,
                   py: 1.5,
                   borderRadius: 2,
-                  borderColor: '#667eea',
-                  color: '#667eea',
+                  borderColor: '#007BFF', // Academic Blue/Dark
+                  color: '#007BFF', // Academic Blue/Dark
                   '&:hover': {
-                    borderColor: '#5a6fd8',
-                    backgroundColor: 'rgba(102, 126, 234, 0.04)',
+                    borderColor: '#0056B3',
+                    backgroundColor: 'rgba(0, 123, 255, 0.04)',
                   },
                   fontWeight: 600,
                 }}
@@ -360,7 +317,7 @@ export const LoginPage: React.FC = () => {
                     component={RouterLink}
                     to="/register"
                     sx={{
-                      color: '#667eea',
+                      color: '#007BFF', // Academic Blue for links
                       textDecoration: 'none',
                       fontWeight: 600,
                       '&:hover': {

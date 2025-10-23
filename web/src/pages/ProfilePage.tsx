@@ -186,8 +186,9 @@ export const ProfilePage: React.FC = () => {
         <AppBar 
           position="static"
           sx={{ 
-            background: dashboardTheme.appBarGradient,
+            backgroundColor: '#FFFFFF',
             boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            color: '#000000',
           }}
         >
           <Toolbar>
@@ -200,7 +201,7 @@ export const ProfilePage: React.FC = () => {
               <ArrowBackIcon />
             </IconButton>
             <PersonIcon sx={{ mr: 2 }} />
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: '#000000' }}>
               Profile
             </Typography>
           </Toolbar>
@@ -217,8 +218,9 @@ export const ProfilePage: React.FC = () => {
       <AppBar 
         position="static"
         sx={{ 
-          background: dashboardTheme.appBarGradient,
+          backgroundColor: '#FFFFFF',
           boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          color: '#000000',
         }}
       >
         <Toolbar>
@@ -231,7 +233,7 @@ export const ProfilePage: React.FC = () => {
             <ArrowBackIcon />
           </IconButton>
           <PersonIcon sx={{ mr: 2 }} />
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: '#000000' }}>
             My Profile
           </Typography>
         </Toolbar>

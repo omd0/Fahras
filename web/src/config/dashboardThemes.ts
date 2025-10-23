@@ -28,10 +28,10 @@ export const dashboardThemes: Record<string, DashboardTheme> = {
     textPrimary: '#1f2937',
     textSecondary: '#6b7280',
     borderColor: '#e9d5ff',
-    gradientStart: '#7c3aed',
-    gradientEnd: '#ec4899',
-    appBarBackground: '#7c3aed',
-    appBarGradient: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)',
+    gradientStart: '#E0E0E0',
+    gradientEnd: '#CCCCCC',
+    appBarBackground: '#E0E0E0',
+    appBarGradient: 'linear-gradient(135deg, #E0E0E0 0%, #CCCCCC 100%)',
   },
   faculty: {
     primary: '#0891b2', // Cyan
@@ -42,10 +42,10 @@ export const dashboardThemes: Record<string, DashboardTheme> = {
     textPrimary: '#1f2937',
     textSecondary: '#6b7280',
     borderColor: '#a5f3fc',
-    gradientStart: '#0891b2',
-    gradientEnd: '#06b6d4',
-    appBarBackground: '#0891b2',
-    appBarGradient: 'linear-gradient(135deg, #0891b2 0%, #06b6d4 100%)',
+    gradientStart: '#E0E0E0',
+    gradientEnd: '#CCCCCC',
+    appBarBackground: '#E0E0E0',
+    appBarGradient: 'linear-gradient(135deg, #E0E0E0 0%, #CCCCCC 100%)',
   },
   student: {
     primary: '#2563eb', // Blue
@@ -56,10 +56,10 @@ export const dashboardThemes: Record<string, DashboardTheme> = {
     textPrimary: '#1f2937',
     textSecondary: '#6b7280',
     borderColor: '#bfdbfe',
-    gradientStart: '#2563eb',
-    gradientEnd: '#8b5cf6',
-    appBarBackground: '#2563eb',
-    appBarGradient: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
+    gradientStart: '#E0E0E0',
+    gradientEnd: '#CCCCCC',
+    appBarBackground: '#E0E0E0',
+    appBarGradient: 'linear-gradient(135deg, #E0E0E0 0%, #CCCCCC 100%)',
   },
   reviewer: {
     primary: '#059669', // Green
@@ -70,10 +70,10 @@ export const dashboardThemes: Record<string, DashboardTheme> = {
     textPrimary: '#1f2937',
     textSecondary: '#6b7280',
     borderColor: '#bbf7d0',
-    gradientStart: '#059669',
-    gradientEnd: '#10b981',
-    appBarBackground: '#059669',
-    appBarGradient: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+    gradientStart: '#E0E0E0',
+    gradientEnd: '#CCCCCC',
+    appBarBackground: '#E0E0E0',
+    appBarGradient: 'linear-gradient(135deg, #E0E0E0 0%, #CCCCCC 100%)',
   },
   default: {
     primary: '#1e3a8a', // Default TVTC Blue
@@ -84,10 +84,10 @@ export const dashboardThemes: Record<string, DashboardTheme> = {
     textPrimary: '#1f2937',
     textSecondary: '#6b7280',
     borderColor: '#e5e7eb',
-    gradientStart: '#1e3a8a',
-    gradientEnd: '#3b82f6',
-    appBarBackground: '#1e3a8a',
-    appBarGradient: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+    gradientStart: '#E0E0E0',
+    gradientEnd: '#CCCCCC',
+    appBarBackground: '#E0E0E0',
+    appBarGradient: 'linear-gradient(135deg, #E0E0E0 0%, #CCCCCC 100%)',
   },
 };
 

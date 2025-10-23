@@ -39,7 +39,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { CreateProjectData, Program, User } from '../types';
 import { apiService } from '../services/api';
-import { getDashboardTheme } from '../config/dashboardThemes';
 
 export const CreateProjectPage: React.FC = () => {
   const [formData, setFormData] = useState<CreateProjectData>({
@@ -63,7 +62,6 @@ export const CreateProjectPage: React.FC = () => {
 
   const { user } = useAuthStore();
   const navigate = useNavigate();
-  const dashboardTheme = getDashboardTheme(user?.roles);
 
   // Redirect reviewers and admins away from this page
   useEffect(() => {
@@ -248,12 +246,21 @@ export const CreateProjectPage: React.FC = () => {
   };
 
   return (
-    <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <Box sx={{ 
+      flexGrow: 1, 
+      display: 'flex', 
+      flexDirection: 'column', 
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)', // Subtle gradient background
+      position: 'relative',
+      zIndex: 1,
+    }}>
       <AppBar 
         position="static"
         sx={{ 
-          background: dashboardTheme.appBarGradient,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', // Elegant gradient header
+          boxShadow: '0 4px 20px rgba(102, 126, 234, 0.3)',
+          color: '#FFFFFF',
         }}
       >
         <Toolbar>
@@ -261,44 +268,120 @@ export const CreateProjectPage: React.FC = () => {
             edge="start"
             color="inherit"
             onClick={() => navigate('/dashboard')}
-            sx={{ mr: 2 }}
+            sx={{ 
+              mr: 2, 
+              color: '#FFFFFF',
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                borderRadius: '12px',
+              }
+            }}
           >
             <ArrowBackIcon />
           </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: '#FFFFFF', fontWeight: 700, fontSize: '1.4rem' }}>
             Create New Project
           </Typography>
         </Toolbar>
       </AppBar>
 
-      <Container maxWidth="lg" sx={{ flex: 1, py: 4 }}>
+      {/* Main Content Container with Clear Header Separation */}
+      <Container 
+        maxWidth="lg" 
+        sx={{ 
+          flex: 1, 
+          pt: 8, // Increased top padding for clear separation from header
+          pb: 4,
+          px: 4, // Enhanced horizontal padding
+          position: 'relative',
+          zIndex: 2,
+        }}
+      >
         {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
+          <Alert 
+            severity="error" 
+            sx={{ 
+              mb: 4,
+              borderRadius: 3,
+              boxShadow: '0 4px 16px rgba(244, 67, 54, 0.2)',
+              border: '1px solid #ffcdd2',
+              backgroundColor: '#ffebee',
+            }}
+          >
             {error}
           </Alert>
         )}
 
+        {/* Form with Enhanced Spacing */}
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          <Grid container spacing={4}>
+          <Grid container spacing={5}> {/* Increased spacing between sections */}
             {/* Basic Information Section */}
             <Grid size={{ xs: 12 }}>
-              <Paper elevation={2} sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                  <SchoolIcon color="primary" sx={{ mr: 2 }} />
-                  <Typography variant="h6" component="h2">
+              <Paper 
+                elevation={0} 
+                sx={{ 
+                  p: 5,
+                  background: 'linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%)',
+                  borderRadius: 4,
+                  boxShadow: '0 8px 32px rgba(102, 126, 234, 0.12)',
+                  border: '2px solid #667eea',
+                  mb: 3,
+                  position: 'relative',
+                  zIndex: 3,
+                  '&:hover': {
+                    boxShadow: '0 12px 40px rgba(102, 126, 234, 0.18)',
+                    transform: 'translateY(-2px)',
+                    transition: 'all 0.3s ease-in-out',
+                  }
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
+                  <Box sx={{ 
+                    p: 2, 
+                    borderRadius: 3, 
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    mr: 3,
+                    boxShadow: '0 4px 16px rgba(102, 126, 234, 0.3)'
+                  }}>
+                    <SchoolIcon sx={{ color: '#FFFFFF', fontSize: '1.8rem' }} />
+                  </Box>
+                  <Typography variant="h6" component="h2" sx={{ 
+                    color: '#667eea', 
+                    fontWeight: 700,
+                    fontSize: '1.3rem',
+                    textShadow: '0 2px 4px rgba(102, 126, 234, 0.1)'
+                  }}>
                     Basic Information
                   </Typography>
                 </Box>
                 
-                <Grid container spacing={3}>
+                <Grid container spacing={4}>
                   <Grid size={{ xs: 12 }}>
                     <FormControl fullWidth required>
-                      <InputLabel id="program-label">Program</InputLabel>
+                      <InputLabel id="program-label" sx={{ color: '#667eea', fontWeight: 600 }}>Program</InputLabel>
                       <Select
                         labelId="program-label"
                         value={formData.program_id}
                         label="Program"
                         onChange={(e) => handleInputChange('program_id', e.target.value)}
+                        sx={{
+                          backgroundColor: '#FFFFFF',
+                          borderRadius: 2,
+                          '& .MuiOutlinedInput-root': {
+                            borderRadius: 2,
+                            '& fieldset': {
+                              borderColor: '#e0e7ff',
+                              borderWidth: 2,
+                            },
+                            '&:hover fieldset': {
+                              borderColor: '#667eea',
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: '#667eea',
+                              boxShadow: '0 0 0 3px rgba(102, 126, 234, 0.1)',
+                            },
+                          },
+                        }}
                       >
                         {(programs || []).map((program) => (
                           <MenuItem key={program.id} value={program.id}>
@@ -317,6 +400,32 @@ export const CreateProjectPage: React.FC = () => {
                       onChange={(e) => handleInputChange('title', e.target.value)}
                       required
                       helperText="Enter a clear and descriptive title for your project"
+                      sx={{
+                        backgroundColor: '#FFFFFF',
+                        borderRadius: 2,
+                        '& .MuiOutlinedInput-root': {
+                          backgroundColor: '#FFFFFF',
+                          borderRadius: 2,
+                          '& fieldset': {
+                            borderColor: '#e0e7ff',
+                            borderWidth: 2,
+                          },
+                          '&:hover fieldset': {
+                            borderColor: '#667eea',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: '#667eea',
+                            boxShadow: '0 0 0 3px rgba(102, 126, 234, 0.1)',
+                          },
+                        },
+                        '& .MuiInputLabel-root': {
+                          color: '#667eea',
+                          fontWeight: 600,
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                          color: '#667eea',
+                        },
+                      }}
                     />
                   </Grid>
 
@@ -330,6 +439,32 @@ export const CreateProjectPage: React.FC = () => {
                       onChange={(e) => handleInputChange('abstract', e.target.value)}
                       required
                       helperText="Provide a comprehensive overview of your project's objectives, methodology, and expected outcomes"
+                      sx={{
+                        backgroundColor: '#FFFFFF',
+                        borderRadius: 2,
+                        '& .MuiOutlinedInput-root': {
+                          backgroundColor: '#FFFFFF',
+                          borderRadius: 2,
+                          '& fieldset': {
+                            borderColor: '#e0e7ff',
+                            borderWidth: 2,
+                          },
+                          '&:hover fieldset': {
+                            borderColor: '#667eea',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: '#667eea',
+                            boxShadow: '0 0 0 3px rgba(102, 126, 234, 0.1)',
+                          },
+                        },
+                        '& .MuiInputLabel-root': {
+                          color: '#667eea',
+                          fontWeight: 600,
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                          color: '#667eea',
+                        },
+                      }}
                     />
                   </Grid>
 
@@ -342,17 +477,61 @@ export const CreateProjectPage: React.FC = () => {
                       onChange={(e) => handleInputChange('academic_year', e.target.value)}
                       required
                       helperText="Format: YYYY-YYYY"
+                      sx={{
+                        backgroundColor: '#FFFFFF',
+                        borderRadius: 2,
+                        '& .MuiOutlinedInput-root': {
+                          backgroundColor: '#FFFFFF',
+                          borderRadius: 2,
+                          '& fieldset': {
+                            borderColor: '#e0e7ff',
+                            borderWidth: 2,
+                          },
+                          '&:hover fieldset': {
+                            borderColor: '#667eea',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: '#667eea',
+                            boxShadow: '0 0 0 3px rgba(102, 126, 234, 0.1)',
+                          },
+                        },
+                        '& .MuiInputLabel-root': {
+                          color: '#667eea',
+                          fontWeight: 600,
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                          color: '#667eea',
+                        },
+                      }}
                     />
                   </Grid>
 
                   <Grid size={{ xs: 12, md: 6 }}>
                     <FormControl fullWidth required>
-                      <InputLabel id="semester-label">Semester</InputLabel>
+                      <InputLabel id="semester-label" sx={{ color: '#667eea', fontWeight: 600 }}>Semester</InputLabel>
                       <Select
                         labelId="semester-label"
                         value={formData.semester}
                         label="Semester"
                         onChange={(e) => handleInputChange('semester', e.target.value)}
+                        sx={{
+                          backgroundColor: '#FFFFFF',
+                          borderRadius: 2,
+                          '& .MuiOutlinedInput-root': {
+                            borderRadius: 2,
+                            '& fieldset': {
+                              borderColor: '#e0e7ff',
+                              borderWidth: 2,
+                            },
+                            '&:hover fieldset': {
+                              borderColor: '#667eea',
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: '#667eea',
+                              boxShadow: '0 0 0 3px rgba(102, 126, 234, 0.1)',
+                            },
+                          },
+                        }}
                       >
                         <MenuItem value="fall">Fall</MenuItem>
                         <MenuItem value="spring">Spring</MenuItem>
@@ -366,41 +545,128 @@ export const CreateProjectPage: React.FC = () => {
 
             {/* Keywords Section */}
             <Grid size={{ xs: 12 }}>
-              <Paper elevation={2} sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                  <DescriptionIcon color="primary" sx={{ mr: 2 }} />
-                  <Typography variant="h6" component="h2">
+              <Paper 
+                elevation={0} 
+                sx={{ 
+                  p: 5,
+                  background: 'linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%)',
+                  borderRadius: 4,
+                  boxShadow: '0 8px 32px rgba(34, 197, 94, 0.12)',
+                  border: '2px solid #22c55e',
+                  mb: 3,
+                  position: 'relative',
+                  zIndex: 3,
+                  '&:hover': {
+                    boxShadow: '0 12px 40px rgba(34, 197, 94, 0.18)',
+                    transform: 'translateY(-2px)',
+                    transition: 'all 0.3s ease-in-out',
+                  }
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
+                  <Box sx={{ 
+                    p: 2, 
+                    borderRadius: 3, 
+                    background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                    mr: 3,
+                    boxShadow: '0 4px 16px rgba(34, 197, 94, 0.3)'
+                  }}>
+                    <DescriptionIcon sx={{ color: '#FFFFFF', fontSize: '1.8rem' }} />
+                  </Box>
+                  <Typography variant="h6" component="h2" sx={{ 
+                    color: '#22c55e', 
+                    fontWeight: 700,
+                    fontSize: '1.3rem',
+                    textShadow: '0 2px 4px rgba(34, 197, 94, 0.1)'
+                  }}>
                     Keywords & Tags
                   </Typography>
                 </Box>
                 
-                <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
+                <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
                   <TextField
                     size="small"
                     placeholder="Add keyword"
                     value={newKeyword}
                     onChange={(e) => setNewKeyword(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddKeyword())}
-                    sx={{ minWidth: 200 }}
+                    sx={{ 
+                      minWidth: 200,
+                      backgroundColor: '#FFFFFF',
+                      borderRadius: 2,
+                      '& .MuiOutlinedInput-root': {
+                        backgroundColor: '#FFFFFF',
+                        borderRadius: 2,
+                        '& fieldset': {
+                          borderColor: '#dcfce7',
+                          borderWidth: 2,
+                        },
+                        '&:hover fieldset': {
+                          borderColor: '#22c55e',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#22c55e',
+                          boxShadow: '0 0 0 3px rgba(34, 197, 94, 0.1)',
+                        },
+                      },
+                      '& .MuiInputLabel-root': {
+                        color: '#22c55e',
+                        fontWeight: 600,
+                      },
+                      '& .MuiInputLabel-root.Mui-focused': {
+                        color: '#22c55e',
+                      },
+                    }}
                   />
                   <Button
                     variant="outlined"
                     onClick={handleAddKeyword}
                     disabled={!newKeyword.trim()}
                     startIcon={<AddIcon />}
+                    sx={{
+                      borderRadius: 2,
+                      borderColor: '#22c55e',
+                      color: '#22c55e',
+                      fontWeight: 600,
+                      '&:hover': {
+                        borderColor: '#16a34a',
+                        backgroundColor: '#dcfce7',
+                        transform: 'translateY(-1px)',
+                        boxShadow: '0 4px 12px rgba(34, 197, 94, 0.2)',
+                      },
+                      '&:disabled': {
+                        borderColor: '#d1d5db',
+                        color: '#9ca3af',
+                      },
+                    }}
                   >
                     Add Keyword
                   </Button>
                 </Box>
                 
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
                   {(formData.keywords || []).map((keyword, index) => (
                     <Chip
                       key={index}
                       label={keyword}
                       onDelete={() => handleRemoveKeyword(keyword)}
-                      color="primary"
-                      variant="outlined"
+                      sx={{
+                        backgroundColor: '#dcfce7',
+                        color: '#16a34a',
+                        border: '1px solid #22c55e',
+                        fontWeight: 600,
+                        '&:hover': {
+                          backgroundColor: '#bbf7d0',
+                          transform: 'scale(1.05)',
+                          transition: 'all 0.2s ease-in-out',
+                        },
+                        '& .MuiChip-deleteIcon': {
+                          color: '#16a34a',
+                          '&:hover': {
+                            color: '#15803d',
+                          },
+                        },
+                      }}
                     />
                   ))}
                 </Box>
@@ -409,23 +675,70 @@ export const CreateProjectPage: React.FC = () => {
 
             {/* Team Section */}
             <Grid size={{ xs: 12 }}>
-              <Paper elevation={2} sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                  <PersonIcon color="primary" sx={{ mr: 2 }} />
-                  <Typography variant="h6" component="h2">
+              <Paper 
+                elevation={0} 
+                sx={{ 
+                  p: 5,
+                  background: 'linear-gradient(135deg, #ffffff 0%, #fff7ed 100%)',
+                  borderRadius: 4,
+                  boxShadow: '0 8px 32px rgba(251, 146, 60, 0.12)',
+                  border: '2px solid #fb923c',
+                  mb: 3,
+                  position: 'relative',
+                  zIndex: 3,
+                  '&:hover': {
+                    boxShadow: '0 12px 40px rgba(251, 146, 60, 0.18)',
+                    transform: 'translateY(-2px)',
+                    transition: 'all 0.3s ease-in-out',
+                  }
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
+                  <Box sx={{ 
+                    p: 2, 
+                    borderRadius: 3, 
+                    background: 'linear-gradient(135deg, #fb923c 0%, #ea580c 100%)',
+                    mr: 3,
+                    boxShadow: '0 4px 16px rgba(251, 146, 60, 0.3)'
+                  }}>
+                    <PersonIcon sx={{ color: '#FFFFFF', fontSize: '1.8rem' }} />
+                  </Box>
+                  <Typography variant="h6" component="h2" sx={{ 
+                    color: '#fb923c', 
+                    fontWeight: 700,
+                    fontSize: '1.3rem',
+                    textShadow: '0 2px 4px rgba(251, 146, 60, 0.1)'
+                  }}>
                     Project Team
                   </Typography>
                 </Box>
                 
-                <Grid container spacing={3}>
+                <Grid container spacing={4}> {/* Increased internal spacing within sections */}
                   {/* Members */}
                   <Grid size={{ xs: 12, md: 6 }}>
-                    <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>
+                    <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 700, color: '#fb923c', mb: 2 }}>
                       Project Members
                     </Typography>
-                    <Box sx={{ display: 'flex', gap: 2, mb: 2, flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'flex-end' } }}>
+                    <Box sx={{ display: 'flex', gap: 2, mb: 3, flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'flex-end' } }}>
                       <Autocomplete
-                        sx={{ flexGrow: 1 }}
+                        sx={{ 
+                          flexGrow: 1,
+                          '& .MuiOutlinedInput-root': {
+                            backgroundColor: '#FFFFFF',
+                            borderRadius: 2,
+                            '& fieldset': {
+                              borderColor: '#fed7aa',
+                              borderWidth: 2,
+                            },
+                            '&:hover fieldset': {
+                              borderColor: '#fb923c',
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: '#fb923c',
+                              boxShadow: '0 0 0 3px rgba(251, 146, 60, 0.1)',
+                            },
+                          },
+                        }}
                         freeSolo
                         options={users}
                         getOptionLabel={(option) => {
@@ -447,15 +760,47 @@ export const CreateProjectPage: React.FC = () => {
                             setNewMember(prev => ({ ...prev, customName: value, user_id: -1 }));
                           }
                         }}
-                        renderInput={(params) => <TextField {...params} label="Select or Type Member Name" />}
+                        renderInput={(params) => (
+                          <TextField 
+                            {...params} 
+                            label="Select or Type Member Name"
+                            sx={{
+                              '& .MuiInputLabel-root': {
+                                color: '#fb923c',
+                                fontWeight: 600,
+                              },
+                              '& .MuiInputLabel-root.Mui-focused': {
+                                color: '#fb923c',
+                              },
+                            }}
+                          />
+                        )}
                       />
                       <FormControl sx={{ minWidth: 140 }}>
-                        <InputLabel id="member-role-label">Role</InputLabel>
+                        <InputLabel id="member-role-label" sx={{ color: '#fb923c', fontWeight: 600 }}>Role</InputLabel>
                         <Select
                           labelId="member-role-label"
                           value={newMember.role}
                           label="Role"
                           onChange={(e) => setNewMember(prev => ({ ...prev, role: e.target.value as 'LEAD' | 'MEMBER' }))}
+                          sx={{
+                            backgroundColor: '#FFFFFF',
+                            borderRadius: 2,
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: 2,
+                              '& fieldset': {
+                                borderColor: '#fed7aa',
+                                borderWidth: 2,
+                              },
+                              '&:hover fieldset': {
+                                borderColor: '#fb923c',
+                              },
+                              '&.Mui-focused fieldset': {
+                                borderColor: '#fb923c',
+                                boxShadow: '0 0 0 3px rgba(251, 146, 60, 0.1)',
+                              },
+                            },
+                          }}
                         >
                           <MenuItem value="LEAD">Lead</MenuItem>
                           <MenuItem value="MEMBER">Member</MenuItem>
@@ -466,7 +811,23 @@ export const CreateProjectPage: React.FC = () => {
                         onClick={handleAddMember}
                         disabled={newMember.user_id === 0 && !newMember.customName}
                         startIcon={<AddIcon />}
-                        sx={{ minWidth: 100 }}
+                        sx={{ 
+                          minWidth: 100,
+                          borderRadius: 2,
+                          borderColor: '#fb923c',
+                          color: '#fb923c',
+                          fontWeight: 600,
+                          '&:hover': {
+                            borderColor: '#ea580c',
+                            backgroundColor: '#fed7aa',
+                            transform: 'translateY(-1px)',
+                            boxShadow: '0 4px 12px rgba(251, 146, 60, 0.2)',
+                          },
+                          '&:disabled': {
+                            borderColor: '#d1d5db',
+                            color: '#9ca3af',
+                          },
+                        }}
                       >
                         Add
                       </Button>
@@ -503,12 +864,29 @@ export const CreateProjectPage: React.FC = () => {
 
                   {/* Advisors */}
                   <Grid size={{ xs: 12, md: 6 }}>
-                    <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>
+                    <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 700, color: '#fb923c', mb: 2 }}>
                       Project Advisors (Optional)
                     </Typography>
-                    <Box sx={{ display: 'flex', gap: 2, mb: 2, flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'flex-end' } }}>
+                    <Box sx={{ display: 'flex', gap: 2, mb: 3, flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'flex-end' } }}>
                       <Autocomplete
-                        sx={{ flexGrow: 1 }}
+                        sx={{ 
+                          flexGrow: 1,
+                          '& .MuiOutlinedInput-root': {
+                            backgroundColor: '#FFFFFF',
+                            borderRadius: 2,
+                            '& fieldset': {
+                              borderColor: '#fed7aa',
+                              borderWidth: 2,
+                            },
+                            '&:hover fieldset': {
+                              borderColor: '#fb923c',
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: '#fb923c',
+                              boxShadow: '0 0 0 3px rgba(251, 146, 60, 0.1)',
+                            },
+                          },
+                        }}
                         freeSolo
                         options={users}
                         getOptionLabel={(option) => {
@@ -530,15 +908,47 @@ export const CreateProjectPage: React.FC = () => {
                             setNewAdvisor(prev => ({ ...prev, customName: value, user_id: -1 }));
                           }
                         }}
-                        renderInput={(params) => <TextField {...params} label="Select or Type Advisor Name" />}
+                        renderInput={(params) => (
+                          <TextField 
+                            {...params} 
+                            label="Select or Type Advisor Name"
+                            sx={{
+                              '& .MuiInputLabel-root': {
+                                color: '#fb923c',
+                                fontWeight: 600,
+                              },
+                              '& .MuiInputLabel-root.Mui-focused': {
+                                color: '#fb923c',
+                              },
+                            }}
+                          />
+                        )}
                       />
                       <FormControl sx={{ minWidth: 140 }}>
-                        <InputLabel id="advisor-role-label">Role</InputLabel>
+                        <InputLabel id="advisor-role-label" sx={{ color: '#fb923c', fontWeight: 600 }}>Role</InputLabel>
                         <Select
                           labelId="advisor-role-label"
                           value={newAdvisor.role}
                           label="Role"
                           onChange={(e) => setNewAdvisor(prev => ({ ...prev, role: e.target.value as 'MAIN' | 'CO_ADVISOR' | 'REVIEWER' }))}
+                          sx={{
+                            backgroundColor: '#FFFFFF',
+                            borderRadius: 2,
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: 2,
+                              '& fieldset': {
+                                borderColor: '#fed7aa',
+                                borderWidth: 2,
+                              },
+                              '&:hover fieldset': {
+                                borderColor: '#fb923c',
+                              },
+                              '&.Mui-focused fieldset': {
+                                borderColor: '#fb923c',
+                                boxShadow: '0 0 0 3px rgba(251, 146, 60, 0.1)',
+                              },
+                            },
+                          }}
                         >
                           <MenuItem value="MAIN">Main Advisor</MenuItem>
                           <MenuItem value="CO_ADVISOR">Co-Advisor</MenuItem>
@@ -550,7 +960,23 @@ export const CreateProjectPage: React.FC = () => {
                         onClick={handleAddAdvisor}
                         disabled={newAdvisor.user_id === 0 && !newAdvisor.customName}
                         startIcon={<AddIcon />}
-                        sx={{ minWidth: 100 }}
+                        sx={{ 
+                          minWidth: 100,
+                          borderRadius: 2,
+                          borderColor: '#fb923c',
+                          color: '#fb923c',
+                          fontWeight: 600,
+                          '&:hover': {
+                            borderColor: '#ea580c',
+                            backgroundColor: '#fed7aa',
+                            transform: 'translateY(-1px)',
+                            boxShadow: '0 4px 12px rgba(251, 146, 60, 0.2)',
+                          },
+                          '&:disabled': {
+                            borderColor: '#d1d5db',
+                            color: '#9ca3af',
+                          },
+                        }}
                       >
                         Add
                       </Button>
@@ -590,15 +1016,45 @@ export const CreateProjectPage: React.FC = () => {
 
             {/* File Upload Section */}
             <Grid size={{ xs: 12 }}>
-              <Paper elevation={2} sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                  <AttachFileIcon2 color="primary" sx={{ mr: 2 }} />
-                  <Typography variant="h6" component="h2">
+              <Paper 
+                elevation={0} 
+                sx={{ 
+                  p: 5,
+                  background: 'linear-gradient(135deg, #ffffff 0%, #faf5ff 100%)',
+                  borderRadius: 4,
+                  boxShadow: '0 8px 32px rgba(168, 85, 247, 0.12)',
+                  border: '2px solid #a855f7',
+                  mb: 3,
+                  position: 'relative',
+                  zIndex: 3,
+                  '&:hover': {
+                    boxShadow: '0 12px 40px rgba(168, 85, 247, 0.18)',
+                    transform: 'translateY(-2px)',
+                    transition: 'all 0.3s ease-in-out',
+                  }
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
+                  <Box sx={{ 
+                    p: 2, 
+                    borderRadius: 3, 
+                    background: 'linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)',
+                    mr: 3,
+                    boxShadow: '0 4px 16px rgba(168, 85, 247, 0.3)'
+                  }}>
+                    <AttachFileIcon2 sx={{ color: '#FFFFFF', fontSize: '1.8rem' }} />
+                  </Box>
+                  <Typography variant="h6" component="h2" sx={{ 
+                    color: '#a855f7', 
+                    fontWeight: 700,
+                    fontSize: '1.3rem',
+                    textShadow: '0 2px 4px rgba(168, 85, 247, 0.1)'
+                  }}>
                     Project Files (Optional)
                   </Typography>
                 </Box>
                 
-                <Box sx={{ mb: 2 }}>
+                <Box sx={{ mb: 3 }}>
                   <input
                     accept=".pdf,.doc,.docx,.txt,.rtf,.ppt,.pptx,.xls,.xlsx"
                     style={{ display: 'none' }}
@@ -612,12 +1068,26 @@ export const CreateProjectPage: React.FC = () => {
                       variant="outlined"
                       component="span"
                       startIcon={<CloudUploadIcon />}
-                      sx={{ mb: 1 }}
+                      sx={{ 
+                        mb: 2,
+                        borderRadius: 2,
+                        borderColor: '#a855f7',
+                        color: '#a855f7',
+                        fontWeight: 600,
+                        px: 3,
+                        py: 1.5,
+                        '&:hover': {
+                          borderColor: '#7c3aed',
+                          backgroundColor: '#f3e8ff',
+                          transform: 'translateY(-1px)',
+                          boxShadow: '0 4px 12px rgba(168, 85, 247, 0.2)',
+                        },
+                      }}
                     >
                       Upload Files
                     </Button>
                   </label>
-                  <Typography variant="caption" display="block" color="text.secondary">
+                  <Typography variant="caption" display="block" sx={{ color: '#7c3aed', fontWeight: 500 }}>
                     Supported formats: PDF, DOC, DOCX, TXT, RTF, PPT, PPTX, XLS, XLSX (No size limit)
                   </Typography>
                 </Box>
@@ -667,27 +1137,44 @@ export const CreateProjectPage: React.FC = () => {
             </Grid>
           </Grid>
 
-          {/* Sticky Footer */}
+          {/* Enhanced Sticky Footer with Better Spacing */}
           <Paper 
-            elevation={8} 
+            elevation={0} 
             sx={{ 
               position: 'sticky', 
               bottom: 0, 
               left: 0, 
               right: 0, 
-              p: 2, 
-              mt: 4,
-              backgroundColor: 'background.paper',
-              borderTop: '1px solid',
-              borderColor: 'divider'
+              p: 4,
+              mt: 8,
+              background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+              borderTop: '3px solid',
+              borderColor: '#e2e8f0',
+              borderRadius: '16px 16px 0 0',
+              boxShadow: '0 -8px 32px rgba(0,0,0,0.1)',
+              zIndex: 4
             }}
           >
-            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', maxWidth: 'lg', mx: 'auto' }}>
+            <Box sx={{ display: 'flex', gap: 3, justifyContent: 'flex-end', maxWidth: 'lg', mx: 'auto' }}>
               <Button
                 variant="outlined"
                 onClick={() => navigate('/dashboard')}
                 disabled={loading}
                 size="large"
+                sx={{
+                  borderRadius: 2,
+                  borderColor: '#94a3b8',
+                  color: '#64748b',
+                  fontWeight: 600,
+                  px: 4,
+                  py: 1.5,
+                  '&:hover': {
+                    borderColor: '#64748b',
+                    backgroundColor: '#f1f5f9',
+                    transform: 'translateY(-1px)',
+                    boxShadow: '0 4px 12px rgba(100, 116, 139, 0.2)',
+                  },
+                }}
               >
                 Cancel
               </Button>
@@ -697,7 +1184,26 @@ export const CreateProjectPage: React.FC = () => {
                 startIcon={loading ? <CircularProgress size={20} /> : <SaveIcon />}
                 disabled={loading || !formData.program_id || !formData.title || !formData.abstract}
                 size="large"
-                sx={{ minWidth: 160 }}
+                sx={{ 
+                  minWidth: 180,
+                  borderRadius: 2,
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  fontWeight: 700,
+                  px: 4,
+                  py: 1.5,
+                  boxShadow: '0 4px 16px rgba(102, 126, 234, 0.3)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 8px 24px rgba(102, 126, 234, 0.4)',
+                  },
+                  '&:disabled': {
+                    background: '#d1d5db',
+                    color: '#9ca3af',
+                    boxShadow: 'none',
+                    transform: 'none',
+                  },
+                }}
               >
                 {loading ? 'Creating...' : 'Create Project'}
               </Button>

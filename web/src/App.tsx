@@ -1,9 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider as MuiThemeProvider, createTheme } from '@mui/material/styles';
+import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { Box } from '@mui/material';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { tvtcTheme, tvtcCSSVariables } from './theme/tvtcTheme';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { RoleProtectedRoute } from './components/RoleProtectedRoute';
 import { HomePage } from './pages/HomePage';
@@ -21,6 +22,7 @@ import { UserManagementPage } from './pages/UserManagementPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
 import { ApprovalsPage } from './pages/ApprovalsPage';
+import { FacultyDashboard } from './components/dashboards/FacultyDashboard';
 import AdminProjectApprovalPage from './pages/AdminProjectApprovalPage';
 import FacultyPendingApprovalPage from './pages/FacultyPendingApprovalPage';
 import StudentMyProjectsPage from './pages/StudentMyProjectsPage';
@@ -29,131 +31,16 @@ import { TestAuthPage } from './pages/TestAuthPage';
 import { TVTCBranding } from './components/TVTCBranding';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#1e3a8a',    // TVTC Professional Blue
-      light: '#3b82f6',   // Lighter blue
-      dark: '#1e40af',     // Darker blue
-      contrastText: '#ffffff',
-    },
-    secondary: {
-      main: '#059669',    // TVTC Professional Green
-      light: '#10b981',   // Lighter green
-      dark: '#047857',    // Darker green
-      contrastText: '#ffffff',
-    },
-    background: {
-      default: '#f8fafc',  // TVTC Light background
-      paper: '#ffffff',     // Clean white cards
-    },
-    text: {
-      primary: '#1f2937',  // TVTC Dark text
-      secondary: '#6b7280', // TVTC Gray text
-    },
-    error: {
-      main: '#dc2626',     // TVTC Red for errors
-    },
-    warning: {
-      main: '#d97706',     // TVTC Orange for warnings
-    },
-    info: {
-      main: '#1e3a8a',     // TVTC Blue for info
-    },
-    success: {
-      main: '#059669',     // TVTC Green for success
-    },
-  },
-  typography: {
-    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-    h1: {
-      fontSize: '2.5rem',
-      fontWeight: 700,
-      color: '#1f2937',
-      lineHeight: 1.2,
-    },
-    h2: {
-      fontSize: '2rem',
-      fontWeight: 600,
-      color: '#1f2937',
-      lineHeight: 1.3,
-    },
-    h3: {
-      fontSize: '1.5rem',
-      fontWeight: 600,
-      color: '#1f2937',
-      lineHeight: 1.4,
-    },
-    h4: {
-      fontSize: '1.25rem',
-      fontWeight: 500,
-      color: '#1f2937',
-      lineHeight: 1.5,
-    },
-    body1: {
-      fontSize: '1rem',
-      fontWeight: 400,
-      color: '#1f2937',
-      lineHeight: 1.6,
-    },
-    body2: {
-      fontSize: '0.875rem',
-      fontWeight: 400,
-      color: '#6b7280',
-      lineHeight: 1.5,
-    },
-  },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: 8,
-          textTransform: 'none',
-          fontWeight: 500,
-          padding: '8px 16px',
-          fontSize: '0.875rem',
-        },
-        contained: {
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-          '&:hover': {
-            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-          },
-        },
-      },
-    },
-    MuiCard: {
-      styleOverrides: {
-        root: {
-          borderRadius: 12,
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-          border: '1px solid #e5e7eb',
-          '&:hover': {
-            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-          },
-        },
-      },
-    },
-    MuiAppBar: {
-      styleOverrides: {
-        root: {
-          backgroundColor: '#1e3a8a',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-        },
-      },
-    },
-    MuiPaper: {
-      styleOverrides: {
-        root: {
-          backgroundColor: '#ffffff',
-        },
-      },
-    },
-  },
-});
+// Apply TVTC CSS variables globally
+if (typeof document !== 'undefined') {
+  const style = document.createElement('style');
+  style.textContent = tvtcCSSVariables;
+  document.head.appendChild(style);
+}
 
 function App() {
   return (
-    <MuiThemeProvider theme={theme}>
+    <MuiThemeProvider theme={tvtcTheme}>
       <CssBaseline />
       <Router>
         <ThemeProvider>
@@ -161,7 +48,8 @@ function App() {
             <Box sx={{ flexGrow: 1 }}>
               <Routes>
           {/* Public routes */}
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<ExplorePage />} />
+          <Route path="/home" element={<HomePage />} />
           <Route path="/explore" element={<ExplorePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -219,12 +107,22 @@ function App() {
             }
           />
           
-          {/* Evaluations route - restricted for reviewers */}
+          {/* Evaluations route - allowed for faculty and admin */}
           <Route
             path="/evaluations"
             element={
-              <RoleProtectedRoute restrictedRoles={['reviewer']}>
+              <RoleProtectedRoute allowedRoles={['faculty', 'admin']}>
                 <EvaluationsPage />
+              </RoleProtectedRoute>
+            }
+          />
+          
+          {/* Advisor Projects route - faculty only */}
+          <Route
+            path="/advisor-projects"
+            element={
+              <RoleProtectedRoute allowedRoles={['faculty']}>
+                <FacultyDashboard />
               </RoleProtectedRoute>
             }
           />

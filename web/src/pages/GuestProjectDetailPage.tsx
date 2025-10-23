@@ -24,6 +24,7 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
+  alpha,
 } from '@mui/material';
 import { guestColors, guestTheme, createDecorativeElements, backgroundPatterns } from '../theme/guestTheme';
 import {
@@ -105,7 +106,7 @@ export const GuestProjectDetailPage: React.FC = () => {
         '&::before': decorativeElements.largeCircle,
         '&::after': decorativeElements.mediumCircle,
       }}>
-        <CircularProgress size={60} sx={{ color: colors.darkBlue }} />
+        <CircularProgress size={60} sx={{ color: colors.deepPurple }} />
       </Box>
     );
   }
@@ -172,9 +173,9 @@ export const GuestProjectDetailPage: React.FC = () => {
         right: 0,
         bottom: 0,
         background: `
-          radial-gradient(circle at 20% 20%, rgba(123, 176, 216, 0.1) 0%, transparent 50%),
-          radial-gradient(circle at 80% 80%, rgba(159, 227, 193, 0.08) 0%, transparent 50%),
-          radial-gradient(circle at 50% 50%, rgba(245, 233, 216, 0.06) 0%, transparent 50%)
+          radial-gradient(circle at 20% 20%, rgba(81, 45, 168, 0.06) 0%, transparent 50%),
+          radial-gradient(circle at 80% 80%, rgba(174, 223, 247, 0.05) 0%, transparent 50%),
+          radial-gradient(circle at 50% 50%, rgba(28, 40, 51, 0.04) 0%, transparent 50%)
         `,
         pointerEvents: 'none',
       },
@@ -238,8 +239,8 @@ export const GuestProjectDetailPage: React.FC = () => {
                 mb: 4,
                 position: 'relative',
                 borderRadius: '12px',
-                boxShadow: '0 4px 16px rgba(123, 176, 216, 0.15), 0 2px 8px rgba(159, 227, 193, 0.1)',
-                border: '1px solid rgba(123, 176, 216, 0.25)',
+                boxShadow: '0 4px 16px rgba(30, 58, 138, 0.1), 0 2px 8px rgba(55, 65, 81, 0.06)',
+                border: '1px solid rgba(55, 65, 81, 0.15)',
                 '&::before': decorativeElements.smallCircle,
                 '&::after': decorativeElements.smallTriangle,
               }}>
@@ -255,12 +256,12 @@ export const GuestProjectDetailPage: React.FC = () => {
                       justifyContent: 'center',
                       mr: 3,
                       flexShrink: 0,
-                      boxShadow: '0 8px 32px rgba(123, 176, 216, 0.35)',
+                      boxShadow: '0 8px 32px rgba(30, 58, 138, 0.25)',
                     }}>
                       <SchoolIcon sx={{ fontSize: 40, color: colors.white }} />
                     </Box>
                     <Box sx={{ flexGrow: 1 }}>
-                      <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, color: colors.text }}>
+                      <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, color: colors.textPrimary }}>
                         {project.title}
                       </Typography>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -288,12 +289,12 @@ export const GuestProjectDetailPage: React.FC = () => {
                   </Box>
 
                   {/* Project Abstract */}
-                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: colors.text }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: colors.textPrimary }}>
                     Abstract
                   </Typography>
                   <Typography variant="body1" sx={{ 
                     lineHeight: 1.7, 
-                    color: colors.text,
+                    color: colors.textPrimary,
                     mb: 3,
                     whiteSpace: 'pre-wrap',
                   }}>
@@ -303,7 +304,7 @@ export const GuestProjectDetailPage: React.FC = () => {
                   {/* Keywords */}
                   {project.keywords && project.keywords.length > 0 && (
                     <Box sx={{ mb: 3 }}>
-                      <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: colors.text }}>
+                      <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: colors.textPrimary }}>
                         Keywords
                       </Typography>
                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
@@ -313,10 +314,10 @@ export const GuestProjectDetailPage: React.FC = () => {
                             label={keyword}
                             variant="outlined"
                             sx={{ 
-                              borderColor: colors.darkBlue,
-                              color: colors.darkBlue,
+                              borderColor: colors.almostBlack,
+                              color: colors.almostBlack,
                               '&:hover': {
-                                backgroundColor: colors.darkBlue,
+                                backgroundColor: colors.almostBlack,
                                 color: colors.white,
                               },
                             }}
@@ -332,13 +333,13 @@ export const GuestProjectDetailPage: React.FC = () => {
                   <Grid container spacing={3}>
                     <Grid size={{ xs: 12, sm: 6 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                        <PersonIcon sx={{ color: colors.lightBlue, mr: 1 }} />
+                        <PersonIcon sx={{ color: colors.almostBlack, mr: 1 }} />
                         <Typography variant="body1" sx={{ fontWeight: 500 }}>
                           {project.creator?.full_name || 'Unknown'}
                         </Typography>
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                        <SchoolIcon sx={{ color: colors.lightBlue, mr: 1 }} />
+                        <SchoolIcon sx={{ color: colors.almostBlack, mr: 1 }} />
                         <Typography variant="body1" sx={{ fontWeight: 500 }}>
                           {project.program?.name || 'TVTC Program'}
                         </Typography>
@@ -346,13 +347,13 @@ export const GuestProjectDetailPage: React.FC = () => {
                     </Grid>
                     <Grid size={{ xs: 12, sm: 6 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                        <CalendarIcon sx={{ color: colors.mintGreen, mr: 1 }} />
+                        <CalendarIcon sx={{ color: colors.deepPurple, mr: 1 }} />
                         <Typography variant="body1" sx={{ fontWeight: 500 }}>
                           {project.academic_year} • {project.semester}
                         </Typography>
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                        <BusinessIcon sx={{ color: colors.mintGreen, mr: 1 }} />
+                        <BusinessIcon sx={{ color: colors.deepPurple, mr: 1 }} />
                         <Typography variant="body1" sx={{ fontWeight: 500 }}>
                           {project.department?.name || 'Department'}
                         </Typography>
@@ -368,15 +369,15 @@ export const GuestProjectDetailPage: React.FC = () => {
                 mb: 4,
                 position: 'relative',
                 borderRadius: '12px',
-                boxShadow: '0 4px 16px rgba(123, 176, 216, 0.15), 0 2px 8px rgba(159, 227, 193, 0.1)',
-                border: '1px solid rgba(123, 176, 216, 0.25)',
+                boxShadow: '0 4px 16px rgba(30, 58, 138, 0.1), 0 2px 8px rgba(55, 65, 81, 0.06)',
+                border: '1px solid rgba(55, 65, 81, 0.15)',
                 '&::before': decorativeElements.smallCircle,
                 '&::after': decorativeElements.mediumTriangle,
               }}>
                 <CardContent sx={{ p: 4 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                    <FileDownloadIcon sx={{ color: colors.lightBlue, mr: 1, fontSize: 24 }} />
-                    <Typography variant="h5" sx={{ fontWeight: 600, color: colors.text }}>
+                    <FileDownloadIcon sx={{ color: colors.almostBlack, mr: 1, fontSize: 24 }} />
+                    <Typography variant="h5" sx={{ fontWeight: 600, color: colors.textPrimary }}>
                       Project Files ({project.files?.length || 0})
                     </Typography>
                   </Box>
@@ -391,7 +392,7 @@ export const GuestProjectDetailPage: React.FC = () => {
                             mb: 2,
                             borderRadius: 3,
                             background: colors.lightGray,
-                            border: `1px solid ${colors.mediumNavy}20`,
+                            border: `1px solid ${colors.almostBlack}20`,
                             transition: 'all 0.2s ease-in-out',
                             '&:hover': {
                               boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
@@ -414,7 +415,7 @@ export const GuestProjectDetailPage: React.FC = () => {
                             </ListItemIcon>
                             <ListItemText
                               primary={
-                                <Typography variant="subtitle1" sx={{ fontWeight: 600, color: colors.text }}>
+                                <Typography variant="subtitle1" sx={{ fontWeight: 600, color: colors.textPrimary }}>
                                   {file.original_filename}
                                 </Typography>
                               }
@@ -527,8 +528,8 @@ export const GuestProjectDetailPage: React.FC = () => {
                 mb: 4,
                 position: 'relative',
                 borderRadius: '12px',
-                boxShadow: '0 4px 16px rgba(123, 176, 216, 0.15), 0 2px 8px rgba(159, 227, 193, 0.1)',
-                border: '1px solid rgba(123, 176, 216, 0.25)',
+                boxShadow: '0 4px 16px rgba(30, 58, 138, 0.1), 0 2px 8px rgba(55, 65, 81, 0.06)',
+                border: '1px solid rgba(55, 65, 81, 0.15)',
                 '&::before': decorativeElements.smallCircle,
                 '&::after': decorativeElements.smallTriangle,
               }}>
@@ -537,8 +538,8 @@ export const GuestProjectDetailPage: React.FC = () => {
                     {/* Team Members */}
                     <Grid size={{ xs: 12, md: 6 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                        <GroupIcon sx={{ color: colors.lightBlue, mr: 1, fontSize: 24 }} />
-                        <Typography variant="h5" sx={{ fontWeight: 600, color: colors.text }}>
+                        <GroupIcon sx={{ color: colors.almostBlack, mr: 1, fontSize: 24 }} />
+                        <Typography variant="h5" sx={{ fontWeight: 600, color: colors.textPrimary }}>
                           Team Members ({project.members?.length || 0})
                         </Typography>
                       </Box>
@@ -553,7 +554,7 @@ export const GuestProjectDetailPage: React.FC = () => {
                                 mb: 2,
                                 borderRadius: 3,
                                 background: colors.lightGray,
-                                border: `1px solid ${colors.mediumNavy}20`,
+                                border: `1px solid ${colors.almostBlack}20`,
                                 transition: 'all 0.2s ease-in-out',
                                 '&:hover': {
                                   boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
@@ -567,7 +568,7 @@ export const GuestProjectDetailPage: React.FC = () => {
                                     sx={{ 
                                       width: 40, 
                                       height: 40,
-                                      background: `linear-gradient(135deg, ${colors.mediumNavy} 0%, ${colors.softYellow} 100%)`,
+                                      background: `linear-gradient(135deg, ${colors.almostBlack} 0%, ${colors.deepPurple} 100%)`,
                                       fontWeight: 600,
                                       fontSize: '1rem',
                                     }}
@@ -577,7 +578,7 @@ export const GuestProjectDetailPage: React.FC = () => {
                                 </ListItemIcon>
                                 <ListItemText
                                   primary={
-                                    <Typography variant="subtitle1" fontWeight="600" color={colors.text}>
+                                    <Typography variant="subtitle1" fontWeight="600" color={colors.textPrimary}>
                                       {member.full_name}
                                     </Typography>
                                   }
@@ -589,7 +590,7 @@ export const GuestProjectDetailPage: React.FC = () => {
                                       variant="filled"
                                       sx={{ 
                                         fontWeight: 600,
-                                        background: `linear-gradient(135deg, ${colors.mediumNavy} 0%, ${colors.softYellow} 100%)`,
+                                        background: `linear-gradient(135deg, ${colors.almostBlack} 0%, ${colors.deepPurple} 100%)`,
                                       }}
                                     />
                                   }
@@ -611,8 +612,8 @@ export const GuestProjectDetailPage: React.FC = () => {
                     {/* Project Advisors */}
                     <Grid size={{ xs: 12, md: 6 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                        <SupervisorAccountIcon sx={{ color: colors.mintGreen, mr: 1, fontSize: 24 }} />
-                        <Typography variant="h5" sx={{ fontWeight: 600, color: colors.text }}>
+                        <SupervisorAccountIcon sx={{ color: colors.deepPurple, mr: 1, fontSize: 24 }} />
+                        <Typography variant="h5" sx={{ fontWeight: 600, color: colors.textPrimary }}>
                           Project Advisor ({project.advisors?.length || 0})
                         </Typography>
                       </Box>
@@ -627,7 +628,7 @@ export const GuestProjectDetailPage: React.FC = () => {
                                 mb: 2,
                                 borderRadius: 3,
                                 background: colors.lightGray,
-                                border: `1px solid ${colors.softYellow}20`,
+                                border: `1px solid ${colors.deepPurple}20`,
                                 transition: 'all 0.2s ease-in-out',
                                 '&:hover': {
                                   boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
@@ -641,7 +642,7 @@ export const GuestProjectDetailPage: React.FC = () => {
                                     sx={{ 
                                       width: 40, 
                                       height: 40,
-                                      background: `linear-gradient(135deg, ${colors.softYellow} 0%, #d97706 100%)`,
+                                      background: `linear-gradient(135deg, ${colors.deepPurple} 0%, ${colors.mediumSlateGray} 100%)`,
                                       fontWeight: 600,
                                       fontSize: '1rem',
                                     }}
@@ -651,7 +652,7 @@ export const GuestProjectDetailPage: React.FC = () => {
                                 </ListItemIcon>
                                 <ListItemText
                                   primary={
-                                    <Typography variant="subtitle1" fontWeight="600" color={colors.text}>
+                                    <Typography variant="subtitle1" fontWeight="600" color={colors.textPrimary}>
                                       {advisor.full_name}
                                     </Typography>
                                   }
@@ -663,7 +664,7 @@ export const GuestProjectDetailPage: React.FC = () => {
                                       variant="filled"
                                       sx={{ 
                                         fontWeight: 600,
-                                        background: `linear-gradient(135deg, ${colors.softYellow} 0%, #d97706 100%)`,
+                                        background: `linear-gradient(135deg, ${colors.deepPurple} 0%, ${colors.mediumSlateGray} 100%)`,
                                       }}
                                     />
                                   }
@@ -706,7 +707,7 @@ export const GuestProjectDetailPage: React.FC = () => {
                 mb: 4,
                 color: colors.textPrimary,
                 borderRadius: '12px',
-                boxShadow: '0 8px 32px rgba(123, 176, 216, 0.3), 0 4px 16px rgba(159, 227, 193, 0.18)',
+                boxShadow: '0 8px 32px rgba(30, 58, 138, 0.2), 0 4px 16px rgba(55, 65, 81, 0.12)',
                 position: 'relative',
                 '&::before': decorativeElements.largeCircle,
                 '&::after': decorativeElements.mediumCircle,
@@ -726,14 +727,14 @@ export const GuestProjectDetailPage: React.FC = () => {
                       startIcon={<RegisterIcon />}
                       onClick={() => navigate('/register')}
                       sx={{
-                        background: colors.mintGreen,
-                        color: colors.textPrimary,
+                        background: colors.deepPurple,
+                        color: colors.white,
                         fontWeight: 600,
                         borderRadius: '12px',
                         '&:hover': {
-                          background: colors.cream,
+                          background: colors.lightSkyBlue,
                           transform: 'translateY(-2px)',
-                          boxShadow: '0 6px 20px rgba(159, 227, 193, 0.45)',
+                          boxShadow: '0 6px 20px rgba(233, 30, 99, 0.3)',
                         },
                       }}
                     >
@@ -745,13 +746,13 @@ export const GuestProjectDetailPage: React.FC = () => {
                       startIcon={<LoginIcon />}
                       onClick={() => navigate('/login')}
                       sx={{
-                        borderColor: colors.lightBlue,
-                        color: colors.lightBlue,
+                        borderColor: colors.almostBlack,
+                        color: colors.almostBlack,
                         fontWeight: 600,
                         borderRadius: '12px',
                         '&:hover': {
-                          borderColor: colors.lightBlue,
-                          backgroundColor: alpha(colors.lightBlue, 0.1),
+                          borderColor: colors.almostBlack,
+                          backgroundColor: alpha(colors.almostBlack, 0.1),
                           transform: 'translateY(-2px)',
                         },
                       }}
@@ -768,13 +769,13 @@ export const GuestProjectDetailPage: React.FC = () => {
                 ...backgroundPatterns.card,
                 position: 'relative',
                 borderRadius: '12px',
-                boxShadow: '0 4px 16px rgba(123, 176, 216, 0.15), 0 2px 8px rgba(159, 227, 193, 0.1)',
-                border: '1px solid rgba(123, 176, 216, 0.25)',
+                boxShadow: '0 4px 16px rgba(30, 58, 138, 0.1), 0 2px 8px rgba(55, 65, 81, 0.06)',
+                border: '1px solid rgba(55, 65, 81, 0.15)',
                 '&::before': decorativeElements.smallCircle,
                 '&::after': decorativeElements.mediumTriangle,
               }}>
                 <CardContent sx={{ p: 4 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 3, color: colors.text }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 3, color: colors.textPrimary }}>
                     Project Information
                   </Typography>
                   

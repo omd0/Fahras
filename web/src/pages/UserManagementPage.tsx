@@ -264,8 +264,9 @@ export const UserManagementPage: React.FC = () => {
       <AppBar 
         position="static"
         sx={{ 
-          background: dashboardTheme.appBarGradient,
+          backgroundColor: '#FFFFFF',
           boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          color: '#000000',
         }}
       >
         <Toolbar>
@@ -278,7 +279,7 @@ export const UserManagementPage: React.FC = () => {
             <ArrowBackIcon />
           </IconButton>
           <PeopleIcon sx={{ mr: 2 }} />
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: '#000000' }}>
             User Management
           </Typography>
           <IconButton
@@ -288,7 +289,7 @@ export const UserManagementPage: React.FC = () => {
             aria-controls="menu-appbar"
             aria-haspopup="true"
             onClick={handleMenuOpen}
-            color="inherit"
+            sx={{ color: '#000000' }}
           >
             <Avatar sx={{ width: 32, height: 32 }}>
               {user?.full_name?.charAt(0)?.toUpperCase()}

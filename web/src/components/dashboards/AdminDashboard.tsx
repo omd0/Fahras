@@ -185,7 +185,7 @@ export const AdminDashboard: React.FC = () => {
                         borderColor: theme.primary,
                       },
                     }}
-                    onClick={() => navigate(`/projects/${project.id}`)}
+                    onClick={() => navigate(`/dashboard/projects/${project.id}`)}
                   >
                     <CardContent>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>

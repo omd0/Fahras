@@ -17,7 +17,7 @@ Route::get('/test', function () {
 });
 
 Route::get('/programs', function () {
-    return response()->json(\App\Models\Program::all());
+    return response()->json(\App\Models\Program::with('department')->get());
 });
 
 Route::get('/departments', function () {
@@ -34,6 +34,12 @@ Route::get('/users', function () {
 
 // Public project routes (accessible to guests)
 Route::get('/projects', [ProjectController::class, 'index']);
+
+// Specific project routes (must be before the generic {project} route)
+Route::get('/projects/analytics', [ProjectController::class, 'analytics'])->middleware('auth:sanctum');
+Route::get('/projects/search/global', [ProjectController::class, 'search'])->middleware('auth:sanctum');
+Route::get('/projects/suggestions', [ProjectController::class, 'suggestions'])->middleware('auth:sanctum');
+
 Route::get('/projects/{project}', [ProjectController::class, 'show']);
 
 // Public project interaction routes (comments and ratings) - read-only for guests
@@ -52,10 +58,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/profile/avatar', [AuthController::class, 'uploadAvatar']);
     Route::delete('/profile/avatar', [AuthController::class, 'deleteAvatar']);
 
-    // Advanced project features (must be before resource routes)
-    Route::get('/projects/search/global', [ProjectController::class, 'search']);
-    Route::get('/projects/analytics', [ProjectController::class, 'analytics']);
-    Route::get('/projects/suggestions', [ProjectController::class, 'suggestions']);
+    // Advanced project features are now defined above as public routes with auth middleware
     
     // Project routes (excluding GET /projects and GET /projects/{project} which are public)
     Route::post('/projects', [ProjectController::class, 'store']);

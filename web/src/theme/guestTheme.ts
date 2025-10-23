@@ -1,170 +1,190 @@
 import { createTheme, alpha } from '@mui/material/styles';
+import { tvtcColors } from './tvtcTheme';
 
-// Updated color palette with darker, more vibrant shades
+// TVTC-branded color scheme for guest-facing pages
 export const guestColors = {
-  // Primary colors as specified by user - darker, more vibrant shades
-  lightBlue: '#7BB0D8',      // Darker Light Blue for backgrounds - deeper and more vibrant
-  mintGreen: '#9FE3C1',     // Darker Mint Green for highlights/buttons - more energetic
-  cream: '#F5E9D8',         // Darker Cream for content sections - warmer and richer
-  white: '#FFFFFF',         // White for main text and content - clear and readable
+  // TVTC Official Brand Colors
+  primary: tvtcColors.primary,        // TVTC Green #008a3e
+  secondary: tvtcColors.secondary,    // TVTC Blue #3B7D98
+  accent: tvtcColors.accent,          // TVTC Accent #f3b200
   
-  // Supporting colors
-  offWhite: '#F8F9FA',       // Off-white for content sections
-  mediumGray: '#E5E7EB',     // Medium gray for borders
-  darkGray: '#6B7280',       // Dark gray for muted text
-  textPrimary: '#2C3E50',    // Dark text for readability
-  textSecondary: '#6B7280',  // Medium gray for secondary text
+  // Background colors
+  coolGray: tvtcColors.backgroundLight,  // TVTC Light background
+  almostBlack: tvtcColors.textPrimary,   // TVTC Primary text
+  deepPurple: tvtcColors.primary,         // TVTC Primary green
+  mediumSlateGray: tvtcColors.textSecondary, // TVTC Secondary text
+  lightSkyBlue: tvtcColors.secondary,     // TVTC Secondary blue
   
-  // Accent colors
-  softBlue: '#3498DB',       // Soft blue accent
-  softPurple: '#9B59B6',     // Soft purple accent
-  softOrange: '#E67E22',     // Soft orange accent
-  success: '#27AE60',        // Success green
-  warning: '#F39C12',        // Warning orange
-  error: '#E74C3C',          // Error red
+  // Supporting colors using TVTC palette
+  white: tvtcColors.white,           // TVTC White
+  lightGray: tvtcColors.backgroundLight,  // TVTC Light background
+  mediumGray: tvtcColors.border,     // TVTC Border color
+  darkGray: tvtcColors.textPrimary,  // TVTC Primary text
+  textPrimary: tvtcColors.textPrimary,     // TVTC Primary text
+  textSecondary: tvtcColors.textSecondary, // TVTC Secondary text
   
-  // Gradient combinations with darker color scheme
-  primaryGradient: 'linear-gradient(135deg, #7BB0D8 0%, #9FE3C1 100%)',      // Darker Light Blue to Darker Mint Green
-  secondaryGradient: 'linear-gradient(135deg, #9FE3C1 0%, #F5E9D8 100%)',    // Darker Mint Green to Darker Cream
-  accentGradient: 'linear-gradient(135deg, #7BB0D8 0%, #3498DB 100%)',      // Darker Light Blue to Soft Blue
-  backgroundGradient: 'linear-gradient(135deg, #7BB0D8 0%, #9FE3C1 50%, #F5E9D8 100%)',  // Main background gradient
+  // Legacy color mappings for compatibility using TVTC colors
+  offWhite: tvtcColors.white,       // TVTC White
+  darkBrown: tvtcColors.textPrimary,      // TVTC Primary text
+  terracotta: tvtcColors.primary,     // TVTC Primary green
+  lightBeige: tvtcColors.secondary,     // TVTC Secondary blue
+  darkOlive: tvtcColors.textSecondary,      // TVTC Secondary text
+  darkBlue: tvtcColors.secondary,       // TVTC Secondary blue
+  charcoalGray: tvtcColors.textPrimary,   // TVTC Primary text
+  oliveGreen: tvtcColors.textSecondary,     // TVTC Secondary text
+  
+  // Accent colors using TVTC palette
+  softBlue: tvtcColors.secondary,      // TVTC Secondary blue
+  softPurple: tvtcColors.primary,     // TVTC Primary green
+  softOrange: tvtcColors.accent,     // TVTC Accent color
+  success: tvtcColors.success,        // TVTC Success green
+  warning: tvtcColors.warning,        // TVTC Warning orange
+  error: tvtcColors.error,          // TVTC Error red
+  
+  // Gradient combinations with TVTC color scheme
+  primaryGradient: `linear-gradient(135deg, ${tvtcColors.primary} 0%, ${tvtcColors.textPrimary} 100%)`,      // TVTC Green to Primary Text
+  secondaryGradient: `linear-gradient(135deg, ${tvtcColors.secondary} 0%, ${tvtcColors.primary} 100%)`,   // TVTC Blue to Green
+  accentGradient: `linear-gradient(135deg, ${tvtcColors.primary} 0%, ${tvtcColors.textSecondary} 100%)`,     // TVTC Green to Secondary Text
+  backgroundGradient: `linear-gradient(135deg, ${tvtcColors.backgroundLight} 0%, ${tvtcColors.white} 50%, ${tvtcColors.backgroundLight} 100%)`,  // TVTC background gradient
+  
+  // Additional colors for compatibility using TVTC palette
+  cream: tvtcColors.backgroundLight,         // TVTC Light background
+  softYellow: tvtcColors.textSecondary,     // TVTC Secondary text
+  mediumNavy: tvtcColors.textPrimary,     // TVTC Primary text
   
   // Legacy color mappings for compatibility
-  darkBlue: '#2C3E50',       // Dark blue for text
-  charcoalGray: '#6B7280',   // Medium gray for secondary text
-  oliveGreen: '#9FE3C1',     // Darker mint green for highlights
-  text: '#2C3E50',           // Dark text for readability
+  text: tvtcColors.textPrimary,          // TVTC Primary text
 };
 
-// Decorative elements styles with new color scheme
+// Decorative elements styles with TVTC color scheme
 export const decorativeStyles = {
-  // Transparent circles with darker color scheme
+  // Transparent circles with TVTC color scheme
   transparentCircle: {
     position: 'absolute' as const,
     borderRadius: '50%',
-    background: 'rgba(123, 176, 216, 0.12)',  // Darker Light Blue with low opacity
+    background: alpha(tvtcColors.primary, 0.08),  // TVTC Primary with low opacity
     pointerEvents: 'none' as const,
   },
   
-  // Diagonal lines with subtle gradients
+  // Diagonal lines with TVTC gradients
   diagonalLine: {
     position: 'absolute' as const,
-    background: 'linear-gradient(45deg, transparent 30%, rgba(123, 176, 216, 0.15) 50%, transparent 70%)',
+    background: `linear-gradient(45deg, transparent 30%, ${alpha(tvtcColors.primary, 0.06)} 50%, transparent 70%)`,
     pointerEvents: 'none' as const,
   },
   
-  // Geometric patterns with darker color scheme
+  // Geometric patterns with TVTC color scheme
   geometricPattern: {
     position: 'absolute' as const,
     background: `
-      radial-gradient(circle at 20% 80%, rgba(123, 176, 216, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 80% 20%, rgba(159, 227, 193, 0.08) 0%, transparent 50%),
-      radial-gradient(circle at 40% 40%, rgba(245, 233, 216, 0.06) 0%, transparent 50%)
+      radial-gradient(circle at 20% 80%, ${alpha(tvtcColors.primary, 0.06)} 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, ${alpha(tvtcColors.secondary, 0.05)} 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, ${alpha(tvtcColors.textPrimary, 0.04)} 0%, transparent 50%)
     `,
     pointerEvents: 'none' as const,
   },
   
-  // Soft shadows for depth
+  // Soft shadows for depth using TVTC colors
   softShadow: {
-    boxShadow: '0 4px 20px rgba(123, 176, 216, 0.18), 0 2px 8px rgba(159, 227, 193, 0.12)',
+    boxShadow: `0 4px 20px ${alpha(tvtcColors.primary, 0.12)}, 0 2px 8px ${alpha(tvtcColors.textPrimary, 0.08)}`,
   },
   
-  // Subtle border with darker colors
+  // Subtle border with TVTC colors
   subtleBorder: {
-    border: '1px solid rgba(123, 176, 216, 0.3)',
+    border: `1px solid ${alpha(tvtcColors.textPrimary, 0.2)}`,
   },
   
-  // Project box styling
+  // Project box styling with TVTC colors
   projectBox: {
     borderRadius: '12px',
-    boxShadow: '0 4px 16px rgba(123, 176, 216, 0.15), 0 2px 8px rgba(159, 227, 193, 0.1)',
-    border: '1px solid rgba(123, 176, 216, 0.25)',
-    background: '#FFFFFF',
+    boxShadow: `0 4px 16px ${alpha(tvtcColors.primary, 0.1)}, 0 2px 8px ${alpha(tvtcColors.textPrimary, 0.06)}`,
+    border: `1px solid ${alpha(tvtcColors.textPrimary, 0.15)}`,
+    background: tvtcColors.white,
   },
   
-  // Button styling
+  // Button styling with TVTC colors
   buttonPrimary: {
-    background: guestColors.mintGreen,
-    color: guestColors.textPrimary,
+    background: tvtcColors.primary,
+    color: tvtcColors.white,
     borderRadius: '12px',
     fontWeight: 600,
     '&:hover': {
-      background: guestColors.cream,
+      background: tvtcColors.secondary,
       transform: 'translateY(-2px)',
-      boxShadow: '0 6px 20px rgba(159, 227, 193, 0.4)',
+      boxShadow: `0 6px 20px ${alpha(tvtcColors.primary, 0.3)}`,
     },
   },
 };
 
-// Create the guest theme with new color scheme
+// Create the guest theme with TVTC color scheme
 export const guestTheme = createTheme({
   palette: {
     primary: {
-      main: guestColors.lightBlue,
-      light: guestColors.mintGreen,
-      dark: guestColors.darkBlue,
-      contrastText: guestColors.textPrimary,
+      main: tvtcColors.primary,
+      light: tvtcColors.secondary,
+      dark: tvtcColors.textPrimary,
+      contrastText: tvtcColors.white,
     },
     secondary: {
-      main: guestColors.mintGreen,
-      light: guestColors.cream,
-      dark: guestColors.softBlue,
-      contrastText: guestColors.textPrimary,
+      main: tvtcColors.secondary,
+      light: tvtcColors.textSecondary,
+      dark: tvtcColors.textPrimary,
+      contrastText: tvtcColors.white,
     },
     background: {
-      default: guestColors.backgroundGradient,
-      paper: guestColors.white,
+      default: tvtcColors.backgroundDefault,
+      paper: tvtcColors.white,
     },
     text: {
-      primary: guestColors.textPrimary,
-      secondary: guestColors.textSecondary,
+      primary: tvtcColors.textPrimary,
+      secondary: tvtcColors.textSecondary,
     },
     success: {
-      main: guestColors.success,
+      main: tvtcColors.success,
     },
     warning: {
-      main: guestColors.warning,
+      main: tvtcColors.warning,
     },
     error: {
-      main: guestColors.error,
+      main: tvtcColors.error,
     },
   },
   typography: {
-    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: "Arial, 'Helvetica Neue', Helvetica, sans-serif",
     h1: {
       fontSize: '2.5rem',
       fontWeight: 700,
-      color: guestColors.textPrimary,
+      color: tvtcColors.textPrimary,
       lineHeight: 1.2,
     },
     h2: {
       fontSize: '2rem',
       fontWeight: 600,
-      color: guestColors.textPrimary,
+      color: tvtcColors.textPrimary,
       lineHeight: 1.3,
     },
     h3: {
       fontSize: '1.5rem',
       fontWeight: 600,
-      color: guestColors.textPrimary,
+      color: tvtcColors.textPrimary,
       lineHeight: 1.4,
     },
     h4: {
       fontSize: '1.25rem',
       fontWeight: 500,
-      color: guestColors.textPrimary,
+      color: tvtcColors.textPrimary,
       lineHeight: 1.5,
     },
     body1: {
       fontSize: '1rem',
       fontWeight: 400,
-      color: guestColors.textPrimary,
+      color: tvtcColors.textPrimary,
       lineHeight: 1.6,
     },
     body2: {
       fontSize: '0.875rem',
       fontWeight: 400,
-      color: guestColors.textSecondary,
+      color: tvtcColors.textSecondary,
       lineHeight: 1.5,
     },
   },
@@ -183,20 +203,20 @@ export const guestTheme = createTheme({
           },
         },
         contained: {
-          background: guestColors.mintGreen,
-          color: guestColors.textPrimary,
-          boxShadow: '0 4px 12px rgba(159, 227, 193, 0.35)',
+          background: tvtcColors.primary,
+          color: tvtcColors.white,
+          boxShadow: `0 4px 12px ${alpha(tvtcColors.primary, 0.25)}`,
           '&:hover': {
-            background: guestColors.cream,
-            boxShadow: '0 8px 20px rgba(159, 227, 193, 0.45)',
+            background: tvtcColors.secondary,
+            boxShadow: `0 8px 20px ${alpha(tvtcColors.primary, 0.35)}`,
           },
         },
         outlined: {
-          borderColor: guestColors.lightBlue,
-          color: guestColors.lightBlue,
+          borderColor: tvtcColors.textPrimary,
+          color: tvtcColors.textPrimary,
           '&:hover': {
-            borderColor: guestColors.lightBlue,
-            backgroundColor: alpha(guestColors.lightBlue, 0.1),
+            borderColor: tvtcColors.textPrimary,
+            backgroundColor: alpha(tvtcColors.textPrimary, 0.1),
           },
         },
       },
@@ -205,12 +225,12 @@ export const guestTheme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 12,
-          boxShadow: '0 4px 16px rgba(123, 176, 216, 0.15), 0 2px 8px rgba(159, 227, 193, 0.1)',
-          border: `1px solid ${alpha(guestColors.lightBlue, 0.25)}`,
-          background: guestColors.white,
+          boxShadow: `0 4px 16px ${alpha(tvtcColors.primary, 0.1)}, 0 2px 8px ${alpha(tvtcColors.textPrimary, 0.06)}`,
+          border: `1px solid ${alpha(tvtcColors.textPrimary, 0.15)}`,
+          background: tvtcColors.white,
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           '&:hover': {
-            boxShadow: '0 8px 24px rgba(123, 176, 216, 0.25), 0 4px 12px rgba(159, 227, 193, 0.18)',
+            boxShadow: `0 8px 24px ${alpha(tvtcColors.primary, 0.15)}, 0 4px 12px ${alpha(tvtcColors.textPrimary, 0.1)}`,
             transform: 'translateY(-4px)',
           },
         },
@@ -219,17 +239,17 @@ export const guestTheme = createTheme({
     MuiPaper: {
       styleOverrides: {
         root: {
-          background: guestColors.white,
+          background: tvtcColors.white,
           borderRadius: 8,
         },
         elevation1: {
-          boxShadow: '0 2px 8px rgba(44, 62, 80, 0.08)',
+          boxShadow: `0 2px 8px ${alpha(tvtcColors.primary, 0.06)}`,
         },
         elevation2: {
-          boxShadow: '0 4px 16px rgba(44, 62, 80, 0.12)',
+          boxShadow: `0 4px 16px ${alpha(tvtcColors.primary, 0.08)}`,
         },
         elevation3: {
-          boxShadow: '0 8px 24px rgba(44, 62, 80, 0.16)',
+          boxShadow: `0 8px 24px ${alpha(tvtcColors.primary, 0.12)}`,
         },
       },
     },
@@ -240,12 +260,12 @@ export const guestTheme = createTheme({
           fontWeight: 500,
         },
         filled: {
-          background: guestColors.mintGreen,
-          color: guestColors.textPrimary,
+          background: tvtcColors.primary,
+          color: tvtcColors.white,
         },
         outlined: {
-          borderColor: guestColors.lightBlue,
-          color: guestColors.lightBlue,
+          borderColor: tvtcColors.textPrimary,
+          color: tvtcColors.textPrimary,
         },
       },
     },
@@ -254,13 +274,13 @@ export const guestTheme = createTheme({
         root: {
           '& .MuiOutlinedInput-root': {
             borderRadius: 8,
-            backgroundColor: guestColors.white,
+            backgroundColor: tvtcColors.white,
             '&:hover .MuiOutlinedInput-notchedOutline': {
-              borderColor: guestColors.lightBlue,
+              borderColor: tvtcColors.textPrimary,
               borderWidth: 2,
             },
             '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-              borderColor: guestColors.lightBlue,
+              borderColor: tvtcColors.textPrimary,
               borderWidth: 2,
             },
           },
@@ -270,8 +290,8 @@ export const guestTheme = createTheme({
     MuiAppBar: {
       styleOverrides: {
         root: {
-          background: guestColors.primaryGradient,
-          boxShadow: '0 4px 20px rgba(44, 62, 80, 0.3)',
+          background: tvtcColors.primary,
+          boxShadow: `0 4px 20px ${alpha(tvtcColors.textPrimary, 0.3)}`,
         },
       },
     },
@@ -325,46 +345,46 @@ export const createDecorativeElements = () => ({
     left: 0,
   },
   
-  // Small triangles for depth
+  // Small triangles for depth with TVTC colors
   smallTriangle: {
     position: 'absolute' as const,
     width: 0,
     height: 0,
     borderLeft: '8px solid transparent',
     borderRight: '8px solid transparent',
-    borderBottom: '12px solid rgba(159, 227, 193, 0.18)',
+    borderBottom: `12px solid ${alpha(tvtcColors.primary, 0.12)}`,
     pointerEvents: 'none' as const,
   },
   
-  // Medium triangle
+  // Medium triangle with TVTC colors
   mediumTriangle: {
     position: 'absolute' as const,
     width: 0,
     height: 0,
     borderLeft: '12px solid transparent',
     borderRight: '12px solid transparent',
-    borderBottom: '18px solid rgba(123, 176, 216, 0.15)',
+    borderBottom: `18px solid ${alpha(tvtcColors.textPrimary, 0.1)}`,
     pointerEvents: 'none' as const,
   },
 });
 
-// Background patterns for different sections with darker color scheme
+  // Background patterns for different sections with TVTC color scheme
 export const backgroundPatterns = {
   hero: {
-    background: guestColors.backgroundGradient,
+    background: tvtcColors.backgroundDefault,
     position: 'relative' as const,
     overflow: 'hidden' as const,
   },
   
   content: {
-    background: `linear-gradient(135deg, ${guestColors.lightBlue} 0%, ${guestColors.mintGreen} 50%, ${guestColors.cream} 100%)`,
+    background: `linear-gradient(135deg, ${tvtcColors.white} 0%, ${tvtcColors.backgroundLight} 50%, ${tvtcColors.white} 100%)`,
     position: 'relative' as const,
   },
   
   card: {
-    background: guestColors.white,
+    background: tvtcColors.white,
     borderRadius: '12px',
-    boxShadow: '0 4px 16px rgba(123, 176, 216, 0.15), 0 2px 8px rgba(159, 227, 193, 0.1)',
-    border: `1px solid ${alpha(guestColors.lightBlue, 0.25)}`,
+    boxShadow: `0 4px 16px ${alpha(tvtcColors.primary, 0.1)}, 0 2px 8px ${alpha(tvtcColors.textPrimary, 0.06)}`,
+    border: `1px solid ${alpha(tvtcColors.textPrimary, 0.15)}`,
   },
 };

@@ -19,6 +19,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { Project } from '../../types';
 import { DashboardTheme } from '../../config/dashboardThemes';
+import { useAuthStore } from '../../store/authStore';
 
 interface ProjectCardProps {
   project: Project;
@@ -38,6 +39,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   currentUserId,
 }) => {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -62,6 +64,16 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     return statusProgress[status] || 0;
   };
 
+  // Determine the correct route based on authentication status
+  const getProjectRoute = () => {
+    // If user is authenticated, use the protected dashboard route
+    if (user) {
+      return `/dashboard/projects/${project.id}`;
+    }
+    // If not authenticated, use the public route
+    return `/projects/${project.id}`;
+  };
+
   return (
     <Card
       sx={{
@@ -76,7 +88,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           borderColor: theme.primary,
         },
       }}
-      onClick={() => navigate(`/projects/${project.id}`)}
+      onClick={() => navigate(getProjectRoute())}
     >
       <CardContent>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
@@ -168,7 +180,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               size="small" 
               onClick={(e) => { 
                 e.stopPropagation(); 
-                navigate(`/projects/${project.id}`); 
+                navigate(getProjectRoute()); 
               }}
               sx={{ color: theme.primary }}
             >
