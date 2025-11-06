@@ -44,7 +44,7 @@ export const ReviewerDashboard: React.FC = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const roleInfo = getRoleInfo('reviewer');
+  const roleInfo = getRoleInfo('reviewer', user?.full_name);
 
   useEffect(() => {
     fetchDashboardData();

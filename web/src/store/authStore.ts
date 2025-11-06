@@ -62,6 +62,7 @@ export const useAuthStore = create<AuthStore>()(
         
         try {
           const response = await authApi.register(data);
+          // Registration successful - user is automatically logged in
           set({
             user: response.user,
             token: response.token,
@@ -70,12 +71,30 @@ export const useAuthStore = create<AuthStore>()(
             error: null,
           });
         } catch (error: any) {
+          // Extract validation errors from response
+          let errorMessage = 'Registration failed. Please try again.';
+          
+          if (error.response?.data?.errors) {
+            // Handle validation errors (422)
+            errorMessage = Object.values(error.response.data.errors).flat().join(', ');
+          } else if (error.response?.data?.message) {
+            // Handle server error messages (500)
+            errorMessage = error.response.data.message;
+            // Include detailed error if available (debug mode)
+            if (error.response.data.error) {
+              errorMessage += `: ${error.response.data.error}`;
+            }
+          } else if (error.message) {
+            // Handle network errors
+            errorMessage = error.message;
+          }
+          
           set({
             user: null,
             token: null,
             isAuthenticated: false,
             isLoading: false,
-            error: error.response?.data?.message || 'Registration failed',
+            error: errorMessage,
           });
           throw error;
         }

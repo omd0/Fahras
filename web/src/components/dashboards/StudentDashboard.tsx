@@ -105,7 +105,7 @@ export const StudentDashboard: React.FC = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const roleInfo = getRoleInfo('student');
+  const roleInfo = getRoleInfo('student', user?.full_name);
   const myProjectsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

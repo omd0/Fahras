@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -28,9 +29,9 @@ Route::get('/faculties', function () {
     return response()->json(\App\Models\Faculty::all());
 });
 
-Route::get('/users', function () {
-    return response()->json(\App\Models\User::all());
-});
+// Public user listing (for admin panel - will be protected in middleware)
+Route::get('/users', [UserController::class, 'index']);
+Route::get('/roles', [UserController::class, 'getRoles']);
 
 // Public project routes (accessible to guests)
 Route::get('/projects', [ProjectController::class, 'index']);
@@ -110,5 +111,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/projects/{project}/toggle-visibility', [ProjectController::class, 'toggleProjectVisibility']);
         Route::get('/admin/projects', [ProjectController::class, 'adminProjects']);
         Route::get('/admin/projects/pending', [ProjectController::class, 'adminPendingApprovals']);
+    });
+
+    // User management routes (admin only)
+    Route::prefix('admin')->group(function () {
+        Route::get('/users', [UserController::class, 'index']);
+        Route::get('/roles', [UserController::class, 'getRoles']);
+        Route::post('/users', [UserController::class, 'store']);
+        Route::put('/users/{user}', [UserController::class, 'update']);
+        Route::delete('/users/{user}', [UserController::class, 'destroy']);
+        Route::put('/users/{user}/status', [UserController::class, 'toggleStatus']);
     });
 });

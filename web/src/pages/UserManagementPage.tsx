@@ -47,6 +47,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { getDashboardTheme } from '../config/dashboardThemes';
+import { apiService } from '../services/api';
 
 interface User {
   id: number;
@@ -70,6 +71,7 @@ export const UserManagementPage: React.FC = () => {
   const [roles, setRoles] = useState<Array<{ id: number; name: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [userDialogOpen, setUserDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -93,37 +95,8 @@ export const UserManagementPage: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      // Mock data for now - replace with actual API call
-      const mockUsers: User[] = [
-        {
-          id: 1,
-          full_name: 'Dr. Sarah Johnson',
-          email: 'sarah.johnson@fahras.edu',
-          status: 'active',
-          roles: [{ id: 1, name: 'Faculty' }],
-          last_login_at: '2024-01-15T10:30:00Z',
-          created_at: '2024-01-01T00:00:00Z',
-        },
-        {
-          id: 2,
-          full_name: 'Ahmed Almansouri',
-          email: 'ahmed.almansouri@student.fahras.edu',
-          status: 'active',
-          roles: [{ id: 2, name: 'Student' }],
-          last_login_at: '2024-01-14T15:45:00Z',
-          created_at: '2024-01-02T00:00:00Z',
-        },
-        {
-          id: 3,
-          full_name: 'Admin User',
-          email: 'admin@fahras.edu',
-          status: 'active',
-          roles: [{ id: 3, name: 'Admin' }],
-          last_login_at: '2024-01-15T09:15:00Z',
-          created_at: '2024-01-01T00:00:00Z',
-        },
-      ];
-      setUsers(mockUsers);
+      const usersData = await apiService.getAdminUsers();
+      setUsers(usersData || []);
     } catch (error: any) {
       console.error('Failed to fetch users:', error);
       setError(error.response?.data?.message || 'Failed to fetch users');
@@ -134,14 +107,8 @@ export const UserManagementPage: React.FC = () => {
 
   const fetchRoles = async () => {
     try {
-      // Mock roles data
-      const mockRoles = [
-        { id: 1, name: 'Faculty' },
-        { id: 2, name: 'Student' },
-        { id: 3, name: 'Admin' },
-        { id: 4, name: 'Reviewer' },
-      ];
-      setRoles(mockRoles);
+      const rolesData = await apiService.getRoles();
+      setRoles(rolesData || []);
     } catch (error) {
       console.error('Failed to fetch roles:', error);
     }
@@ -189,41 +156,83 @@ export const UserManagementPage: React.FC = () => {
 
   const handleSaveUser = async () => {
     try {
+      setError(null);
+      setSuccess(null);
       if (editingUser) {
         // Update user
-        console.log('Updating user:', editingUser.id, userForm);
+        const updateData: any = {
+          full_name: userForm.full_name,
+          email: userForm.email,
+          role_ids: userForm.role_ids,
+        };
+        if (userForm.password) {
+          updateData.password = userForm.password;
+        }
+        const response = await apiService.updateUser(editingUser.id, updateData);
+        setSuccess(response.message || 'User updated successfully');
       } else {
         // Create user
-        console.log('Creating user:', userForm);
+        const createData = {
+          full_name: userForm.full_name,
+          email: userForm.email,
+          password: userForm.password || 'password', // Default password if not provided
+          role_ids: userForm.role_ids,
+          status: 'active',
+        };
+        const response = await apiService.createUser(createData);
+        setSuccess(response.message || 'User created successfully');
       }
       setUserDialogOpen(false);
-      fetchUsers();
+      await fetchUsers(); // Refresh the user list
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(null), 3000);
     } catch (error: any) {
       console.error('Failed to save user:', error);
-      setError(error.response?.data?.message || 'Failed to save user');
+      const errorMessage = error.response?.data?.message 
+        || (error.response?.data?.errors ? Object.values(error.response.data.errors).flat().join(', ') : null)
+        || error.response?.data?.error
+        || 'Failed to save user';
+      setError(errorMessage);
+      setSuccess(null);
     }
   };
 
   const handleDeleteUser = async (userId: number) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
-        console.log('Deleting user:', userId);
-        fetchUsers();
+        setError(null);
+        setSuccess(null);
+        const response = await apiService.deleteUser(userId);
+        setSuccess(response.message || 'User deleted successfully');
+        await fetchUsers(); // Refresh the user list
+        setTimeout(() => setSuccess(null), 3000);
       } catch (error: any) {
         console.error('Failed to delete user:', error);
-        setError(error.response?.data?.message || 'Failed to delete user');
+        const errorMessage = error.response?.data?.message 
+          || error.response?.data?.error
+          || 'Failed to delete user';
+        setError(errorMessage);
+        setSuccess(null);
       }
     }
   };
 
   const handleToggleUserStatus = async (userId: number, currentStatus: string) => {
     try {
+      setError(null);
+      setSuccess(null);
       const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-      console.log('Toggling user status:', userId, newStatus);
-      fetchUsers();
+      const response = await apiService.toggleUserStatus(userId, newStatus);
+      setSuccess(response.message || 'User status updated successfully');
+      await fetchUsers(); // Refresh the user list
+      setTimeout(() => setSuccess(null), 3000);
     } catch (error: any) {
       console.error('Failed to toggle user status:', error);
-      setError(error.response?.data?.message || 'Failed to toggle user status');
+      const errorMessage = error.response?.data?.message 
+        || error.response?.data?.error
+        || 'Failed to toggle user status';
+      setError(errorMessage);
+      setSuccess(null);
     }
   };
 
@@ -337,9 +346,16 @@ export const UserManagementPage: React.FC = () => {
           </Button>
         </Box>
 
+        {/* Success Alert */}
+        {success && (
+          <Alert severity="success" sx={{ mb: 3 }} onClose={() => setSuccess(null)}>
+            {success}
+          </Alert>
+        )}
+
         {/* Error Alert */}
         {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
+          <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
             {error}
           </Alert>
         )}
@@ -477,7 +493,7 @@ export const UserManagementPage: React.FC = () => {
               value={userForm.password}
               onChange={(e) => setUserForm(prev => ({ ...prev, password: e.target.value }))}
               sx={{ mb: 2 }}
-              helperText={editingUser ? "Leave blank to keep current password" : "Required for new users"}
+              helperText={editingUser ? "Leave blank to keep current password" : "Leave blank to use default password ('password')"}
             />
             <FormControl fullWidth>
               <InputLabel>Roles</InputLabel>
@@ -512,7 +528,7 @@ export const UserManagementPage: React.FC = () => {
           <Button
             onClick={handleSaveUser}
             variant="contained"
-            disabled={!userForm.full_name || !userForm.email || (!editingUser && !userForm.password)}
+            disabled={!userForm.full_name || !userForm.email || userForm.role_ids.length === 0}
           >
             {editingUser ? 'Update User' : 'Create User'}
           </Button>

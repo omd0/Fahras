@@ -42,7 +42,7 @@ export const AdminDashboard: React.FC = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const roleInfo = getRoleInfo('admin');
+  const roleInfo = getRoleInfo('admin', user?.full_name);
 
   useEffect(() => {
     fetchDashboardData();

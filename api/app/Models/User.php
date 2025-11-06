@@ -30,6 +30,14 @@ class User extends Authenticatable
         'last_login_at' => 'datetime',
     ];
 
+    /**
+     * Set the email attribute (always lowercase and trimmed)
+     */
+    public function setEmailAttribute($value)
+    {
+        $this->attributes['email'] = strtolower(trim($value));
+    }
+
     public function roles()
     {
         return $this->belongsToMany(Role::class, 'role_user');

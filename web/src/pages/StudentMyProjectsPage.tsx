@@ -134,9 +134,27 @@ const StudentMyProjectsPage: React.FC = () => {
         per_page: 100, // Get all projects for filtering
       });
 
-      // Ensure we have a valid array of projects
-      const projectsData = response?.data || response || [];
-      const validProjects = Array.isArray(projectsData) ? projectsData.filter(p => p != null) : [];
+      // Handle paginated response structure
+      // Response should be: { data: Project[], current_page, last_page, total, per_page, ... }
+      let projectsData: Project[] = [];
+      
+      if (response && typeof response === 'object') {
+        // Check if response has a 'data' property (paginated response)
+        if ('data' in response && Array.isArray(response.data)) {
+          projectsData = response.data;
+        } 
+        // Check if response itself is an array (direct array response)
+        else if (Array.isArray(response)) {
+          projectsData = response;
+        }
+        // Check if response has a 'projects' property (alternative structure)
+        else if ('projects' in response && Array.isArray(response.projects)) {
+          projectsData = response.projects;
+        }
+      }
+      
+      // Filter out any null/undefined projects
+      const validProjects = projectsData.filter(p => p != null && p !== undefined);
       
       setProjects(validProjects);
       setError(null);
@@ -176,6 +194,7 @@ const StudentMyProjectsPage: React.FC = () => {
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
+    setCurrentPage(1); // Reset to first page when switching tabs
   };
 
   const handleViewProject = (project: Project) => {
@@ -229,11 +248,61 @@ const StudentMyProjectsPage: React.FC = () => {
   // Get unique academic years from projects
   const academicYears = Array.from(new Set((projects || []).map(p => p?.academic_year).filter(Boolean)));
 
+  // Helper function to get filtered projects for a specific tab
+  const getTabFilteredProjects = (tabIndex: number): Project[] => {
+    let filtered = [...(projects || [])].filter(project => project != null);
+
+    // Apply search filter
+    if (searchTerm) {
+      filtered = filtered.filter(project =>
+        project?.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project?.abstract?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Apply academic year filter
+    if (academicYearFilter !== 'all') {
+      filtered = filtered.filter(project => project?.academic_year === academicYearFilter);
+    }
+
+    // Apply tab-specific status filter (ignore the statusFilter dropdown when on a specific tab)
+    switch (tabIndex) {
+      case 0: // All Projects
+        // Only apply statusFilter if it's not 'all'
+        if (statusFilter !== 'all') {
+          filtered = filtered.filter(project => project?.status === statusFilter);
+        }
+        break;
+      case 1: // Drafts
+        filtered = filtered.filter(project => project?.status === 'draft');
+        break;
+      case 2: // In Progress
+        filtered = filtered.filter(project => project && (project.status === 'submitted' || project.status === 'under_review'));
+        break;
+      case 3: // Pending Approval
+        filtered = filtered.filter(project => project && project.admin_approval_status === 'pending');
+        break;
+      case 4: // Completed
+        filtered = filtered.filter(project => project && project.status === 'completed');
+        break;
+      case 5: // Approved
+        filtered = filtered.filter(project => project?.status === 'approved');
+        break;
+      default:
+        break;
+    }
+
+    return filtered;
+  };
+
+  // Get filtered projects for current tab
+  const tabFilteredProjects = getTabFilteredProjects(tabValue);
+
   // Pagination
   const indexOfLastProject = currentPage * projectsPerPage;
   const indexOfFirstProject = indexOfLastProject - projectsPerPage;
-  const currentProjects = (filteredProjects || []).slice(indexOfFirstProject, indexOfLastProject);
-  const totalPages = Math.ceil((filteredProjects || []).length / projectsPerPage);
+  const currentProjects = tabFilteredProjects.slice(indexOfFirstProject, indexOfLastProject);
+  const totalPages = Math.ceil(tabFilteredProjects.length / projectsPerPage);
 
   const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
     setCurrentPage(page);
@@ -495,12 +564,12 @@ const StudentMyProjectsPage: React.FC = () => {
                 },
               }}
             >
-              <Tab label={`All Projects (${(filteredProjects || []).length})`} />
-              <Tab label={`Drafts (${(filteredProjects || []).filter(p => p?.status === 'draft').length})`} />
-              <Tab label={`In Progress (${(filteredProjects || []).filter(p => p && (p.status === 'submitted' || p.status === 'under_review')).length})`} />
-              <Tab label={`Pending Approval (${(filteredProjects || []).filter(p => p && p.admin_approval_status === 'pending').length})`} />
-              <Tab label={`Completed (${(filteredProjects || []).filter(p => p && p.status === 'completed').length})`} />
-              <Tab label={`Approved (${(filteredProjects || []).filter(p => p?.status === 'approved').length})`} />
+              <Tab label={`All Projects (${getTabFilteredProjects(0).length})`} />
+              <Tab label={`Drafts (${getTabFilteredProjects(1).length})`} />
+              <Tab label={`In Progress (${getTabFilteredProjects(2).length})`} />
+              <Tab label={`Pending Approval (${getTabFilteredProjects(3).length})`} />
+              <Tab label={`Completed (${getTabFilteredProjects(4).length})`} />
+              <Tab label={`Approved (${getTabFilteredProjects(5).length})`} />
             </Tabs>
           </Box>
 
@@ -681,7 +750,7 @@ const StudentMyProjectsPage: React.FC = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {(filteredProjects || []).filter(p => p?.status === 'draft').length === 0 ? (
+                  {getTabFilteredProjects(1).length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={5} align="center">
                         <Box sx={{ py: 4, textAlign: 'center' }}>
@@ -693,8 +762,7 @@ const StudentMyProjectsPage: React.FC = () => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    (filteredProjects || [])
-                      .filter(p => p?.status === 'draft')
+                    getTabFilteredProjects(1)
                       .slice(indexOfFirstProject, indexOfLastProject)
                       .filter(project => project != null)
                       .map((project) => (
@@ -777,7 +845,7 @@ const StudentMyProjectsPage: React.FC = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {(filteredProjects || []).filter(p => p && p.status === 'submitted' || p.status === 'under_review').length === 0 ? (
+                  {getTabFilteredProjects(2).length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={6} align="center">
                         <Box sx={{ py: 4, textAlign: 'center' }}>
@@ -792,8 +860,7 @@ const StudentMyProjectsPage: React.FC = () => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    (filteredProjects || [])
-                      .filter(p => p && (p.status === 'submitted' || p.status === 'under_review'))
+                    getTabFilteredProjects(2)
                       .slice(indexOfFirstProject, indexOfLastProject)
                       .filter(project => project != null)
                       .map((project) => (
@@ -902,7 +969,7 @@ const StudentMyProjectsPage: React.FC = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {(filteredProjects || []).filter(p => p?.status === 'approved').length === 0 ? (
+                  {getTabFilteredProjects(5).length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={5} align="center">
                         <Box sx={{ py: 4, textAlign: 'center' }}>
@@ -914,8 +981,7 @@ const StudentMyProjectsPage: React.FC = () => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    (filteredProjects || [])
-                      .filter(p => p?.status === 'approved')
+                    getTabFilteredProjects(5)
                       .slice(indexOfFirstProject, indexOfLastProject)
                       .filter(project => project != null)
                       .map((project) => (
@@ -1011,7 +1077,7 @@ const StudentMyProjectsPage: React.FC = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {(filteredProjects || []).filter(p => p && p.admin_approval_status === 'pending').length === 0 ? (
+                  {getTabFilteredProjects(3).length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={5} align="center">
                         <Box sx={{ py: 4, textAlign: 'center' }}>
@@ -1023,8 +1089,7 @@ const StudentMyProjectsPage: React.FC = () => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    (filteredProjects || [])
-                      .filter(p => p && p.admin_approval_status === 'pending')
+                    getTabFilteredProjects(3)
                       .slice(indexOfFirstProject, indexOfLastProject)
                       .filter(project => project != null)
                       .map((project) => (
@@ -1120,7 +1185,7 @@ const StudentMyProjectsPage: React.FC = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {(filteredProjects || []).filter(p => p && p.status === 'completed').length === 0 ? (
+                  {getTabFilteredProjects(4).length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={5} align="center">
                         <Box sx={{ py: 4, textAlign: 'center' }}>
@@ -1132,8 +1197,7 @@ const StudentMyProjectsPage: React.FC = () => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    (filteredProjects || [])
-                      .filter(p => p && p.status === 'completed')
+                    getTabFilteredProjects(4)
                       .slice(indexOfFirstProject, indexOfLastProject)
                       .filter(project => project != null)
                       .map((project) => (

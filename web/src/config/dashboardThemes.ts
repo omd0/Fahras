@@ -118,32 +118,37 @@ export const getDashboardTheme = (roles: Array<{ name: string }> | undefined): D
 
 /**
  * Get role display information
+ * @param role - User role string
+ * @param userName - Optional user name (not used in greeting)
  */
-export const getRoleInfo = (role: string) => {
+export const getRoleInfo = (role: string, userName?: string) => {
+  // Simple greeting - just "Welcome"
+  const greeting = 'Welcome';
+
   const roleInfo = {
     admin: {
       title: 'Administrator Dashboard',
       subtitle: 'Manage projects, users, and system settings',
       icon: '🛡️',
-      greeting: 'Welcome back, Administrator',
+      greeting,
     },
     faculty: {
       title: 'Faculty Dashboard',
       subtitle: 'Supervise and evaluate student projects',
       icon: '👨‍🏫',
-      greeting: 'Welcome, Professor',
+      greeting,
     },
     student: {
       title: 'Student Dashboard',
       subtitle: 'Create and manage your graduation projects',
       icon: '🎓',
-      greeting: 'Welcome, Student',
+      greeting,
     },
     reviewer: {
       title: 'Reviewer Dashboard',
       subtitle: 'Review and evaluate project submissions',
       icon: '📋',
-      greeting: 'Welcome, Reviewer',
+      greeting,
     },
   };
 
@@ -151,7 +156,7 @@ export const getRoleInfo = (role: string) => {
     title: 'Dashboard',
     subtitle: 'Project Management System',
     icon: '📊',
-    greeting: 'Welcome',
+    greeting,
   };
 };
 

@@ -8,10 +8,6 @@ import {
   Box,
   Alert,
   CircularProgress,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   InputAdornment,
   Link,
 } from '@mui/material';
@@ -32,7 +28,6 @@ export const RegisterPage: React.FC = () => {
     email: '',
     password: '',
     password_confirmation: '',
-    role: 'student',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -64,6 +59,18 @@ export const RegisterPage: React.FC = () => {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email is invalid';
+    } else {
+      // Validate email domain (case-insensitive)
+      const allowedDomains = ['cti.edu.sa', 'tvtc.edu.sa'];
+      const emailParts = formData.email.split('@');
+      if (emailParts.length !== 2) {
+        newErrors.email = 'Email is invalid';
+      } else {
+        const emailDomain = emailParts[1].toLowerCase().trim();
+        if (!allowedDomains.includes(emailDomain)) {
+          newErrors.email = 'Invalid email domain.';
+        }
+      }
     }
 
     if (!formData.password) {
@@ -91,9 +98,11 @@ export const RegisterPage: React.FC = () => {
 
     try {
       await register(formData);
-      navigate('/dashboard', { replace: true });
+      // Registration successful - navigate to dashboard
+      navigate("/dashboard", { replace: true });
     } catch (error) {
-      // Error is handled by the store
+      // Error is handled by the store and displayed to user
+      // Don't navigate away - let user see the error and try again
     }
   };
 
@@ -244,39 +253,6 @@ export const RegisterPage: React.FC = () => {
                   ),
                 }}
               />
-              <FormControl 
-                fullWidth 
-                margin="normal"
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 2,
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#CED4DA', // Light Gray for hover
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#007BFF', // Academic Blue for focus
-                      borderWidth: 2,
-                    },
-                    '&.Mui-error .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#DC3545', // Light Red for errors
-                    },
-                  }
-                }}
-              >
-                <InputLabel id="role-label">Role</InputLabel>
-                <Select
-                  labelId="role-label"
-                  id="role"
-                  name="role"
-                  value={formData.role}
-                  label="Role"
-                  onChange={handleChange('role')}
-                >
-                  <MenuItem value="student">Student</MenuItem>
-                  <MenuItem value="faculty">Faculty</MenuItem>
-                  <MenuItem value="admin">Administrator</MenuItem>
-                </Select>
-              </FormControl>
               <TextField
                 margin="normal"
                 required

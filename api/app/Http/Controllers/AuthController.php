@@ -8,16 +8,43 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        // Define allowed email domains
+        $allowedDomains = ['cti.edu.sa', 'tvtc.edu.sa'];
+        
+        // Normalize email: lowercase and trim
+        $normalizedEmail = strtolower(trim($request->email));
+        
+        $validator = Validator::make(array_merge($request->all(), ['email' => $normalizedEmail]), [
             'full_name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                function ($attribute, $value, $fail) {
+                    $exists = User::whereRaw('LOWER(email) = ?', [strtolower($value)])->exists();
+                    if ($exists) {
+                        $fail('The email has already been taken.');
+                    }
+                },
+                function ($attribute, $value, $fail) use ($allowedDomains) {
+                    $emailParts = explode('@', $value);
+                    if (count($emailParts) !== 2) {
+                        return; // Let the 'email' rule handle invalid format
+                    }
+                    $domain = strtolower(trim($emailParts[1]));
+                    if (!in_array($domain, $allowedDomains)) {
+                        $fail('Invalid email domain.');
+                    }
+                },
+            ],
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|string|in:student,faculty,admin,reviewer',
         ]);
 
         if ($validator->fails()) {
@@ -27,26 +54,48 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $user = User::create([
-            'full_name' => $request->full_name,
-            'email' => $request->email,
-            'password' => $request->password,
-        ]);
+        try {
+            DB::beginTransaction();
 
-        // Assign role
-        $role = \App\Models\Role::where('name', $request->role)->first();
-        if ($role) {
-            $user->roles()->attach($role->id);
+            // Create the new user
+            $user = User::create([
+                'full_name' => $request->full_name,
+                'email' => $normalizedEmail,
+                'password' => $request->password,
+            ]);
+
+            // Automatically assign role based on email domain
+            $emailParts = explode('@', $normalizedEmail);
+            $domain = strtolower(trim($emailParts[1]));
+            
+            // Determine role based on domain
+            $roleName = ($domain === 'cti.edu.sa') ? 'faculty' : 'student';
+            $role = \App\Models\Role::where('name', $roleName)->first();
+            if ($role) {
+                $user->roles()->attach($role->id);
+            }
+
+            DB::commit();
+
+            $token = $user->createToken('auth_token')->plainTextToken;
+            $userData = $user->load('roles')->toArray();
+
+            return response()->json([
+                'message' => 'Registration successful',
+                'user' => $userData,
+                'token' => $token,
+                'token_type' => 'Bearer'
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Registration error: ' . $e->getMessage());
+            
+            return response()->json([
+                'message' => 'Registration failed. Please try again.',
+                'error' => config('app.debug') ? $e->getMessage() : 'An error occurred during registration.'
+            ], 500);
         }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'message' => 'User registered successfully',
-            'user' => $user->load('roles'),
-            'token' => $token,
-            'token_type' => 'Bearer'
-        ], 201);
     }
 
     public function login(Request $request)
@@ -63,7 +112,11 @@ class AuthController extends Controller
             ], 422);
         }
 
-        if (!Auth::attempt($request->only('email', 'password'))) {
+        // Normalize email for case-insensitive login
+        $credentials = $request->only('email', 'password');
+        $credentials['email'] = strtolower(trim($credentials['email']));
+
+        if (!Auth::attempt($credentials)) {
             return response()->json([
                 'message' => 'Invalid credentials'
             ], 401);
@@ -74,9 +127,11 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
+        $userData = $user->load('roles')->toArray();
+
         return response()->json([
             'message' => 'Login successful',
-            'user' => $user->load('roles'),
+            'user' => $userData,
             'token' => $token,
             'token_type' => 'Bearer'
         ]);
@@ -93,8 +148,11 @@ class AuthController extends Controller
 
     public function user(Request $request)
     {
+        $user = $request->user();
+        $userData = $user->load('roles')->toArray();
+        
         return response()->json([
-            'user' => $request->user()->load('roles')
+            'user' => $userData
         ]);
     }
 
@@ -115,9 +173,29 @@ class AuthController extends Controller
     {
         $user = $request->user();
         
-        $validator = Validator::make($request->all(), [
+        // Normalize email if provided
+        $data = $request->only(['full_name', 'email']);
+        if (isset($data['email'])) {
+            $data['email'] = strtolower(trim($data['email']));
+        }
+        
+        $validator = Validator::make($data, [
             'full_name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
+            'email' => [
+                'sometimes',
+                'string',
+                'email',
+                'max:255',
+                function ($attribute, $value, $fail) use ($user) {
+                    // Case-insensitive unique check (excluding current user)
+                    $exists = User::whereRaw('LOWER(email) = ?', [strtolower($value)])
+                        ->where('id', '!=', $user->id)
+                        ->exists();
+                    if ($exists) {
+                        $fail('The email has already been taken.');
+                    }
+                },
+            ],
         ]);
 
         if ($validator->fails()) {
@@ -127,11 +205,13 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $user->update($request->only(['full_name', 'email']));
+        $user->update($data);
+
+        $userData = $user->load('roles')->toArray();
 
         return response()->json([
             'message' => 'Profile updated successfully',
-            'user' => $user->load('roles')
+            'user' => $userData
         ]);
     }
 

@@ -115,7 +115,7 @@ export interface RegisterData {
   email: string;
   password: string;
   password_confirmation: string;
-  role: 'student' | 'faculty' | 'admin' | 'reviewer';
+  role?: 'student' | 'faculty' | 'admin' | 'reviewer';
 }
 
 export interface CreateProjectData {

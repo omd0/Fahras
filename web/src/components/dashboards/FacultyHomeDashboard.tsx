@@ -36,7 +36,7 @@ export const FacultyHomeDashboard: React.FC = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const roleInfo = getRoleInfo('faculty');
+  const roleInfo = getRoleInfo('faculty', user?.full_name);
 
   useEffect(() => {
     fetchDashboardData();

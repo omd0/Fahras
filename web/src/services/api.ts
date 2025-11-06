@@ -61,7 +61,7 @@ class ApiService {
     return response.data;
   }
 
-  async register(data: RegisterData): Promise<{ user: User; token: string }> {
+  async register(data: RegisterData): Promise<{ user: User; token: string; message: string }> {
     const response: AxiosResponse = await this.api.post('/register', data);
     return response.data;
   }
@@ -461,6 +461,49 @@ class ApiService {
     };
   }> {
     const response: AxiosResponse = await this.api.get('/admin/projects/pending', { params });
+    return response.data;
+  }
+
+  // User management endpoints (admin only)
+  async getAdminUsers(): Promise<User[]> {
+    const response: AxiosResponse = await this.api.get('/admin/users');
+    return response.data || [];
+  }
+
+  async getRoles(): Promise<Array<{ id: number; name: string; description?: string }>> {
+    const response: AxiosResponse = await this.api.get('/admin/roles');
+    return response.data || [];
+  }
+
+  async createUser(data: {
+    full_name: string;
+    email: string;
+    password?: string;
+    role_ids: number[];
+    status?: string;
+  }): Promise<{ message: string; user: User }> {
+    const response: AxiosResponse = await this.api.post('/admin/users', data);
+    return response.data;
+  }
+
+  async updateUser(userId: number, data: {
+    full_name?: string;
+    email?: string;
+    password?: string;
+    role_ids?: number[];
+    status?: string;
+  }): Promise<{ message: string; user: User }> {
+    const response: AxiosResponse = await this.api.put(`/admin/users/${userId}`, data);
+    return response.data;
+  }
+
+  async deleteUser(userId: number): Promise<{ message: string }> {
+    const response: AxiosResponse = await this.api.delete(`/admin/users/${userId}`);
+    return response.data;
+  }
+
+  async toggleUserStatus(userId: number, status: string): Promise<{ message: string; user: User }> {
+    const response: AxiosResponse = await this.api.put(`/admin/users/${userId}/status`, { status });
     return response.data;
   }
 

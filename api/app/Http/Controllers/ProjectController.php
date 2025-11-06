@@ -18,19 +18,24 @@ class ProjectController extends Controller
         $query = Project::with(['program.department', 'creator', 'members', 'advisors']);
         $user = $request->user();
 
-        // Apply visibility rules based on user role
-        if (!$user) {
-            // Unauthenticated users: only see approved projects
-            $query->where('admin_approval_status', 'approved');
-        } elseif ($user->hasRole('admin') || $user->hasRole('reviewer')) {
-            // Admin and Reviewer: can see all projects (including hidden ones)
-            // No additional filtering needed
-        } else {
-            // Regular users: can see approved projects and their own projects (including hidden ones)
-            $query->where(function ($q) use ($user) {
-                $q->where('admin_approval_status', 'approved')
-                  ->orWhere('created_by_user_id', $user->id);
-            });
+        // If requesting my_projects, skip visibility rules and show all user's projects
+        $isMyProjects = $request->has('my_projects') && $request->boolean('my_projects');
+        
+        if (!$isMyProjects) {
+            // Apply visibility rules based on user role
+            if (!$user) {
+                // Unauthenticated users: only see approved projects
+                $query->where('admin_approval_status', 'approved');
+            } elseif ($user->hasRole('admin') || $user->hasRole('reviewer')) {
+                // Admin and Reviewer: can see all projects (including hidden ones)
+                // No additional filtering needed
+            } else {
+                // Regular users: can see approved projects and their own projects (including hidden ones)
+                $query->where(function ($q) use ($user) {
+                    $q->where('admin_approval_status', 'approved')
+                      ->orWhere('created_by_user_id', $user->id);
+                });
+            }
         }
 
         // Advanced filtering
@@ -70,7 +75,32 @@ class ProjectController extends Controller
 
         // Filter for user's own projects
         if ($request->has('my_projects') && $request->boolean('my_projects')) {
-            $query->where('created_by_user_id', $request->user()->id);
+            $user = $request->user();
+            if (!$user) {
+                // Return empty result if user is not authenticated when requesting my_projects
+                return response()->json([
+                    'data' => [],
+                    'current_page' => 1,
+                    'last_page' => 1,
+                    'per_page' => $request->get('per_page', 15),
+                    'total' => 0,
+                    'has_more_pages' => false,
+                    'search_metadata' => [
+                        'total_results' => 0,
+                        'current_page' => 1,
+                        'per_page' => $request->get('per_page', 15),
+                        'last_page' => 1,
+                        'has_more_pages' => false,
+                    ],
+                ]);
+            }
+            // Include projects where user is creator OR member
+            $query->where(function ($q) use ($user) {
+                $q->where('created_by_user_id', $user->id)
+                  ->orWhereHas('members', function ($memberQuery) use ($user) {
+                      $memberQuery->where('user_id', $user->id);
+                  });
+            });
         }
 
         if ($request->has('member_id')) {
@@ -381,6 +411,7 @@ class ProjectController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
+            'program_id' => 'sometimes|required|exists:programs,id',
             'title' => 'sometimes|required|string|max:255',
             'abstract' => 'sometimes|required|string',
             'keywords' => 'nullable|array',
@@ -410,7 +441,7 @@ class ProjectController extends Controller
 
         // Update basic project fields
         $project->update($request->only([
-            'title', 'abstract', 'keywords', 'academic_year',
+            'program_id', 'title', 'abstract', 'keywords', 'academic_year',
             'semester', 'status', 'is_public', 'doi', 'repo_url'
         ]));
 
