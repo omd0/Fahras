@@ -37,6 +37,18 @@ export const FacultyHomeDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const roleInfo = getRoleInfo('faculty', user?.full_name);
+  const userIsFaculty = (user?.roles || []).some(role => role.name === 'faculty');
+
+  const isMyAdvisingProject = (project: Project) => {
+    const advisors = project.advisors || [];
+    const isAdvisor = advisors.some(advisor => advisor?.id === user?.id);
+    const createdByCurrentFaculty = userIsFaculty && (
+      project.created_by_user_id === user?.id ||
+      project.creator?.id === user?.id
+    );
+
+    return isAdvisor || createdByCurrentFaculty;
+  };
 
   useEffect(() => {
     fetchDashboardData();
@@ -52,9 +64,7 @@ export const FacultyHomeDashboard: React.FC = () => {
 
       setProjects(projectsData);
 
-      const advisingProjects = projectsData.filter((p: Project) => 
-        (p.advisors || []).some(advisor => advisor.id === user?.id)
-      );
+      const advisingProjects = projectsData.filter(isMyAdvisingProject);
 
       setStats({
         advisingProjects: advisingProjects.length,
@@ -191,7 +201,7 @@ export const FacultyHomeDashboard: React.FC = () => {
 
               <Grid container spacing={3}>
                 {(projects || [])
-                  .filter(p => (p.advisors || []).some(advisor => advisor.id === user?.id))
+                  .filter(isMyAdvisingProject)
                   .slice(0, 6)
                   .map((project) => (
                     <Grid size={{ xs: 12, md: 6 }} key={project.id}>

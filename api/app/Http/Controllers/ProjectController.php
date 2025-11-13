@@ -259,9 +259,11 @@ class ProjectController extends Controller
             }
         }
 
+        $creator = $request->user();
+
         $project = Project::create([
             'program_id' => $request->program_id,
-            'created_by_user_id' => $request->user()->id,
+            'created_by_user_id' => $creator->id,
             'title' => $request->title,
             'abstract' => $request->abstract,
             'keywords' => $request->keywords ?? [],
@@ -284,6 +286,22 @@ class ProjectController extends Controller
             $project->advisors()->attach($advisor['user_id'], [
                 'advisor_role' => $advisor['role']
             ]);
+        }
+
+        if ($creator->hasRole('faculty')) {
+            $isCreatorAlreadyAdvisor = $project
+                ->advisors()
+                ->wherePivot('user_id', $creator->id)
+                ->exists();
+
+            if (!$isCreatorAlreadyAdvisor) {
+                $advisorRole = collect($regularAdvisors)
+                    ->firstWhere('user_id', $creator->id)['role'] ?? 'MAIN';
+
+                $project->advisors()->attach($creator->id, [
+                    'advisor_role' => $advisorRole,
+                ]);
+            }
         }
 
         return response()->json([

@@ -148,6 +148,18 @@ export const FacultyDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const roleInfo = getRoleInfo('faculty', user?.full_name);
+  const userIsFaculty = (user?.roles || []).some(role => role.name === 'faculty');
+
+  const isMyAdvisingProject = (project: Project) => {
+    const advisors = project.advisors || [];
+    const isAdvisor = advisors.some(advisor => advisor?.id === user?.id);
+    const createdByCurrentFaculty = userIsFaculty && (
+      project.created_by_user_id === user?.id ||
+      project.creator?.id === user?.id
+    );
+
+    return isAdvisor || createdByCurrentFaculty;
+  };
 
   useEffect(() => {
     fetchDashboardData();
@@ -163,9 +175,7 @@ export const FacultyDashboard: React.FC = () => {
 
       setProjects(projectsData);
 
-      const advisingProjects = projectsData.filter((p: Project) => 
-        (p.advisors || []).some(advisor => advisor.id === user?.id)
-      );
+      const advisingProjects = projectsData.filter(isMyAdvisingProject);
 
       setStats({
         advisingProjects: advisingProjects.length,
@@ -215,9 +225,7 @@ export const FacultyDashboard: React.FC = () => {
 
   // Filter and sort projects
   const getFilteredProjects = () => {
-    let filtered = projects.filter((p: Project) => 
-      (p.advisors || []).some(advisor => advisor.id === user?.id)
-    );
+    let filtered = projects.filter(isMyAdvisingProject);
 
     if (searchTerm) {
       filtered = filtered.filter(project => 
