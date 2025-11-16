@@ -22,6 +22,7 @@ import { TVTCLogo } from '../components/TVTCLogo';
 import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { LoginCredentials } from '../types';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const LoginPage: React.FC = () => {
   const [credentials, setCredentials] = useState<LoginCredentials>({
@@ -33,6 +34,7 @@ export const LoginPage: React.FC = () => {
   const { login, isLoading, error } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useLanguage();
 
   const from = (location.state as any)?.from?.pathname || '/dashboard';
 
@@ -53,13 +55,13 @@ export const LoginPage: React.FC = () => {
     const newErrors: Record<string, string> = {};
 
     if (!credentials.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = t('Email is required');
     } else if (!/\S+@\S+\.\S+/.test(credentials.email)) {
-      newErrors.email = 'Email is invalid';
+      newErrors.email = t('Email is invalid');
     }
 
     if (!credentials.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = t('Password is required');
     }
 
     setErrors(newErrors);
@@ -125,7 +127,7 @@ export const LoginPage: React.FC = () => {
                   color: '#343A40', // Dark Gray/Navy for headings
                 }}
               >
-                Fahras
+                {t('Fahras')}
               </Typography>
             </Box>
             
@@ -139,7 +141,7 @@ export const LoginPage: React.FC = () => {
                 mb: 3
               }}
             >
-              Welcome Back
+              {t('Welcome Back')}
             </Typography>
 
             <Typography 
@@ -151,7 +153,7 @@ export const LoginPage: React.FC = () => {
                 maxWidth: '300px'
               }}
             >
-              Sign in to access your projects and continue your academic journey
+              {t('Sign in to access your projects and continue your academic journey')}
             </Typography>
 
             {error && (
@@ -166,7 +168,7 @@ export const LoginPage: React.FC = () => {
                 required
                 fullWidth
                 id="email"
-                label="Email Address"
+                label={t('Email Address')}
                 name="email"
                 autoComplete="email"
                 autoFocus
@@ -202,7 +204,7 @@ export const LoginPage: React.FC = () => {
                 required
                 fullWidth
                 name="password"
-                label="Password"
+                label={t('Password')}
                 type="password"
                 id="password"
                 autoComplete="current-password"
@@ -248,10 +250,10 @@ export const LoginPage: React.FC = () => {
                   }}
                   onClick={() => {
                     // TODO: Implement forgot password functionality
-                    alert('Forgot password functionality will be implemented soon!');
+                    alert(t('Forgot password functionality will be implemented soon!'));
                   }}
                 >
-                  Forgot Password?
+                  {t('Forgot Password?')}
                 </Link>
               </Box>
 
@@ -275,14 +277,14 @@ export const LoginPage: React.FC = () => {
                 disabled={isLoading}
                 startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <LoginIcon />}
               >
-                {isLoading ? 'Signing In...' : 'Sign In'}
+                {isLoading ? t('Signing In...') : t('Sign In')}
               </Button>
 
               {/* Divider */}
               <Box sx={{ display: 'flex', alignItems: 'center', my: 3 }}>
                 <Divider sx={{ flex: 1 }} />
                 <Typography variant="body2" sx={{ mx: 2, color: '#666' }}>
-                  or
+                  {t('or')}
                 </Typography>
                 <Divider sx={{ flex: 1 }} />
               </Box>
@@ -306,13 +308,13 @@ export const LoginPage: React.FC = () => {
                 }}
                 startIcon={<VisibilityIcon />}
               >
-                Continue as Guest
+                {t('Continue as Guest')}
               </Button>
 
               {/* Sign Up Link */}
               <Box textAlign="center">
                 <Typography variant="body2" sx={{ color: '#666' }}>
-                  Don't have an account?{' '}
+                  {t("Don't have an account?")}{' '}
                   <Link
                     component={RouterLink}
                     to="/register"
@@ -325,7 +327,7 @@ export const LoginPage: React.FC = () => {
                       }
                     }}
                   >
-                    Create Account
+                    {t('Create Account')}
                   </Link>
                 </Typography>
               </Box>

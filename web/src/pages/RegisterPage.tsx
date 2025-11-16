@@ -21,6 +21,7 @@ import { TVTCLogo } from '../components/TVTCLogo';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { RegisterData } from '../types';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const RegisterPage: React.FC = () => {
   const [formData, setFormData] = useState<RegisterData>({
@@ -33,6 +34,7 @@ export const RegisterPage: React.FC = () => {
 
   const { register, isLoading, error } = useAuthStore();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const handleChange = (field: keyof RegisterData) => (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | any
@@ -52,37 +54,37 @@ export const RegisterPage: React.FC = () => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.full_name.trim()) {
-      newErrors.full_name = 'Full name is required';
+      newErrors.full_name = t('Full name is required');
     }
 
     if (!formData.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = t('Email is required');
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
+      newErrors.email = t('Email is invalid');
     } else {
       // Validate email domain (case-insensitive)
       const allowedDomains = ['cti.edu.sa', 'tvtc.edu.sa'];
       const emailParts = formData.email.split('@');
       if (emailParts.length !== 2) {
-        newErrors.email = 'Email is invalid';
+        newErrors.email = t('Email is invalid');
       } else {
         const emailDomain = emailParts[1].toLowerCase().trim();
         if (!allowedDomains.includes(emailDomain)) {
-          newErrors.email = 'Invalid email domain.';
+          newErrors.email = t('Invalid email domain.');
         }
       }
     }
 
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = t('Password is required');
     } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
+      newErrors.password = t('Password must be at least 8 characters');
     }
 
     if (!formData.password_confirmation) {
-      newErrors.password_confirmation = 'Password confirmation is required';
+      newErrors.password_confirmation = t('Password confirmation is required');
     } else if (formData.password !== formData.password_confirmation) {
-      newErrors.password_confirmation = 'Passwords do not match';
+      newErrors.password_confirmation = t('Passwords do not match');
     }
 
     setErrors(newErrors);
@@ -146,7 +148,7 @@ export const RegisterPage: React.FC = () => {
                   color: '#343A40', // Dark Gray/Navy for headings
                 }}
               >
-                Fahras
+                {t('Fahras')}
               </Typography>
             </Box>
             
@@ -160,7 +162,7 @@ export const RegisterPage: React.FC = () => {
                 mb: 3
               }}
             >
-              Create Account
+              {t('Create Account')}
             </Typography>
 
             <Typography 
@@ -172,7 +174,7 @@ export const RegisterPage: React.FC = () => {
                 maxWidth: '300px'
               }}
             >
-              Join Fahras to start your academic project journey
+              {t('Join Fahras to start your academic project journey')}
             </Typography>
 
             {error && (
@@ -187,7 +189,7 @@ export const RegisterPage: React.FC = () => {
                 required
                 fullWidth
                 id="full_name"
-                label="Full Name"
+                label={t('Full Name')}
                 name="full_name"
                 autoComplete="name"
                 autoFocus
@@ -223,7 +225,7 @@ export const RegisterPage: React.FC = () => {
                 required
                 fullWidth
                 id="email"
-                label="Email Address"
+                label={t('Email Address')}
                 name="email"
                 autoComplete="email"
                 value={formData.email}
@@ -258,7 +260,7 @@ export const RegisterPage: React.FC = () => {
                 required
                 fullWidth
                 name="password"
-                label="Password"
+                label={t('Password')}
                 type="password"
                 id="password"
                 autoComplete="new-password"
@@ -294,7 +296,7 @@ export const RegisterPage: React.FC = () => {
                 required
                 fullWidth
                 name="password_confirmation"
-                label="Confirm Password"
+                label={t('Confirm Password')}
                 type="password"
                 id="password_confirmation"
                 autoComplete="new-password"
@@ -344,11 +346,11 @@ export const RegisterPage: React.FC = () => {
                 disabled={isLoading}
                 startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <PersonAddIcon />}
               >
-                {isLoading ? 'Creating Account...' : 'Create Account'}
+                {isLoading ? t('Creating Account...') : t('Create Account')}
               </Button>
               <Box textAlign="center">
                 <Typography variant="body2" sx={{ color: '#666' }}>
-                  Already have an account?{' '}
+                  {t('Already have an account?')}{' '}
                   <Link
                     component={RouterLink}
                     to="/login"
@@ -361,7 +363,7 @@ export const RegisterPage: React.FC = () => {
                       }
                     }}
                   >
-                    Sign In
+                    {t('Sign In')}
                   </Link>
                 </Typography>
               </Box>

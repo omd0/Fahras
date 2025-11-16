@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Container,
   Typography,
@@ -66,6 +66,7 @@ import { useNavigate } from 'react-router-dom';
 import { Project } from '../types';
 import { apiService } from '../services/api';
 import { useTheme } from '../contexts/ThemeContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface SearchFilters {
   search: string;
@@ -104,6 +105,7 @@ export const ExplorePage: React.FC = () => {
   });
 
   const { theme } = useTheme();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const muiTheme = useMuiTheme();
 
@@ -252,19 +254,25 @@ export const ExplorePage: React.FC = () => {
     '2020-2021', '2021-2022', '2022-2023', '2023-2024', '2024-2025', '2025-2026'
   ];
 
-  const semesterOptions = [
-    { value: 'fall', label: 'Fall' },
-    { value: 'spring', label: 'Spring' },
-    { value: 'summer', label: 'Summer' },
-  ];
+  const semesterOptions = useMemo(
+    () => [
+      { value: 'fall', label: t('Fall') },
+      { value: 'spring', label: t('Spring') },
+      { value: 'summer', label: t('Summer') },
+    ],
+    [language, t],
+  );
 
-  const sortOptions = [
-    { value: 'created_at', label: 'Date Created' },
-    { value: 'updated_at', label: 'Last Updated' },
-    { value: 'title', label: 'Title' },
-    { value: 'academic_year', label: 'Academic Year' },
-    { value: 'average_rating', label: 'Rating' },
-  ];
+  const sortOptions = useMemo(
+    () => [
+      { value: 'created_at', label: t('Date Created') },
+      { value: 'updated_at', label: t('Last Updated') },
+      { value: 'title', label: t('Title') },
+      { value: 'academic_year', label: t('Academic Year') },
+      { value: 'average_rating', label: t('Rating') },
+    ],
+    [language, t],
+  );
 
   if (loading) {
     return (
@@ -289,7 +297,7 @@ export const ExplorePage: React.FC = () => {
             }} 
           />
           <Typography variant="h6" sx={{ color: COLORS.textSecondary, fontWeight: 500 }}>
-            Loading amazing projects...
+            {t('Loading amazing projects...')}
           </Typography>
         </Stack>
       </Box>
@@ -360,7 +368,7 @@ export const ExplorePage: React.FC = () => {
                   color: COLORS.textPrimary,
                   fontSize: { xs: '1.5rem', md: '1.8rem' }
                 }}>
-                  TVTC Project Explorer
+                  {t('TVTC Project Explorer')}
                 </Typography>
               </Box>
               <Button
@@ -383,7 +391,7 @@ export const ExplorePage: React.FC = () => {
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
               >
-                Login
+                {t('Login')}
               </Button>
             </Stack>
 
@@ -408,7 +416,7 @@ export const ExplorePage: React.FC = () => {
                   color: COLORS.textPrimary,
                   fontSize: { xs: '2.5rem', md: '3.5rem' }
                 }}>
-                  Explore Innovation 🚀
+                  {t('Explore Innovation 🚀')}
                 </Typography>
                 <Typography variant="h5" sx={{ 
                   opacity: 0.9, 
@@ -417,8 +425,7 @@ export const ExplorePage: React.FC = () => {
                   maxWidth: '600px',
                   color: COLORS.textSecondary
                 }}>
-                  Discover groundbreaking graduation projects from TVTC students. 
-                  Browse, learn, and get inspired by the next generation of innovators!
+                  {t('Discover groundbreaking graduation projects from TVTC students. Browse, learn, and get inspired by the next generation of innovators!')}
                 </Typography>
               </Box>
             </Stack>
@@ -463,10 +470,10 @@ export const ExplorePage: React.FC = () => {
               </Avatar>
               <Box>
                 <Typography variant="h4" sx={{ fontWeight: 700, color: COLORS.textPrimary, mb: 1 }}>
-                  Smart Project Discovery
+                  {t('Smart Project Discovery')}
                 </Typography>
                 <Typography variant="h6" sx={{ color: COLORS.textSecondary, fontWeight: 400 }}>
-                  Find projects that match your interests and expertise
+                  {t('Find projects that match your interests and expertise')}
                 </Typography>
               </Box>
             </Stack>
@@ -475,7 +482,7 @@ export const ExplorePage: React.FC = () => {
               <Grid size={{ xs: 12, md: 8 }}>
                 <TextField
                   fullWidth
-                  placeholder="Search by project name, title, or keywords..."
+                  placeholder={t('Search by project name, title, or keywords...')}
                   value={filters.search}
                   onChange={(e) => handleInputChange('search', e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
@@ -534,7 +541,7 @@ export const ExplorePage: React.FC = () => {
                       },
                     }}
                   >
-                    Filters
+                    {t('Filters')}
                     {showFilters ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                   </Button>
                   <Button
@@ -555,7 +562,7 @@ export const ExplorePage: React.FC = () => {
                       },
                     }}
                   >
-                    {searching ? <CircularProgress size={20} color="inherit" /> : 'Search'}
+                    {searching ? <CircularProgress size={20} color="inherit" /> : t('Search')}
                   </Button>
                 </Stack>
               </Grid>
@@ -572,11 +579,13 @@ export const ExplorePage: React.FC = () => {
                 <Grid container spacing={3}>
                   <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <FormControl fullWidth>
-                      <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>Program</InputLabel>
+                      <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>
+                        {t('Program')}
+                      </InputLabel>
                       <Select
                         value={filters.program_id}
                         onChange={(e) => handleInputChange('program_id', e.target.value)}
-                        label="Program"
+                        label={t('Program')}
                         sx={{ 
                           borderRadius: 3,
                           backgroundColor: COLORS.white,
@@ -588,7 +597,7 @@ export const ExplorePage: React.FC = () => {
                           },
                         }}
                       >
-                        <MenuItem value="">All Programs</MenuItem>
+                        <MenuItem value="">{t('All Programs')}</MenuItem>
                         {(programs || []).map((program) => (
                           <MenuItem key={program.id} value={program.id}>
                             {program.name}
@@ -600,11 +609,13 @@ export const ExplorePage: React.FC = () => {
 
                   <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <FormControl fullWidth>
-                      <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>Department</InputLabel>
+                      <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>
+                        {t('Department')}
+                      </InputLabel>
                       <Select
                         value={filters.department_id}
                         onChange={(e) => handleInputChange('department_id', e.target.value)}
-                        label="Department"
+                        label={t('Department')}
                         sx={{ 
                           borderRadius: 3,
                           backgroundColor: COLORS.white,
@@ -616,7 +627,7 @@ export const ExplorePage: React.FC = () => {
                           },
                         }}
                       >
-                        <MenuItem value="">All Departments</MenuItem>
+                        <MenuItem value="">{t('All Departments')}</MenuItem>
                         {(departments || []).map((dept) => (
                           <MenuItem key={dept.id} value={dept.id}>
                             {dept.name}
@@ -628,11 +639,13 @@ export const ExplorePage: React.FC = () => {
 
                   <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <FormControl fullWidth>
-                      <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>Academic Year</InputLabel>
+                      <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>
+                        {t('Academic Year')}
+                      </InputLabel>
                       <Select
                         value={filters.academic_year}
                         onChange={(e) => handleInputChange('academic_year', e.target.value)}
-                        label="Academic Year"
+                        label={t('Academic Year')}
                         sx={{ 
                           borderRadius: 3,
                           backgroundColor: COLORS.white,
@@ -644,7 +657,7 @@ export const ExplorePage: React.FC = () => {
                           },
                         }}
                       >
-                        <MenuItem value="">All Years</MenuItem>
+                        <MenuItem value="">{t('All Years')}</MenuItem>
                         {academicYearOptions.map((year) => (
                           <MenuItem key={year} value={year}>
                             {year}
@@ -656,11 +669,13 @@ export const ExplorePage: React.FC = () => {
 
                   <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <FormControl fullWidth>
-                      <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>Semester</InputLabel>
+                      <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>
+                        {t('Semester')}
+                      </InputLabel>
                       <Select
                         value={filters.semester}
                         onChange={(e) => handleInputChange('semester', e.target.value)}
-                        label="Semester"
+                        label={t('Semester')}
                         sx={{ 
                           borderRadius: 3,
                           backgroundColor: COLORS.white,
@@ -672,7 +687,7 @@ export const ExplorePage: React.FC = () => {
                           },
                         }}
                       >
-                        <MenuItem value="">All Semesters</MenuItem>
+                        <MenuItem value="">{t('All Semesters')}</MenuItem>
                         {semesterOptions.map((semester) => (
                           <MenuItem key={semester.value} value={semester.value}>
                             {semester.label}
@@ -684,11 +699,13 @@ export const ExplorePage: React.FC = () => {
 
                   <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <FormControl fullWidth>
-                      <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>Sort By</InputLabel>
+                      <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>
+                        {t('Sort By')}
+                      </InputLabel>
                       <Select
                         value={filters.sort_by}
                         onChange={(e) => handleInputChange('sort_by', e.target.value)}
-                        label="Sort By"
+                        label={t('Sort By')}
                         sx={{ 
                           borderRadius: 3,
                           backgroundColor: COLORS.white,
@@ -711,11 +728,13 @@ export const ExplorePage: React.FC = () => {
 
                   <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <FormControl fullWidth>
-                      <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>Order</InputLabel>
+                      <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>
+                        {t('Order')}
+                      </InputLabel>
                       <Select
                         value={filters.sort_order}
                         onChange={(e) => handleInputChange('sort_order', e.target.value)}
-                        label="Order"
+                        label={t('Order')}
                         sx={{ 
                           borderRadius: 3,
                           backgroundColor: COLORS.white,
@@ -727,8 +746,8 @@ export const ExplorePage: React.FC = () => {
                           },
                         }}
                       >
-                        <MenuItem value="desc">Newest First</MenuItem>
-                        <MenuItem value="asc">Oldest First</MenuItem>
+                        <MenuItem value="desc">{t('Newest First')}</MenuItem>
+                        <MenuItem value="asc">{t('Oldest First')}</MenuItem>
                       </Select>
                     </FormControl>
                   </Grid>
@@ -753,7 +772,7 @@ export const ExplorePage: React.FC = () => {
                       },
                     }}
                   >
-                    Clear All
+                    {t('Clear All')}
                   </Button>
                   <Button
                     variant="contained"
@@ -772,7 +791,7 @@ export const ExplorePage: React.FC = () => {
                       },
                     }}
                   >
-                    Apply Filters
+                    {t('Apply Filters')}
                   </Button>
                 </Stack>
               </Box>
@@ -819,7 +838,11 @@ export const ExplorePage: React.FC = () => {
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                     <FilterIcon sx={{ fontSize: 24, color: COLORS.almostBlack }} />
                     <Typography variant="h6" sx={{ fontWeight: 600, color: COLORS.textPrimary }}>
-                      Showing <strong style={{ color: COLORS.almostBlack }}>{filteredProjects.length}</strong> of <strong style={{ color: COLORS.textSecondary }}>{projects.length}</strong> projects
+                      {t('Showing')}{' '}
+                      <strong style={{ color: COLORS.almostBlack }}>{filteredProjects.length}</strong>{' '}
+                      {t('of')}{' '}
+                      <strong style={{ color: COLORS.textSecondary }}>{projects.length}</strong>{' '}
+                      {t('projects')}
                     </Typography>
                   </Box>
                   <Button
@@ -844,7 +867,7 @@ export const ExplorePage: React.FC = () => {
                       transition: 'all 0.3s ease',
                     }}
                   >
-                    Clear Filters
+                    {t('Clear Filters')}
                   </Button>
                 </Box>
               </Alert>
@@ -868,10 +891,10 @@ export const ExplorePage: React.FC = () => {
                 </Avatar>
                 <Box>
                   <Typography variant="h4" sx={{ fontWeight: 700, color: COLORS.textPrimary, mb: 1 }}>
-                    Top Projects ⭐
+                    {t('Top Projects ⭐')}
                   </Typography>
                   <Typography variant="h6" sx={{ color: COLORS.textSecondary, fontWeight: 400 }}>
-                    Most highly rated and innovative projects
+                    {t('Most highly rated and innovative projects')}
                   </Typography>
                 </Box>
               </Stack>

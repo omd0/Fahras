@@ -1,4 +1,5 @@
 import { createTheme, alpha } from '@mui/material/styles';
+import type { ThemeOptions } from '@mui/material/styles';
 
 // TVTC Official Brand Colors based on the provided JSON instructions
 export const tvtcColors = {
@@ -119,8 +120,7 @@ export const tvtcLayout = {
   },
 };
 
-// Create the main TVTC theme
-export const tvtcTheme = createTheme({
+const tvtcThemeOptions: ThemeOptions = {
   palette: {
     primary: {
       main: tvtcColors.primary,
@@ -375,7 +375,16 @@ export const tvtcTheme = createTheme({
       },
     },
   },
-});
+};
+
+export const createTvtcTheme = (direction: 'ltr' | 'rtl' = 'ltr') =>
+  createTheme({
+    ...tvtcThemeOptions,
+    direction,
+  });
+
+// Create the main TVTC theme
+export const tvtcTheme = createTvtcTheme();
 
 // TVTC CSS Variables for global styling
 export const tvtcCSSVariables = `

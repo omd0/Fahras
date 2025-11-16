@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { Box } from '@mui/material';
 import { ThemeProvider } from './contexts/ThemeContext';
-import { tvtcTheme, tvtcCSSVariables } from './theme/tvtcTheme';
+import { createTvtcTheme, tvtcCSSVariables } from './theme/tvtcTheme';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { RoleProtectedRoute } from './components/RoleProtectedRoute';
 import { HomePage } from './pages/HomePage';
@@ -30,6 +30,12 @@ import { NotificationsPage } from './pages/NotificationsPage';
 import { TestAuthPage } from './pages/TestAuthPage';
 import { TVTCBranding } from './components/TVTCBranding';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
+import { LanguageSwitcher } from './components/LanguageSwitcher';
+import { CacheProvider } from '@emotion/react';
+import createCache from '@emotion/cache';
+import { prefixer } from 'stylis';
+import rtlPlugin from 'stylis-plugin-rtl';
 
 // Apply TVTC CSS variables globally
 if (typeof document !== 'undefined') {
@@ -38,15 +44,41 @@ if (typeof document !== 'undefined') {
   document.head.appendChild(style);
 }
 
-function App() {
+const createEmotionCache = (direction: 'ltr' | 'rtl') =>
+  createCache({
+    key: direction === 'rtl' ? 'mui-rtl' : 'mui',
+    stylisPlugins: direction === 'rtl' ? [prefixer, rtlPlugin] : [prefixer],
+  });
+
+const AppContent: React.FC = () => {
+  const { direction } = useLanguage();
+
+  const theme = useMemo(() => createTvtcTheme(direction), [direction]);
+  const rtlCache = useMemo(() => createEmotionCache('rtl'), []);
+  const ltrCache = useMemo(() => createEmotionCache('ltr'), []);
+  const cache = direction === 'rtl' ? rtlCache : ltrCache;
+
   return (
-    <MuiThemeProvider theme={tvtcTheme}>
-      <CssBaseline />
-      <Router>
-        <ThemeProvider>
-          <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-            <Box sx={{ flexGrow: 1 }}>
-              <Routes>
+    <CacheProvider value={cache}>
+      <MuiThemeProvider theme={theme}>
+        <CssBaseline />
+        <Router>
+          <ThemeProvider>
+            <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  alignItems: 'center',
+                  px: 3,
+                  py: 1.5,
+                  gap: 1.5,
+                }}
+              >
+                <LanguageSwitcher />
+              </Box>
+              <Box sx={{ flexGrow: 1 }}>
+                <Routes>
           {/* Public routes */}
           <Route path="/" element={<ExplorePage />} />
           <Route path="/home" element={<HomePage />} />
@@ -221,15 +253,24 @@ function App() {
           
           {/* Catch all route - redirect to home */}
           <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </Box>
-          
-          {/* TVTC Footer */}
-          <TVTCBranding variant="footer" showDescription={true} />
-          </Box>
-        </ThemeProvider>
-      </Router>
-    </MuiThemeProvider>
+                </Routes>
+              </Box>
+              
+              {/* TVTC Footer */}
+              <TVTCBranding variant="footer" showDescription={true} />
+            </Box>
+          </ThemeProvider>
+        </Router>
+      </MuiThemeProvider>
+    </CacheProvider>
+  );
+};
+
+function App() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 }
 
