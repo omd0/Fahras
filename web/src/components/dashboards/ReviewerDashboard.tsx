@@ -15,6 +15,7 @@ import { apiService } from '../../services/api';
 import { getRoleInfo } from '../../config/dashboardThemes';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { DashboardContainer } from '../shared/DashboardContainer';
 import { DashboardHeader } from '../shared/DashboardHeader';
 import { StatsCard } from '../shared/StatsCard';
@@ -44,7 +45,8 @@ export const ReviewerDashboard: React.FC = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const roleInfo = getRoleInfo('reviewer', user?.full_name);
+  const { t } = useLanguage();
+  const roleInfo = getRoleInfo('reviewer', user?.full_name, t);
 
   useEffect(() => {
     fetchDashboardData();

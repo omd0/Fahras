@@ -66,6 +66,7 @@ import { Project } from '../../types';
 import { apiService } from '../../services/api';
 import { getRoleInfo } from '../../config/dashboardThemes';
 import { useAuthStore } from '../../store/authStore';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { DashboardContainer } from '../shared/DashboardContainer';
 import { DashboardHeader } from '../shared/DashboardHeader';
@@ -147,7 +148,8 @@ export const FacultyDashboard: React.FC = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const roleInfo = getRoleInfo('faculty', user?.full_name);
+  const { t } = useLanguage();
+  const roleInfo = getRoleInfo('faculty', user?.full_name, t);
   const userIsFaculty = (user?.roles || []).some(role => role.name === 'faculty');
 
   const isMyAdvisingProject = (project: Project) => {
@@ -309,8 +311,8 @@ export const FacultyDashboard: React.FC = () => {
               flexGrow: 1, 
               fontWeight: 600,
               letterSpacing: '0.5px'
-            }}>
-              Advisor Projects
+            }}            >
+              {t('Advisor Projects')}
             </Typography>
           </Box>
           <Box sx={{ flexGrow: 1 }} />
@@ -363,11 +365,11 @@ export const FacultyDashboard: React.FC = () => {
           >
             <MenuItem onClick={handleProfileClick} sx={{ py: 1.5 }}>
               <AccountCircle sx={{ mr: 2, color: ANALYTICS_COLORS.primary.main }} />
-              Profile
+              {t('Profile')}
             </MenuItem>
             <MenuItem onClick={handleLogout} sx={{ py: 1.5 }}>
               <ExitToApp sx={{ mr: 2, color: ANALYTICS_COLORS.warning.main }} />
-              Logout
+              {t('Logout')}
             </MenuItem>
           </Menu>
         </Toolbar>
@@ -404,7 +406,7 @@ export const FacultyDashboard: React.FC = () => {
                       fontWeight: 500,
                       letterSpacing: '0.5px'
                     }}>
-                      Total Advising Projects
+                      {t('Total Advising Projects')}
                     </Typography>
                   </Box>
                   <Typography variant="h3" sx={{ 
@@ -415,7 +417,7 @@ export const FacultyDashboard: React.FC = () => {
                     {stats.advisingProjects}
                   </Typography>
                   <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                    Projects you're advising
+                    {t("Projects you're advising")}
                   </Typography>
                 </CardContent>
               </Card>
@@ -448,7 +450,7 @@ export const FacultyDashboard: React.FC = () => {
                       fontWeight: 500,
                       letterSpacing: '0.5px'
                     }}>
-                      Under Review
+                      {t('Under Review')}
                     </Typography>
                   </Box>
                   <Typography variant="h3" sx={{ 
@@ -459,7 +461,7 @@ export const FacultyDashboard: React.FC = () => {
                     {stats.underReview}
                   </Typography>
                   <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                    Projects in review
+                    {t('Projects in review')}
                   </Typography>
                 </CardContent>
               </Card>
@@ -492,7 +494,7 @@ export const FacultyDashboard: React.FC = () => {
                       fontWeight: 500,
                       letterSpacing: '0.5px'
                     }}>
-                      Completed
+                      {t('Completed')}
                     </Typography>
                   </Box>
                   <Typography variant="h3" sx={{ 
@@ -503,7 +505,7 @@ export const FacultyDashboard: React.FC = () => {
                     {stats.completed}
                   </Typography>
                   <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                    Successfully completed
+                    {t('Successfully completed')}
                   </Typography>
                 </CardContent>
               </Card>
@@ -536,7 +538,7 @@ export const FacultyDashboard: React.FC = () => {
                       fontWeight: 500,
                       letterSpacing: '0.5px'
                     }}>
-                      This Month
+                      {t('This Month')}
                     </Typography>
                   </Box>
                   <Typography variant="h3" sx={{ 
@@ -547,7 +549,7 @@ export const FacultyDashboard: React.FC = () => {
                     {stats.thisMonth}
                   </Typography>
                   <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                    New this month
+                    {t('New this month')}
                   </Typography>
                 </CardContent>
               </Card>
@@ -585,14 +587,14 @@ export const FacultyDashboard: React.FC = () => {
                       fontWeight: 600,
                       color: ANALYTICS_COLORS.neutral[800]
                     }}>
-                      My Advising Projects
+                      {t('My Advising Projects')}
                     </Typography>
                   </Box>
                   <Typography variant="body2" sx={{ 
                     color: ANALYTICS_COLORS.neutral[600],
                     ml: 6
                   }}>
-                    Manage and filter your advising projects with advanced search and sorting
+                    {t('Manage and filter your advising projects')} {t('with advanced search and sorting')}
                 </Typography>
               </Box>
                 <CardContent sx={{ p: 4 }}>
@@ -607,14 +609,14 @@ export const FacultyDashboard: React.FC = () => {
                     alignItems: 'center'
                   }}>
                     <ShowChartIcon sx={{ mr: 1, color: ANALYTICS_COLORS.secondary.main }} />
-                    Search & Filter Options
+                    {t('Search & Filter Options')}
                   </Typography>
 
               <Grid container spacing={3}>
                     <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                       <TextField
                         fullWidth
-                        placeholder="Search projects..."
+                        placeholder={t('Search projects...')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         InputProps={{
@@ -649,12 +651,12 @@ export const FacultyDashboard: React.FC = () => {
                             color: ANALYTICS_COLORS.primary.main
                           }
                         }}>
-                          Status
+                          {t('Status')}
                         </InputLabel>
                         <Select
                           value={statusFilter}
                           onChange={(e) => setStatusFilter(e.target.value)}
-                          label="Status"
+                          label={t('Status')}
                           sx={{
                             '& .MuiOutlinedInput-notchedOutline': {
                               borderColor: ANALYTICS_COLORS.neutral[300],
@@ -667,13 +669,13 @@ export const FacultyDashboard: React.FC = () => {
                             }
                           }}
                         >
-                          <MenuItem value="">All Statuses</MenuItem>
-                          <MenuItem value="draft">Draft</MenuItem>
-                          <MenuItem value="submitted">Submitted</MenuItem>
-                          <MenuItem value="under_review">Under Review</MenuItem>
-                          <MenuItem value="approved">Approved</MenuItem>
-                          <MenuItem value="completed">Completed</MenuItem>
-                          <MenuItem value="rejected">Rejected</MenuItem>
+                          <MenuItem value="">{t('All Statuses')}</MenuItem>
+                          <MenuItem value="draft">{t('Draft')}</MenuItem>
+                          <MenuItem value="submitted">{t('Submit')}</MenuItem>
+                          <MenuItem value="under_review">{t('Under Review')}</MenuItem>
+                          <MenuItem value="approved">{t('Approved')}</MenuItem>
+                          <MenuItem value="completed">{t('Completed')}</MenuItem>
+                          <MenuItem value="rejected">{t('Rejected')}</MenuItem>
                         </Select>
                       </FormControl>
               </Grid>
@@ -686,12 +688,12 @@ export const FacultyDashboard: React.FC = () => {
                             color: ANALYTICS_COLORS.primary.main
                           }
                         }}>
-                          Sort By
+                          {t('Sort By')}
                         </InputLabel>
                         <Select
                           value={sortBy}
                           onChange={(e) => setSortBy(e.target.value)}
-                          label="Sort By"
+                          label={t('Sort By')}
                           sx={{
                             '& .MuiOutlinedInput-notchedOutline': {
                               borderColor: ANALYTICS_COLORS.neutral[300],
@@ -704,9 +706,9 @@ export const FacultyDashboard: React.FC = () => {
                             }
                           }}
                         >
-                          <MenuItem value="created_at">Date Created</MenuItem>
-                          <MenuItem value="title">Title</MenuItem>
-                          <MenuItem value="status">Status</MenuItem>
+                          <MenuItem value="created_at">{t('Date Created')}</MenuItem>
+                          <MenuItem value="title">{t('Title')}</MenuItem>
+                          <MenuItem value="status">{t('Status')}</MenuItem>
                         </Select>
                       </FormControl>
                     </Grid>
@@ -734,7 +736,7 @@ export const FacultyDashboard: React.FC = () => {
                             }
                           }}
                         >
-                          Clear
+                          {t('Clear')}
                 </Button>
               </Box>
                     </Grid>
@@ -745,7 +747,7 @@ export const FacultyDashboard: React.FC = () => {
                 <Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1, mb: 2 }}>
                     <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                      Advising Projects ({filteredProjects.length})
+                      {t('Advising Projects')} ({filteredProjects.length})
                     </Typography>
                     {searchTerm && (
                       <Chip 
@@ -828,7 +830,7 @@ export const FacultyDashboard: React.FC = () => {
                                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                         <PeopleIcon sx={{ color: 'text.secondary', mr: 0.5, fontSize: 16 }} />
                                         <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 'medium' }}>
-                                          {project.members?.length || 0} members
+                                          {project.members?.length || 0} {t('members')}
                                         </Typography>
                                       </Box>
                                     </Box>
@@ -844,7 +846,7 @@ export const FacultyDashboard: React.FC = () => {
                                     handleProjectClick(project.id);
                                   }}
                                 >
-                                  View Details
+                                  {t('View Details')}
                                 </Button>
                               </ListItemSecondaryAction>
                             </ListItem>
@@ -858,8 +860,8 @@ export const FacultyDashboard: React.FC = () => {
                       <SchoolIcon sx={{ fontSize: 64, color: 'text.secondary', opacity: 0.3, mb: 2 }} />
                       <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
                         {stats.advisingProjects === 0 
-                          ? "No advising projects yet. You will see projects here once students add you as their advisor."
-                          : "No projects match your current filters."
+                          ? t('No advising projects yet. You will see projects here once students add you as their advisor.')
+                          : t('No projects match your current filters.')
                         }
                       </Typography>
                       {stats.advisingProjects === 0 && (
@@ -874,7 +876,7 @@ export const FacultyDashboard: React.FC = () => {
                             }
                           }}
                         >
-                          Create New Project
+                          {t('Create New Project')}
                         </Button>
                       )}
                     </Paper>

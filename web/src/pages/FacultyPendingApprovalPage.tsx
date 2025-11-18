@@ -47,6 +47,7 @@ import { Project, Program, Department } from '../types';
 import { apiService } from '../services/api';
 import { TVTCLogo } from '../components/TVTCLogo';
 import { getDashboardTheme } from '../config/dashboardThemes';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -73,6 +74,7 @@ function TabPanel(props: TabPanelProps) {
 const FacultyPendingApprovalPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
+  const { t } = useLanguage();
   const dashboardTheme = getDashboardTheme(user?.roles);
   
   const [projects, setProjects] = useState<Project[]>([]);
@@ -426,7 +428,7 @@ const FacultyPendingApprovalPage: React.FC = () => {
                           </Typography>
                         </TableCell>
                         <TableCell>
-                          <Tooltip title="View Details">
+                          <Tooltip title={t('View Details')}>
                             <IconButton
                               size="small"
                               onClick={() => handleViewProject(project)}
@@ -516,7 +518,7 @@ const FacultyPendingApprovalPage: React.FC = () => {
                             </Typography>
                           </TableCell>
                           <TableCell>
-                            <Tooltip title="View Details">
+                            <Tooltip title={t('View Details')}>
                               <IconButton
                                 size="small"
                                 onClick={() => handleViewProject(project)}
@@ -595,7 +597,7 @@ const FacultyPendingApprovalPage: React.FC = () => {
                             </Typography>
                           </TableCell>
                           <TableCell>
-                            <Tooltip title="View Details">
+                            <Tooltip title={t('View Details')}>
                               <IconButton
                                 size="small"
                                 onClick={() => handleViewProject(project)}

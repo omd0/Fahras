@@ -225,9 +225,9 @@ export const ExplorePage: React.FC = () => {
   };
 
   const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return `0 ${t('Bytes')}`;
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = [t('Bytes'), t('KB'), t('MB'), t('GB')];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
@@ -1024,7 +1024,7 @@ export const ExplorePage: React.FC = () => {
                                 }}
                               />
                               <Typography variant="body2" sx={{ color: COLORS.textSecondary, fontWeight: 600 }}>
-                                {project.average_rating.toFixed(1)} ({project.rating_count} ratings)
+                                {project.average_rating.toFixed(1)} ({project.rating_count} {t('ratings')})
                               </Typography>
                             </Stack>
                           </Box>
@@ -1047,7 +1047,7 @@ export const ExplorePage: React.FC = () => {
                               },
                             }}
                           >
-                            View Project
+                            {t('View Project')}
                           </Button>
                           <Stack direction="row" spacing={1}>
                             <IconButton size="small" sx={{ color: COLORS.textSecondary }}>
@@ -1085,10 +1085,10 @@ export const ExplorePage: React.FC = () => {
               </Avatar>
               <Box>
                 <Typography variant="h4" sx={{ fontWeight: 700, color: COLORS.textPrimary, mb: 1 }}>
-                  All Projects
+                  {t('All Projects')}
                 </Typography>
                 <Typography variant="h6" sx={{ color: COLORS.textSecondary, fontWeight: 400 }}>
-                  Explore all available graduation projects
+                  {t('Explore all available graduation projects')}
                 </Typography>
               </Box>
             </Stack>
@@ -1229,7 +1229,7 @@ export const ExplorePage: React.FC = () => {
                             ))}
                             {project.keywords.length > 3 && (
                               <Chip
-                                label={`+${project.keywords.length - 3} more`}
+                                label={`+${project.keywords.length - 3} ${t('more')}`}
                                 size="small"
                                 variant="outlined"
                                 sx={{
@@ -1252,7 +1252,7 @@ export const ExplorePage: React.FC = () => {
                             <Stack direction="row" alignItems="center" spacing={1.5}>
                               <AttachFileIcon sx={{ fontSize: 18, color: COLORS.almostBlack }} />
                               <Typography variant="body2" sx={{ color: COLORS.textSecondary, fontWeight: 600 }}>
-                                {project.files?.length || 0} files
+                                {project.files?.length || 0} {t('files')}
                               </Typography>
                             </Stack>
                           </Grid>
@@ -1260,7 +1260,7 @@ export const ExplorePage: React.FC = () => {
                             <Stack direction="row" alignItems="center" spacing={1.5}>
                               <GroupIcon sx={{ fontSize: 18, color: COLORS.deepPurple }} />
                               <Typography variant="body2" sx={{ color: COLORS.textSecondary, fontWeight: 600 }}>
-                                {(project.members?.length || 0) + (project.advisors?.length || 0) + 1} members
+                                {(project.members?.length || 0) + (project.advisors?.length || 0) + 1} {t('members')}
                               </Typography>
                             </Stack>
                           </Grid>
@@ -1327,20 +1327,20 @@ export const ExplorePage: React.FC = () => {
                       },
                           }}
                         >
-                          View Project
+                          {t('View Project')}
                         </Button>
                         <Stack direction="row" spacing={1}>
-                          <Tooltip title="View Comments">
+                          <Tooltip title={t('View Comments')}>
                             <IconButton size="small" sx={{ color: COLORS.textSecondary }}>
                               <CommentIcon fontSize="small" />
                             </IconButton>
                           </Tooltip>
-                          <Tooltip title="Like Project">
+                          <Tooltip title={t('Like Project')}>
                             <IconButton size="small" sx={{ color: COLORS.textSecondary }}>
                               <ThumbUpIcon fontSize="small" />
                             </IconButton>
                           </Tooltip>
-                          <Tooltip title="Share Project">
+                          <Tooltip title={t('Share Project')}>
                             <IconButton size="small" sx={{ color: COLORS.textSecondary }}>
                               <ShareIcon fontSize="small" />
                             </IconButton>
@@ -1372,11 +1372,10 @@ export const ExplorePage: React.FC = () => {
                 <SearchIcon sx={{ fontSize: 70, color: COLORS.almostBlack }} />
               </Avatar>
               <Typography variant="h4" sx={{ color: COLORS.textPrimary, fontWeight: 700, mb: 3 }}>
-                No projects found
+                {t('No projects found')}
               </Typography>
               <Typography variant="h6" sx={{ color: COLORS.textSecondary, mb: 6, maxWidth: 500, mx: 'auto', lineHeight: 1.6 }}>
-                We couldn't find any projects matching your search criteria. 
-                Try adjusting your filters to discover more amazing projects!
+                {t('We couldn\'t find any projects matching your search criteria. Try adjusting your filters to discover more amazing projects!')}
               </Typography>
               <Button
                 variant="contained"
@@ -1399,7 +1398,7 @@ export const ExplorePage: React.FC = () => {
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
               >
-                Clear All Filters
+                {t('Clear All Filters')}
               </Button>
             </Box>
           </Fade>
@@ -1422,11 +1421,10 @@ export const ExplorePage: React.FC = () => {
                 <RocketIcon sx={{ fontSize: 70, color: COLORS.almostBlack }} />
               </Avatar>
               <Typography variant="h4" sx={{ color: COLORS.textPrimary, fontWeight: 700, mb: 3 }}>
-                No projects available yet
+                {t('No projects available yet')}
               </Typography>
               <Typography variant="h6" sx={{ color: COLORS.textSecondary, mb: 6, maxWidth: 500, mx: 'auto', lineHeight: 1.6 }}>
-                Check back later to discover amazing graduation projects from TVTC students! 
-                We're constantly adding new innovative projects to explore.
+                {t('Check back later to discover amazing graduation projects from TVTC students! We\'re constantly adding new innovative projects to explore.')}
               </Typography>
               <Button
                 variant="outlined"
@@ -1450,7 +1448,7 @@ export const ExplorePage: React.FC = () => {
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
               >
-                Refresh Page
+                {t('Refresh Page')}
               </Button>
             </Box>
           </Fade>

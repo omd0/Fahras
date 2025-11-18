@@ -63,6 +63,7 @@ import { Project } from '../../types';
 import { apiService } from '../../services/api';
 import { getRoleInfo } from '../../config/dashboardThemes';
 import { useAuthStore } from '../../store/authStore';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { DashboardContainer } from '../shared/DashboardContainer';
 import { DashboardHeader } from '../shared/DashboardHeader';
@@ -105,7 +106,8 @@ export const StudentDashboard: React.FC = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const roleInfo = getRoleInfo('student', user?.full_name);
+  const { t } = useLanguage();
+  const roleInfo = getRoleInfo('student', user?.full_name, t);
   const myProjectsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -337,10 +339,10 @@ export const StudentDashboard: React.FC = () => {
               </Avatar>
               <Box>
                 <Typography variant="h3" sx={{ fontWeight: 800, mb: 1, textShadow: '0 2px 4px rgba(0,0,0,0.1)', color: 'white' }}>
-                  Welcome back, {user?.full_name?.split(' ')[0] || 'Student'}! 🚀
+                  {t('Welcome back')}, {user?.full_name?.split(' ')[0] || t('Student')}! 🚀
                 </Typography>
                 <Typography variant="h6" sx={{ opacity: 0.9, fontWeight: 400 }}>
-                  Ready to build something amazing? Let's explore your projects and create new innovations.
+                  {t('Ready to build something amazing? Let\'s explore your projects and create new innovations.')}
                 </Typography>
               </Box>
             </Stack>
@@ -376,7 +378,7 @@ export const StudentDashboard: React.FC = () => {
                 }} 
               />
               <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 500 }}>
-                Loading your dashboard...
+                {t('Loading your dashboard...')}
               </Typography>
             </Stack>
         </Box>
@@ -418,7 +420,7 @@ export const StudentDashboard: React.FC = () => {
                             {stats.myProjects}
                           </Typography>
                           <Typography variant="h6" sx={{ opacity: 0.9, fontWeight: 500, color: 'white' }}>
-                            My Projects
+                            {t('My Projects')}
                           </Typography>
                         </Box>
                         <Avatar
@@ -471,7 +473,7 @@ export const StudentDashboard: React.FC = () => {
                             {stats.inProgress}
                           </Typography>
                           <Typography variant="h6" sx={{ opacity: 0.9, fontWeight: 500, color: 'white' }}>
-                            In Progress
+                            {t('In Progress')}
                           </Typography>
                         </Box>
                         <Avatar
@@ -524,7 +526,7 @@ export const StudentDashboard: React.FC = () => {
                             {stats.completed}
                           </Typography>
                           <Typography variant="h6" sx={{ opacity: 0.9, fontWeight: 500, color: 'white' }}>
-                            Completed
+                            {t('Completed')}
                           </Typography>
                         </Box>
                         <Avatar
@@ -577,7 +579,7 @@ export const StudentDashboard: React.FC = () => {
                             {stats.pendingApproval}
                           </Typography>
                           <Typography variant="h6" sx={{ opacity: 0.9, fontWeight: 500, color: 'white' }}>
-                            Pending Approval
+                            {t('Pending Approval')}
                           </Typography>
                         </Box>
                         <Avatar
@@ -637,10 +639,10 @@ export const StudentDashboard: React.FC = () => {
                           </Avatar>
                           <Box>
                             <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary' }}>
-                        Recent Activity
+                        {t('Recent Activity')}
                       </Typography>
                             <Typography variant="body2" color="text.secondary">
-                              Stay updated with your projects
+                              {t('Stay updated with your projects')}
                             </Typography>
                     </Box>
                         </Stack>
@@ -655,7 +657,7 @@ export const StudentDashboard: React.FC = () => {
                           }}
                         >
                     <Chip
-                            label="Live"
+                            label={t('Live')}
                       size="small"
                       sx={{
                               background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
@@ -680,7 +682,7 @@ export const StudentDashboard: React.FC = () => {
                         }} 
                       />
                             <Typography variant="body2" color="text.secondary">
-                              Loading notifications...
+                              {t('Loading notifications...')}
                             </Typography>
                           </Stack>
                     </Box>
@@ -803,7 +805,7 @@ export const StudentDashboard: React.FC = () => {
                               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                         }}
                       >
-                        View All Notifications
+                        {t('View All Notifications')}
                       </Button>
                     </>
                   ) : (
@@ -821,10 +823,10 @@ export const StudentDashboard: React.FC = () => {
                             <NotificationsIcon sx={{ fontSize: 40, color: '#FF4500' }} />
                           </Avatar>
                           <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 600, mb: 1 }}>
-                        No recent activity
+                        {t('No recent activity')}
                       </Typography>
                           <Typography variant="body2" color="text.secondary">
-                            You're all caught up! Check back later for updates.
+                            {t("You're all caught up! Check back later for updates.")}
                           </Typography>
                     </Box>
                   )}
@@ -886,7 +888,7 @@ export const StudentDashboard: React.FC = () => {
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
                       }}>
-                        Ready to Build Something Amazing?
+                        {t('Ready to Build Something Amazing?')}
                   </Typography>
                       
                       <Typography variant="h6" color="text.secondary" sx={{ 
@@ -896,8 +898,7 @@ export const StudentDashboard: React.FC = () => {
                         fontWeight: 400,
                         lineHeight: 1.6,
                       }}>
-                        Create a new graduation project and start documenting your work. 
-                        Share your innovations with the TVTC community and make your mark in technology.
+                        {t('Create a new graduation project and start documenting your work. Share your innovations with the TVTC community and make your mark in technology.')}
                   </Typography>
                       
                       <Stack direction="row" spacing={3} justifyContent="center" sx={{ mb: 3 }}>
@@ -921,7 +922,7 @@ export const StudentDashboard: React.FC = () => {
                             transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                     }}
                   >
-                    Create New Project
+                    {t('Create New Project')}
                   </Button>
                       </Stack>
                       
@@ -929,19 +930,19 @@ export const StudentDashboard: React.FC = () => {
                         <Stack direction="row" alignItems="center" spacing={1}>
                           <AutoAwesomeIcon sx={{ color: theme.primary, fontSize: 20 }} />
                           <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
-                            Innovation Ready
+                            {t('Innovation Ready')}
                           </Typography>
                         </Stack>
                         <Stack direction="row" alignItems="center" spacing={1}>
                           <GroupIcon sx={{ color: theme.secondary, fontSize: 20 }} />
                           <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
-                            Community Driven
+                            {t('Community Driven')}
                           </Typography>
                         </Stack>
                         <Stack direction="row" alignItems="center" spacing={1}>
                           <EmojiEventsIcon sx={{ color: theme.accent, fontSize: 20 }} />
                           <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
-                            Excellence Focused
+                            {t('Excellence Focused')}
                           </Typography>
                         </Stack>
                       </Stack>
@@ -986,10 +987,10 @@ export const StudentDashboard: React.FC = () => {
                   </Avatar>
                   <Box>
                     <Typography variant="h5" sx={{ fontWeight: 700, color: 'text.primary' }}>
-                      Smart Project Discovery
+                      {t('Smart Project Discovery')}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Find projects that match your interests and expertise
+                      {t('Find projects that match your interests and expertise')}
                     </Typography>
                   </Box>
                 </Stack>
@@ -1044,7 +1045,7 @@ export const StudentDashboard: React.FC = () => {
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <FilterAltIcon sx={{ fontSize: 20 }} />
                     <Typography variant="body2">
-                      Showing <strong>{filteredProjects.length}</strong> of <strong>{projects.length}</strong> projects
+                      {t('Showing')} <strong>{filteredProjects.length}</strong> {t('of')} <strong>{projects.length}</strong> {t('projects')}
                     </Typography>
                   </Box>
                   <Button
@@ -1066,7 +1067,7 @@ export const StudentDashboard: React.FC = () => {
                       whiteSpace: 'nowrap',
                     }}
                   >
-                    Clear All Filters
+                    {t('Clear All Filters')}
                   </Button>
                 </Box>
               </Alert>
@@ -1111,10 +1112,10 @@ export const StudentDashboard: React.FC = () => {
                       </Avatar>
                       <Box>
                         <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary' }}>
-                          My Projects
+                          {t('My Projects')}
                         </Typography>
                         <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500 }}>
-                          {myProjects.length} {myProjects.length === 1 ? 'project' : 'projects'} in your portfolio
+                          {myProjects.length} {myProjects.length === 1 ? t('project') : t('projects')} {t('in your portfolio')}
                 </Typography>
               </Box>
                     </Stack>
@@ -1203,7 +1204,7 @@ export const StudentDashboard: React.FC = () => {
                                   />
                                 </Box>
                                 <Stack direction="row" spacing={1}>
-                                  <Tooltip title="Edit Project">
+                                  <Tooltip title={t('Edit Project')}>
                                     <IconButton
                                       size="small"
                                       onClick={(e) => {
@@ -1220,7 +1221,7 @@ export const StudentDashboard: React.FC = () => {
                                       <EditIcon fontSize="small" />
                                     </IconButton>
                                   </Tooltip>
-                                  <Tooltip title="View Project">
+                                  <Tooltip title={t('View Project')}>
                                     <IconButton
                                       size="small"
                                       onClick={(e) => {
@@ -1261,7 +1262,7 @@ export const StudentDashboard: React.FC = () => {
                               <Box sx={{ mb: 3 }}>
                                 <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
                                   <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
-                                    Progress
+                                    {t('Progress')}
                                   </Typography>
                                   <Typography variant="caption" sx={{ fontWeight: 700, color: theme.primary }}>
                                     {(() => {
@@ -1335,10 +1336,10 @@ export const StudentDashboard: React.FC = () => {
                         <SchoolIcon sx={{ fontSize: 60, color: 'text.secondary' }} />
                       </Avatar>
                       <Typography variant="h5" color="text.secondary" sx={{ fontWeight: 700, mb: 2 }}>
-                    No projects yet
+                    {t('No projects yet')}
                   </Typography>
                       <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 400, mx: 'auto' }}>
-                        Create your first graduation project to get started on your journey of innovation and learning.
+                        {t('Create your first graduation project to get started on your journey of innovation and learning.')}
                   </Typography>
                   <Button
                     variant="contained"
@@ -1360,7 +1361,7 @@ export const StudentDashboard: React.FC = () => {
                           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                         }}
                       >
-                        Create Your First Project
+                        {t('Create Your First Project')}
                   </Button>
                 </Box>
               )}
@@ -1404,10 +1405,10 @@ export const StudentDashboard: React.FC = () => {
                       </Avatar>
                       <Box>
                         <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary' }}>
-                          Community Projects
+                          {t('Community Projects')}
                         </Typography>
                         <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500 }}>
-                          Discover innovative projects from fellow students
+                          {t('Discover innovative projects from fellow students')}
                         </Typography>
               </Box>
                     </Stack>
@@ -1430,7 +1431,7 @@ export const StudentDashboard: React.FC = () => {
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                       }}
                     >
-                      View All Projects
+                      {t('View All Projects')}
                     </Button>
                   </Stack>
 
@@ -1506,7 +1507,7 @@ export const StudentDashboard: React.FC = () => {
                                     }}
                                   />
                                 </Box>
-                                <Tooltip title="View Project">
+                                <Tooltip title={t('View Project')}>
                                   <IconButton
                                     size="small"
                                     onClick={(e) => {
@@ -1578,10 +1579,10 @@ export const StudentDashboard: React.FC = () => {
                         <GroupIcon sx={{ fontSize: 60, color: 'text.secondary' }} />
                       </Avatar>
                       <Typography variant="h5" color="text.secondary" sx={{ fontWeight: 700, mb: 2 }}>
-                        No matching projects found
+                        {t('No matching projects found')}
                       </Typography>
                       <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 400, mx: 'auto' }}>
-                        Try adjusting your search filters to discover more projects from the community.
+                        {t('Try adjusting your search filters to discover more projects from the community.')}
                       </Typography>
                       <Button
                         variant="outlined"
@@ -1605,7 +1606,7 @@ export const StudentDashboard: React.FC = () => {
                           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                         }}
                       >
-                        Clear Filters
+                        {t('Clear Filters')}
                       </Button>
                 </Box>
               )}
@@ -1624,10 +1625,10 @@ export const StudentDashboard: React.FC = () => {
                         <GroupIcon sx={{ fontSize: 60, color: 'text.secondary' }} />
                       </Avatar>
                       <Typography variant="h5" color="text.secondary" sx={{ fontWeight: 700, mb: 2 }}>
-                        No community projects yet
+                        {t('No community projects yet')}
                       </Typography>
                       <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 400, mx: 'auto' }}>
-                        Be the first to create a project and inspire others in the community!
+                        {t("Be the first to create a project and inspire others in the community!")}
                       </Typography>
                       <Button
                         variant="contained"
@@ -1649,7 +1650,7 @@ export const StudentDashboard: React.FC = () => {
                           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                         }}
                       >
-                        Create First Project
+                        {t('Create First Project')}
                       </Button>
                 </Box>
               )}

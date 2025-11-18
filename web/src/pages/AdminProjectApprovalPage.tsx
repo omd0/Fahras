@@ -46,6 +46,7 @@ import { Project, Program, Department } from '../types';
 import { apiService } from '../services/api';
 import ProjectApprovalActions from '../components/ProjectApprovalActions';
 import ProjectVisibilityToggle from '../components/ProjectVisibilityToggle';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -71,6 +72,7 @@ function TabPanel(props: TabPanelProps) {
 
 const AdminProjectApprovalPage: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [tabValue, setTabValue] = useState(0);
   const [projects, setProjects] = useState<Project[]>([]);
   const [pendingProjects, setPendingProjects] = useState<Project[]>([]);
@@ -395,7 +397,7 @@ const AdminProjectApprovalPage: React.FC = () => {
                         )}
                         <TableCell>
                           <Box sx={{ display: 'flex', gap: 1 }}>
-                            <Tooltip title="View Details">
+                            <Tooltip title={t('View Details')}>
                               <IconButton
                                 size="small"
                                 onClick={() => handleViewProject(project)}

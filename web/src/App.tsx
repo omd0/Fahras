@@ -62,8 +62,7 @@ const AppContent: React.FC = () => {
     <CacheProvider value={cache}>
       <MuiThemeProvider theme={theme}>
         <CssBaseline />
-        <Router>
-          <ThemeProvider>
+        <ThemeProvider>
             <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
               <Box
                 sx={{
@@ -260,7 +259,6 @@ const AppContent: React.FC = () => {
               <TVTCBranding variant="footer" showDescription={true} />
             </Box>
           </ThemeProvider>
-        </Router>
       </MuiThemeProvider>
     </CacheProvider>
   );
@@ -268,9 +266,11 @@ const AppContent: React.FC = () => {
 
 function App() {
   return (
-    <LanguageProvider>
-      <AppContent />
-    </LanguageProvider>
+    <Router>
+      <LanguageProvider>
+        <AppContent />
+      </LanguageProvider>
+    </Router>
   );
 }
 

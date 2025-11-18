@@ -30,10 +30,12 @@ import { TVTCLogo } from '../components/TVTCLogo';
 import { useAuthStore } from '../store/authStore';
 import { apiService } from '../services/api';
 import { Project } from '../types';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuthStore();
+  const { t } = useLanguage();
   const [recentProjects, setRecentProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -88,7 +90,7 @@ export const HomePage: React.FC = () => {
         <Toolbar>
           <TVTCLogo size="medium" variant="icon" color="inherit" sx={{ mr: 2 }} />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 600 }}>
-            Fahras - Graduation Projects Repository
+            {t('Fahras')} - {t('Projects')} {t('Repository')}
           </Typography>
           {!isAuthenticated && (
             <>
@@ -98,7 +100,7 @@ export const HomePage: React.FC = () => {
                 onClick={() => navigate('/login')}
                 sx={{ mr: 1 }}
               >
-                Login
+                {t('Login')}
               </Button>
               <Button
                 variant="outlined"
@@ -113,7 +115,7 @@ export const HomePage: React.FC = () => {
                   } 
                 }}
               >
-                Register
+                {t('Register')}
               </Button>
             </>
           )}
@@ -139,9 +141,9 @@ export const HomePage: React.FC = () => {
                 fontSize: { xs: '2rem', md: '3rem' },
                 color: 'white',
               }}
-            >
-              Welcome to Fahras
-            </Typography>
+              >
+                {t('Welcome to Fahras')}
+              </Typography>
             <Typography 
               variant="h6" 
               sx={{ 
@@ -154,8 +156,7 @@ export const HomePage: React.FC = () => {
                 mx: 'auto',
               }}
             >
-              Discover and explore innovative graduation projects from students across 
-              TVTC programs
+              {t('Discover and explore innovative graduation projects from students across TVTC programs')}
             </Typography>
 
             <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -181,7 +182,7 @@ export const HomePage: React.FC = () => {
                   transition: 'all 0.3s ease',
                 }}
               >
-                Submit a Project
+                {t('Submit a Project')}
               </Button>
               <Button
                 variant="outlined"
@@ -202,7 +203,7 @@ export const HomePage: React.FC = () => {
                   },
                 }}
               >
-                Explore Projects
+                {t('Explore Projects')}
               </Button>
             </Box>
           </Box>
@@ -214,10 +215,10 @@ export const HomePage: React.FC = () => {
         <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Box>
             <Typography variant="h4" sx={{ fontWeight: 700, color: '#1e3a8a', mb: 1 }}>
-              Recent Projects
+              {t('Recent Projects')}
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              Explore the latest graduation projects from our talented students
+              {t('Explore the latest graduation projects from our talented students')}
             </Typography>
           </Box>
         </Box>
@@ -313,7 +314,7 @@ export const HomePage: React.FC = () => {
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
                           <PersonIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
                           <Typography variant="body2" color="text.secondary">
-                            {project.creator?.full_name || 'Unknown Author'}
+                            {project.creator?.full_name || t('Unknown Author')}
                           </Typography>
                         </Box>
 
@@ -362,7 +363,7 @@ export const HomePage: React.FC = () => {
                   transition: 'all 0.3s ease',
                 }}
               >
-                Show More Projects
+                {t('Show More Projects')}
               </Button>
             </Box>
           </>
@@ -370,10 +371,10 @@ export const HomePage: React.FC = () => {
           <Box sx={{ textAlign: 'center', py: 8 }}>
             <SchoolIcon sx={{ fontSize: 80, color: 'text.secondary', opacity: 0.3, mb: 2 }} />
             <Typography variant="h6" color="text.secondary" gutterBottom>
-              No projects available yet
+              {t('No projects available yet')}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Be the first to submit a project!
+              {t("Be the first to submit a project!")}
             </Typography>
           </Box>
         )}
@@ -385,11 +386,10 @@ export const HomePage: React.FC = () => {
           <Box sx={{ textAlign: 'center' }}>
             <SchoolIcon sx={{ fontSize: 64, color: '#1e3a8a', mb: 2 }} />
             <Typography variant="h4" sx={{ fontWeight: 700, mb: 2, color: '#1e3a8a' }}>
-              Ready to Share Your Work?
+              {t('Ready to Share Your Work?')}
             </Typography>
             <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 600, mx: 'auto' }}>
-              Join TVTC's growing community of innovators. Submit your graduation project 
-              and showcase your achievements to the world.
+              {t('Join TVTC\'s growing community of innovators. Submit your graduation project and showcase your achievements to the world.')}
             </Typography>
             <Button
               variant="contained"
@@ -410,7 +410,7 @@ export const HomePage: React.FC = () => {
                 transition: 'all 0.3s ease',
               }}
             >
-              {isAuthenticated ? 'Submit Your Project' : 'Get Started - Register Now'}
+              {isAuthenticated ? t('Submit Your Project') : t('Get Started - Register Now')}
             </Button>
           </Box>
         </Container>

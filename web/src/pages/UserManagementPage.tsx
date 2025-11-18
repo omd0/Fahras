@@ -48,6 +48,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { getDashboardTheme } from '../config/dashboardThemes';
 import { apiService } from '../services/api';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface User {
   id: number;
@@ -84,6 +85,7 @@ export const UserManagementPage: React.FC = () => {
 
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const dashboardTheme = getDashboardTheme(user?.roles);
 
   useEffect(() => {
@@ -423,17 +425,17 @@ export const UserManagementPage: React.FC = () => {
                   </TableCell>
                   <TableCell>
                     <Box sx={{ display: 'flex', gap: 1 }}>
-                      <Tooltip title="View Details">
+                      <Tooltip title={t('View Details')}>
                         <MuiIconButton size="small">
                           <VisibilityIcon />
                         </MuiIconButton>
                       </Tooltip>
-                      <Tooltip title="Edit User">
+                      <Tooltip title={t('Edit User')}>
                         <MuiIconButton size="small" onClick={() => handleEditUser(user)}>
                           <EditIcon />
                         </MuiIconButton>
                       </Tooltip>
-                      <Tooltip title={user.status === 'active' ? 'Deactivate' : 'Activate'}>
+                      <Tooltip title={user.status === 'active' ? t('Deactivate') : t('Activate')}>
                         <MuiIconButton 
                           size="small" 
                           onClick={() => handleToggleUserStatus(user.id, user.status)}
@@ -441,7 +443,7 @@ export const UserManagementPage: React.FC = () => {
                           {user.status === 'active' ? <BlockIcon /> : <CheckCircleIcon />}
                         </MuiIconButton>
                       </Tooltip>
-                      <Tooltip title="Delete User">
+                      <Tooltip title={t('Delete User')}>
                         <MuiIconButton 
                           size="small" 
                           color="error"

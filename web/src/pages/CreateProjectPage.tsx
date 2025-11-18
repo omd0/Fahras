@@ -37,6 +37,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import { useLanguage } from '../contexts/LanguageContext';
 import { CreateProjectData, Program, User } from '../types';
 import { apiService } from '../services/api';
 
@@ -62,6 +63,7 @@ export const CreateProjectPage: React.FC = () => {
 
   const { user } = useAuthStore();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   // Redirect reviewers and admins away from this page
   useEffect(() => {
@@ -280,7 +282,7 @@ export const CreateProjectPage: React.FC = () => {
             <ArrowBackIcon />
           </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: '#FFFFFF', fontWeight: 700, fontSize: '1.4rem' }}>
-            Create New Project
+            {t('Create New Project')}
           </Typography>
         </Toolbar>
       </AppBar>
@@ -586,7 +588,7 @@ export const CreateProjectPage: React.FC = () => {
                 <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
                   <TextField
                     size="small"
-                    placeholder="Add keyword"
+                    placeholder={t('Add keyword')}
                     value={newKeyword}
                     onChange={(e) => setNewKeyword(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddKeyword())}
@@ -640,7 +642,7 @@ export const CreateProjectPage: React.FC = () => {
                       },
                     }}
                   >
-                    Add Keyword
+                    {t('Add Keyword')}
                   </Button>
                 </Box>
                 
@@ -709,7 +711,7 @@ export const CreateProjectPage: React.FC = () => {
                     fontSize: '1.3rem',
                     textShadow: '0 2px 4px rgba(251, 146, 60, 0.1)'
                   }}>
-                    Project Team
+                    {t('Project Team')}
                   </Typography>
                 </Box>
                 
@@ -717,7 +719,7 @@ export const CreateProjectPage: React.FC = () => {
                   {/* Members */}
                   <Grid size={{ xs: 12, md: 6 }}>
                     <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 700, color: '#fb923c', mb: 2 }}>
-                      Project Members
+                      {t('Project Members')}
                     </Typography>
                     <Box sx={{ display: 'flex', gap: 2, mb: 3, flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'flex-end' } }}>
                       <Autocomplete
@@ -763,7 +765,7 @@ export const CreateProjectPage: React.FC = () => {
                         renderInput={(params) => (
                           <TextField 
                             {...params} 
-                            label="Select or Type Member Name"
+                            label={t('Select or Type Member Name')}
                             sx={{
                               '& .MuiInputLabel-root': {
                                 color: '#fb923c',
@@ -777,11 +779,11 @@ export const CreateProjectPage: React.FC = () => {
                         )}
                       />
                       <FormControl sx={{ minWidth: 140 }}>
-                        <InputLabel id="member-role-label" sx={{ color: '#fb923c', fontWeight: 600 }}>Role</InputLabel>
+                        <InputLabel id="member-role-label" sx={{ color: '#fb923c', fontWeight: 600 }}>{t('Role')}</InputLabel>
                         <Select
                           labelId="member-role-label"
                           value={newMember.role}
-                          label="Role"
+                          label={t('Role')}
                           onChange={(e) => setNewMember(prev => ({ ...prev, role: e.target.value as 'LEAD' | 'MEMBER' }))}
                           sx={{
                             backgroundColor: '#FFFFFF',
@@ -802,8 +804,8 @@ export const CreateProjectPage: React.FC = () => {
                             },
                           }}
                         >
-                          <MenuItem value="LEAD">Lead</MenuItem>
-                          <MenuItem value="MEMBER">Member</MenuItem>
+                          <MenuItem value="LEAD">{t('Lead')}</MenuItem>
+                          <MenuItem value="MEMBER">{t('Member')}</MenuItem>
                         </Select>
                       </FormControl>
                       <Button
@@ -829,7 +831,7 @@ export const CreateProjectPage: React.FC = () => {
                           },
                         }}
                       >
-                        Add
+                        {t('Add')}
                       </Button>
                     </Box>
                     <Stack spacing={1}>
@@ -978,7 +980,7 @@ export const CreateProjectPage: React.FC = () => {
                           },
                         }}
                       >
-                        Add
+                        {t('Add')}
                       </Button>
                     </Box>
                     <Stack spacing={1}>

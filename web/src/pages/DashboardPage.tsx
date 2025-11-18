@@ -22,6 +22,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { TVTCLogo } from '../components/TVTCLogo';
+import { useLanguage } from '../contexts/LanguageContext';
 import { useState } from 'react';
 import { getDashboardTheme } from '../config/dashboardThemes';
 
@@ -30,6 +31,7 @@ export const DashboardPage: React.FC = () => {
 
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -96,7 +98,7 @@ export const DashboardPage: React.FC = () => {
         <Toolbar>
           <TVTCLogo size="medium" variant="icon" color="inherit" sx={{ mr: 2 }} />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: '#000000' }}>
-            Fahras Dashboard
+            {t('Fahras Dashboard')}
           </Typography>
           <IconButton
             size="large"
@@ -128,17 +130,17 @@ export const DashboardPage: React.FC = () => {
           >
             <MenuItem onClick={handleProfileClick}>
               <AccountCircle sx={{ mr: 1 }} />
-              Profile
+              {t('Profile')}
             </MenuItem>
             {user?.roles?.some(role => role.name === 'admin') && (
               <MenuItem onClick={() => { navigate('/admin/projects'); handleMenuClose(); }}>
                 <AssignmentIcon sx={{ mr: 1 }} />
-                Project Approvals
+                {t('Project Approvals')}
               </MenuItem>
             )}
             <MenuItem onClick={handleLogout}>
               <ExitToApp sx={{ mr: 1 }} />
-              Logout
+              {t('Logout')}
             </MenuItem>
           </Menu>
         </Toolbar>

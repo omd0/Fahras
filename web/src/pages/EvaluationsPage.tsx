@@ -46,6 +46,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { apiService } from '../services/api';
 import { getDashboardTheme } from '../config/dashboardThemes';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface Evaluation {
   id: number;
@@ -99,6 +100,7 @@ export const EvaluationsPage: React.FC = () => {
 
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const dashboardTheme = getDashboardTheme(user?.roles);
 
   useEffect(() => {
@@ -597,7 +599,7 @@ export const EvaluationsPage: React.FC = () => {
               fullWidth
               multiline
               rows={4}
-              label="Remarks"
+              label={t('Remarks')}
               value={evaluationForm.remarks}
               onChange={(e) => setEvaluationForm(prev => ({
                 ...prev,
@@ -609,7 +611,7 @@ export const EvaluationsPage: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setEvaluationDialogOpen(false)}>
-            Cancel
+            {t('Cancel')}
           </Button>
           <Button
             onClick={handleSubmitEvaluation}

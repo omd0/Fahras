@@ -11,6 +11,7 @@ import { apiService } from '../../services/api';
 import { getRoleInfo } from '../../config/dashboardThemes';
 import { useAuthStore } from '../../store/authStore';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { DashboardContainer } from '../shared/DashboardContainer';
 import { DashboardHeader } from '../shared/DashboardHeader';
 import { ProjectCard } from '../shared/ProjectCard';
@@ -36,7 +37,8 @@ export const FacultyHomeDashboard: React.FC = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const roleInfo = getRoleInfo('faculty', user?.full_name);
+  const { t } = useLanguage();
+  const roleInfo = getRoleInfo('faculty', user?.full_name, t);
   const userIsFaculty = (user?.roles || []).some(role => role.name === 'faculty');
 
   const isMyAdvisingProject = (project: Project) => {
@@ -123,10 +125,10 @@ export const FacultyHomeDashboard: React.FC = () => {
                 <CardContent sx={{ textAlign: 'center', py: 4 }}>
                   <AnalyticsIcon sx={{ fontSize: 48, mb: 2 }} />
                   <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                    View Analytics
+                    {t('View Analytics')}
                   </Typography>
                   <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                    Leadership insights with filters for specialization and year
+                    {t('Leadership insights with filters for specialization and year')}
                   </Typography>
                 </CardContent>
               </Card>
@@ -151,10 +153,10 @@ export const FacultyHomeDashboard: React.FC = () => {
                 <CardContent sx={{ textAlign: 'center', py: 4 }}>
                   <SchoolIcon sx={{ fontSize: 48, mb: 2 }} />
                   <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                    My Advising Projects
+                    {t('My Advising Projects')}
                   </Typography>
                   <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                    Manage and filter your advising projects
+                    {t('Manage and filter your advising projects')}
                   </Typography>
                 </CardContent>
               </Card>
@@ -179,10 +181,10 @@ export const FacultyHomeDashboard: React.FC = () => {
                 <CardContent sx={{ textAlign: 'center', py: 4 }}>
                   <ArchiveIcon sx={{ fontSize: 48, mb: 2 }} />
                   <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                    Archive/Add Project
+                    {t('Archive/Add Project')}
                   </Typography>
                   <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                    Administrative project management
+                    {t('Administrative project management')}
                   </Typography>
                 </CardContent>
               </Card>
@@ -193,9 +195,9 @@ export const FacultyHomeDashboard: React.FC = () => {
           <Card sx={{ mb: 4, borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
             <CardContent>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>My Advising Projects</Typography>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>{t('My Advising Projects')}</Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {stats.advisingProjects} {stats.advisingProjects === 1 ? 'project' : 'projects'}
+                  {stats.advisingProjects} {stats.advisingProjects === 1 ? t('project') : t('projects')}
                 </Typography>
               </Box>
 
@@ -214,7 +216,7 @@ export const FacultyHomeDashboard: React.FC = () => {
                 <Box sx={{ textAlign: 'center', py: 6 }}>
                   <SchoolIcon sx={{ fontSize: 64, color: 'text.secondary', opacity: 0.3, mb: 2 }} />
                   <Alert severity="info">
-                    No advising projects yet. You will see projects here once students add you as their advisor.
+                    {t('No advising projects yet. You will see projects here once students add you as their advisor.')}
                   </Alert>
                 </Box>
               )}
@@ -225,9 +227,9 @@ export const FacultyHomeDashboard: React.FC = () => {
           <Card sx={{ borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
             <CardContent>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>All Projects</Typography>
+                <Typography variant="h6" sx={{ fontWeight: 600 }}>{t('All Projects')}</Typography>
                 <Button variant="text" onClick={() => navigate('/analytics')} sx={{ color: theme.primary }}>
-                  View All
+                  {t('View All')}
                 </Button>
               </Box>
 
@@ -243,7 +245,7 @@ export const FacultyHomeDashboard: React.FC = () => {
                 <Box sx={{ textAlign: 'center', py: 6 }}>
                   <SchoolIcon sx={{ fontSize: 64, color: 'text.secondary', opacity: 0.3, mb: 2 }} />
                   <Alert severity="info">
-                    No projects available yet.
+                    {t('No projects available yet.')}
                   </Alert>
                 </Box>
               )}

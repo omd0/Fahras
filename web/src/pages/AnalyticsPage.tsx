@@ -60,6 +60,7 @@ import { apiService } from '../services/api';
 import { TVTCLogo } from '../components/TVTCLogo';
 import { getDashboardTheme } from '../config/dashboardThemes';
 import { Project, Program } from '../types';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface AnalyticsData {
   status_distribution: Record<string, number>;
@@ -151,6 +152,7 @@ export const AnalyticsPage: React.FC = () => {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const dashboardTheme = getDashboardTheme(user?.roles);
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetchAnalytics();
@@ -361,7 +363,7 @@ export const AnalyticsPage: React.FC = () => {
               fontWeight: 600,
               letterSpacing: '0.5px'
             }}>
-              Project Analytics
+              {t('Project Analytics')}
             </Typography>
           </Box>
           <Box sx={{ flexGrow: 1 }} />
@@ -414,11 +416,11 @@ export const AnalyticsPage: React.FC = () => {
           >
             <MenuItem onClick={handleProfileClick} sx={{ py: 1.5 }}>
               <AccountCircle sx={{ mr: 2, color: ANALYTICS_COLORS.primary.main }} />
-              Profile
+              {t('Profile')}
             </MenuItem>
             <MenuItem onClick={handleLogout} sx={{ py: 1.5 }}>
               <ExitToApp sx={{ mr: 2, color: ANALYTICS_COLORS.warning.main }} />
-              Logout
+              {t('Logout')}
             </MenuItem>
           </Menu>
         </Toolbar>
@@ -455,7 +457,7 @@ export const AnalyticsPage: React.FC = () => {
                       fontWeight: 500,
                       letterSpacing: '0.5px'
                     }}>
-                      Total Projects
+                      {t('Total Projects')}
                     </Typography>
                   </Box>
                   <Typography variant="h3" sx={{ 
@@ -466,7 +468,7 @@ export const AnalyticsPage: React.FC = () => {
                     {analytics.total_projects}
                   </Typography>
                   <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                    Across all programs
+                    {t('Across all programs')}
                   </Typography>
                 </CardContent>
               </Card>
@@ -499,7 +501,7 @@ export const AnalyticsPage: React.FC = () => {
                       fontWeight: 500,
                       letterSpacing: '0.5px'
                     }}>
-                      Recent Activity
+                      {t('Recent Activity')}
                     </Typography>
                   </Box>
                   <Typography variant="h3" sx={{ 
@@ -510,7 +512,7 @@ export const AnalyticsPage: React.FC = () => {
                     {analytics.recent_activity}
                   </Typography>
                   <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                    Last 30 days
+                    {t('Last 30 days')}
                   </Typography>
                 </CardContent>
               </Card>
@@ -543,7 +545,7 @@ export const AnalyticsPage: React.FC = () => {
                       fontWeight: 500,
                       letterSpacing: '0.5px'
                     }}>
-                      Departments
+                      {t('Departments')}
                     </Typography>
                   </Box>
                   <Typography variant="h3" sx={{ 
@@ -554,7 +556,7 @@ export const AnalyticsPage: React.FC = () => {
                     {analytics.department_distribution.length}
                   </Typography>
                   <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                    Active departments
+                    {t('Active departments')}
                   </Typography>
                 </CardContent>
               </Card>
@@ -587,7 +589,7 @@ export const AnalyticsPage: React.FC = () => {
                       fontWeight: 500,
                       letterSpacing: '0.5px'
                     }}>
-                      Academic Years
+                      {t('Academic Years')}
                     </Typography>
                   </Box>
                   <Typography variant="h3" sx={{ 
@@ -598,7 +600,7 @@ export const AnalyticsPage: React.FC = () => {
                     {analytics.year_distribution.length}
                   </Typography>
                   <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                    Years tracked
+                    {t('Years tracked')}
                   </Typography>
                 </CardContent>
               </Card>
@@ -636,30 +638,30 @@ export const AnalyticsPage: React.FC = () => {
                       fontWeight: 600,
                       color: ANALYTICS_COLORS.neutral[800]
                     }}>
-                      Advanced Analytics & Filtering
+                      {t('Advanced Analytics & Filtering')}
                     </Typography>
                   </Box>
                   <Typography variant="body2" sx={{ 
                     color: ANALYTICS_COLORS.neutral[600],
                     ml: 6
                   }}>
-                    Filter and analyze projects by program, academic year, and other criteria
+                    {t('Filter and analyze projects by program, academic year, and other criteria')}
                   </Typography>
                 </Box>
                 <CardContent sx={{ p: 4 }}>
                 
                 {/* Filters */}
                 <Box sx={{ mb: 4 }}>
-                  <Typography variant="h6" sx={{ 
-                    mb: 3, 
-                    fontWeight: 600,
-                    color: ANALYTICS_COLORS.neutral[800],
-                    display: 'flex',
-                    alignItems: 'center'
-                  }}>
-                    <ShowChartIcon sx={{ mr: 1, color: ANALYTICS_COLORS.secondary.main }} />
-                    Filter Options
-                  </Typography>
+                    <Typography variant="h6" sx={{ 
+                      mb: 3, 
+                      fontWeight: 600,
+                      color: ANALYTICS_COLORS.neutral[800],
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}>
+                      <ShowChartIcon sx={{ mr: 1, color: ANALYTICS_COLORS.secondary.main }} />
+                      {t('Filter Options')}
+                    </Typography>
                   
                   <Grid container spacing={3}>
                     <Grid size={{ xs: 12, sm: 6, md: 4 }}>
@@ -670,12 +672,12 @@ export const AnalyticsPage: React.FC = () => {
                             color: ANALYTICS_COLORS.primary.main
                           }
                         }}>
-                          Program
+                          {t('Program')}
                         </InputLabel>
                         <Select
                           value={selectedProgram}
                           onChange={handleProgramChange}
-                          label="Program"
+                          label={t('Program')}
                           disabled={programs.length === 0}
                           sx={{
                             '& .MuiOutlinedInput-notchedOutline': {
@@ -690,7 +692,7 @@ export const AnalyticsPage: React.FC = () => {
                           }}
                         >
                           <MenuItem value="">
-                            <em>All Programs</em>
+                            <em>{t('All Programs')}</em>
                           </MenuItem>
                           {(programs || []).map((program) => (
                             <MenuItem key={program.id} value={program.id}>
@@ -703,7 +705,7 @@ export const AnalyticsPage: React.FC = () => {
                         <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                           <CircularProgress size={16} sx={{ mr: 1, color: ANALYTICS_COLORS.primary.main }} />
                           <Typography variant="caption" sx={{ color: ANALYTICS_COLORS.neutral[600] }}>
-                            Loading programs...
+                            {t('Loading programs...')}
                           </Typography>
                         </Box>
                       )}
@@ -712,7 +714,7 @@ export const AnalyticsPage: React.FC = () => {
                           mt: 1,
                           color: ANALYTICS_COLORS.neutral[500]
                         }}>
-                          No programs available
+                          {t('No programs available')}
                         </Typography>
                       )}
                     </Grid>
@@ -725,12 +727,12 @@ export const AnalyticsPage: React.FC = () => {
                             color: ANALYTICS_COLORS.primary.main
                           }
                         }}>
-                          Academic Year
+                          {t('Academic Year')}
                         </InputLabel>
                         <Select
                           value={selectedYear}
                           onChange={handleYearChange}
-                          label="Academic Year"
+                          label={t('Academic Year')}
                           disabled={!analytics?.year_distribution?.length}
                           sx={{
                             '& .MuiOutlinedInput-notchedOutline': {
@@ -745,7 +747,7 @@ export const AnalyticsPage: React.FC = () => {
                           }}
                         >
                           <MenuItem value="">
-                            <em>All Years</em>
+                            <em>{t('All Years')}</em>
                           </MenuItem>
                           {(analytics?.year_distribution || []).map((year) => (
                             <MenuItem key={year.academic_year} value={year.academic_year}>
@@ -759,7 +761,7 @@ export const AnalyticsPage: React.FC = () => {
                           mt: 1,
                           color: ANALYTICS_COLORS.neutral[500]
                         }}>
-                          No academic years available
+                          {t('No academic years available')}
                         </Typography>
                       )}
                     </Grid>
@@ -787,7 +789,7 @@ export const AnalyticsPage: React.FC = () => {
                             }
                           }}
                         >
-                          Clear Filters
+                          {t('Clear Filters')}
                         </Button>
                       </Box>
                     </Grid>
@@ -819,7 +821,7 @@ export const AnalyticsPage: React.FC = () => {
                           fontWeight: 700,
                           letterSpacing: '0.5px'
                         }}>
-                          Selected Program & Specializations
+                          {t('Selected Program & Specializations')}
                         </Typography>
                       </Box>
                     <Grid container spacing={3}>
@@ -827,14 +829,14 @@ export const AnalyticsPage: React.FC = () => {
                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                           <SchoolIcon sx={{ color: 'primary.main', mr: 1 }} />
                           <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                            Program: {selectedProgramData.name}
+                            {t('Program:')} {selectedProgramData.name}
                           </Typography>
                         </Box>
                         {selectedProgramData.department && (
                           <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                             <AssessmentIcon sx={{ color: 'secondary.main', mr: 1 }} />
                             <Typography variant="body2" color="text.secondary">
-                              Department: {selectedProgramData.department.name}
+                              {t('Department:')} {selectedProgramData.department.name}
                             </Typography>
                           </Box>
                         )}
@@ -843,11 +845,11 @@ export const AnalyticsPage: React.FC = () => {
                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                           <StarIcon sx={{ color: 'warning.main', mr: 1 }} />
                           <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                            Specialization: {selectedProgramData.degree_level?.toUpperCase()}
+                            {t('Specialization:')} {selectedProgramData.degree_level?.toUpperCase()}
                           </Typography>
                         </Box>
                         <Typography variant="body2" color="text.secondary">
-                          Available specializations for this program
+                          {t('Available specializations for this program')}
                         </Typography>
                       </Grid>
                     </Grid>
@@ -856,7 +858,7 @@ export const AnalyticsPage: React.FC = () => {
                     {selectedProgramData.department && (
                       <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
                         <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1, color: 'text.primary' }}>
-                          Related Specializations in {selectedProgramData.department.name}:
+                          {t('Related Specializations in')} {selectedProgramData.department.name}:
                         </Typography>
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                           {programs
@@ -886,11 +888,11 @@ export const AnalyticsPage: React.FC = () => {
                   <Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1, mb: 2 }}>
                       <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                        Filtered Projects
+                        {t('Filtered Projects')}
                       </Typography>
                       {selectedProgram && (
                         <Chip 
-                          label={selectedProgramData?.name || 'Selected Program'} 
+                          label={selectedProgramData?.name || t('Selected Program')} 
                           size="small" 
                           color="primary"
                           icon={<SchoolIcon />}
@@ -963,7 +965,7 @@ export const AnalyticsPage: React.FC = () => {
                                               {project.average_rating.toFixed(1)}
                                             </Typography>
                                             <Typography variant="caption" color="text.secondary" sx={{ ml: 0.5 }}>
-                                              ({project.rating_count || 0} ratings)
+                                              ({project.rating_count || 0} {t('ratings')})
                                             </Typography>
                                           </Box>
                                         )}
@@ -990,10 +992,10 @@ export const AnalyticsPage: React.FC = () => {
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       handleProjectClick(project.id);
-                                    }}
-                                  >
-                                    View Details
-                                  </Button>
+                                  }}
+                                >
+                                  {t('View Details')}
+                                </Button>
                                 </ListItemSecondaryAction>
                               </ListItem>
                               {index < topRatedProjects.length - 1 && <Divider />}
@@ -1004,7 +1006,7 @@ export const AnalyticsPage: React.FC = () => {
                     ) : (
                       <Paper sx={{ p: 3, textAlign: 'center' }}>
                         <Typography variant="body1" color="text.secondary">
-                          No projects found for the selected filters.
+                          {t('No projects found for the selected filters.')}
                         </Typography>
                       </Paper>
                     )}
@@ -1012,10 +1014,10 @@ export const AnalyticsPage: React.FC = () => {
                 ) : (
                   <Box sx={{ textAlign: 'center', py: 4 }}>
                     <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-                      Select a program or academic year to view filtered projects
+                      {t('Select a program or academic year to view filtered projects')}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Use the filters above to explore projects by specialization and year
+                      {t('Use the filters above to explore projects by specialization and year')}
                     </Typography>
                   </Box>
                 )}
@@ -1045,7 +1047,7 @@ export const AnalyticsPage: React.FC = () => {
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <BarChartIcon sx={{ mr: 1, fontSize: 24 }} />
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                      Project Status Distribution
+                      {t('Project Status Distribution')}
                     </Typography>
                   </Box>
                 </Box>
@@ -1086,7 +1088,7 @@ export const AnalyticsPage: React.FC = () => {
                           fontWeight: 700,
                           color: ANALYTICS_COLORS.primary.main
                         }}>
-                          {item.count} projects
+                          {item.count} {t('projects')}
                         </Typography>
                       </Box>
                     ))}
@@ -1112,7 +1114,7 @@ export const AnalyticsPage: React.FC = () => {
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <SchoolIcon sx={{ mr: 1, fontSize: 24 }} />
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                      Projects by Department
+                      {t('Projects by Department')}
                     </Typography>
                   </Box>
                 </Box>
@@ -1153,7 +1155,7 @@ export const AnalyticsPage: React.FC = () => {
                           fontWeight: 700,
                           color: ANALYTICS_COLORS.secondary.main
                         }}>
-                          {item.count} projects
+                          {item.count} {t('projects')}
                         </Typography>
                       </Box>
                     ))}
@@ -1179,7 +1181,7 @@ export const AnalyticsPage: React.FC = () => {
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <CalendarIcon sx={{ mr: 1, fontSize: 24 }} />
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                      Projects by Academic Year
+                      {t('Projects by Academic Year')}
                     </Typography>
                   </Box>
                 </Box>
@@ -1220,7 +1222,7 @@ export const AnalyticsPage: React.FC = () => {
                           fontWeight: 700,
                           color: ANALYTICS_COLORS.success.main
                         }}>
-                          {item.count} projects
+                          {item.count} {t('projects')}
                         </Typography>
                       </Box>
                     ))}
@@ -1246,7 +1248,7 @@ export const AnalyticsPage: React.FC = () => {
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <TimelineIcon sx={{ mr: 1, fontSize: 24 }} />
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                      Monthly Project Creation Trend
+                      {t('Monthly Project Creation Trend')}
                     </Typography>
                   </Box>
                 </Box>
@@ -1287,7 +1289,7 @@ export const AnalyticsPage: React.FC = () => {
                           fontWeight: 700,
                           color: ANALYTICS_COLORS.info.main
                         }}>
-                          {item.count} projects
+                          {item.count} {t('projects')}
                         </Typography>
                       </Box>
                     ))}

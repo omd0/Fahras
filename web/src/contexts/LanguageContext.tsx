@@ -100,6 +100,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     return stored === 'ar' ? 'ar' : 'en';
   });
 
+  // Enable RTL on all pages when Arabic is selected
   const direction = language === 'ar' ? 'rtl' : 'ltr';
 
   const setLanguage = useCallback((newLanguage: Language) => {

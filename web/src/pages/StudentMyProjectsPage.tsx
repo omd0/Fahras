@@ -45,6 +45,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import { useLanguage } from '../contexts/LanguageContext';
 import { Project, Program, Department } from '../types';
 import { apiService } from '../services/api';
 import { TVTCLogo } from '../components/TVTCLogo';
@@ -76,6 +77,7 @@ const StudentMyProjectsPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuthStore();
+  const { t } = useLanguage();
   const dashboardTheme = getDashboardTheme(user?.roles);
   
   const [projects, setProjects] = useState<Project[]>([]);
@@ -401,7 +403,7 @@ const StudentMyProjectsPage: React.FC = () => {
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
               >
-                Create New Project
+                {t('Create New Project')}
               </Button>
               <Tooltip title="Go to Dashboard">
                 <IconButton 
@@ -677,7 +679,7 @@ const StudentMyProjectsPage: React.FC = () => {
                         </TableCell>
                         <TableCell sx={{ py: 2 }}>
                           <Stack direction="row" spacing={1}>
-                            <Tooltip title="View Details">
+                            <Tooltip title={t('View Details')}>
                               <IconButton
                                 size="small"
                                 onClick={() => project && handleViewProject(project)}
@@ -793,7 +795,7 @@ const StudentMyProjectsPage: React.FC = () => {
                           </TableCell>
                           <TableCell>
                             <Stack direction="row" spacing={1}>
-                              <Tooltip title="View Details">
+                              <Tooltip title={t('View Details')}>
                                 <IconButton
                                   size="small"
                                   onClick={() => project && handleViewProject(project)}
@@ -920,7 +922,7 @@ const StudentMyProjectsPage: React.FC = () => {
                             </Typography>
                           </TableCell>
                           <TableCell sx={{ py: 2 }}>
-                            <Tooltip title="View Details">
+                            <Tooltip title={t('View Details')}>
                               <IconButton
                                 size="small"
                                 onClick={() => project && handleViewProject(project)}
@@ -1029,7 +1031,7 @@ const StudentMyProjectsPage: React.FC = () => {
                             </Typography>
                           </TableCell>
                           <TableCell sx={{ py: 2 }}>
-                            <Tooltip title="View Details">
+                            <Tooltip title={t('View Details')}>
                               <IconButton
                                 size="small"
                                 onClick={() => project && handleViewProject(project)}
@@ -1137,7 +1139,7 @@ const StudentMyProjectsPage: React.FC = () => {
                             </Typography>
                           </TableCell>
                           <TableCell sx={{ py: 2 }}>
-                            <Tooltip title="View Details">
+                            <Tooltip title={t('View Details')}>
                               <IconButton
                                 size="small"
                                 onClick={() => project && handleViewProject(project)}
@@ -1245,7 +1247,7 @@ const StudentMyProjectsPage: React.FC = () => {
                             </Typography>
                           </TableCell>
                           <TableCell sx={{ py: 2 }}>
-                            <Tooltip title="View Details">
+                            <Tooltip title={t('View Details')}>
                               <IconButton
                                 size="small"
                                 onClick={() => project && handleViewProject(project)}

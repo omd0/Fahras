@@ -44,6 +44,7 @@ import { getDashboardTheme } from '../config/dashboardThemes';
 import { ProjectExportDialog } from '../components/ProjectExportDialog';
 import { professorTheme, professorColors, professorDecorativeStyles } from '../theme/professorTheme';
 import { ThemeProvider } from '@mui/material/styles';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const ProjectDetailPage: React.FC = () => {
   const [project, setProject] = useState<Project | null>(null);
@@ -57,6 +58,7 @@ export const ProjectDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams<{ id: string }>();
+  const { t } = useLanguage();
   const dashboardTheme = getDashboardTheme(user?.roles);
   
   // Check if user is a professor
@@ -185,7 +187,7 @@ export const ProjectDetailPage: React.FC = () => {
     return (
       <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
         <Alert severity="error">
-          {error || 'Project not found'}
+          {error || t('Project not found')}
         </Alert>
         <Button
           variant="outlined"
@@ -193,7 +195,7 @@ export const ProjectDetailPage: React.FC = () => {
           onClick={handleBackClick}
           sx={{ mt: 2 }}
         >
-          Back to Dashboard
+          {t('Back to Dashboard')}
         </Button>
       </Container>
     );
@@ -206,7 +208,7 @@ export const ProjectDetailPage: React.FC = () => {
     return (
       <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
         <Alert severity="error">
-          This project is not available for viewing.
+          {t('This project is not available for viewing.')}
         </Alert>
         <Button
           variant="outlined"
@@ -421,8 +423,8 @@ export const ProjectDetailPage: React.FC = () => {
                             if (user?.roles?.some(role => role.name === 'admin')) {
                               return (
                                 <Chip
-                                  label={project.admin_approval_status === 'pending' ? 'Pending Approval' : 
-                                         project.admin_approval_status === 'approved' ? 'Approved' : 'Hidden'}
+                                  label={project.admin_approval_status === 'pending' ? t('Pending Approval') : 
+                                         project.admin_approval_status === 'approved' ? t('Approved') : t('Hidden')}
                                   color={project.admin_approval_status === 'approved' ? 'success' : 
                                          project.admin_approval_status === 'hidden' ? 'error' : 'warning'}
                                   variant="filled"
@@ -435,8 +437,8 @@ export const ProjectDetailPage: React.FC = () => {
                             else if (project.created_by_user_id === user?.id) {
                               return (
                                 <Chip
-                                  label={project.admin_approval_status === 'pending' ? 'Pending Approval' : 
-                                         project.admin_approval_status === 'approved' ? 'Approved' : 'Hidden'}
+                                  label={project.admin_approval_status === 'pending' ? t('Pending Approval') : 
+                                         project.admin_approval_status === 'approved' ? t('Approved') : t('Hidden')}
                                   color={project.admin_approval_status === 'approved' ? 'success' : 
                                          project.admin_approval_status === 'hidden' ? 'error' : 'warning'}
                                   variant="filled"
@@ -479,7 +481,7 @@ export const ProjectDetailPage: React.FC = () => {
                     }}
                   >
                     <Typography variant="h6" fontWeight="600" sx={{ mb: 2, color: 'text.primary' }}>
-                      Project Abstract
+                      {t('Project Abstract')}
                     </Typography>
                     <Typography variant="body1" sx={{ lineHeight: 1.7, color: 'text.primary' }}>
                       {project.abstract}
@@ -511,7 +513,7 @@ export const ProjectDetailPage: React.FC = () => {
                       }}
                     >
                       <Typography variant="h6" fontWeight="600" sx={{ mb: 2, color: 'text.primary' }}>
-                        Admin Notes
+                        {t('Admin Notes')}
                       </Typography>
                       <Typography variant="body2" sx={{ fontStyle: 'italic', lineHeight: 1.6, color: 'text.primary' }}>
                         {project.admin_notes}
@@ -675,10 +677,10 @@ export const ProjectDetailPage: React.FC = () => {
                     </Box>
                     <Box>
                       <Typography variant="h5" fontWeight="700" sx={{ mb: 0.5 }}>
-                        Project Files
+                        {t('Project Files')}
                       </Typography>
                       <Typography variant="body2" sx={{ opacity: 0.9, color: 'white' }}>
-                        {project.files?.length || 0} {project.files?.length !== 1 ? 'files' : 'file'} available
+                        {project.files?.length || 0} {project.files?.length !== 1 ? t('files') : t('file')} {t('available')}
                       </Typography>
                     </Box>
                   </Box>
@@ -726,7 +728,7 @@ export const ProjectDetailPage: React.FC = () => {
                               secondary={
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1, flexWrap: 'wrap' }}>
                                   <Chip 
-                                    label={`${(file.size_bytes / 1024).toFixed(1)} KB`} 
+                                    label={`${(file.size_bytes / 1024).toFixed(1)} ${t('KB')}`} 
                                     size="small" 
                                     variant="filled"
                                     sx={{ 
@@ -761,7 +763,7 @@ export const ProjectDetailPage: React.FC = () => {
                                   />
                                   {file.is_public && (
                                     <Chip 
-                                      label="Public" 
+                                      label={t('Public')} 
                                       size="small" 
                                       color="success" 
                                       variant="filled"
@@ -810,7 +812,7 @@ export const ProjectDetailPage: React.FC = () => {
                                 transition: 'all 0.2s ease-in-out',
                               }}
                             >
-                              Download
+                              {t('Download')}
                             </Button>
                           </ListItem>
                         </Paper>
@@ -846,10 +848,10 @@ export const ProjectDetailPage: React.FC = () => {
                         <FileDownloadIcon sx={{ fontSize: 32 }} />
                       </Box>
                       <Typography variant="h6" fontWeight="600" color="text.primary" sx={{ mb: 1 }}>
-                        No files uploaded yet
+                        {t('No files uploaded yet')}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        Files uploaded during project creation will appear here
+                        {t('Files uploaded during project creation will appear here')}
                       </Typography>
                     </Paper>
                   )}

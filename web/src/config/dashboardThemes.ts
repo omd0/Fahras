@@ -120,41 +120,42 @@ export const getDashboardTheme = (roles: Array<{ name: string }> | undefined): D
  * Get role display information
  * @param role - User role string
  * @param userName - Optional user name (not used in greeting)
+ * @param t - Optional translation function
  */
-export const getRoleInfo = (role: string, userName?: string) => {
+export const getRoleInfo = (role: string, userName?: string, t?: (key: string) => string) => {
   // Simple greeting - just "Welcome"
-  const greeting = 'Welcome';
+  const greeting = t ? t('Welcome') : 'Welcome';
 
   const roleInfo = {
     admin: {
-      title: 'Administrator Dashboard',
-      subtitle: 'Manage projects, users, and system settings',
+      title: t ? t('Administrator Dashboard') : 'Administrator Dashboard',
+      subtitle: t ? t('Manage projects, users, and system settings') : 'Manage projects, users, and system settings',
       icon: '🛡️',
       greeting,
     },
     faculty: {
-      title: 'Faculty Dashboard',
-      subtitle: 'Supervise and evaluate student projects',
+      title: t ? t('Faculty Dashboard') : 'Faculty Dashboard',
+      subtitle: t ? t('Supervise and evaluate student projects') : 'Supervise and evaluate student projects',
       icon: '👨‍🏫',
       greeting,
     },
     student: {
-      title: 'Student Dashboard',
-      subtitle: 'Create and manage your graduation projects',
+      title: t ? t('Student Dashboard') : 'Student Dashboard',
+      subtitle: t ? t('Create and manage your graduation projects') : 'Create and manage your graduation projects',
       icon: '🎓',
       greeting,
     },
     reviewer: {
-      title: 'Reviewer Dashboard',
-      subtitle: 'Review and evaluate project submissions',
+      title: t ? t('Reviewer Dashboard') : 'Reviewer Dashboard',
+      subtitle: t ? t('Review and evaluate project submissions') : 'Review and evaluate project submissions',
       icon: '📋',
       greeting,
     },
   };
 
   return roleInfo[role as keyof typeof roleInfo] || {
-    title: 'Dashboard',
-    subtitle: 'Project Management System',
+    title: t ? t('Dashboard') : 'Dashboard',
+    subtitle: t ? t('Project Management System') : 'Project Management System',
     icon: '📊',
     greeting,
   };
