@@ -28,7 +28,7 @@ import FacultyPendingApprovalPage from './pages/FacultyPendingApprovalPage';
 import StudentMyProjectsPage from './pages/StudentMyProjectsPage';
 import { NotificationsPage } from './pages/NotificationsPage';
 import { TestAuthPage } from './pages/TestAuthPage';
-import { TVTCBranding } from './components/TVTCBranding';
+import { HeaderLogo } from './components/HeaderLogo';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
@@ -64,6 +64,10 @@ const AppContent: React.FC = () => {
         <CssBaseline />
         <ThemeProvider>
             <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+              {/* Header Logo */}
+              <HeaderLogo />
+              
+              {/* Language Switcher */}
               <Box
                 sx={{
                   display: 'flex',
@@ -255,8 +259,8 @@ const AppContent: React.FC = () => {
                 </Routes>
               </Box>
               
-              {/* TVTC Footer */}
-              <TVTCBranding variant="footer" showDescription={true} />
+              {/* Footer Logo */}
+              <HeaderLogo variant="footer" />
             </Box>
           </ThemeProvider>
       </MuiThemeProvider>
