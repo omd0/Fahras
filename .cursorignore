@@ -1,0 +1,51 @@
+# Cursor Indexing Configuration
+# This file controls what Cursor indexes for code intelligence
+# IMPORTANT: Only exclude files that would cause performance issues
+# ALL source files, config files, documentation, and project files WILL BE INDEXED
+
+# Dependencies - exclude for performance only (these are huge and not useful for indexing)
+node_modules/
+vendor/
+jspm_packages/
+.pnp/
+.pnp.js
+
+# Build outputs - generated files (these are compiled outputs, not source)
+build/
+dist/
+out/
+.next/
+.nuxt/
+.webpack/
+.cache/
+.parcel-cache/
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+.fusebox/
+
+# Package manager lock files - very large and not useful for code intelligence
+package-lock.json
+yarn.lock
+composer.lock
+
+# Logs - not needed for indexing
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# NOTE: All other files including:
+# - All source files (*.ts, *.tsx, *.js, *.jsx, *.php, *.py, etc.)
+# - All config files (*.json, *.yaml, *.yml, *.toml, *.ini, etc.)
+# - All documentation (*.md, *.txt, etc.)
+# - All other project files
+# WILL BE INDEXED AND RECOGNIZED BY CURSOR
+
