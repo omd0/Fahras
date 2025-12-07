@@ -1,4 +1,4 @@
-@echo off
+e\@echo off
 setlocal enabledelayedexpansion
 
 REM Fahras Development Helper Script for Windows

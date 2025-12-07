@@ -214,6 +214,12 @@ export const CreateProjectPage: React.FC = () => {
           const file = selectedFiles[i];
           try {
             console.log(`[${i + 1}/${selectedFiles.length}] Uploading: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`);
+            console.log('File details:', {
+              name: file.name,
+              size: file.size,
+              type: file.type,
+              lastModified: new Date(file.lastModified).toISOString()
+            });
             
             const uploadResponse = await apiService.uploadFile(createdProject.project.id, file, true);
             
@@ -221,7 +227,10 @@ export const CreateProjectPage: React.FC = () => {
             uploadedCount++;
           } catch (uploadError: any) {
             console.error(`❌ File upload failed for ${file.name}:`, uploadError);
+            console.error('Error status:', uploadError.response?.status);
             console.error('Error details:', uploadError.response?.data);
+            console.error('Error message:', uploadError.message);
+            console.error('Full error:', uploadError);
             failedCount++;
           }
         }

@@ -38,25 +38,60 @@ class FileController extends Controller
             ], 422);
         }
 
-        $uploadedFile = $request->file('file');
-        $filename = Str::uuid() . '.' . $uploadedFile->getClientOriginalExtension();
-        
-        // Use cloud storage if configured, otherwise fallback to local
-        $disk = config('filesystems.default', 'local');
-        $path = $uploadedFile->storeAs('uploads/projects/' . $project->id, $filename, $disk);
+        try {
+            $uploadedFile = $request->file('file');
+            $filename = Str::uuid() . '.' . $uploadedFile->getClientOriginalExtension();
+            
+            // Use cloud storage if configured, otherwise fallback to local
+            $disk = config('filesystems.default', 'local');
+            
+            \Log::info('Attempting to store file', [
+                'disk' => $disk,
+                'project_id' => $project->id,
+                'filename' => $filename,
+                'original_filename' => $uploadedFile->getClientOriginalName(),
+                'file_size' => $uploadedFile->getSize()
+            ]);
+            
+            $path = $uploadedFile->storeAs('uploads/projects/' . $project->id, $filename, $disk);
+            
+            if (!$path) {
+                \Log::error('File storage failed - storeAs returned false', [
+                    'disk' => $disk,
+                    'project_id' => $project->id,
+                    'filename' => $filename
+                ]);
+                return response()->json([
+                    'message' => 'Failed to store file. Please check storage permissions.',
+                    'error' => 'storage_failed'
+                ], 500);
+            }
 
-        $file = File::create([
-            'project_id' => $project->id,
-            'uploaded_by_user_id' => $request->user()->id,
-            'filename' => $filename,
-            'original_filename' => $uploadedFile->getClientOriginalName(),
-            'mime_type' => $uploadedFile->getMimeType(),
-            'size_bytes' => $uploadedFile->getSize(),
-            'storage_url' => $path,
-            'checksum' => hash_file('sha256', $uploadedFile->getPathname()),
-            'is_public' => $request->boolean('is_public', false),
-            'uploaded_at' => now(),
-        ]);
+            $file = File::create([
+                'project_id' => $project->id,
+                'uploaded_by_user_id' => $request->user()->id,
+                'filename' => $filename,
+                'original_filename' => $uploadedFile->getClientOriginalName(),
+                'mime_type' => $uploadedFile->getMimeType(),
+                'size_bytes' => $uploadedFile->getSize(),
+                'storage_url' => $path,
+                'checksum' => hash_file('sha256', $uploadedFile->getPathname()),
+                'is_public' => $request->boolean('is_public', false),
+                'uploaded_at' => now(),
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('File upload exception', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'project_id' => $project->id,
+                'user_id' => $request->user()->id
+            ]);
+            
+            return response()->json([
+                'message' => 'File upload failed: ' . $e->getMessage(),
+                'error' => 'upload_exception'
+            ], 500);
+        }
 
         \Log::info('File uploaded successfully', [
             'file_id' => $file->id,
@@ -75,20 +110,57 @@ class FileController extends Controller
     {
         $user = request()->user();
         
+        \Log::info('Files list request received', [
+            'project_id' => $project->id,
+            'user_id' => $user ? $user->id : 'guest',
+            'project_exists' => $project->exists
+        ]);
+        
         // Load all files with uploader information - no access control
         $files = $project->files()
             ->with('uploader')
             ->orderBy('uploaded_at', 'desc')
             ->get();
 
+        // Debug: Check file storage existence
+        $disk = config('filesystems.default', 'local');
+        $filesWithStatus = $files->map(function ($file) use ($disk) {
+            $exists = Storage::disk($disk)->exists($file->storage_url);
+            return [
+                'id' => $file->id,
+                'original_filename' => $file->original_filename,
+                'filename' => $file->filename,
+                'storage_url' => $file->storage_url,
+                'size_bytes' => $file->size_bytes,
+                'mime_type' => $file->mime_type,
+                'is_public' => $file->is_public,
+                'uploaded_at' => $file->uploaded_at,
+                'storage_exists' => $exists,
+                'uploader' => $file->uploader ? [
+                    'id' => $file->uploader->id,
+                    'full_name' => $file->uploader->full_name,
+                    'email' => $file->uploader->email
+                ] : null
+            ];
+        });
+
         \Log::info('Files listed for project', [
             'project_id' => $project->id,
-            'user_id' => $user->id,
-            'files_count' => $files->count()
+            'user_id' => $user ? $user->id : 'guest',
+            'files_count' => $files->count(),
+            'files' => $filesWithStatus->toArray(),
+            'disk' => $disk,
+            'storage_path' => storage_path('app')
         ]);
 
         return response()->json([
-            'files' => $files
+            'files' => $filesWithStatus,
+            'debug' => [
+                'project_id' => $project->id,
+                'total_files' => $files->count(),
+                'disk' => $disk,
+                'storage_path' => storage_path('app')
+            ]
         ]);
     }
 
@@ -97,26 +169,44 @@ class FileController extends Controller
         $user = request()->user();
         $project = $file->project;
         
+        \Log::info('File download request', [
+            'file_id' => $file->id,
+            'project_id' => $project->id,
+            'user_id' => $user ? $user->id : 'guest',
+            'original_filename' => $file->original_filename,
+            'storage_url' => $file->storage_url
+        ]);
+        
         // No access control - everyone can download files
         $disk = config('filesystems.default', 'local');
         
         if (!Storage::disk($disk)->exists($file->storage_url)) {
             \Log::error('File not found in storage', [
-Please change the colors of the "Recent Activity" section. Use colors that are visually pleasing and well-coordinated with the rest of the page design.                'file_id' => $file->id,
+                'file_id' => $file->id,
                 'storage_url' => $file->storage_url,
-                'disk' => $disk
+                'disk' => $disk,
+                'full_path' => Storage::disk($disk)->path($file->storage_url),
+                'storage_root' => storage_path('app')
             ]);
             
             return response()->json([
-                'message' => 'File not found'
+                'message' => 'File not found in storage',
+                'error' => 'file_not_found',
+                'debug' => [
+                    'file_id' => $file->id,
+                    'storage_url' => $file->storage_url,
+                    'disk' => $disk,
+                    'storage_path' => storage_path('app')
+                ]
             ], 404);
         }
 
-        \Log::info('File downloaded', [
+        \Log::info('File downloaded successfully', [
             'file_id' => $file->id,
             'project_id' => $project->id,
-            'user_id' => $user->id,
-            'filename' => $file->original_filename
+            'user_id' => $user ? $user->id : 'guest',
+            'filename' => $file->original_filename,
+            'file_size' => $file->size_bytes
         ]);
 
         // Properly encode Arabic/UTF-8 filenames in Content-Disposition header

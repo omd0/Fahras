@@ -15,7 +15,7 @@ class ApiService {
       },
     });
 
-    // Request interceptor to add auth token
+    // Request interceptor to add auth token and handle FormData
     this.api.interceptors.request.use((config) => {
       const token = localStorage.getItem('auth-storage');
       if (token) {
@@ -28,6 +28,13 @@ class ApiService {
           console.error('Error parsing auth token:', error);
         }
       }
+      
+      // If the request data is FormData, remove Content-Type header
+      // to let the browser set it automatically with the boundary
+      if (config.data instanceof FormData) {
+        delete config.headers['Content-Type'];
+      }
+      
       return config;
     });
 
@@ -302,9 +309,18 @@ class ApiService {
     formData.append('is_public', isPublic ? '1' : '0');
 
     console.log('Uploading file:', file.name, 'to project:', projectId);
+    console.log('File size:', file.size, 'bytes');
+    console.log('File type:', file.type);
 
+    // Content-Type header will be automatically set by the interceptor for FormData
+    // The interceptor removes the default Content-Type to let browser set it with boundary
     const response: AxiosResponse = await this.api.post(`/projects/${projectId}/files`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+      onUploadProgress: (progressEvent) => {
+        if (progressEvent.total) {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          console.log(`Upload progress: ${percentCompleted}%`);
+        }
+      }
     });
     
     console.log('File upload response:', response.data);
@@ -312,16 +328,33 @@ class ApiService {
   }
 
 
-  async getProjectFiles(projectId: number): Promise<{ files: File[] }> {
+  async getProjectFiles(projectId: number): Promise<{ files: File[]; debug?: any }> {
+    console.log(`Fetching files for project ${projectId}`);
     const response: AxiosResponse = await this.api.get(`/projects/${projectId}/files`);
+    console.log(`Files response for project ${projectId}:`, response.data);
+    console.log(`Number of files: ${response.data.files?.length || 0}`);
+    if (response.data.debug) {
+      console.log('Debug info:', response.data.debug);
+    }
     return response.data;
   }
 
   async downloadFile(fileId: number): Promise<Blob> {
-    const response: AxiosResponse = await this.api.get(`/files/${fileId}/download`, {
-      responseType: 'blob'
-    });
-    return response.data;
+    console.log(`[DEBUG] Downloading file ${fileId}`);
+    try {
+      const response: AxiosResponse = await this.api.get(`/files/${fileId}/download`, {
+        responseType: 'blob'
+      });
+      console.log(`[DEBUG] File download successful for file ${fileId}`);
+      console.log(`[DEBUG] Blob size: ${response.data.size} bytes`);
+      console.log(`[DEBUG] Blob type: ${response.data.type}`);
+      return response.data;
+    } catch (error: any) {
+      console.error(`[DEBUG] File download failed for file ${fileId}:`, error);
+      console.error(`[DEBUG] Error status:`, error.response?.status);
+      console.error(`[DEBUG] Error data:`, error.response?.data);
+      throw error;
+    }
   }
 
   async deleteFile(fileId: number): Promise<void> {

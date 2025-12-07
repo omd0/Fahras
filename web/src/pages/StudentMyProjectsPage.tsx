@@ -92,6 +92,7 @@ const StudentMyProjectsPage: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
 
   useEffect(() => {
     // Redirect non-student users
@@ -199,9 +200,18 @@ const StudentMyProjectsPage: React.FC = () => {
     setCurrentPage(1); // Reset to first page when switching tabs
   };
 
-  const handleViewProject = (project: Project) => {
-    setSelectedProject(project);
+  const handleViewProject = async (project: Project) => {
     setDetailDialogOpen(true);
+    setDetailLoading(true);
+    try {
+      const response = await apiService.getProject(project.id);
+      setSelectedProject(response.project);
+    } catch (error) {
+      console.error('Failed to fetch project details:', error);
+      setSelectedProject(project);
+    } finally {
+      setDetailLoading(false);
+    }
   };
 
   const handleEditProject = (project: Project) => {
@@ -1293,7 +1303,11 @@ const StudentMyProjectsPage: React.FC = () => {
           </IconButton>
         </DialogTitle>
         <DialogContent>
-          {selectedProject && (
+          {detailLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : selectedProject ? (
             <Box sx={{ pt: 2 }}>
               <Grid container spacing={2}>
                 <Grid size={{ xs: 12 }}>
@@ -1375,6 +1389,10 @@ const StudentMyProjectsPage: React.FC = () => {
                 )}
               </Grid>
             </Box>
+          ) : (
+            <Typography variant="body1" color="text.secondary">
+              {t('No project selected')}
+            </Typography>
           )}
         </DialogContent>
         <DialogActions>

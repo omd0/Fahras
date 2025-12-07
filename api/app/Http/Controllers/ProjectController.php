@@ -15,7 +15,15 @@ class ProjectController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Project::with(['program.department', 'creator', 'members', 'advisors']);
+        $query = Project::with([
+            'program.department',
+            'creator',
+            'members',
+            'advisors',
+            'files' => function ($fileQuery) {
+                $fileQuery->orderBy('uploaded_at', 'desc');
+            },
+        ]);
         $user = $request->user();
 
         // If requesting my_projects, skip visibility rules and show all user's projects
@@ -605,7 +613,15 @@ class ProjectController extends Controller
      */
     public function search(Request $request)
     {
-        $query = Project::with(['program.department', 'creator', 'members', 'advisors']);
+        $query = Project::with([
+            'program.department',
+            'creator',
+            'members',
+            'advisors',
+            'files' => function ($fileQuery) {
+                $fileQuery->orderBy('uploaded_at', 'desc');
+            },
+        ]);
         $user = $request->user();
 
         // Apply visibility rules based on user role
@@ -1401,7 +1417,15 @@ class ProjectController extends Controller
             ], 403);
         }
 
-        $query = Project::with(['program.department', 'creator', 'members', 'advisors'])
+        $query = Project::with([
+            'program.department',
+            'creator',
+            'members',
+            'advisors',
+            'files' => function ($fileQuery) {
+                $fileQuery->orderBy('uploaded_at', 'desc');
+            },
+        ])
             ->where('admin_approval_status', 'pending');
 
         // Apply filters
@@ -1456,7 +1480,16 @@ class ProjectController extends Controller
             ], 403);
         }
 
-        $query = Project::with(['program.department', 'creator', 'members', 'advisors', 'approver']);
+        $query = Project::with([
+            'program.department',
+            'creator',
+            'members',
+            'advisors',
+            'approver',
+            'files' => function ($fileQuery) {
+                $fileQuery->orderBy('uploaded_at', 'desc');
+            },
+        ]);
 
         // Filter by approval status
         if ($request->has('approval_status')) {
