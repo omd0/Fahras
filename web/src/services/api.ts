@@ -1,7 +1,29 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { LoginCredentials, RegisterData, User, Project, CreateProjectData, File, Program, Comment, Rating, Department } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost/api';
+// Use environment variable if set and not localhost, otherwise use current host origin
+const getApiBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  // If env URL is set and doesn't contain localhost, use it
+  if (envUrl && !envUrl.includes('localhost')) {
+    return envUrl;
+  }
+  // Otherwise, use current host origin when in browser
+  if (typeof window !== 'undefined') {
+    // Always use same origin /api - the nginx config handles routing
+    // This works for both app.saudiflux.org and api.saudiflux.org
+    return `${window.location.origin}/api`;
+  }
+  // Fallback for SSR or non-browser environments
+  return 'http://localhost/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
+
+// Log the API base URL for debugging (only in development or when explicitly needed)
+if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+  console.log('API Base URL:', API_BASE_URL);
+}
 
 class ApiService {
   private api: AxiosInstance;
@@ -42,6 +64,31 @@ class ApiService {
     this.api.interceptors.response.use(
       (response) => response,
       (error) => {
+        // Enhanced error logging for debugging
+        if (error.response) {
+          // Server responded with error status
+          console.error('API Error Response:', {
+            status: error.response.status,
+            statusText: error.response.statusText,
+            url: error.config?.url,
+            baseURL: error.config?.baseURL,
+            fullURL: error.config?.baseURL + error.config?.url,
+            data: error.response.data,
+            headers: error.response.headers
+          });
+        } else if (error.request) {
+          // Request was made but no response received
+          console.error('API Request Error (No Response):', {
+            url: error.config?.url,
+            baseURL: error.config?.baseURL,
+            fullURL: error.config?.baseURL + error.config?.url,
+            message: error.message
+          });
+        } else {
+          // Error setting up the request
+          console.error('API Setup Error:', error.message);
+        }
+
         if (error.response?.status === 401) {
           // Clear auth data on unauthorized
           localStorage.removeItem('auth-storage');

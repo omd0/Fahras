@@ -140,7 +140,14 @@ export const ExplorePage: React.FC = () => {
 
     } catch (error: any) {
       console.error('Failed to fetch projects:', error);
-      setError(error.response?.data?.message || 'Failed to fetch projects');
+      console.error('Error details:', {
+        message: error?.message,
+        response: error?.response?.data,
+        status: error?.response?.status,
+        url: error?.config?.url,
+        baseURL: error?.config?.baseURL
+      });
+      setError(error.response?.data?.message || error?.message || 'Failed to fetch projects');
     } finally {
       setLoading(false);
     }
@@ -150,8 +157,15 @@ export const ExplorePage: React.FC = () => {
     try {
       const response = await apiService.getPrograms();
       setPrograms(response.data || response || []);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch programs:', error);
+      console.error('Programs error details:', {
+        message: error?.message,
+        response: error?.response?.data,
+        status: error?.response?.status,
+        url: error?.config?.url,
+        baseURL: error?.config?.baseURL
+      });
       setPrograms([]);
     }
   };
@@ -160,8 +174,15 @@ export const ExplorePage: React.FC = () => {
     try {
       const response = await apiService.getDepartments();
       setDepartments(response || []);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch departments:', error);
+      console.error('Departments error details:', {
+        message: error?.message,
+        response: error?.response?.data,
+        status: error?.response?.status,
+        url: error?.config?.url,
+        baseURL: error?.config?.baseURL
+      });
       setDepartments([]);
     }
   };

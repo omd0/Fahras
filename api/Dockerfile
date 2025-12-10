@@ -38,10 +38,13 @@ COPY . /var/www/html
 COPY --chown=www-data:www-data . /var/www/html
 
 # Install Composer dependencies including cloud storage packages
-RUN composer install --no-dev --optimize-autoloader
+# Use --no-scripts to skip post-install scripts that require Laravel to be configured
+RUN composer install --no-dev --optimize-autoloader --no-scripts || \
+    (echo "Composer install failed, trying with --ignore-platform-reqs..." && \
+     composer install --no-dev --optimize-autoloader --no-scripts --ignore-platform-reqs)
 
-# Make init script executable
-RUN chmod +x init-minio.sh
+# Make init script executable (if it exists)
+RUN chmod +x init-minio.sh 2>/dev/null || true
 
 # Change current user to www
 USER www-data

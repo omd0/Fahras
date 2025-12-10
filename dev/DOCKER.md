@@ -532,6 +532,8 @@ docker system prune -a
 
 ## Troubleshooting
 
+> **Note**: For production-specific issues, see the [Production Deployment](#production-deployment) section below.
+
 ### 1. Services Won't Start
 
 **Check Docker is running:**
@@ -825,6 +827,120 @@ APP_DEBUG=false
 - Use Let's Encrypt for SSL certificates
 - Configure Nginx with SSL
 
+### Production Nginx Configuration
+
+The `nginx.production.conf` is configured to:
+- **Proxy React app**: All non-API requests are proxied to the React dev server (node:3000)
+- **Handle API routes**: `/api` routes are forwarded to PHP-FPM (Laravel)
+- **CORS support**: Proper CORS headers are set for API requests
+- **PHP-FPM connection**: Uses Docker service name `php:9000` (not `127.0.0.1:9000`)
+
+**Key differences from development config:**
+- Production config listens on `0.0.0.0:80` for public access
+- Includes CORS headers for cross-origin API requests
+- Properly configured for Docker Compose service networking
+
+### Production API Configuration
+
+The React app's API service (`web/src/services/api.ts`) is configured to:
+- Use same-origin `/api` endpoint when no explicit `VITE_API_URL` is set
+- Automatically detect the correct API base URL based on the current hostname
+- Fall back to `http://localhost/api` for SSR or non-browser environments
+
+**Important**: When deploying to production with subdomains (e.g., `app.saudiflux.org`), the API will use the same origin (`https://app.saudiflux.org/api`) unless `VITE_API_URL` is explicitly set in the environment.
+
+### Common Production Issues
+
+#### Issue: React App Shows Loading Screen But Never Loads
+
+**Symptoms:**
+- Page shows "Loading amazing project..." indefinitely
+- Browser console shows "API Request Error (No Response)"
+- Network tab shows failed requests to API endpoints
+
+**Causes:**
+1. Nginx not proxying to React app correctly
+2. API requests failing due to CORS or routing issues
+3. PHP-FPM connection misconfigured
+
+**Solution:**
+1. Verify `nginx.production.conf` has the React app proxy configuration:
+   ```nginx
+   upstream react_app {
+       server node:3000;
+   }
+   
+   location / {
+       proxy_pass http://react_app;
+       # ... proxy headers ...
+   }
+   ```
+
+2. Ensure API routes have CORS headers:
+   ```nginx
+   location /api {
+       add_header Access-Control-Allow-Origin * always;
+       add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, PATCH, OPTIONS" always;
+       # ... other CORS headers ...
+   }
+   ```
+
+3. Verify PHP-FPM connection uses Docker service name:
+   ```nginx
+   fastcgi_pass php:9000;  # Not 127.0.0.1:9000
+   ```
+
+4. Restart nginx after configuration changes:
+   ```bash
+   docker compose restart nginx
+   ```
+
+#### Issue: API Requests Fail with CORS Errors
+
+**Symptoms:**
+- Browser console shows CORS policy errors
+- API requests return 200 but are blocked by browser
+- Preflight OPTIONS requests fail
+
+**Solution:**
+Ensure `nginx.production.conf` includes proper CORS headers for `/api` routes:
+```nginx
+location /api {
+    add_header Access-Control-Allow-Origin * always;
+    add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, PATCH, OPTIONS" always;
+    add_header Access-Control-Allow-Headers "Authorization, Content-Type, Accept, X-Requested-With" always;
+    add_header Access-Control-Allow-Credentials "true" always;
+    
+    if ($request_method = OPTIONS) {
+        return 204;
+    }
+    # ... rest of config ...
+}
+```
+
+#### Issue: React App Not Accessible After Deployment
+
+**Symptoms:**
+- Nginx returns 404 or 502 errors
+- React app files not being served
+
+**Solution:**
+1. Verify React dev server is running:
+   ```bash
+   docker compose ps node
+   docker compose logs node
+   ```
+
+2. Check nginx is proxying correctly:
+   ```bash
+   docker compose logs nginx
+   ```
+
+3. Verify upstream configuration in nginx:
+   ```bash
+   docker compose exec nginx nginx -t
+   ```
+
 ## Security Considerations
 
 ### 1. Change Default Credentials
@@ -876,6 +992,242 @@ If you encounter issues not covered here:
 5. **Check Docker version**: `docker --version` (need 20.10+)
 6. **Check Compose version**: `docker compose version` (need 2.0+)
 
+## Troubleshooting: API 404 Errors and Production Setup
+
+### Critical Fixes Applied (December 2025)
+
+This section documents critical fixes for API 404 errors and production deployment issues.
+
+#### Issue: API Endpoints Returning 404 Errors
+
+**Symptoms:**
+- API endpoints at `/api/*` return 404 "File not found"
+- Laravel routes not accessible
+- `curl http://localhost/api/test` returns 404
+
+**Root Causes Identified:**
+
+1. **Missing `public/index.php` file**
+   - Laravel's entry point was missing
+   - Nginx couldn't route requests to Laravel
+
+2. **Missing `vendor` directory**
+   - Composer dependencies not installed
+   - Laravel couldn't bootstrap
+
+3. **Missing storage/bootstrap directories**
+   - Required directories didn't exist or had wrong permissions
+   - Laravel couldn't write cache files
+
+4. **Nginx configuration not listening on all interfaces**
+   - Only listening on localhost
+   - Not accessible from LAN/public networks
+
+**Solutions Applied:**
+
+##### 1. Create Missing `public/index.php`
+
+The Laravel entry point file was missing. Created it with:
+
+```php
+<?php
+
+use Illuminate\Http\Request;
+
+define('LARAVEL_START', microtime(true));
+
+// Determine if the application is in maintenance mode...
+if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php')) {
+    require $maintenance;
+}
+
+// Register the Composer autoloader...
+require __DIR__.'/../vendor/autoload.php';
+
+// Bootstrap Laravel and handle the request...
+(require_once __DIR__.'/../bootstrap/app.php')
+    ->handleRequest(Request::capture());
+```
+
+**Location:** `api/public/index.php`
+
+##### 2. Install Composer Dependencies
+
+```bash
+# Inside PHP container
+docker exec -u root fahras-php sh -c "cd /var/www/html && mkdir -p vendor && chown -R www-data:www-data vendor"
+docker exec -u www-data fahras-php sh -c "cd /var/www/html && composer install --no-dev --optimize-autoloader"
+```
+
+##### 3. Create Required Directories with Proper Permissions
+
+```bash
+docker exec -u root fahras-php sh -c "cd /var/www/html && \
+  mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache && \
+  chown -R www-data:www-data storage bootstrap/cache && \
+  chmod -R 775 storage bootstrap/cache"
+```
+
+##### 4. Update Nginx Production Config for Public/LAN Access
+
+**File:** `nginx.production.conf`
+
+**Changes:**
+- Changed `listen 80;` to `listen 0.0.0.0:80;` (explicit all interfaces)
+- Added IPv6 support: `listen [::]:80;`
+- Added access and error logging
+
+```nginx
+server {
+    # Listen on all interfaces (0.0.0.0) for public/LAN access
+    listen 0.0.0.0:80;
+    listen [::]:80;
+    server_name _;
+    
+    # Access and error logging
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log warn;
+    
+    # ... rest of config
+}
+```
+
+##### 5. Update Docker Compose for Production
+
+**File:** `docker-compose.yml`
+
+**Changes:**
+- Switched from `nginx.conf` to `nginx.production.conf`
+- Updated port binding to `0.0.0.0:80:80` for explicit public access
+- Set production environment variables:
+  - `APP_ENV=production` (was: `local`)
+  - `APP_DEBUG=false` (was: `true`)
+  - `APP_URL=https://app.saudiflux.org` (was: `http://localhost`)
+
+```yaml
+nginx:
+  ports:
+    - "0.0.0.0:80:80"  # Explicit public access
+  volumes:
+    - ./nginx.production.conf:/etc/nginx/conf.d/default.conf:ro
+
+php:
+  environment:
+    - APP_ENV=production
+    - APP_DEBUG=false
+    - APP_URL=https://app.saudiflux.org
+```
+
+#### Verification Steps
+
+After applying fixes, verify the setup:
+
+```bash
+# 1. Check Laravel is working
+docker exec fahras-php php artisan --version
+# Should output: Laravel Framework 11.x.x
+
+# 2. Check routes are registered
+docker exec fahras-php php artisan route:list | grep api
+
+# 3. Test API endpoint
+curl -H "Accept: application/json" http://localhost/api/test
+# Should return: {"message":"API is working"}
+
+# 4. Verify nginx is using production config
+docker exec fahras-nginx cat /etc/nginx/conf.d/default.conf | head -5
+# Should show: listen 0.0.0.0:80;
+
+# 5. Check environment is production
+docker exec fahras-php printenv | grep APP_ENV
+# Should output: APP_ENV=production
+```
+
+#### Cloudflare Tunnel Configuration
+
+For production deployment with Cloudflare Tunnel:
+
+**Port:** `80` (single tunnel handles both frontend and API)
+
+**Configuration:**
+```yaml
+# cloudflared config.yml
+tunnel: <your-tunnel-id>
+credentials-file: /path/to/credentials.json
+
+ingress:
+  - hostname: app.saudiflux.org
+    service: http://localhost:80
+  
+  # Optional: Separate subdomain for API (still uses same port 80)
+  - hostname: api.saudiflux.org
+    service: http://localhost:80
+  
+  - service: http_status:404
+```
+
+**Important:** Only ONE tunnel is needed. The API is accessible at `/api/*` through the same server on port 80.
+
+#### Common Production Issues
+
+##### Issue: "vendor/autoload.php not found"
+
+**Solution:**
+```bash
+docker exec -u www-data fahras-php sh -c "cd /var/www/html && composer install --no-dev --optimize-autoloader"
+```
+
+##### Issue: "bootstrap/cache directory must be present and writable"
+
+**Solution:**
+```bash
+docker exec -u root fahras-php sh -c "cd /var/www/html && \
+  mkdir -p bootstrap/cache && \
+  chown -R www-data:www-data bootstrap/cache && \
+  chmod -R 775 bootstrap/cache"
+```
+
+##### Issue: API still returns 404 after fixes
+
+**Solution:**
+1. Verify `public/index.php` exists:
+   ```bash
+   docker exec fahras-php test -f /var/www/html/public/index.php && echo "OK" || echo "MISSING"
+   ```
+
+2. Clear Laravel caches:
+   ```bash
+   docker exec fahras-php php artisan route:clear
+   docker exec fahras-php php artisan config:clear
+   docker exec fahras-php php artisan cache:clear
+   ```
+
+3. Restart nginx:
+   ```bash
+   docker compose restart nginx
+   ```
+
+##### Issue: Not accessible from LAN/public network
+
+**Solution:**
+1. Verify nginx is listening on all interfaces:
+   ```bash
+   docker exec fahras-nginx cat /etc/nginx/conf.d/default.conf | grep listen
+   # Should show: listen 0.0.0.0:80;
+   ```
+
+2. Check port binding in docker-compose.yml:
+   ```yaml
+   ports:
+     - "0.0.0.0:80:80"  # Not just "80:80"
+   ```
+
+3. Restart services:
+   ```bash
+   docker compose down
+   docker compose up -d
+   ```
+
 ## Summary
 
 ✅ **Automatic initialization** - No manual setup required  
@@ -887,6 +1239,8 @@ If you encounter issues not covered here:
 ✅ **Persistent data** - Named volumes for all data  
 ✅ **Development-ready** - Hot reload and fast refresh  
 ✅ **Production-ready** - Scalable and secure configuration  
+✅ **Public/LAN access** - Configured for 0.0.0.0:80 binding  
+✅ **API routing fixed** - All critical files and permissions in place  
 
 The Docker setup is designed to "just work" out of the box while remaining flexible and production-ready.
 

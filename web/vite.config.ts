@@ -11,7 +11,7 @@ export default defineConfig({
     hmr: {
       clientPort: 3000,
     },
-    allowedHosts: ['.localhost', 'localhost', 'node', 'nginx'],
+    allowedHosts: ['.localhost', 'localhost', 'node', 'nginx', 'app.saudiflux.org', '.saudiflux.org'],
     fs: {
       strict: false,
       allow: ['..'],

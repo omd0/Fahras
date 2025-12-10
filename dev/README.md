@@ -1,15 +1,23 @@
-# UI Documentation
+# Development Documentation
 
-This directory contains comprehensive documentation for the Fahras project's user interface components, themes, and patterns.
+This directory contains comprehensive documentation for the Fahras project, including UI components, deployment guides, and troubleshooting resources.
 
 ## Documentation Structure
 
+### UI Documentation
 - **[UI Overview](./ui-overview.md)** - High-level overview of the UI architecture and design system
 - **[Theme System](./theme-system.md)** - Material-UI theme configuration and customization
 - **[Grid System](./grid-system.md)** - Responsive grid layouts and spacing patterns
 - **[Components](./components.md)** - Custom components and their usage patterns
 - **[Pages](./pages.md)** - Page layouts and navigation patterns
 - **[UI Patterns](./ui-patterns.md)** - Common patterns and best practices
+
+### Deployment & Operations
+- **[DOCKER.md](./DOCKER.md)** - Complete Docker setup, management, and troubleshooting guide
+- **[PRODUCTION_DEPLOYMENT.md](./PRODUCTION_DEPLOYMENT.md)** - Quick reference for production deployment fixes and configuration
+- **[SCRIPTS.md](./SCRIPTS.md)** - Helper scripts and automation tools
+- **[MINIO_INTEGRATION.md](./MINIO_INTEGRATION.md)** - MinIO object storage setup and integration
+- **[QUICK_START_MINIO.md](./QUICK_START_MINIO.md)** - Quick start guide for MinIO
 
 ## Technology Stack
 
