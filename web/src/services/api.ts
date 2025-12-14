@@ -1,20 +1,16 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { LoginCredentials, RegisterData, User, Project, CreateProjectData, File, Program, Comment, Rating, Department } from '../types';
 
-// Use environment variable if set and not localhost, otherwise use current host origin
+// Use environment variable to define API base URL
 const getApiBaseUrl = () => {
   const envUrl = import.meta.env.VITE_API_URL;
-  // If env URL is set and doesn't contain localhost, use it
-  if (envUrl && !envUrl.includes('localhost')) {
+  if (envUrl) {
     return envUrl;
   }
-  // Otherwise, use current host origin when in browser
+  // Fallback only for development if env var is not set
   if (typeof window !== 'undefined') {
-    // Always use same origin /api - the nginx config handles routing
-    // This works for both app.saudiflux.org and api.saudiflux.org
     return `${window.location.origin}/api`;
   }
-  // Fallback for SSR or non-browser environments
   return 'http://localhost/api';
 };
 

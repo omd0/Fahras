@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, useTheme } from '@mui/material';
+import { Box, Typography, useTheme, Divider } from '@mui/material';
 
 interface HeaderLogoProps {
   variant?: 'header' | 'footer';
@@ -7,116 +7,134 @@ interface HeaderLogoProps {
 
 export const HeaderLogo: React.FC<HeaderLogoProps> = ({ variant = 'header' }) => {
   const theme = useTheme();
-  const isFooter = variant === 'footer';
+  const isHeader = variant === 'header';
+
+  // Header styles: clean, prominent with shadow
+  const headerStyles = {
+    bgcolor: 'background.paper',
+    borderBottom: `2px solid ${theme.palette.primary.main}`,
+    boxShadow: theme.shadows[2],
+  };
+
+  // Footer styles: subtle, distinct background
+  const footerStyles = {
+    bgcolor: theme.palette.mode === 'dark' 
+      ? theme.palette.grey[900] 
+      : theme.palette.grey[50],
+    borderTop: `2px solid ${theme.palette.divider}`,
+  };
+
+  const currentStyles = isHeader ? headerStyles : footerStyles;
 
   return (
     <Box
+      component={isHeader ? 'header' : 'footer'}
       sx={{
         width: '100%',
-        backgroundColor: theme.palette.background.paper,
-        ...(isFooter 
-          ? { borderTop: `1.5px solid ${theme.palette.primary.main}` }
-          : { borderBottom: `1.5px solid ${theme.palette.primary.main}`, boxShadow: theme.shadows[1] }
-        ),
-        py: { xs: 0.75, sm: 0.875, md: 1 },
+        py: { xs: 2, sm: 2.5, md: 3 },
         px: { xs: 2, sm: 3, md: 4 },
         display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
         justifyContent: 'center',
-        textAlign: 'center',
+        ...currentStyles,
       }}
     >
       <Box
         sx={{
-          maxWidth: '1200px',
           width: '100%',
+          maxWidth: '1400px',
           display: 'flex',
-          flexDirection: 'column',
-          gap: { xs: 0.25, sm: 0.35, md: 0.4 },
+          flexDirection: { xs: 'column', md: 'row' },
+          justifyContent: 'space-between',
+          alignItems: { xs: 'center', md: 'center' },
+          gap: { xs: 2, sm: 3, md: 4 },
         }}
       >
-        {/* Main Organization - Arabic */}
-        <Typography
-          variant="h6"
-          component="h1"
-          sx={{
-            fontFamily: "'Arial', 'Helvetica Neue', Helvetica, sans-serif",
-            fontWeight: 700,
-            color: theme.palette.primary.main,
-            fontSize: { xs: '0.875rem', sm: '0.95rem', md: '1.05rem' },
-            lineHeight: 1.25,
-            letterSpacing: '0.01em',
-            mb: 0,
-          }}
-          dir="rtl"
-        >
-          المؤسسة العامة للتدريب التقني والمهني
-        </Typography>
-
-        {/* Main Organization - English */}
-        <Typography
-          variant="body2"
-          component="h2"
-          sx={{
-            fontFamily: "'Arial', 'Helvetica Neue', Helvetica, sans-serif",
-            fontWeight: 600,
-            color: theme.palette.text.primary,
-            fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' },
-            lineHeight: 1.3,
-            letterSpacing: '0.005em',
-            mb: { xs: 0.2, sm: 0.25 },
-          }}
-          dir="ltr"
-        >
-          Technical and Vocational Training Corporation
-        </Typography>
-
-        {/* Divider */}
+        {/* Organization Section */}
         <Box
           sx={{
-            width: { xs: '40px', sm: '50px', md: '60px' },
-            height: '1px',
-            backgroundColor: theme.palette.primary.main,
-            mx: 'auto',
-            my: { xs: 0.15, sm: 0.2 },
-            opacity: 0.25,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: { xs: 'center', md: 'flex-start' },
+            textAlign: { xs: 'center', md: 'left' },
+            flex: { md: 1 },
           }}
-        />
-
-        {/* College - Arabic */}
-        <Typography
-          variant="body2"
-          component="h3"
-          sx={{
-            fontFamily: "'Arial', 'Helvetica Neue', Helvetica, sans-serif",
-            fontWeight: 600,
-            color: theme.palette.text.secondary,
-            fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.875rem' },
-            lineHeight: 1.25,
-            letterSpacing: '0.01em',
-          }}
-          dir="rtl"
         >
-          الكلية التقنية للاتصالات والمعلومات بالرياض
-        </Typography>
+          <Typography
+            component="h1"
+            sx={{
+              fontWeight: 700,
+              color: theme.palette.primary.main,
+              fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' },
+              lineHeight: 1.3,
+              mb: 0.5,
+            }}
+            dir="rtl"
+          >
+            المؤسسة العامة للتدريب التقني والمهني
+          </Typography>
+          <Typography
+            component="p"
+            sx={{
+              fontWeight: 500,
+              color: theme.palette.text.secondary,
+              fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
+              lineHeight: 1.4,
+            }}
+            dir="ltr"
+          >
+            Technical and Vocational Training Corporation
+          </Typography>
+        </Box>
 
-        {/* College - English */}
-        <Typography
-          variant="caption"
-          component="h4"
+        {/* Vertical Divider - only on desktop and for header */}
+        {isHeader && (
+          <Divider
+            orientation="vertical"
+            flexItem
+            sx={{
+              display: { xs: 'none', md: 'block' },
+              borderColor: theme.palette.divider,
+              borderWidth: 1,
+            }}
+          />
+        )}
+
+        {/* College Section */}
+        <Box
           sx={{
-            fontFamily: "'Arial', 'Helvetica Neue', Helvetica, sans-serif",
-            fontWeight: 500,
-            color: theme.palette.text.secondary,
-            fontSize: { xs: '0.65rem', sm: '0.7rem', md: '0.75rem' },
-            lineHeight: 1.3,
-            letterSpacing: '0.005em',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: { xs: 'center', md: 'flex-end' },
+            textAlign: { xs: 'center', md: 'right' },
+            flex: { md: 1 },
           }}
-          dir="ltr"
         >
-          Technical College of Telecommunications and Information in Riyadh
-        </Typography>
+          <Typography
+            component="h2"
+            sx={{
+              fontWeight: 600,
+              color: theme.palette.text.primary,
+              fontSize: { xs: '0.9rem', sm: '1.1rem', md: '1.25rem' },
+              lineHeight: 1.3,
+              mb: 0.5,
+            }}
+            dir="rtl"
+          >
+            الكلية التقنية للاتصالات والمعلومات بالرياض
+          </Typography>
+          <Typography
+            component="p"
+            sx={{
+              fontWeight: 400,
+              color: theme.palette.text.secondary,
+              fontSize: { xs: '0.7rem', sm: '0.8rem', md: '0.9rem' },
+              lineHeight: 1.4,
+            }}
+            dir="ltr"
+          >
+            Technical College of Telecommunications and Information in Riyadh
+          </Typography>
+        </Box>
       </Box>
     </Box>
   );

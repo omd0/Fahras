@@ -60,7 +60,6 @@ import {
   ThumbUp as ThumbUpIcon,
   Share as ShareIcon,
   Bookmark as BookmarkIcon,
-  Login as LoginIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { Project } from '../types';
@@ -353,103 +352,70 @@ export const ExplorePage: React.FC = () => {
             elevation={0}
             sx={{
               mb: 6,
-              p: 6,
+              p: { xs: 3, sm: 4, md: 6 },
               ...backgroundPatterns.hero,
               color: COLORS.textPrimary,
               position: 'relative',
               overflow: 'hidden',
-              boxShadow: '0 12px 40px rgba(81, 45, 168, 0.2), 0 6px 20px rgba(28, 40, 51, 0.12)',
+              borderRadius: 4,
+              boxShadow: `0 16px 48px ${alpha(COLORS.deepPurple, 0.15)}, 0 8px 24px ${alpha(COLORS.almostBlack, 0.1)}`,
               '&::before': {
                 ...decorativeElements.largeCircle,
-                background: 'rgba(81, 45, 168, 0.12)',
-                transform: 'translate(100px, -100px)',
+                background: `radial-gradient(circle, ${alpha(COLORS.deepPurple, 0.1)} 0%, transparent 60%)`,
+                transform: 'translate(80px, -120px) scale(1.2)',
+                opacity: 0.8,
               },
               '&::after': {
                 ...decorativeElements.mediumCircle,
-                background: 'rgba(174, 223, 247, 0.08)',
-                transform: 'translate(-50px, 50px)',
+                background: `radial-gradient(circle, ${alpha(COLORS.lightSkyBlue, 0.07)} 0%, transparent 60%)`,
+                transform: 'translate(-60px, 70px) scale(1.1)',
+                opacity: 0.9,
               },
             }}
           >
-            {/* Header with Login Button */}
-            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4, position: 'relative', zIndex: 1 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Avatar
-                  sx={{
-                    width: 48,
-                    height: 48,
-                    background: guestColors.primaryGradient,
-                    boxShadow: '0 4px 16px rgba(81, 45, 168, 0.25)',
-                  }}
-                >
-                  <RocketIcon sx={{ fontSize: 24, color: COLORS.white }} />
-                </Avatar>
-                <Typography variant="h5" sx={{ 
-                  fontWeight: 700, 
-                  color: COLORS.textPrimary,
-                  fontSize: { xs: '1.5rem', md: '1.8rem' }
-                }}>
-                  {t('TVTC Project Explorer')}
-                </Typography>
-              </Box>
-              <Button
-                variant="contained"
-                startIcon={<LoginIcon />}
-                onClick={() => navigate('/login')}
-                sx={{
-                  background: guestColors.primaryGradient,
-                  borderRadius: 4,
-                  px: 4,
-                  py: 1.5,
-                  fontWeight: 600,
-                  fontSize: '1rem',
-                  textTransform: 'none',
-                  boxShadow: '0 4px 16px rgba(81, 45, 168, 0.25)',
-                  '&:hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: `0 8px 25px ${alpha(COLORS.almostBlack, 0.3)}`,
-                  },
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                }}
-              >
-                {t('Login')}
-              </Button>
-            </Stack>
 
-            <Stack direction="row" alignItems="center" spacing={4} sx={{ position: 'relative', zIndex: 1 }}>
-              <Avatar
-                sx={{
-                  width: 100,
-                  height: 100,
-                  background: guestColors.primaryGradient,
-                  backdropFilter: 'blur(10px)',
-                  border: '3px solid rgba(81, 45, 168, 0.25)',
-                  boxShadow: '0 8px 32px rgba(81, 45, 168, 0.25)',
-                }}
-              >
-                <RocketIcon sx={{ fontSize: 50, color: COLORS.white }} />
-              </Avatar>
-              <Box>
-                <Typography variant="h2" sx={{ 
-                  fontWeight: 800, 
-                  mb: 2, 
-                  textShadow: '0 2px 4px rgba(81, 45, 168, 0.2)', 
-                  color: COLORS.textPrimary,
-                  fontSize: { xs: '2.5rem', md: '3.5rem' }
-                }}>
-                  {t('Explore Innovation 🚀')}
-                </Typography>
-                <Typography variant="h5" sx={{ 
-                  opacity: 0.9, 
-                  fontWeight: 400,
-                  fontSize: { xs: '1.1rem', md: '1.3rem' },
-                  maxWidth: '600px',
-                  color: COLORS.textSecondary
-                }}>
-                  {t('Discover groundbreaking graduation projects from TVTC students. Browse, learn, and get inspired by the next generation of innovators!')}
-                </Typography>
-              </Box>
-            </Stack>
+            {/* Main Hero Content */}
+            <Grid container spacing={{ xs: 4, md: 6 }} alignItems="center" sx={{ position: 'relative', zIndex: 1 }}>
+              <Grid size={{ xs: 12, md: 'auto' }}>
+                <Box sx={{ display: 'flex', justifyContent: { xs: 'center', md: 'flex-start' } }}>
+                  <Avatar
+                    sx={{
+                      width: { xs: 100, md: 140 },
+                      height: { xs: 100, md: 140 },
+                      background: guestColors.primaryGradient,
+                      border: `4px solid ${alpha(COLORS.white, 0.8)}`,
+                      boxShadow: `0 10px 40px ${alpha(COLORS.deepPurple, 0.25)}`,
+                    }}
+                  >
+                    <RocketIcon sx={{ fontSize: { xs: 50, md: 70 }, color: COLORS.white }} />
+                  </Avatar>
+                </Box>
+              </Grid>
+              <Grid size={{ xs: 12, md: true }}>
+                <Box sx={{ textAlign: { xs: 'center', md: 'left' } }}>
+                  <Typography variant="h1" sx={{ 
+                    fontWeight: 800, 
+                    mb: 2, 
+                    color: COLORS.textPrimary,
+                    textShadow: `0 3px 8px ${alpha(COLORS.deepPurple, 0.15)}`,
+                    fontSize: { xs: '2.8rem', sm: '3.5rem', md: '4rem' },
+                    lineHeight: 1.1,
+                  }}>
+                    {t('Explore Innovation 🚀')}
+                  </Typography>
+                  <Typography variant="h6" sx={{ 
+                    fontWeight: 400,
+                    fontSize: { xs: '1.1rem', md: '1.25rem' },
+                    maxWidth: '650px',
+                    color: COLORS.textSecondary,
+                    mx: { xs: 'auto', md: 0 },
+                    lineHeight: 1.6,
+                  }}>
+                    {t('Discover groundbreaking graduation projects from TVTC students. Browse, learn, and get inspired by the next generation of innovators!')}
+                  </Typography>
+                </Box>
+              </Grid>
+            </Grid>
           </Paper>
         </Fade>
 

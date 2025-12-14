@@ -27,8 +27,8 @@ class NotificationService {
   private readonly POLL_INTERVAL = 30000; // 30 seconds
 
   constructor() {
-    // Start polling when the service is created
-    this.startPolling();
+    // Don't start polling automatically - wait for authenticated user
+    // Polling will be started by useNotifications hook when user is authenticated
   }
 
   /**
@@ -92,9 +92,18 @@ class NotificationService {
       this.callbacks.onUnreadCountChanged?.(response.unread_count);
 
       this.lastPollTime = new Date();
-    } catch (error) {
+    } catch (error: any) {
+      // Ignore 401 errors (unauthenticated) - this is expected for public pages
+      if (error?.response?.status === 401) {
+        // Stop polling if we get 401 - user is not authenticated
+        this.stopPolling();
+        return;
+      }
       console.error('Failed to check for notifications:', error);
-      this.callbacks.onError?.(error as Error);
+      // Only call onError for non-401 errors
+      if (error?.response?.status !== 401) {
+        this.callbacks.onError?.(error as Error);
+      }
     }
   }
 

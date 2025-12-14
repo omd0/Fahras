@@ -29,9 +29,9 @@ import StudentMyProjectsPage from './pages/StudentMyProjectsPage';
 import { NotificationsPage } from './pages/NotificationsPage';
 import { TestAuthPage } from './pages/TestAuthPage';
 import { HeaderLogo } from './components/HeaderLogo';
+import { Header } from './components/Header';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
-import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import { prefixer } from 'stylis';
@@ -64,22 +64,9 @@ const AppContent: React.FC = () => {
         <CssBaseline />
         <ThemeProvider>
             <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-              {/* Header Logo */}
-              <HeaderLogo />
+              {/* Header with Logo, Language Switcher, and Login */}
+              <Header />
               
-              {/* Language Switcher */}
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  alignItems: 'center',
-                  px: 3,
-                  py: 1.5,
-                  gap: 1.5,
-                }}
-              >
-                <LanguageSwitcher />
-              </Box>
               <Box sx={{ flexGrow: 1 }}>
                 <Routes>
           {/* Public routes */}

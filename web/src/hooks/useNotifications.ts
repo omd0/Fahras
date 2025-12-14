@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { notificationService, Notification } from '../services/notificationService';
+import { useAuthStore } from '../store/authStore';
 
 export interface UseNotificationsReturn {
   notifications: Notification[];
@@ -14,6 +15,7 @@ export interface UseNotificationsReturn {
 }
 
 export const useNotifications = (autoRefresh: boolean = true): UseNotificationsReturn => {
+  const { isAuthenticated } = useAuthStore();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -27,6 +29,12 @@ export const useNotifications = (autoRefresh: boolean = true): UseNotificationsR
       setNotifications(response.notifications);
       setUnreadCount(response.unread_count);
     } catch (err: any) {
+      // Ignore 401 errors (unauthenticated) - this is expected for public pages
+      if (err?.response?.status === 401) {
+        setNotifications([]);
+        setUnreadCount(0);
+        return;
+      }
       setError(err.message || 'Failed to fetch notifications');
     } finally {
       setLoading(false);
@@ -88,33 +96,48 @@ export const useNotifications = (autoRefresh: boolean = true): UseNotificationsR
   }, []);
 
   useEffect(() => {
-    // Initial load
-    refreshNotifications();
+    // Only fetch notifications if user is authenticated
+    if (isAuthenticated) {
+      // Initial load
+      refreshNotifications();
 
-    if (autoRefresh) {
-      // Set up notification service callbacks
-      notificationService.setCallbacks({
-        onNotificationReceived: (notification) => {
-          setNotifications(prev => [notification, ...prev]);
-          if (!notification.is_read) {
-            setUnreadCount(prev => prev + 1);
-          }
-        },
-        onUnreadCountChanged: (count) => {
-          setUnreadCount(count);
-        },
-        onError: (err) => {
-          setError(err.message);
-        },
-      });
+      if (autoRefresh) {
+        // Start polling for authenticated users
+        notificationService.startPolling();
+        
+        // Set up notification service callbacks
+        notificationService.setCallbacks({
+          onNotificationReceived: (notification) => {
+            setNotifications(prev => [notification, ...prev]);
+            if (!notification.is_read) {
+              setUnreadCount(prev => prev + 1);
+            }
+          },
+          onUnreadCountChanged: (count) => {
+            setUnreadCount(count);
+          },
+          onError: (err: any) => {
+            // Ignore 401 errors (unauthenticated)
+            if (err?.response?.status !== 401) {
+              setError(err.message);
+            }
+          },
+        });
+      }
+    } else {
+      // Stop polling if user is not authenticated
+      notificationService.stopPolling();
+      setNotifications([]);
+      setUnreadCount(0);
+      setError(null);
     }
 
     return () => {
-      if (autoRefresh) {
+      if (autoRefresh && isAuthenticated) {
         notificationService.setCallbacks({});
       }
     };
-  }, [autoRefresh, refreshNotifications]);
+  }, [autoRefresh, refreshNotifications, isAuthenticated]);
 
   return {
     notifications,
