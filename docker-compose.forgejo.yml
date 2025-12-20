@@ -1,0 +1,209 @@
+# Forgejo Self-Hosted Git Platform Infrastructure
+# This compose file sets up Forgejo with PostgreSQL and Act Runner for CI/CD
+# Part of Phase 1 & 2: Environment & Infrastructure Strategy + Forgejo Configuration
+
+version: '3.8'
+
+services:
+  # Forgejo Database - PostgreSQL for metadata storage
+  forgejo-db:
+    image: postgres:16-alpine
+    container_name: forgejo-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${FORGEJO_DB_NAME:-forgejo}
+      POSTGRES_USER: ${FORGEJO_DB_USER:-forgejo}
+      POSTGRES_PASSWORD: ${FORGEJO_DB_PASSWORD:-forgejo_secure_password_change_me}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
+    volumes:
+      - forgejo_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${FORGEJO_DB_USER:-forgejo} -d ${FORGEJO_DB_NAME:-forgejo} || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks:
+      - forgejo-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+  # Forgejo Application Server
+  forgejo:
+    image: codeberg.org/forgejo/forgejo:latest
+    container_name: forgejo-app
+    restart: unless-stopped
+    environment:
+      # Database Configuration
+      - DB_TYPE=postgres
+      - DB_HOST=forgejo-db:5432
+      - DB_NAME=${FORGEJO_DB_NAME:-forgejo}
+      - DB_USER=${FORGEJO_DB_USER:-forgejo}
+      - DB_PASSWD=${FORGEJO_DB_PASSWORD:-forgejo_secure_password_change_me}
+      
+      # Application Configuration
+      - USER_UID=1000
+      - USER_GID=1000
+      - FORGEJO__database__DB_TYPE=postgres
+      - FORGEJO__database__HOST=forgejo-db:5432
+      - FORGEJO__database__NAME=${FORGEJO_DB_NAME:-forgejo}
+      - FORGEJO__database__USER=${FORGEJO_DB_USER:-forgejo}
+      - FORGEJO__database__PASSWD=${FORGEJO_DB_PASSWORD:-forgejo_secure_password_change_me}
+      
+      # Server Configuration
+      - FORGEJO__server__PROTOCOL=http
+      - FORGEJO__server__DOMAIN=${FORGEJO_DOMAIN:-forgejo.local}
+      - FORGEJO__server__HTTP_PORT=3000
+      - FORGEJO__server__ROOT_URL=http://${FORGEJO_DOMAIN:-forgejo.local}:3000
+      
+      # Repository Configuration
+      - FORGEJO__repository__ROOT=/data/gitea/repositories
+      
+      # Security & Performance
+      - FORGEJO__security__SECRET_KEY=${FORGEJO_SECRET_KEY:-}
+      - FORGEJO__log__LEVEL=Info
+      
+      # UTF-8 Support
+      - LANG=en_US.UTF-8
+      - LC_ALL=en_US.UTF-8
+    volumes:
+      - forgejo_data:/data
+      - forgejo_repos:/data/gitea/repositories
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "${FORGEJO_HTTP_PORT:-3000}:3000"
+      - "${FORGEJO_SSH_PORT:-2222}:22"
+    depends_on:
+      forgejo-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:3000/api/healthz || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - forgejo-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  # Act Runner - CI/CD Worker for Forgejo Actions
+  forgejo-runner:
+    image: codeberg.org/forgejo/act_runner:latest
+    container_name: forgejo-act-runner
+    restart: unless-stopped
+    environment:
+      - FORGEJO_INSTANCE_URL=http://forgejo:3000
+      - FORGEJO_RUNNER_REGISTRATION_TOKEN=${FORGEJO_RUNNER_TOKEN:-}
+      - FORGEJO_RUNNER_NAME=fahras-runner
+      - FORGEJO_RUNNER_LABELS=docker:docker://alpine:latest,ubuntu-latest:docker://node:20-bookworm
+    volumes:
+      - forgejo_runner_data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+      - forgejo_runner_cache:/cache
+    depends_on:
+      forgejo:
+        condition: service_healthy
+    networks:
+      - forgejo-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # Reverse Proxy for Forgejo (Optional - for clean URLs)
+  forgejo-proxy:
+    image: nginx:alpine
+    container_name: forgejo-proxy
+    restart: unless-stopped
+    ports:
+      - "${FORGEJO_PROXY_PORT:-8080}:80"
+    volumes:
+      - ./forgejo/nginx-forgejo.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      forgejo:
+        condition: service_healthy
+    networks:
+      - forgejo-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  # Database volume for Forgejo metadata
+  forgejo_db_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${FORGEJO_STORAGE_PATH:-./forgejo/data}/db
+  
+  # Application data volume (config, sessions, etc.)
+  forgejo_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${FORGEJO_STORAGE_PATH:-./forgejo/data}/app
+  
+  # Git repositories volume
+  forgejo_repos:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${FORGEJO_STORAGE_PATH:-./forgejo/data}/repos
+  
+  # Act Runner data and cache volumes
+  forgejo_runner_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${FORGEJO_STORAGE_PATH:-./forgejo/data}/runner
+  forgejo_runner_cache:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${FORGEJO_STORAGE_PATH:-./forgejo/data}/runner-cache
+
+networks:
+  forgejo-network:
+    driver: bridge
+    name: forgejo-network
+

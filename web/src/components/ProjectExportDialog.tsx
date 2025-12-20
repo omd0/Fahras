@@ -31,6 +31,7 @@ import {
   CheckCircle as CheckCircleIcon,
 } from '@mui/icons-material';
 import { Project } from '../types';
+import { apiService } from '../services/api';
 
 interface ProjectExportDialogProps {
   open: boolean;
@@ -79,18 +80,196 @@ export const ProjectExportDialog: React.FC<ProjectExportDialogProps> = ({
     }));
   };
 
+  // Helper function to download a file
+  const downloadFile = (content: string | Blob, filename: string, mimeType: string) => {
+    const blob = content instanceof Blob ? content : new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  // Generate JSON export
+  const generateJSONExport = (exportData: any): string => {
+    return JSON.stringify(exportData, null, 2);
+  };
+
+  // Generate HTML export
+  const generateHTMLExport = (exportData: any): string => {
+    const { project, comments, ratings, files } = exportData;
+    const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${project.title} - Export</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
+    h1 { color: #333; border-bottom: 2px solid #2196F3; padding-bottom: 10px; }
+    h2 { color: #555; margin-top: 30px; }
+    .metadata { background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0; }
+    .section { margin: 20px 0; }
+    .comment, .rating { border-left: 3px solid #2196F3; padding-left: 15px; margin: 10px 0; }
+    .file-item { padding: 10px; background: #f9f9f9; margin: 5px 0; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <h1>${project.title}</h1>
+  
+  ${exportOptions.includeMetadata ? `
+  <div class="metadata">
+    <h2>Project Information</h2>
+    <p><strong>Academic Year:</strong> ${project.academic_year}</p>
+    <p><strong>Semester:</strong> ${project.semester}</p>
+    <p><strong>Status:</strong> ${project.status}</p>
+    <p><strong>Created:</strong> ${new Date(project.created_at).toLocaleString()}</p>
+    ${project.program ? `<p><strong>Program:</strong> ${project.program.name}</p>` : ''}
+    ${project.creator ? `<p><strong>Creator:</strong> ${project.creator.full_name}</p>` : ''}
+  </div>
+  ` : ''}
+  
+  <div class="section">
+    <h2>Abstract</h2>
+    <p>${project.abstract || 'No abstract available.'}</p>
+  </div>
+  
+  ${project.keywords && project.keywords.length > 0 ? `
+  <div class="section">
+    <h2>Keywords</h2>
+    <p>${project.keywords.join(', ')}</p>
+  </div>
+  ` : ''}
+  
+  ${exportOptions.includeRatings && ratings && ratings.ratings && ratings.ratings.length > 0 ? `
+  <div class="section">
+    <h2>Ratings & Reviews</h2>
+    <p><strong>Average Rating:</strong> ${ratings.average_rating?.toFixed(1) || 'N/A'} (${ratings.total_ratings || 0} ratings)</p>
+    ${ratings.ratings.map((rating: any) => `
+      <div class="rating">
+        <p><strong>${rating.user?.full_name || 'Anonymous'}</strong> - ${rating.rating}/5</p>
+        ${rating.review ? `<p>${rating.review}</p>` : ''}
+        <p><small>${new Date(rating.created_at).toLocaleString()}</small></p>
+      </div>
+    `).join('')}
+  </div>
+  ` : ''}
+  
+  ${exportOptions.includeComments && comments && comments.comments && comments.comments.length > 0 ? `
+  <div class="section">
+    <h2>Comments</h2>
+    ${comments.comments.map((comment: any) => `
+      <div class="comment">
+        <p><strong>${comment.user?.full_name || 'Anonymous'}</strong></p>
+        <p>${comment.content}</p>
+        <p><small>${new Date(comment.created_at).toLocaleString()}</small></p>
+      </div>
+    `).join('')}
+  </div>
+  ` : ''}
+  
+  ${exportOptions.includeFiles && files && files.files && files.files.length > 0 ? `
+  <div class="section">
+    <h2>Attached Files</h2>
+    ${files.files.map((file: any) => `
+      <div class="file-item">
+        <p><strong>${file.original_filename}</strong></p>
+        <p><small>Size: ${(file.size_bytes / 1024).toFixed(2)} KB | Type: ${file.mime_type} | Uploaded: ${new Date(file.uploaded_at).toLocaleString()}</small></p>
+      </div>
+    `).join('')}
+  </div>
+  ` : ''}
+  
+  <hr>
+  <p><small>Exported on ${new Date().toLocaleString()}</small></p>
+</body>
+</html>
+    `;
+    return html;
+  };
+
+  // Generate PDF export (basic implementation using browser print)
+  const generatePDFExport = async (exportData: any): Promise<void> => {
+    const html = generateHTMLExport(exportData);
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(html);
+      printWindow.document.close();
+      printWindow.onload = () => {
+        setTimeout(() => {
+          printWindow.print();
+          setTimeout(() => printWindow.close(), 100);
+        }, 250);
+      };
+    } else {
+      throw new Error('Popup blocked. Please allow popups for this site.');
+    }
+  };
+
   const handleExport = async () => {
     setExporting(true);
     setError(null);
     setExportSuccess(false);
 
     try {
-      // Simulate export process
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // In a real implementation, this would call an API endpoint
-      // const response = await apiService.exportProject(project.id, exportOptions);
-      
+      // Fetch project data with all related information
+      const [projectData, commentsData, ratingsData, filesData] = await Promise.all([
+        apiService.getProject(project.id),
+        exportOptions.includeComments ? apiService.getComments(project.id).catch(() => ({ comments: [] })) : Promise.resolve({ comments: [] }),
+        exportOptions.includeRatings ? apiService.getRatings(project.id).catch(() => ({ ratings: [], average_rating: null, total_ratings: 0 })) : Promise.resolve({ ratings: [], average_rating: null, total_ratings: 0 }),
+        exportOptions.includeFiles ? apiService.getProjectFiles(project.id).catch(() => ({ files: [] })) : Promise.resolve({ files: [] }),
+      ]);
+
+      const fullProject = projectData.project || projectData;
+      const exportData: any = {
+        project: exportOptions.includeMetadata ? fullProject : {
+          id: fullProject.id,
+          title: fullProject.title,
+          abstract: fullProject.abstract,
+          keywords: fullProject.keywords,
+        },
+      };
+
+      if (exportOptions.includeComments) {
+        exportData.comments = commentsData;
+      }
+      if (exportOptions.includeRatings) {
+        exportData.ratings = ratingsData;
+      }
+      if (exportOptions.includeFiles) {
+        exportData.files = filesData;
+      }
+
+      // Generate and download file based on format
+      const sanitizedTitle = fullProject.title.replace(/[^a-z0-9]/gi, '_').substring(0, 50);
+      const timestamp = new Date().toISOString().split('T')[0];
+
+      switch (exportOptions.format) {
+        case 'json':
+          const jsonContent = generateJSONExport(exportData);
+          downloadFile(jsonContent, `${sanitizedTitle}_${timestamp}.json`, 'application/json');
+          break;
+
+        case 'html':
+          const htmlContent = generateHTMLExport(exportData);
+          downloadFile(htmlContent, `${sanitizedTitle}_${timestamp}.html`, 'text/html');
+          break;
+
+        case 'pdf':
+          await generatePDFExport(exportData);
+          break;
+
+        case 'docx':
+          // DOCX requires a library, for now we'll export as HTML which can be opened in Word
+          const docxContent = generateHTMLExport(exportData);
+          downloadFile(docxContent, `${sanitizedTitle}_${timestamp}.html`, 'application/msword');
+          break;
+      }
+
       setExportSuccess(true);
       
       // Auto-close after success

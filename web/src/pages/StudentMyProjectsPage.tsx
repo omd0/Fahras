@@ -129,7 +129,24 @@ const StudentMyProjectsPage: React.FC = () => {
     applyFilters();
   }, [projects, searchTerm, statusFilter, academicYearFilter]);
 
+  // Refetch data when navigating back from project creation
+  useEffect(() => {
+    if (location.state?.refresh) {
+      fetchData();
+      // Clear the refresh flag
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
+
   const fetchData = async () => {
+    // Check if user is authenticated
+    if (!user || !user.id) {
+      setError('You must be logged in to view your projects.');
+      setLoading(false);
+      setProjects([]);
+      return;
+    }
+    
     try {
       setLoading(true);
       const response = await apiService.getMyProjects({
@@ -163,7 +180,15 @@ const StudentMyProjectsPage: React.FC = () => {
       setError(null);
     } catch (err: any) {
       console.error('Failed to fetch data:', err);
-      setError(err.response?.data?.message || 'Failed to load data');
+      
+      // Check if it's an authentication error
+      if (err.response?.status === 401) {
+        setError('Authentication failed. Please log in again.');
+      } else if (err.response?.status === 403) {
+        setError('Access forbidden. You may not have permission to view projects.');
+      } else {
+        setError(err.response?.data?.message || err.message || 'Failed to load data');
+      }
       setProjects([]); // Set empty array on error
     } finally {
       setLoading(false);
@@ -279,8 +304,13 @@ const StudentMyProjectsPage: React.FC = () => {
 
     // Apply tab-specific status filter (ignore the statusFilter dropdown when on a specific tab)
     switch (tabIndex) {
-      case 0: // All Projects
-        // Only apply statusFilter if it's not 'all'
+      case 0: // All Projects - Only show approved projects
+        // Filter to only show approved projects (exclude pending, hidden, null, or undefined)
+        filtered = filtered.filter(project => {
+          const approvalStatus = project?.admin_approval_status;
+          return approvalStatus === 'approved';
+        });
+        // Only apply additional statusFilter if it's not 'all'
         if (statusFilter !== 'all') {
           filtered = filtered.filter(project => project?.status === statusFilter);
         }
@@ -292,7 +322,10 @@ const StudentMyProjectsPage: React.FC = () => {
         filtered = filtered.filter(project => project && (project.status === 'submitted' || project.status === 'under_review'));
         break;
       case 3: // Pending Approval
-        filtered = filtered.filter(project => project && project.admin_approval_status === 'pending');
+        filtered = filtered.filter(project => {
+          if (!project) return false;
+          return project.admin_approval_status === 'pending';
+        });
         break;
       case 4: // Completed
         filtered = filtered.filter(project => project && project.status === 'completed');

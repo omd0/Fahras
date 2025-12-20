@@ -58,7 +58,7 @@ import {
   PlayArrow as PlayArrowIcon,
   Refresh as RefreshIcon,
 } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Project } from '../../types';
 import { apiService } from '../../services/api';
 import { getRoleInfo } from '../../config/dashboardThemes';
@@ -105,6 +105,7 @@ export const StudentDashboard: React.FC = () => {
 
   const { user } = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation();
   const { theme } = useTheme();
   const { t } = useLanguage();
   const roleInfo = getRoleInfo('student', user?.full_name, t);
@@ -114,6 +115,16 @@ export const StudentDashboard: React.FC = () => {
     fetchDashboardData();
     fetchNotifications();
   }, []);
+
+  // Refetch data when navigating back from project creation
+  useEffect(() => {
+    if (location.state?.refresh) {
+      fetchDashboardData();
+      fetchNotifications();
+      // Clear the refresh flag
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const fetchDashboardData = async () => {
     try {

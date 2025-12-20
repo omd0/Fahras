@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Typography, Chip, SxProps, Theme } from '@mui/material';
 import { TVTCLogo } from './TVTCLogo';
+import { getAppName, getProjectDescription, getTVTCDisplayName, getCopyrightText } from '../config/organization';
 
 interface TVTCBrandingProps {
   variant?: 'header' | 'footer' | 'sidebar' | 'card';
@@ -82,10 +83,10 @@ export const TVTCBranding: React.FC<TVTCBrandingProps> = ({
       {variant === 'header' && (
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           <Typography variant="h6" color="text.primary" sx={{ fontWeight: 600 }}>
-            Fahras
+            {getAppName('en')}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            Project Management System
+            {getProjectDescription('en')}
           </Typography>
         </Box>
       )}
@@ -93,10 +94,10 @@ export const TVTCBranding: React.FC<TVTCBrandingProps> = ({
       {variant === 'card' && (
         <Box sx={{ textAlign: 'center', mt: 1 }}>
           <Typography variant="h5" color="inherit" sx={{ fontWeight: 600 }}>
-            Fahras
+            {getAppName('en')}
           </Typography>
           <Typography variant="body2" color="inherit" sx={{ opacity: 0.9 }}>
-            Project Management System
+            {getProjectDescription('en')}
           </Typography>
           <Chip 
             label="Powered by TVTC" 
@@ -113,14 +114,14 @@ export const TVTCBranding: React.FC<TVTCBrandingProps> = ({
 
       {showDescription && variant !== 'card' && (
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1, textAlign: 'center' }}>
-          Technical and Vocational Training Corporation
+          {getTVTCDisplayName('en')}
         </Typography>
       )}
 
       {variant === 'footer' && (
         <Box sx={{ mt: 2, textAlign: 'center' }}>
           <Typography variant="caption" color="text.secondary">
-            © 2024 Technical and Vocational Training Corporation. All rights reserved.
+            {getCopyrightText()}
           </Typography>
         </Box>
       )}

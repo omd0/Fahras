@@ -1,0 +1,82 @@
+# Dependency Security Audit Workflow
+# Phase 3: Automated Dependency Auditing
+# Runs on schedule and on dependency updates
+
+name: Dependency Security Audit
+
+on:
+  schedule:
+    # Run every Monday at 2 AM UTC
+    - cron: '0 2 * * 1'
+  push:
+    paths:
+      - 'composer.lock'
+      - 'composer.json'
+  workflow_dispatch:
+
+jobs:
+  composer-audit:
+    name: Composer Dependency Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer:v2
+
+      - name: Install Dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Run Composer Audit
+        run: |
+          echo "🔍 Running Composer security audit..."
+          composer audit --format=json > composer-audit.json || true
+          
+          # Check if there are vulnerabilities
+          if [ -s composer-audit.json ]; then
+            echo "⚠️ Security vulnerabilities found!"
+            cat composer-audit.json
+            exit 1
+          else
+            echo "✅ No security vulnerabilities found"
+          fi
+
+      - name: Upload Audit Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: composer-security-audit
+          path: composer-audit.json
+          retention-days: 90
+
+  outdated-packages:
+    name: Check for Outdated Packages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer:v2
+
+      - name: Check Outdated Packages
+        run: |
+          echo "📦 Checking for outdated Composer packages..."
+          composer outdated --direct --format=json > outdated-packages.json || true
+          cat outdated-packages.json
+
+      - name: Upload Outdated Packages Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: outdated-packages-report
+          path: outdated-packages.json
+          retention-days: 30
+

@@ -83,6 +83,11 @@ class User extends Authenticatable
         return $this->hasMany(Rating::class);
     }
 
+    public function bookmarks()
+    {
+        return $this->hasMany(Bookmark::class);
+    }
+
     public function hasRole($role)
     {
         return $this->roles()->where('name', $role)->exists();
@@ -93,5 +98,17 @@ class User extends Authenticatable
         return $this->roles()->whereHas('permissions', function ($query) use ($permission) {
             $query->where('code', $permission);
         })->exists();
+    }
+
+    /**
+     * Check if user is a legacy user (e.g., has unhashed password or other legacy attributes)
+     * For now, all users are considered non-legacy since passwords are always hashed
+     */
+    public function isLegacyUser()
+    {
+        // Check if password is not hashed (legacy users might have plain text passwords)
+        // Since Laravel 11 always hashes passwords, we can assume all users are non-legacy
+        // If you need to check for legacy users, you could check for a specific field or pattern
+        return false;
     }
 }

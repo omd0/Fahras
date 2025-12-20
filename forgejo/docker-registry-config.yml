@@ -1,0 +1,40 @@
+# Docker Registry Configuration for Forgejo
+# Phase 4: Container Registry Setup
+# This enables Forgejo to host private Docker images
+
+# Forgejo has built-in container registry support
+# Configuration is done through the Forgejo UI or app.ini
+
+# To enable container registry in Forgejo:
+# 1. Go to: Settings > Repository > Repository Settings
+# 2. Enable "Enable Container Registry"
+# 3. Set registry path (default: /data/gitea/docker)
+
+# Or configure in app.ini:
+[registry]
+ENABLED = true
+REGISTRY_TYPE = docker
+REGISTRY_HOST = forgejo.local:3000
+REGISTRY_PROXY_URL = 
+
+# Storage configuration
+[registry.storage]
+STORAGE_TYPE = local
+STORAGE_PATH = /data/gitea/docker
+
+# Alternative: Use external S3/MinIO storage
+# [registry.storage]
+# STORAGE_TYPE = s3
+# STORAGE_PATH = fahras-docker-registry
+# MINIO_ENDPOINT = http://minio:9000
+# MINIO_ACCESS_KEY_ID = minioadmin
+# MINIO_SECRET_ACCESS_KEY = minioadmin123
+# MINIO_BUCKET = fahras-docker-registry
+# MINIO_LOCATION = us-east-1
+# MINIO_USE_SSL = false
+
+# Security settings
+[registry.security]
+ALLOW_HTTP = true  # Set to false in production with HTTPS
+ALLOW_LOOPBACK = true
+

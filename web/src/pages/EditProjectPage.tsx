@@ -114,8 +114,8 @@ export const EditProjectPage: React.FC = () => {
 
   const fetchPrograms = async () => {
     try {
-      const response = await apiService.getPrograms();
-      setPrograms(response.data || response);
+      const programs = await apiService.getPrograms();
+      setPrograms(programs || []);
     } catch (error) {
       console.error('Failed to fetch programs:', error);
     }

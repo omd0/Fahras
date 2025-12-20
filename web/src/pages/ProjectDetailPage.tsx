@@ -31,6 +31,7 @@ import {
   Label as LabelIcon,
   FileDownload as FileDownloadIcon,
   Description as DescriptionIcon,
+  Timeline as TimelineIcon,
 } from '@mui/icons-material';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
@@ -45,6 +46,7 @@ import { ProjectExportDialog } from '../components/ProjectExportDialog';
 import { professorTheme, professorColors, professorDecorativeStyles } from '../theme/professorTheme';
 import { ThemeProvider } from '@mui/material/styles';
 import { useLanguage } from '../contexts/LanguageContext';
+import { BookmarkButton } from '../components/BookmarkButton';
 
 export const ProjectDetailPage: React.FC = () => {
   const [project, setProject] = useState<Project | null>(null);
@@ -83,6 +85,11 @@ export const ProjectDetailPage: React.FC = () => {
     if (id) {
       fetchProject(parseInt(id));
     }
+  }, [id]);
+
+  // Scroll to top when project details page loads or project ID changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [id]);
 
   const loadProjectFiles = async (projectId: number) => {
@@ -344,6 +351,34 @@ export const ProjectDetailPage: React.FC = () => {
               }}
             >
               Edit
+            </Button>
+          )}
+          {user && (
+            <Box sx={{ mr: 1 }}>
+              <BookmarkButton 
+                projectId={project.id} 
+                size="medium"
+                sx={{ 
+                  color: isProfessor ? '#FFFFFF' : '#000000',
+                }}
+              />
+            </Box>
+          )}
+          {user && (
+            <Button
+              color="inherit"
+              startIcon={<TimelineIcon />}
+              onClick={() => navigate(`/projects/${project.id}/follow`)}
+              sx={{ 
+                mr: 1,
+                color: isProfessor ? professorColors.secondary : '#9C27B0', // Purple for Timeline
+                '&:hover': {
+                  backgroundColor: isProfessor ? 'rgba(78, 205, 196, 0.1)' : 'rgba(156, 39, 176, 0.1)',
+                  color: isProfessor ? professorColors.tertiary : '#7B1FA2'
+                }
+              }}
+            >
+              Follow & Track
             </Button>
           )}
           <Button

@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import { LoginCredentials, RegisterData, User, Project, CreateProjectData, File, Program, Comment, Rating, Department } from '../types';
+import { LoginCredentials, RegisterData, User, Project, CreateProjectData, File, Program, Comment, Rating, Department, MilestoneTemplate, MilestoneTemplateItem, ProjectMilestone, ProjectActivity, ProjectFlag, ProjectFollower, TimelineData } from '../types';
+import { MilestoneTemplateData } from '../types/milestones';
 
 // Use environment variable to define API base URL
 const getApiBaseUrl = () => {
@@ -60,28 +61,12 @@ class ApiService {
     this.api.interceptors.response.use(
       (response) => response,
       (error) => {
-        // Enhanced error logging for debugging
+        // Log error details
         if (error.response) {
-          // Server responded with error status
-          console.error('API Error Response:', {
-            status: error.response.status,
-            statusText: error.response.statusText,
-            url: error.config?.url,
-            baseURL: error.config?.baseURL,
-            fullURL: error.config?.baseURL + error.config?.url,
-            data: error.response.data,
-            headers: error.response.headers
-          });
+          console.error('API Error:', error.response.status, error.response.statusText, error.config?.url);
         } else if (error.request) {
-          // Request was made but no response received
-          console.error('API Request Error (No Response):', {
-            url: error.config?.url,
-            baseURL: error.config?.baseURL,
-            fullURL: error.config?.baseURL + error.config?.url,
-            message: error.message
-          });
+          console.error('API Request Error (No Response):', error.message);
         } else {
-          // Error setting up the request
           console.error('API Setup Error:', error.message);
         }
 
@@ -212,9 +197,10 @@ class ApiService {
   }
 
   // Academic structure endpoints
-  async getPrograms(): Promise<{ data: Program[] }> {
+  async getPrograms(): Promise<Program[]> {
     const response: AxiosResponse = await this.api.get('/programs');
-    return response.data;
+    // Backend returns array directly
+    return Array.isArray(response.data) ? response.data : [];
   }
 
   async getDepartments(): Promise<Department[]> {
@@ -351,53 +337,23 @@ class ApiService {
     // Send boolean as string '1' for true, '0' for false (Laravel compatible)
     formData.append('is_public', isPublic ? '1' : '0');
 
-    console.log('Uploading file:', file.name, 'to project:', projectId);
-    console.log('File size:', file.size, 'bytes');
-    console.log('File type:', file.type);
-
     // Content-Type header will be automatically set by the interceptor for FormData
     // The interceptor removes the default Content-Type to let browser set it with boundary
-    const response: AxiosResponse = await this.api.post(`/projects/${projectId}/files`, formData, {
-      onUploadProgress: (progressEvent) => {
-        if (progressEvent.total) {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          console.log(`Upload progress: ${percentCompleted}%`);
-        }
-      }
-    });
-    
-    console.log('File upload response:', response.data);
+    const response: AxiosResponse = await this.api.post(`/projects/${projectId}/files`, formData);
     return response.data;
   }
 
 
   async getProjectFiles(projectId: number): Promise<{ files: File[]; debug?: any }> {
-    console.log(`Fetching files for project ${projectId}`);
     const response: AxiosResponse = await this.api.get(`/projects/${projectId}/files`);
-    console.log(`Files response for project ${projectId}:`, response.data);
-    console.log(`Number of files: ${response.data.files?.length || 0}`);
-    if (response.data.debug) {
-      console.log('Debug info:', response.data.debug);
-    }
     return response.data;
   }
 
   async downloadFile(fileId: number): Promise<Blob> {
-    console.log(`[DEBUG] Downloading file ${fileId}`);
-    try {
-      const response: AxiosResponse = await this.api.get(`/files/${fileId}/download`, {
-        responseType: 'blob'
-      });
-      console.log(`[DEBUG] File download successful for file ${fileId}`);
-      console.log(`[DEBUG] Blob size: ${response.data.size} bytes`);
-      console.log(`[DEBUG] Blob type: ${response.data.type}`);
-      return response.data;
-    } catch (error: any) {
-      console.error(`[DEBUG] File download failed for file ${fileId}:`, error);
-      console.error(`[DEBUG] Error status:`, error.response?.status);
-      console.error(`[DEBUG] Error data:`, error.response?.data);
-      throw error;
-    }
+    const response: AxiosResponse = await this.api.get(`/files/${fileId}/download`, {
+      responseType: 'blob'
+    });
+    return response.data;
   }
 
   async deleteFile(fileId: number): Promise<void> {
@@ -546,9 +502,37 @@ class ApiService {
     return response.data || [];
   }
 
-  async getRoles(): Promise<Array<{ id: number; name: string; description?: string }>> {
+  async getRoles(): Promise<Array<{ id: number; name: string; description?: string; is_system_role?: boolean; is_template?: boolean; user_count?: number; permission_count?: number; permissions?: any[] }>> {
     const response: AxiosResponse = await this.api.get('/admin/roles');
     return response.data || [];
+  }
+
+  async getPermissions(): Promise<Array<{ id: number; code: string; name?: string; category: string; description?: string }>> {
+    const response: AxiosResponse = await this.api.get('/admin/permissions');
+    return response.data || [];
+  }
+
+  async createRole(data: {
+    name: string;
+    description?: string;
+    permissions?: Array<{ permission_id: number; scope: string }>;
+  }): Promise<{ message: string; role: any }> {
+    const response: AxiosResponse = await this.api.post('/admin/roles', data);
+    return response.data;
+  }
+
+  async updateRole(roleId: number, data: {
+    name?: string;
+    description?: string;
+    permissions?: Array<{ permission_id: number; scope: string }>;
+  }): Promise<{ message: string; role: any }> {
+    const response: AxiosResponse = await this.api.put(`/admin/roles/${roleId}`, data);
+    return response.data;
+  }
+
+  async deleteRole(roleId: number): Promise<{ message: string }> {
+    const response: AxiosResponse = await this.api.delete(`/admin/roles/${roleId}`);
+    return response.data;
   }
 
   async createUser(data: {
@@ -583,7 +567,211 @@ class ApiService {
     return response.data;
   }
 
+  // Bookmark endpoints
+  async bookmarkProject(projectId: number): Promise<{ message: string; is_bookmarked: boolean }> {
+    const response: AxiosResponse = await this.api.post(`/projects/${projectId}/bookmark`);
+    return response.data;
+  }
+
+  async unbookmarkProject(projectId: number): Promise<{ message: string; is_bookmarked: boolean }> {
+    const response: AxiosResponse = await this.api.delete(`/projects/${projectId}/bookmark`);
+    return response.data;
+  }
+
+  async getBookmarkedProjects(): Promise<{ data: Project[]; total: number }> {
+    const response: AxiosResponse = await this.api.get('/projects/bookmarked');
+    return response.data;
+  }
+
+  async isProjectBookmarked(projectId: number): Promise<{ is_bookmarked: boolean }> {
+    const response: AxiosResponse = await this.api.get(`/projects/${projectId}/is-bookmarked`);
+    return response.data;
+  }
+
+  async syncGuestBookmarks(projectIds: number[]): Promise<{ message: string; synced_count: number; total_bookmarks: number }> {
+    const response: AxiosResponse = await this.api.post('/bookmarks/sync', {
+      guest_bookmark_ids: projectIds
+    });
+    return response.data;
+  }
+
   // Utility endpoints
+
+  // Milestone Template endpoints
+  async getMilestoneTemplates(params?: {
+    program_id?: number;
+    department_id?: number;
+    is_default?: boolean;
+  }): Promise<{ templates: MilestoneTemplate[] }> {
+    const response: AxiosResponse = await this.api.get('/milestone-templates', { params });
+    return response.data;
+  }
+
+  async getMilestoneTemplate(templateId: number): Promise<{ template: MilestoneTemplate }> {
+    const response: AxiosResponse = await this.api.get(`/milestone-templates/${templateId}`);
+    return response.data;
+  }
+
+  async createMilestoneTemplate(data: MilestoneTemplateData): Promise<{ message: string; template: MilestoneTemplate }> {
+    const response: AxiosResponse = await this.api.post('/milestone-templates', data);
+    return response.data;
+  }
+
+  async updateMilestoneTemplate(templateId: number, data: Partial<MilestoneTemplate>): Promise<{ message: string; template: MilestoneTemplate }> {
+    const response: AxiosResponse = await this.api.put(`/milestone-templates/${templateId}`, data);
+    return response.data;
+  }
+
+  async deleteMilestoneTemplate(templateId: number): Promise<{ message: string }> {
+    const response: AxiosResponse = await this.api.delete(`/milestone-templates/${templateId}`);
+    return response.data;
+  }
+
+  async applyTemplateToProject(templateId: number, projectId: number, startDate: string, preserveCustomMilestones?: boolean): Promise<{ message: string; milestones: ProjectMilestone[] }> {
+    const response: AxiosResponse = await this.api.post(`/milestone-templates/${templateId}/apply-to-project`, {
+      project_id: projectId,
+      start_date: startDate,
+      preserve_custom_milestones: preserveCustomMilestones,
+    });
+    return response.data;
+  }
+
+  async reorderTemplateItems(templateId: number, itemIds: number[]): Promise<{ message: string }> {
+    const response: AxiosResponse = await this.api.put(`/milestone-templates/${templateId}/items/reorder`, {
+      item_ids: itemIds,
+    });
+    return response.data;
+  }
+
+  // Project Milestone endpoints
+  async getProjectMilestones(projectId: number): Promise<{ milestones: ProjectMilestone[] }> {
+    const response: AxiosResponse = await this.api.get(`/projects/${projectId}/milestones`);
+    return response.data;
+  }
+
+  async createMilestone(projectId: number, data: {
+    title: string;
+    description?: string;
+    due_date?: string;
+    dependencies?: number[];
+    order?: number;
+  }): Promise<{ message: string; milestone: ProjectMilestone }> {
+    const response: AxiosResponse = await this.api.post(`/projects/${projectId}/milestones`, data);
+    return response.data;
+  }
+
+  async updateMilestone(milestoneId: number, data: Partial<ProjectMilestone>): Promise<{ message: string; milestone: ProjectMilestone }> {
+    const response: AxiosResponse = await this.api.put(`/milestones/${milestoneId}`, data);
+    return response.data;
+  }
+
+  async deleteMilestone(milestoneId: number): Promise<{ message: string }> {
+    const response: AxiosResponse = await this.api.delete(`/milestones/${milestoneId}`);
+    return response.data;
+  }
+
+  async startMilestone(milestoneId: number): Promise<{ message: string; milestone: ProjectMilestone }> {
+    const response: AxiosResponse = await this.api.post(`/milestones/${milestoneId}/start`);
+    return response.data;
+  }
+
+  async completeMilestone(milestoneId: number, completionNotes?: string): Promise<{ message: string; milestone: ProjectMilestone }> {
+    const response: AxiosResponse = await this.api.post(`/milestones/${milestoneId}/complete`, {
+      completion_notes: completionNotes,
+    });
+    return response.data;
+  }
+
+  async reopenMilestone(milestoneId: number): Promise<{ message: string; milestone: ProjectMilestone }> {
+    const response: AxiosResponse = await this.api.post(`/milestones/${milestoneId}/reopen`);
+    return response.data;
+  }
+
+  async updateMilestoneDueDate(milestoneId: number, dueDate: string): Promise<{ message: string; milestone: ProjectMilestone }> {
+    const response: AxiosResponse = await this.api.put(`/milestones/${milestoneId}/due-date`, {
+      due_date: dueDate,
+    });
+    return response.data;
+  }
+
+  async getMilestoneTimeline(projectId: number): Promise<TimelineData> {
+    const response: AxiosResponse = await this.api.get(`/projects/${projectId}/milestones/timeline`);
+    return response.data;
+  }
+
+  // Project Activity endpoints
+  async getProjectActivities(projectId: number, params?: {
+    activity_type?: string;
+    from_date?: string;
+    to_date?: string;
+    per_page?: number;
+    page?: number;
+  }): Promise<{
+    activities: ProjectActivity[];
+    pagination: {
+      current_page: number;
+      per_page: number;
+      total: number;
+      last_page: number;
+    };
+  }> {
+    const response: AxiosResponse = await this.api.get(`/projects/${projectId}/activities`, { params });
+    return response.data;
+  }
+
+  async getProjectTimeline(projectId: number): Promise<{
+    activities_by_date: Record<string, ProjectActivity[]>;
+    milestones: ProjectMilestone[];
+    status_changes: ProjectActivity[];
+  }> {
+    const response: AxiosResponse = await this.api.get(`/projects/${projectId}/activities/timeline`);
+    return response.data;
+  }
+
+  // Project Follow endpoints
+  async followProject(projectId: number, notificationPreferences?: Record<string, boolean>): Promise<{ message: string; follower: ProjectFollower }> {
+    const response: AxiosResponse = await this.api.post(`/projects/${projectId}/follow`, {
+      notification_preferences: notificationPreferences,
+    });
+    return response.data;
+  }
+
+  async unfollowProject(projectId: number): Promise<{ message: string }> {
+    const response: AxiosResponse = await this.api.delete(`/projects/${projectId}/follow`);
+    return response.data;
+  }
+
+  async getProjectFollowers(projectId: number): Promise<{ followers: ProjectFollower[] }> {
+    const response: AxiosResponse = await this.api.get(`/projects/${projectId}/followers`);
+    return response.data;
+  }
+
+  // Project Flag endpoints
+  async createProjectFlag(projectId: number, data: {
+    flag_type: ProjectFlag['flag_type'];
+    severity: ProjectFlag['severity'];
+    message: string;
+    is_confidential?: boolean;
+  }): Promise<{ message: string; flag: ProjectFlag }> {
+    const response: AxiosResponse = await this.api.post(`/projects/${projectId}/flags`, data);
+    return response.data;
+  }
+
+  async resolveFlag(flagId: number, resolutionNotes?: string): Promise<{ message: string; flag: ProjectFlag }> {
+    const response: AxiosResponse = await this.api.put(`/flags/${flagId}/resolve`, {
+      resolution_notes: resolutionNotes,
+    });
+    return response.data;
+  }
+
+  async getProjectFlags(projectId: number, params?: {
+    resolved?: boolean;
+    severity?: ProjectFlag['severity'];
+    flag_type?: ProjectFlag['flag_type'];
+  }): Promise<{ flags: ProjectFlag[] }> {
+    const response: AxiosResponse = await this.api.get(`/projects/${projectId}/flags`, { params });
+    return response.data;
+  }
 }
 
 export const apiService = new ApiService();

@@ -39,7 +39,6 @@ import {
   ExpandLess as ExpandLessIcon,
   School as SchoolIcon,
   Person as PersonIcon,
-  CalendarToday as CalendarIcon,
   Star as StarIcon,
   AttachFile as AttachFileIcon,
   Group as GroupIcon,
@@ -57,7 +56,6 @@ import {
   Engineering as EngineeringIcon,
   Computer as ComputerIcon,
   Comment as CommentIcon,
-  ThumbUp as ThumbUpIcon,
   Share as ShareIcon,
   Bookmark as BookmarkIcon,
 } from '@mui/icons-material';
@@ -66,6 +64,7 @@ import { Project } from '../types';
 import { apiService } from '../services/api';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { BookmarkButton } from '../components/BookmarkButton';
 
 interface SearchFilters {
   search: string;
@@ -154,8 +153,8 @@ export const ExplorePage: React.FC = () => {
 
   const fetchPrograms = async () => {
     try {
-      const response = await apiService.getPrograms();
-      setPrograms(response.data || response || []);
+      const programs = await apiService.getPrograms();
+      setPrograms(programs || []);
     } catch (error: any) {
       console.error('Failed to fetch programs:', error);
       console.error('Programs error details:', {
@@ -934,27 +933,19 @@ export const ExplorePage: React.FC = () => {
                               {project.title}
                             </Typography>
                             <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
-                              <Chip
-                                label={project.academic_year}
-                                size="small"
-                                sx={{
-                                  background: guestColors.primaryGradient,
-                                  color: COLORS.white,
-                                  fontWeight: 600,
-                                  fontSize: '0.75rem',
-                                }}
-                              />
-                              <Chip
-                                label={project.semester}
-                                size="small"
-                                sx={{
-                                  background: guestColors.secondaryGradient,
-                                  color: COLORS.textPrimary,
-                                  fontWeight: 600,
-                                  fontSize: '0.75rem',
-                                  textTransform: 'capitalize',
-                                }}
-                              />
+                              <Tooltip title={`Created: ${new Date(project.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`} arrow>
+                                <Chip
+                                  label={project.academic_year}
+                                  size="small"
+                                  sx={{
+                                    background: guestColors.secondaryGradient,
+                                    color: COLORS.textPrimary,
+                                    fontWeight: 600,
+                                    fontSize: '0.75rem',
+                                    textTransform: 'capitalize',
+                                  }}
+                                />
+                              </Tooltip>
                             </Stack>
                           </Box>
                           <Badge
@@ -1040,9 +1031,7 @@ export const ExplorePage: React.FC = () => {
                             <IconButton size="small" sx={{ color: COLORS.textSecondary }}>
                               <CommentIcon fontSize="small" />
                             </IconButton>
-                            <IconButton size="small" sx={{ color: COLORS.textSecondary }}>
-                              <ThumbUpIcon fontSize="small" />
-                            </IconButton>
+                            <BookmarkButton projectId={project.id} size="small" sx={{ color: COLORS.textSecondary }} />
                             <IconButton size="small" sx={{ color: COLORS.textSecondary }}>
                               <ShareIcon fontSize="small" />
                             </IconButton>
@@ -1087,13 +1076,13 @@ export const ExplorePage: React.FC = () => {
                     sx={{
                       ...backgroundPatterns.card,
                       cursor: 'pointer',
-                      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                       position: 'relative',
                       overflow: 'hidden',
                       height: '100%',
                       '&:hover': {
-                        transform: 'translateY(-12px) scale(1.03)',
-                        boxShadow: `0 24px 48px ${alpha(COLORS.almostBlack, 0.2)}`,
+                        transform: 'translateY(-4px)',
+                        boxShadow: `0 12px 24px ${alpha(COLORS.almostBlack, 0.15)}`,
                         borderColor: COLORS.almostBlack,
                       },
                       '&::before': {
@@ -1114,70 +1103,65 @@ export const ExplorePage: React.FC = () => {
                     onClick={() => navigate(`/projects/${project.id}`)}
                   >
                     <CardContent sx={{ p: 4, height: '100%', display: 'flex', flexDirection: 'column' }}>
-                      {/* Project Header */}
+                      {/* Project Header - Improved Layout */}
                       <Stack direction="row" alignItems="flex-start" justifyContent="space-between" sx={{ mb: 3 }}>
-                        <Box sx={{ flex: 1, minWidth: 0 }}>
-                          <Typography 
-                            variant="h6" 
-                            sx={{ 
-                              fontWeight: 700, 
-                              color: COLORS.textPrimary,
-                              mb: 2,
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              display: '-webkit-box',
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: 'vertical',
-                              fontSize: '1.2rem',
-                              lineHeight: 1.3,
-                            }}
-                          >
-                            {project.title}
-                          </Typography>
-                          <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
-                            <Chip
-                              label={project.academic_year}
-                              size="small"
-                              sx={{
-                                background: guestColors.primaryGradient,
-                                color: COLORS.white,
-                                fontWeight: 600,
-                                fontSize: '0.8rem',
-                                height: 28,
-                              }}
-                            />
-                            <Chip
-                              label={project.semester}
-                              size="small"
-                              sx={{
-                                background: guestColors.secondaryGradient,
+                        <Box sx={{ flex: 1, minWidth: 0, pr: 3 }}>
+                          {/* Title and Year Tag - Horizontally Aligned */}
+                          <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 1.5, flexWrap: 'wrap', gap: 1 }}>
+                            <Typography 
+                              variant="h6" 
+                              sx={{ 
+                                fontWeight: 700, 
                                 color: COLORS.textPrimary,
-                                fontWeight: 600,
-                                fontSize: '0.8rem',
-                                height: 28,
-                                textTransform: 'capitalize',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                display: '-webkit-box',
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: 'vertical',
+                                fontSize: '1.2rem',
+                                lineHeight: 1.3,
+                                flex: 1,
+                                minWidth: 0,
                               }}
-                            />
+                            >
+                              {project.title}
+                            </Typography>
+                            <Tooltip title={`Created: ${new Date(project.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`} arrow>
+                              <Chip
+                                label={project.academic_year}
+                                size="small"
+                                sx={{
+                                  background: guestColors.secondaryGradient,
+                                  color: COLORS.textPrimary,
+                                  fontWeight: 600,
+                                  fontSize: '0.75rem',
+                                  height: 24,
+                                  textTransform: 'capitalize',
+                                  flexShrink: 0,
+                                }}
+                              />
+                            </Tooltip>
                           </Stack>
                         </Box>
+                        {/* Icon - Perfectly Aligned */}
                         <Avatar
                           sx={{
                             width: 48,
                             height: 48,
                             background: guestColors.primaryGradient,
-                            ml: 2,
+                            flexShrink: 0,
                           }}
                         >
                           {getProjectIcon(project.title)}
                         </Avatar>
                       </Stack>
 
-                      {/* Project Abstract */}
+                      {/* Project Abstract - Improved Spacing */}
                       <Typography 
                         variant="body2" 
                         sx={{ 
                           color: COLORS.textSecondary,
-                          mb: 4, 
+                          mb: 3, 
                           flex: 1,
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
@@ -1191,9 +1175,9 @@ export const ExplorePage: React.FC = () => {
                         {project.abstract}
                       </Typography>
 
-                      {/* Keywords */}
+                      {/* Keywords - Increased Spacing */}
                       {project.keywords && project.keywords.length > 0 && (
-                        <Box sx={{ mb: 4 }}>
+                        <Box sx={{ mb: 3 }}>
                           <Stack direction="row" spacing={1} flexWrap="wrap" gap={1}>
                             {project.keywords.slice(0, 3).map((keyword, idx) => (
                               <Chip
@@ -1204,8 +1188,8 @@ export const ExplorePage: React.FC = () => {
                                 sx={{
                                   fontSize: '0.75rem',
                                   height: 28,
-                      borderColor: alpha(COLORS.lightSkyBlue, 0.35),
-                      color: COLORS.deepPurple,
+                                  borderColor: alpha(COLORS.lightSkyBlue, 0.35),
+                                  color: COLORS.deepPurple,
                                   fontWeight: 500,
                                   '&:hover': {
                                     backgroundColor: alpha(COLORS.lightSkyBlue, 0.1),
@@ -1222,8 +1206,8 @@ export const ExplorePage: React.FC = () => {
                                 sx={{
                                   fontSize: '0.75rem',
                                   height: 28,
-                      borderColor: alpha(COLORS.lightSkyBlue, 0.35),
-                      color: COLORS.deepPurple,
+                                  borderColor: alpha(COLORS.lightSkyBlue, 0.35),
+                                  color: COLORS.deepPurple,
                                   fontWeight: 500,
                                 }}
                               />
@@ -1232,31 +1216,9 @@ export const ExplorePage: React.FC = () => {
                         </Box>
                       )}
 
-                      {/* Project Stats */}
-                      <Box sx={{ mb: 4 }}>
-                        <Grid container spacing={3}>
-                          <Grid size={6}>
-                            <Stack direction="row" alignItems="center" spacing={1.5}>
-                              <AttachFileIcon sx={{ fontSize: 18, color: COLORS.almostBlack }} />
-                              <Typography variant="body2" sx={{ color: COLORS.textSecondary, fontWeight: 600 }}>
-                                {project.files?.length || 0} {t('files')}
-                              </Typography>
-                            </Stack>
-                          </Grid>
-                          <Grid size={6}>
-                            <Stack direction="row" alignItems="center" spacing={1.5}>
-                              <GroupIcon sx={{ fontSize: 18, color: COLORS.deepPurple }} />
-                              <Typography variant="body2" sx={{ color: COLORS.textSecondary, fontWeight: 600 }}>
-                                {(project.members?.length || 0) + (project.advisors?.length || 0) + 1} {t('members')}
-                              </Typography>
-                            </Stack>
-                          </Grid>
-                        </Grid>
-                      </Box>
-
-                      {/* Rating */}
+                      {/* Rating - Moved Above Metadata */}
                       {project.average_rating && project.rating_count && (
-                        <Box sx={{ mb: 4 }}>
+                        <Box sx={{ mb: 3 }}>
                           <Stack direction="row" alignItems="center" spacing={1.5}>
                             <Rating
                               value={project.average_rating}
@@ -1276,64 +1238,142 @@ export const ExplorePage: React.FC = () => {
                         </Box>
                       )}
 
-                      {/* Project Footer */}
-                      <Box sx={{ mt: 'auto' }}>
-                        <Divider sx={{ mb: 3, borderColor: alpha(COLORS.almostBlack, 0.2) }} />
-                        <Stack direction="row" alignItems="center" justifyContent="space-between">
-                          <Stack direction="row" alignItems="center" spacing={1.5}>
-                            <PersonIcon sx={{ fontSize: 18, color: COLORS.almostBlack }} />
-                            <Typography variant="body2" sx={{ color: COLORS.textSecondary, fontWeight: 600 }}>
+                      {/* Metadata Row - Reorganized: Author, Files, Action Icons */}
+                      <Box 
+                        sx={{ 
+                          mb: 3,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          flexWrap: 'wrap',
+                          gap: 1.5,
+                        }}
+                      >
+                        {/* Left: Author and Files */}
+                        <Stack direction="row" alignItems="center" spacing={1.5} flexWrap="wrap" sx={{ flex: 1, minWidth: 0 }}>
+                          <Stack direction="row" alignItems="center" spacing={1}>
+                            <PersonIcon sx={{ fontSize: 18, color: COLORS.textSecondary }} />
+                            <Typography 
+                              variant="body2" 
+                              sx={{ 
+                                color: COLORS.textSecondary, 
+                                fontWeight: 600,
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
                               {project.creator?.full_name || 'Unknown'}
                             </Typography>
                           </Stack>
-                          <Stack direction="row" alignItems="center" spacing={1.5}>
-                            <CalendarIcon sx={{ fontSize: 18, color: COLORS.deepPurple }} />
+                          <Typography 
+                            variant="body2" 
+                            sx={{ 
+                              color: COLORS.textSecondary,
+                              mx: 0.5,
+                            }}
+                          >
+                            ·
+                          </Typography>
+                          <Stack direction="row" alignItems="center" spacing={1}>
+                            <AttachFileIcon sx={{ fontSize: 18, color: COLORS.textSecondary }} />
                             <Typography variant="body2" sx={{ color: COLORS.textSecondary, fontWeight: 600 }}>
-                              {new Date(project.created_at).toLocaleDateString()}
+                              {project.files?.length || 0} {t('files')}
                             </Typography>
                           </Stack>
                         </Stack>
-                      </Box>
 
-                      {/* Action Buttons */}
-                      <CardActions sx={{ p: 0, mt: 3, justifyContent: 'space-between' }}>
-                        <Button
-                          variant="contained"
-                          startIcon={<VisibilityIcon />}
-                          sx={{
-                            background: guestColors.primaryGradient,
-                            borderRadius: 3,
-                            px: 4,
-                            py: 1.5,
-                            fontWeight: 600,
-                            textTransform: 'none',
-                            fontSize: '1rem',
-                      '&:hover': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: `0 8px 25px ${alpha(COLORS.almostBlack, 0.3)}`,
-                      },
-                          }}
-                        >
-                          {t('View Project')}
-                        </Button>
-                        <Stack direction="row" spacing={1}>
+                        {/* Right: Action Icons */}
+                        <Stack direction="row" spacing={0.5} sx={{ flexShrink: 0 }}>
                           <Tooltip title={t('View Comments')}>
-                            <IconButton size="small" sx={{ color: COLORS.textSecondary }}>
+                            <IconButton 
+                              size="small" 
+                              sx={{ 
+                                color: alpha(COLORS.textSecondary, 0.7),
+                                '&:hover': {
+                                  color: COLORS.textSecondary,
+                                  backgroundColor: alpha(COLORS.textSecondary, 0.08),
+                                },
+                              }}
+                              onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                                e.stopPropagation();
+                                // Handle comment click
+                              }}
+                            >
                               <CommentIcon fontSize="small" />
                             </IconButton>
                           </Tooltip>
-                          <Tooltip title={t('Like Project')}>
-                            <IconButton size="small" sx={{ color: COLORS.textSecondary }}>
-                              <ThumbUpIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
+                          <BookmarkButton 
+                            projectId={project.id} 
+                            size="small" 
+                            sx={{ 
+                              color: alpha(COLORS.textSecondary, 0.7),
+                              '&:hover': {
+                                color: COLORS.textSecondary,
+                                backgroundColor: alpha(COLORS.textSecondary, 0.08),
+                              },
+                            }}
+                          />
                           <Tooltip title={t('Share Project')}>
-                            <IconButton size="small" sx={{ color: COLORS.textSecondary }}>
+                            <IconButton 
+                              size="small" 
+                              sx={{ 
+                                color: alpha(COLORS.textSecondary, 0.7),
+                                '&:hover': {
+                                  color: COLORS.textSecondary,
+                                  backgroundColor: alpha(COLORS.textSecondary, 0.08),
+                                },
+                              }}
+                              onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                                e.stopPropagation();
+                                // Handle share click
+                              }}
+                            >
                               <ShareIcon fontSize="small" />
                             </IconButton>
                           </Tooltip>
                         </Stack>
-                      </CardActions>
+                      </Box>
+
+                      {/* Action Icon - Hover to View Project */}
+                      <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'flex-end', pt: 2 }}>
+                        <Tooltip 
+                          title={t('View Project')} 
+                          placement="bottom"
+                          arrow
+                          PopperProps={{
+                            modifiers: [
+                              {
+                                name: 'offset',
+                                options: {
+                                  offset: [0, 8],
+                                },
+                              },
+                            ],
+                          }}
+                        >
+                          <IconButton
+                            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                              e.stopPropagation();
+                              navigate(`/projects/${project.id}`);
+                            }}
+                            sx={{
+                              background: guestColors.primaryGradient,
+                              color: COLORS.white,
+                              width: 48,
+                              height: 48,
+                              '&:hover': {
+                                transform: 'translateY(-2px) scale(1.1)',
+                                boxShadow: `0 8px 25px ${alpha(COLORS.almostBlack, 0.3)}`,
+                                background: `linear-gradient(135deg, ${alpha(COLORS.deepPurple, 0.9)} 0%, ${alpha(COLORS.lightSkyBlue, 0.9)} 100%)`,
+                              },
+                              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            }}
+                          >
+                            <VisibilityIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
                     </CardContent>
                   </Card>
                 </Grid>

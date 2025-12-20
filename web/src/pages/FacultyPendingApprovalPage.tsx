@@ -116,7 +116,7 @@ const FacultyPendingApprovalPage: React.FC = () => {
       ]);
 
       setProjects(projectsResponse.projects || projectsResponse || []);
-      setPrograms(programsResponse.programs || programsResponse || []);
+      setPrograms(programsResponse || []);
       setDepartments(departmentsResponse.departments || departmentsResponse || []);
       setError(null);
     } catch (err: any) {

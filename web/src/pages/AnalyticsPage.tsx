@@ -182,8 +182,7 @@ export const AnalyticsPage: React.FC = () => {
   const fetchPrograms = async () => {
     try {
       setProgramsLoading(true);
-      const response = await apiService.getPrograms();
-      const allPrograms = response.data || response || [];
+      const allPrograms = await apiService.getPrograms();
       
       // Filter programs to show only Computer Science, Information Technology, and Software Engineering
       const targetDepartments = ['Computer Science', 'Information Technology', 'Software Engineering'];

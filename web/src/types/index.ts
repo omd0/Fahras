@@ -15,6 +15,46 @@ export interface Role {
   id: number;
   name: string;
   description?: string;
+  is_system_role?: boolean;
+  is_template?: boolean;
+  user_count?: number;
+  permission_count?: number;
+  permissions?: Permission[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface Permission {
+  id: number;
+  code: string;
+  name?: string;
+  category: 'Projects' | 'Users' | 'Files' | 'Analytics' | 'Settings' | 'System' | 'Roles';
+  description?: string;
+  scope?: 'all' | 'department' | 'own' | 'none';
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface RolePermission {
+  permission_id: number;
+  role_id: number;
+  scope: 'all' | 'department' | 'own' | 'none';
+  permission?: Permission;
+}
+
+export interface PermissionDependency {
+  id: number;
+  permission_id: number;
+  depends_on_permission_id: number;
+  permission?: Permission;
+  depends_on?: Permission;
+}
+
+export interface RoleTemplate {
+  id: number;
+  name: string;
+  description?: string;
+  permissions: Permission[];
 }
 
 export interface Department {
@@ -54,6 +94,7 @@ export interface Project {
   views?: number;
   average_rating?: number;
   rating_count?: number;
+  is_bookmarked?: boolean;
   department?: Department;
   program?: Program;
   creator?: User;
@@ -126,6 +167,7 @@ export interface CreateProjectData {
   academic_year: string;
   semester: 'fall' | 'spring' | 'summer';
   status?: 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected' | 'completed';
+  github_url?: string;
   members: Array<{
     user_id: number;
     role: 'LEAD' | 'MEMBER';
@@ -175,4 +217,108 @@ export interface PaginatedResponse<T> {
   last_page: number;
   per_page: number;
   total: number;
+}
+
+// Project Follow Manager Types
+export interface MilestoneTemplate {
+  id: number;
+  name: string;
+  description?: string;
+  program_id?: number;
+  department_id?: number;
+  is_default: boolean;
+  created_by_user_id: number;
+  items?: MilestoneTemplateItem[];
+  program?: Program;
+  department?: Department;
+  creator?: User;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MilestoneTemplateItem {
+  id: number;
+  template_id: number;
+  title: string;
+  description?: string;
+  order: number;
+  estimated_days: number;
+  is_required: boolean;
+  // Permissions: Who can perform actions at this step
+  allowed_roles?: ('admin' | 'faculty' | 'student')[];
+  // Actions: What can be done at this step
+  allowed_actions?: ('start' | 'pause' | 'extend' | 'view' | 'edit' | 'complete')[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProjectMilestone {
+  id: number;
+  project_id: number;
+  template_item_id?: number;
+  title: string;
+  description?: string;
+  status: 'not_started' | 'in_progress' | 'completed' | 'blocked';
+  due_date?: string;
+  started_at?: string;
+  completed_at?: string;
+  order: number;
+  dependencies?: number[];
+  completion_notes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProjectActivity {
+  id: number;
+  project_id: number;
+  user_id: number;
+  activity_type: string;
+  title: string;
+  description?: string;
+  metadata?: Record<string, any>;
+  user?: User;
+  created_at: string;
+}
+
+export interface ProjectFlag {
+  id: number;
+  project_id: number;
+  flagged_by_user_id: number;
+  flag_type: 'scope_creep' | 'technical_blocker' | 'team_conflict' | 'resource_shortage' | 'timeline_risk' | 'other';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  message: string;
+  is_confidential: boolean;
+  resolved_at?: string;
+  resolved_by_user_id?: number;
+  resolution_notes?: string;
+  flaggedBy?: User;
+  resolvedBy?: User;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProjectFollower {
+  id: number;
+  project_id: number;
+  user_id: number;
+  notification_preferences?: Record<string, boolean>;
+  user?: User;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TimelineData {
+  milestones: ProjectMilestone[];
+  links: Array<{
+    source: number;
+    target: number;
+    type: string;
+  }>;
+}
+
+export interface TimelineLink {
+  source: number;
+  target: number;
+  type: string;
 }

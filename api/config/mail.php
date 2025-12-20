@@ -79,8 +79,8 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', 'Fahras'),
+        'address' => env('MAIL_FROM_ADDRESS', config('organization.app.email.from_address', 'noreply@fahras.tvtc.gov.sa')),
+        'name' => env('MAIL_FROM_NAME', config('organization.app.email.from_name', 'Fahras System')),
     ],
 
     /*

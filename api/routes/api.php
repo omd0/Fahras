@@ -5,6 +5,10 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\MilestoneTemplateController;
+use App\Http\Controllers\MilestoneController;
+use App\Http\Controllers\ProjectFollowController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -33,8 +37,8 @@ Route::get('/faculties', function () {
 Route::get('/users', [UserController::class, 'index']);
 Route::get('/roles', [UserController::class, 'getRoles']);
 
-// Public project routes (accessible to guests)
-Route::get('/projects', [ProjectController::class, 'index']);
+// Public project routes (accessible to guests, but will authenticate if token is provided)
+Route::get('/projects', [ProjectController::class, 'index'])->middleware('auth.optional');
 
 // Specific project routes (must be before the generic {project} route)
 Route::get('/projects/analytics', [ProjectController::class, 'analytics'])->middleware('auth:sanctum');
@@ -104,6 +108,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/projects/{project}/comments', [ProjectController::class, 'addComment']);
     Route::post('/projects/{project}/rate', [ProjectController::class, 'rateProject']);
 
+    // Bookmark routes
+    Route::post('/projects/{project}/bookmark', [ProjectController::class, 'bookmarkProject']);
+    Route::delete('/projects/{project}/bookmark', [ProjectController::class, 'bookmarkProject']);
+    Route::get('/projects/bookmarked', [ProjectController::class, 'getBookmarkedProjects']);
+    Route::get('/projects/{project}/is-bookmarked', [ProjectController::class, 'isBookmarked']);
+    Route::post('/bookmarks/sync', [ProjectController::class, 'syncGuestBookmarks']);
+
     // Admin-only project approval routes
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/projects/{project}/approve', [ProjectController::class, 'approveProject']);
@@ -116,10 +127,50 @@ Route::middleware('auth:sanctum')->group(function () {
     // User management routes (admin only)
     Route::prefix('admin')->group(function () {
         Route::get('/users', [UserController::class, 'index']);
-        Route::get('/roles', [UserController::class, 'getRoles']);
+        Route::get('/roles', [RoleController::class, 'index']);
+        Route::get('/permissions', [RoleController::class, 'getPermissions']);
         Route::post('/users', [UserController::class, 'store']);
         Route::put('/users/{user}', [UserController::class, 'update']);
         Route::delete('/users/{user}', [UserController::class, 'destroy']);
         Route::put('/users/{user}/status', [UserController::class, 'toggleStatus']);
+        
+        // Role management routes
+        Route::post('/roles', [RoleController::class, 'store']);
+        Route::put('/roles/{role}', [RoleController::class, 'update']);
+        Route::delete('/roles/{role}', [RoleController::class, 'destroy']);
     });
+
+    // Milestone Template routes (admin/faculty only)
+    Route::get('/milestone-templates', [MilestoneTemplateController::class, 'index']);
+    Route::post('/milestone-templates', [MilestoneTemplateController::class, 'store']);
+    Route::get('/milestone-templates/{milestoneTemplate}', [MilestoneTemplateController::class, 'show']);
+    Route::put('/milestone-templates/{milestoneTemplate}', [MilestoneTemplateController::class, 'update']);
+    Route::delete('/milestone-templates/{milestoneTemplate}', [MilestoneTemplateController::class, 'destroy']);
+    Route::get('/milestone-templates/{milestoneTemplate}/items', [MilestoneTemplateController::class, 'getItems']);
+    Route::post('/milestone-templates/{milestoneTemplate}/items', [MilestoneTemplateController::class, 'addItem']);
+    Route::put('/milestone-template-items/{milestoneTemplateItem}', [MilestoneTemplateController::class, 'updateItem']);
+    Route::delete('/milestone-template-items/{milestoneTemplateItem}', [MilestoneTemplateController::class, 'deleteItem']);
+    Route::put('/milestone-templates/{milestoneTemplate}/items/reorder', [MilestoneTemplateController::class, 'reorderItems']);
+    Route::post('/milestone-templates/{milestoneTemplate}/apply-to-project', [MilestoneTemplateController::class, 'applyToProject']);
+
+    // Project Milestone routes
+    Route::get('/projects/{project}/milestones', [MilestoneController::class, 'index']);
+    Route::post('/projects/{project}/milestones', [MilestoneController::class, 'store']);
+    Route::put('/milestones/{milestone}', [MilestoneController::class, 'update']);
+    Route::delete('/milestones/{milestone}', [MilestoneController::class, 'destroy']);
+    Route::post('/milestones/{milestone}/start', [MilestoneController::class, 'start']);
+    Route::post('/milestones/{milestone}/complete', [MilestoneController::class, 'markComplete']);
+    Route::post('/milestones/{milestone}/reopen', [MilestoneController::class, 'reopen']);
+    Route::put('/milestones/{milestone}/due-date', [MilestoneController::class, 'updateDueDate']);
+    Route::get('/projects/{project}/milestones/timeline', [MilestoneController::class, 'getTimeline']);
+
+    // Project Follow routes
+    Route::get('/projects/{project}/activities', [ProjectFollowController::class, 'getActivities']);
+    Route::get('/projects/{project}/activities/timeline', [ProjectFollowController::class, 'getTimeline']);
+    Route::post('/projects/{project}/follow', [ProjectFollowController::class, 'followProject']);
+    Route::delete('/projects/{project}/follow', [ProjectFollowController::class, 'unfollowProject']);
+    Route::get('/projects/{project}/followers', [ProjectFollowController::class, 'getFollowers']);
+    Route::post('/projects/{project}/flags', [ProjectFollowController::class, 'createFlag']);
+    Route::put('/flags/{flag}/resolve', [ProjectFollowController::class, 'resolveFlag']);
+    Route::get('/projects/{project}/flags', [ProjectFollowController::class, 'getFlags']);
 });

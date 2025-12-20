@@ -27,6 +27,7 @@ class Project extends Model
         'repo_url',
         'custom_members',
         'custom_advisors',
+        'milestone_template_id',
     ];
 
     protected $casts = [
@@ -89,6 +90,16 @@ class Project extends Model
         return $this->hasMany(Rating::class)->orderBy('created_at', 'desc');
     }
 
+    public function bookmarks()
+    {
+        return $this->hasMany(Bookmark::class);
+    }
+
+    public function isBookmarkedBy($userId)
+    {
+        return $this->bookmarks()->where('user_id', $userId)->exists();
+    }
+
     public function getAverageRating()
     {
         return $this->ratings()->avg('rating');
@@ -122,5 +133,35 @@ class Project extends Model
     public function isVisibleToPublic()
     {
         return $this->is_public && $this->isApproved();
+    }
+
+    public function milestoneTemplate()
+    {
+        return $this->belongsTo(MilestoneTemplate::class, 'milestone_template_id');
+    }
+
+    public function milestones()
+    {
+        return $this->hasMany(ProjectMilestone::class)->orderBy('order');
+    }
+
+    public function activities()
+    {
+        return $this->hasMany(ProjectActivity::class)->orderBy('created_at', 'desc');
+    }
+
+    public function flags()
+    {
+        return $this->hasMany(ProjectFlag::class)->orderBy('created_at', 'desc');
+    }
+
+    public function followers()
+    {
+        return $this->hasMany(ProjectFollower::class);
+    }
+
+    public function isFollowedBy($userId)
+    {
+        return $this->followers()->where('user_id', $userId)->exists();
     }
 }

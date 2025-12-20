@@ -9,6 +9,8 @@ import {
   TrendingUp as TrendingUpIcon,
   Group as GroupIcon,
   School as SchoolIcon,
+  Security as SecurityIcon,
+  Timeline as TimelineIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { Project } from '../../types';
@@ -99,6 +101,18 @@ export const AdminDashboard: React.FC = () => {
       icon: GroupIcon,
       onClick: () => navigate('/users'),
       gradient: `linear-gradient(135deg, ${theme.secondary} 0%, ${theme.secondary}dd 100%)`,
+    },
+    {
+      label: 'Program',
+      icon: TimelineIcon,
+      onClick: () => navigate('/admin/milestone-templates'),
+      gradient: `linear-gradient(135deg, #f59e0b 0%, #d97706 100%)`,
+    },
+    {
+      label: 'Access Control',
+      icon: SecurityIcon,
+      onClick: () => navigate('/admin/access-control'),
+      gradient: `linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)`,
     },
     {
       label: 'Settings',

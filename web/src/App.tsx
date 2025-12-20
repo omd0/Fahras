@@ -16,12 +16,16 @@ import { CreateProjectPage } from './pages/CreateProjectPage';
 import { EditProjectPage } from './pages/EditProjectPage';
 import { ProjectDetailPage } from './pages/ProjectDetailPage';
 import { GuestProjectDetailPage } from './pages/GuestProjectDetailPage';
+import { MyBookmarksPage } from './pages/MyBookmarksPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
 import { EvaluationsPage } from './pages/EvaluationsPage';
 import { UserManagementPage } from './pages/UserManagementPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
 import { ApprovalsPage } from './pages/ApprovalsPage';
+import { AccessControlPage } from './pages/AccessControlPage';
+import { ProjectFollowPage } from './pages/ProjectFollowPage';
+import { MilestoneTemplateConfigPage } from './pages/MilestoneTemplateConfigPage';
 import { FacultyDashboard } from './components/dashboards/FacultyDashboard';
 import AdminProjectApprovalPage from './pages/AdminProjectApprovalPage';
 import FacultyPendingApprovalPage from './pages/FacultyPendingApprovalPage';
@@ -73,6 +77,7 @@ const AppContent: React.FC = () => {
           <Route path="/" element={<ExplorePage />} />
           <Route path="/home" element={<HomePage />} />
           <Route path="/explore" element={<ExplorePage />} />
+          <Route path="/bookmarks" element={<MyBookmarksPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           
@@ -116,6 +121,16 @@ const AppContent: React.FC = () => {
               <RoleProtectedRoute restrictedRoles={['reviewer']}>
                 <EditProjectPage />
               </RoleProtectedRoute>
+            }
+          />
+          
+          {/* Project Follow Manager route */}
+          <Route
+            path="/projects/:id/follow"
+            element={
+              <ProtectedRoute>
+                <ProjectFollowPage />
+              </ProtectedRoute>
             }
           />
           
@@ -195,6 +210,26 @@ const AppContent: React.FC = () => {
             element={
               <RoleProtectedRoute allowedRoles={['admin']}>
                 <AdminProjectApprovalPage />
+              </RoleProtectedRoute>
+            }
+          />
+          
+          {/* Access Control route - admin only */}
+          <Route
+            path="/admin/access-control"
+            element={
+              <RoleProtectedRoute allowedRoles={['admin']}>
+                <AccessControlPage />
+              </RoleProtectedRoute>
+            }
+          />
+          
+          {/* Milestone Template Configuration route - admin only */}
+          <Route
+            path="/admin/milestone-templates"
+            element={
+              <RoleProtectedRoute allowedRoles={['admin']}>
+                <MilestoneTemplateConfigPage />
               </RoleProtectedRoute>
             }
           />

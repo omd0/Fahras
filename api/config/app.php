@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', config('organization.app.name', 'Fahras')),
 
     /*
     |--------------------------------------------------------------------------
@@ -70,7 +70,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => config('organization.app.timezone', 'Asia/Riyadh'),
 
     /*
     |--------------------------------------------------------------------------

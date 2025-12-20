@@ -39,7 +39,6 @@ import {
   Download as DownloadIcon,
   Star as StarIcon,
   Comment as CommentIcon,
-  ThumbUp as ThumbUpIcon,
   Share as ShareIcon,
   Bookmark as BookmarkIcon,
   TrendingUp as TrendingIcon,
@@ -55,6 +54,7 @@ import { apiService } from '../services/api';
 import { TVTCLogo } from '../components/TVTCLogo';
 import { CommentSection } from '../components/CommentSection';
 import { RatingSection } from '../components/RatingSection';
+import { BookmarkButton } from '../components/BookmarkButton';
 
 // Use the new guest theme colors
 const colors = guestColors;
@@ -72,6 +72,11 @@ export const GuestProjectDetailPage: React.FC = () => {
     if (id) {
       fetchProject(parseInt(id));
     }
+  }, [id]);
+
+  // Scroll to top when project details page loads or project ID changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [id]);
 
   const fetchProject = async (projectId: number) => {
@@ -261,9 +266,14 @@ export const GuestProjectDetailPage: React.FC = () => {
                       <SchoolIcon sx={{ fontSize: 40, color: colors.white }} />
                     </Box>
                     <Box sx={{ flexGrow: 1 }}>
-                      <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, color: colors.textPrimary }}>
-                        {project.title}
-                      </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1 }}>
+                        <Typography variant="h4" sx={{ fontWeight: 700, color: colors.textPrimary, flex: 1 }}>
+                          {project.title}
+                        </Typography>
+                        <Box sx={{ ml: 2 }}>
+                          <BookmarkButton projectId={project.id} size="medium" />
+                        </Box>
+                      </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
                           <VisibilityIcon sx={{ fontSize: 16, color: colors.textSecondary, mr: 0.5 }} />

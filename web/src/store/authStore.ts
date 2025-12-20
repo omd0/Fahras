@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { User, LoginCredentials, RegisterData } from '../types';
-import { authApi } from '../services/api';
+import { authApi, apiService } from '../services/api';
+import { getGuestBookmarks, clearGuestBookmarks } from '../utils/bookmarkCookies';
 
 interface AuthState {
   user: User | null;
@@ -45,6 +46,18 @@ export const useAuthStore = create<AuthStore>()(
             isLoading: false,
             error: null,
           });
+          
+          // Sync guest bookmarks after successful login
+          const guestBookmarkIds = getGuestBookmarks();
+          if (guestBookmarkIds.length > 0) {
+            try {
+              await apiService.syncGuestBookmarks(guestBookmarkIds);
+              clearGuestBookmarks();
+            } catch (syncError) {
+              console.error('Failed to sync guest bookmarks:', syncError);
+              // Don't fail login if sync fails
+            }
+          }
         } catch (error: any) {
           set({
             user: null,
@@ -70,6 +83,18 @@ export const useAuthStore = create<AuthStore>()(
             isLoading: false,
             error: null,
           });
+          
+          // Sync guest bookmarks after successful registration
+          const guestBookmarkIds = getGuestBookmarks();
+          if (guestBookmarkIds.length > 0) {
+            try {
+              await apiService.syncGuestBookmarks(guestBookmarkIds);
+              clearGuestBookmarks();
+            } catch (syncError) {
+              console.error('Failed to sync guest bookmarks:', syncError);
+              // Don't fail registration if sync fails
+            }
+          }
         } catch (error: any) {
           // Extract validation errors from response
           let errorMessage = 'Registration failed. Please try again.';

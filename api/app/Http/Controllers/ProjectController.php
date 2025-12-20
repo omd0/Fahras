@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Models\Notification;
 use App\Models\Comment;
 use App\Models\Rating;
+use App\Models\Bookmark;
+use App\Services\ProjectActivityService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
@@ -24,6 +26,9 @@ class ProjectController extends Controller
                 $fileQuery->orderBy('uploaded_at', 'desc');
             },
         ]);
+        
+        // User authentication is now handled by OptionalAuthSanctum middleware
+        // If a valid token is present, user will be authenticated; otherwise null (guest)
         $user = $request->user();
 
         // If requesting my_projects, skip visibility rules and show all user's projects
@@ -84,6 +89,7 @@ class ProjectController extends Controller
         // Filter for user's own projects
         if ($request->has('my_projects') && $request->boolean('my_projects')) {
             $user = $request->user();
+            
             if (!$user) {
                 // Return empty result if user is not authenticated when requesting my_projects
                 return response()->json([
@@ -102,6 +108,7 @@ class ProjectController extends Controller
                     ],
                 ]);
             }
+            
             // Include projects where user is creator OR member
             $query->where(function ($q) use ($user) {
                 $q->where('created_by_user_id', $user->id)
@@ -156,6 +163,21 @@ class ProjectController extends Controller
         // Apply pagination with cursor-based pagination for better performance
         $perPage = min($request->get('per_page', 15), 100); // Limit max per page
         $projects = $query->paginate($perPage);
+
+        // Add is_bookmarked field for authenticated users
+        $user = $request->user();
+        if ($user) {
+            $projectIds = $projects->pluck('id')->toArray();
+            $bookmarkedIds = Bookmark::where('user_id', $user->id)
+                ->whereIn('project_id', $projectIds)
+                ->pluck('project_id')
+                ->toArray();
+            
+            $projects->getCollection()->transform(function ($project) use ($bookmarkedIds) {
+                $project->is_bookmarked = in_array($project->id, $bookmarkedIds);
+                return $project;
+            });
+        }
 
         // Add search metadata
         $response = $projects->toArray();
@@ -269,53 +291,75 @@ class ProjectController extends Controller
 
         $creator = $request->user();
 
-        $project = Project::create([
-            'program_id' => $request->program_id,
-            'created_by_user_id' => $creator->id,
-            'title' => $request->title,
-            'abstract' => $request->abstract,
-            'keywords' => $request->keywords ?? [],
-            'academic_year' => $request->academic_year,
-            'semester' => $request->semester,
-            'status' => 'draft',
-            'custom_members' => !empty($customMembers) ? $customMembers : null,
-            'custom_advisors' => !empty($customAdvisors) ? $customAdvisors : null,
-        ]);
-
-        // Add regular members (with user_id)
-        foreach ($regularMembers as $member) {
-            $project->members()->attach($member['user_id'], [
-                'role_in_project' => $member['role']
+        try {
+            $project = Project::create([
+                'program_id' => $request->program_id,
+                'created_by_user_id' => $creator->id,
+                'title' => $request->title,
+                'abstract' => $request->abstract,
+                'keywords' => $request->keywords ?? [],
+                'academic_year' => $request->academic_year,
+                'semester' => $request->semester,
+                'status' => 'draft',
+                'custom_members' => !empty($customMembers) ? $customMembers : null,
+                'custom_advisors' => !empty($customAdvisors) ? $customAdvisors : null,
             ]);
-        }
 
-        // Add regular advisors (with user_id)
-        foreach ($regularAdvisors as $advisor) {
-            $project->advisors()->attach($advisor['user_id'], [
-                'advisor_role' => $advisor['role']
-            ]);
-        }
-
-        if ($creator->hasRole('faculty')) {
-            $isCreatorAlreadyAdvisor = $project
-                ->advisors()
-                ->wherePivot('user_id', $creator->id)
-                ->exists();
-
-            if (!$isCreatorAlreadyAdvisor) {
-                $advisorRole = collect($regularAdvisors)
-                    ->firstWhere('user_id', $creator->id)['role'] ?? 'MAIN';
-
-                $project->advisors()->attach($creator->id, [
-                    'advisor_role' => $advisorRole,
+            // Add regular members (with user_id)
+            foreach ($regularMembers as $member) {
+                $project->members()->attach($member['user_id'], [
+                    'role_in_project' => $member['role']
                 ]);
             }
-        }
 
-        return response()->json([
-            'message' => 'Project created successfully',
-            'project' => $project->load(['program', 'members', 'advisors'])
-        ], 201);
+            // Add regular advisors (with user_id)
+            foreach ($regularAdvisors as $advisor) {
+                $project->advisors()->attach($advisor['user_id'], [
+                    'advisor_role' => $advisor['role']
+                ]);
+            }
+
+            if ($creator->hasRole('faculty')) {
+                $isCreatorAlreadyAdvisor = $project
+                    ->advisors()
+                    ->wherePivot('user_id', $creator->id)
+                    ->exists();
+
+                if (!$isCreatorAlreadyAdvisor) {
+                    $advisorFound = collect($regularAdvisors)->firstWhere('user_id', $creator->id);
+                    $advisorRole = $advisorFound ? ($advisorFound['role'] ?? 'MAIN') : 'MAIN';
+
+                    $project->advisors()->attach($creator->id, [
+                        'advisor_role' => $advisorRole,
+                    ]);
+                }
+            }
+
+            // Log project creation activity
+            ProjectActivityService::logProjectCreated($project, $creator);
+
+            return response()->json([
+                'message' => 'Project created successfully',
+                'project' => $project->load(['program', 'members', 'advisors'])
+            ], 201);
+        } catch (\Exception $e) {
+            \Log::error('Project creation failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'user_id' => $creator->id,
+                'request_data' => $request->except(['password', 'token'])
+            ]);
+
+            return response()->json([
+                'message' => 'Failed to create project',
+                'error' => $e->getMessage(),
+                'details' => config('app.debug') ? [
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTraceAsString()
+                ] : null
+            ], 500);
+        }
     }
 
     public function show(Project $project)
@@ -409,6 +453,11 @@ class ProjectController extends Controller
         // Load all files - no access control
         $projectData['files'] = $project->files()->orderBy('uploaded_at', 'desc')->get()->toArray();
 
+        // Add is_bookmarked field for authenticated users
+        if ($user) {
+            $projectData['is_bookmarked'] = $project->isBookmarkedBy($user->id);
+        }
+
         \Log::info('Project details requested', [
             'project_id' => $project->id,
             'user_id' => $user ? $user->id : 'guest',
@@ -465,11 +514,22 @@ class ProjectController extends Controller
             ], 422);
         }
 
+        // Track status change for activity logging
+        $oldStatus = $project->status;
+        
         // Update basic project fields
         $project->update($request->only([
             'program_id', 'title', 'abstract', 'keywords', 'academic_year',
             'semester', 'status', 'is_public', 'doi', 'repo_url'
         ]));
+
+        // Log status change if status was updated
+        if ($request->has('status') && $oldStatus !== $project->status) {
+            ProjectActivityService::logStatusChange($project, $request->user(), $oldStatus, $project->status);
+        }
+
+        // Log project update
+        ProjectActivityService::logProjectUpdated($project, $request->user());
 
         // Update members if provided
         if ($request->has('members')) {
@@ -1121,6 +1181,9 @@ class ProjectController extends Controller
             'parent_id' => $request->parent_id,
         ]);
 
+        // Log comment activity
+        ProjectActivityService::logCommentAdded($project, $user, $comment);
+
         // Create notifications for project advisors and creator
         $title = 'New Comment on Project';
         $message = "{$user->full_name} commented on \"{$project->title}\": \"{$request->content}\"";
@@ -1551,6 +1614,161 @@ class ProjectController extends Controller
                 'last_page' => $projects->lastPage(),
                 'has_more_pages' => $projects->hasMorePages(),
             ]
+        ]);
+    }
+
+    /**
+     * Bookmark a project
+     */
+    public function bookmarkProject(Request $request, Project $project)
+    {
+        $user = $request->user();
+        
+        if (!$user) {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        $bookmark = Bookmark::where('user_id', $user->id)
+            ->where('project_id', $project->id)
+            ->first();
+
+        if ($bookmark) {
+            // Unbookmark
+            $bookmark->delete();
+            return response()->json([
+                'message' => 'Project unbookmarked successfully',
+                'is_bookmarked' => false
+            ]);
+        } else {
+            // Bookmark
+            Bookmark::create([
+                'user_id' => $user->id,
+                'project_id' => $project->id,
+            ]);
+            return response()->json([
+                'message' => 'Project bookmarked successfully',
+                'is_bookmarked' => true
+            ]);
+        }
+    }
+
+    /**
+     * Get user's bookmarked projects
+     */
+    public function getBookmarkedProjects(Request $request)
+    {
+        $user = $request->user();
+        
+        if (!$user) {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        $bookmarks = Bookmark::where('user_id', $user->id)
+            ->with(['project' => function ($query) {
+                $query->with([
+                    'program.department',
+                    'creator',
+                    'members',
+                    'advisors',
+                    'files' => function ($fileQuery) {
+                        $fileQuery->orderBy('uploaded_at', 'desc');
+                    },
+                ]);
+            }])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $projects = $bookmarks->map(function ($bookmark) {
+            $project = $bookmark->project->toArray();
+            $project['is_bookmarked'] = true;
+            return $project;
+        });
+
+        return response()->json([
+            'data' => $projects,
+            'total' => $projects->count()
+        ]);
+    }
+
+    /**
+     * Check if project is bookmarked
+     */
+    public function isBookmarked(Request $request, Project $project)
+    {
+        $user = $request->user();
+        
+        if (!$user) {
+            return response()->json([
+                'is_bookmarked' => false
+            ]);
+        }
+
+        $isBookmarked = $project->isBookmarkedBy($user->id);
+
+        return response()->json([
+            'is_bookmarked' => $isBookmarked
+        ]);
+    }
+
+    /**
+     * Sync guest bookmarks to user account
+     */
+    public function syncGuestBookmarks(Request $request)
+    {
+        $user = $request->user();
+        
+        if (!$user) {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'guest_bookmark_ids' => 'required|array',
+            'guest_bookmark_ids.*' => 'required|integer|exists:projects,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $guestBookmarkIds = $request->guest_bookmark_ids;
+        
+        // Get existing bookmarks for the user
+        $existingBookmarkIds = Bookmark::where('user_id', $user->id)
+            ->pluck('project_id')
+            ->toArray();
+
+        // Merge and remove duplicates
+        $allBookmarkIds = array_unique(array_merge($existingBookmarkIds, $guestBookmarkIds));
+
+        // Create bookmarks for IDs that don't exist
+        $newBookmarkIds = array_diff($allBookmarkIds, $existingBookmarkIds);
+        
+        foreach ($newBookmarkIds as $projectId) {
+            // Validate project exists and is accessible
+            $project = Project::find($projectId);
+            if ($project && ($project->admin_approval_status === 'approved' || $project->created_by_user_id === $user->id)) {
+                Bookmark::firstOrCreate([
+                    'user_id' => $user->id,
+                    'project_id' => $projectId,
+                ]);
+            }
+        }
+
+        $syncedCount = count($newBookmarkIds);
+
+        return response()->json([
+            'message' => 'Bookmarks synced successfully',
+            'synced_count' => $syncedCount,
+            'total_bookmarks' => count($allBookmarkIds)
         ]);
     }
 }

@@ -12,7 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // Register optional authentication middleware
+        $middleware->alias([
+            'auth.optional' => \App\Http\Middleware\OptionalAuthSanctum::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

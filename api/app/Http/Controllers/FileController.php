@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\File;
 use App\Models\Project;
+use App\Services\ProjectActivityService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
@@ -99,6 +100,9 @@ class FileController extends Controller
             'filename' => $file->original_filename,
             'storage_url' => $file->storage_url
         ]);
+
+        // Log file upload activity
+        ProjectActivityService::logFileUpload($project, $request->user(), $file);
 
         return response()->json([
             'message' => 'File uploaded successfully',
@@ -234,6 +238,9 @@ class FileController extends Controller
                 'message' => 'Unauthorized to delete this file'
             ], 403);
         }
+
+        // Log file deletion activity before deleting
+        ProjectActivityService::logFileDelete($file->project, $user, $file);
 
         // Delete from storage
         $disk = config('filesystems.default', 'local');

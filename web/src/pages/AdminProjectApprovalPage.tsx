@@ -40,6 +40,8 @@ import {
   VisibilityOff as HideIcon,
   Refresh as RefreshIcon,
   Home as HomeIcon,
+  Pending as PendingIcon,
+  Assignment as AssignmentIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { Project, Program, Department } from '../types';
@@ -112,8 +114,7 @@ const AdminProjectApprovalPage: React.FC = () => {
         apiService.getPrograms(),
         apiService.getDepartments(),
       ]);
-      
-      setPrograms(programsRes.data || []);
+      setPrograms(programsRes || []);
       setDepartments(departmentsRes || []);
     } catch (err) {
       setError('Failed to load initial data');
@@ -218,20 +219,61 @@ const AdminProjectApprovalPage: React.FC = () => {
         </Button>
       </Box>
 
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-        <Tabs value={tabValue} onChange={handleTabChange}>
-          <Tab 
-            label={`Pending Approvals ${pendingProjects.length > 0 ? `(${pendingProjects.length})` : ''}`} 
-          />
-          <Tab label="All Projects" />
-        </Tabs>
-      </Box>
+      <Card sx={{ borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.08)', mb: 3 }}>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+          <Tabs 
+            value={tabValue} 
+            onChange={handleTabChange}
+            variant="fullWidth"
+            sx={{
+              '& .MuiTab-root': {
+                textTransform: 'none',
+                fontWeight: 600,
+                minHeight: 72,
+                fontSize: '1rem',
+                gap: 1,
+                '&.Mui-selected': {
+                  color: 'primary.main',
+                },
+              },
+              '& .MuiTabs-indicator': {
+                height: 3,
+                borderRadius: '3px 3px 0 0',
+              },
+            }}
+          >
+            <Tab 
+              icon={<PendingIcon />}
+              iconPosition="start"
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <span>Pending Approvals</span>
+                  {pendingProjects.length > 0 && (
+                    <Chip 
+                      label={pendingProjects.length} 
+                      size="small" 
+                      color="warning"
+                      sx={{ height: 20, fontSize: '0.75rem', fontWeight: 600 }}
+                    />
+                  )}
+                </Box>
+              }
+            />
+            <Tab 
+              icon={<AssignmentIcon />}
+              iconPosition="start"
+              label="All Projects"
+            />
+          </Tabs>
+        </Box>
 
       {error && (
         <Alert severity="error" sx={{ mb: 3 }}>
           {error}
         </Alert>
       )}
+
+        </Card>
 
       {/* Filters */}
       <Card sx={{ mb: 3 }}>

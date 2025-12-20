@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Typography, useTheme, Divider } from '@mui/material';
+import { getTVTCDisplayName } from '../config/organization';
 
 interface HeaderLogoProps {
   variant?: 'header' | 'footer';
@@ -70,7 +71,7 @@ export const HeaderLogo: React.FC<HeaderLogoProps> = ({ variant = 'header' }) =>
             }}
             dir="rtl"
           >
-            المؤسسة العامة للتدريب التقني والمهني
+            {getTVTCDisplayName('ar')}
           </Typography>
           <Typography
             component="p"
@@ -82,7 +83,7 @@ export const HeaderLogo: React.FC<HeaderLogoProps> = ({ variant = 'header' }) =>
             }}
             dir="ltr"
           >
-            Technical and Vocational Training Corporation
+            {getTVTCDisplayName('en')}
           </Typography>
         </Box>
 
