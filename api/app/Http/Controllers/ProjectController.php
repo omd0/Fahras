@@ -9,12 +9,29 @@ use App\Models\Comment;
 use App\Models\Rating;
 use App\Models\Bookmark;
 use App\Services\ProjectActivityService;
+use App\Services\Project\ProjectService;
+use App\Services\Project\ProjectMemberService;
+use App\Services\Project\ProjectVisibilityService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 
 class ProjectController extends Controller
 {
+    protected $projectService;
+    protected $memberService;
+    protected $visibilityService;
+
+    public function __construct(
+        ProjectService $projectService,
+        ProjectMemberService $memberService,
+        ProjectVisibilityService $visibilityService
+    ) {
+        $this->projectService = $projectService;
+        $this->memberService = $memberService;
+        $this->visibilityService = $visibilityService;
+    }
+
     public function index(Request $request)
     {
         $query = Project::with([
@@ -26,30 +43,12 @@ class ProjectController extends Controller
                 $fileQuery->orderBy('uploaded_at', 'desc');
             },
         ]);
-        
-        // User authentication is now handled by OptionalAuthSanctum middleware
-        // If a valid token is present, user will be authenticated; otherwise null (guest)
-        $user = $request->user();
 
-        // If requesting my_projects, skip visibility rules and show all user's projects
+        $user = $request->user();
         $isMyProjects = $request->has('my_projects') && $request->boolean('my_projects');
-        
-        if (!$isMyProjects) {
-            // Apply visibility rules based on user role
-            if (!$user) {
-                // Unauthenticated users: only see approved projects
-                $query->where('admin_approval_status', 'approved');
-            } elseif ($user->hasRole('admin') || $user->hasRole('reviewer')) {
-                // Admin and Reviewer: can see all projects (including hidden ones)
-                // No additional filtering needed
-            } else {
-                // Regular users: can see approved projects and their own projects (including hidden ones)
-                $query->where(function ($q) use ($user) {
-                    $q->where('admin_approval_status', 'approved')
-                      ->orWhere('created_by_user_id', $user->id);
-                });
-            }
-        }
+
+        // Apply visibility filters using service
+        $this->visibilityService->applyVisibilityFilters($query, $user, $isMyProjects);
 
         // Advanced filtering
         if ($request->has('status')) {
@@ -87,9 +86,7 @@ class ProjectController extends Controller
         }
 
         // Filter for user's own projects
-        if ($request->has('my_projects') && $request->boolean('my_projects')) {
-            $user = $request->user();
-            
+        if ($isMyProjects) {
             if (!$user) {
                 // Return empty result if user is not authenticated when requesting my_projects
                 return response()->json([
@@ -108,14 +105,8 @@ class ProjectController extends Controller
                     ],
                 ]);
             }
-            
-            // Include projects where user is creator OR member
-            $query->where(function ($q) use ($user) {
-                $q->where('created_by_user_id', $user->id)
-                  ->orWhereHas('members', function ($memberQuery) use ($user) {
-                      $memberQuery->where('user_id', $user->id);
-                  });
-            });
+
+            $this->visibilityService->applyMyProjectsFilter($query, $user);
         }
 
         if ($request->has('member_id')) {
@@ -259,97 +250,31 @@ class ProjectController extends Controller
             }
         }
 
-        // Separate regular members and custom members
-        $customMembers = [];
-        $regularMembers = [];
-        foreach ($request->members as $member) {
-            if (!empty($member['customName'])) {
-                $customMembers[] = [
-                    'name' => $member['customName'],
-                    'role' => $member['role']
-                ];
-            } elseif (!empty($member['user_id']) && $member['user_id'] > 0) {
-                $regularMembers[] = $member;
-            }
-        }
-
-        // Separate regular advisors and custom advisors
-        $customAdvisors = [];
-        $regularAdvisors = [];
-        if ($request->has('advisors')) {
-            foreach ($request->advisors as $advisor) {
-                if (!empty($advisor['customName'])) {
-                    $customAdvisors[] = [
-                        'name' => $advisor['customName'],
-                        'role' => $advisor['role']
-                    ];
-                } elseif (!empty($advisor['user_id']) && $advisor['user_id'] > 0) {
-                    $regularAdvisors[] = $advisor;
-                }
-            }
-        }
+        // Separate members and advisors using service
+        $membersSeparated = $this->memberService->separateMembers($request->members);
+        $advisorsSeparated = $this->memberService->separateAdvisors($request->advisors ?? []);
 
         $creator = $request->user();
 
         try {
-            $project = Project::create([
+            $project = $this->projectService->createProject([
                 'program_id' => $request->program_id,
-                'created_by_user_id' => $creator->id,
                 'title' => $request->title,
                 'abstract' => $request->abstract,
                 'keywords' => $request->keywords ?? [],
                 'academic_year' => $request->academic_year,
                 'semester' => $request->semester,
-                'status' => 'draft',
-                'custom_members' => !empty($customMembers) ? $customMembers : null,
-                'custom_advisors' => !empty($customAdvisors) ? $customAdvisors : null,
-            ]);
-
-            // Add regular members (with user_id)
-            foreach ($regularMembers as $member) {
-                $project->members()->attach($member['user_id'], [
-                    'role_in_project' => $member['role']
-                ]);
-            }
-
-            // Add regular advisors (with user_id)
-            foreach ($regularAdvisors as $advisor) {
-                $project->advisors()->attach($advisor['user_id'], [
-                    'advisor_role' => $advisor['role']
-                ]);
-            }
-
-            if ($creator->hasRole('faculty')) {
-                $isCreatorAlreadyAdvisor = $project
-                    ->advisors()
-                    ->wherePivot('user_id', $creator->id)
-                    ->exists();
-
-                if (!$isCreatorAlreadyAdvisor) {
-                    $advisorFound = collect($regularAdvisors)->firstWhere('user_id', $creator->id);
-                    $advisorRole = $advisorFound ? ($advisorFound['role'] ?? 'MAIN') : 'MAIN';
-
-                    $project->advisors()->attach($creator->id, [
-                        'advisor_role' => $advisorRole,
-                    ]);
-                }
-            }
-
-            // Log project creation activity
-            ProjectActivityService::logProjectCreated($project, $creator);
+                'custom_members' => !empty($membersSeparated['custom_members']) ? $membersSeparated['custom_members'] : null,
+                'custom_advisors' => !empty($advisorsSeparated['custom_advisors']) ? $advisorsSeparated['custom_advisors'] : null,
+                'regular_members' => $membersSeparated['regular_members'],
+                'regular_advisors' => $advisorsSeparated['regular_advisors'],
+            ], $creator);
 
             return response()->json([
                 'message' => 'Project created successfully',
                 'project' => $project->load(['program', 'members', 'advisors'])
             ], 201);
         } catch (\Exception $e) {
-            \Log::error('Project creation failed', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'user_id' => $creator->id,
-                'request_data' => $request->except(['password', 'token'])
-            ]);
-
             return response()->json([
                 'message' => 'Failed to create project',
                 'error' => $e->getMessage(),
@@ -365,25 +290,14 @@ class ProjectController extends Controller
     public function show(Project $project)
     {
         $user = request()->user();
-        
-        // Apply visibility rules based on user role
-        if (!$user) {
-            // Unauthenticated users: only see approved projects
-            if ($project->admin_approval_status !== 'approved') {
-                return response()->json([
-                    'message' => 'Project not found or not available'
-                ], 404);
-            }
-        } elseif (!$user->hasRole('admin') && !$user->hasRole('reviewer')) {
-            // Regular users: can see approved projects and their own projects (including hidden ones)
-            if ($project->admin_approval_status !== 'approved' && $project->created_by_user_id !== $user->id) {
-                return response()->json([
-                    'message' => 'Project not found or not available'
-                ], 404);
-            }
+
+        // Check visibility using service
+        if (!$this->visibilityService->canViewProject($project, $user)) {
+            return response()->json([
+                'message' => 'Project not found or not available'
+            ], 404);
         }
-        // Admin and Reviewer: can see all projects (including hidden ones)
-        
+
         $projectWithFiles = $project->load([
             'program.department',
             'creator',
@@ -391,59 +305,9 @@ class ProjectController extends Controller
             'advisors'
         ]);
 
-        // Merge regular members with custom members
-        $members = $projectWithFiles->members->map(function($member) {
-            return [
-                'id' => $member->id,
-                'full_name' => $member->full_name,
-                'email' => $member->email,
-                'pivot' => [
-                    'role_in_project' => $member->pivot->role_in_project
-                ]
-            ];
-        })->toArray();
-
-        // Add custom members
-        if ($project->custom_members) {
-            foreach ($project->custom_members as $customMember) {
-                $members[] = [
-                    'id' => null,
-                    'full_name' => $customMember['name'],
-                    'email' => null,
-                    'is_custom' => true,
-                    'pivot' => [
-                        'role_in_project' => $customMember['role']
-                    ]
-                ];
-            }
-        }
-
-        // Merge regular advisors with custom advisors
-        $advisors = $projectWithFiles->advisors->map(function($advisor) {
-            return [
-                'id' => $advisor->id,
-                'full_name' => $advisor->full_name,
-                'email' => $advisor->email,
-                'pivot' => [
-                    'advisor_role' => $advisor->pivot->advisor_role
-                ]
-            ];
-        })->toArray();
-
-        // Add custom advisors
-        if ($project->custom_advisors) {
-            foreach ($project->custom_advisors as $customAdvisor) {
-                $advisors[] = [
-                    'id' => null,
-                    'full_name' => $customAdvisor['name'],
-                    'email' => null,
-                    'is_custom' => true,
-                    'pivot' => [
-                        'advisor_role' => $customAdvisor['role']
-                    ]
-                ];
-            }
-        }
+        // Use member service to get merged members and advisors
+        $members = $this->memberService->getMergedMembers($project);
+        $advisors = $this->memberService->getMergedAdvisors($project);
 
         // Replace members and advisors with merged arrays
         $projectData = $projectWithFiles->toArray();
@@ -514,75 +378,24 @@ class ProjectController extends Controller
             ], 422);
         }
 
-        // Track status change for activity logging
-        $oldStatus = $project->status;
-        
-        // Update basic project fields
-        $project->update($request->only([
-            'program_id', 'title', 'abstract', 'keywords', 'academic_year',
-            'semester', 'status', 'is_public', 'doi', 'repo_url'
-        ]));
-
-        // Log status change if status was updated
-        if ($request->has('status') && $oldStatus !== $project->status) {
-            ProjectActivityService::logStatusChange($project, $request->user(), $oldStatus, $project->status);
-        }
-
-        // Log project update
-        ProjectActivityService::logProjectUpdated($project, $request->user());
+        // Update project using service
+        $project = $this->projectService->updateProject(
+            $project,
+            $request->only([
+                'program_id', 'title', 'abstract', 'keywords', 'academic_year',
+                'semester', 'status', 'is_public', 'doi', 'repo_url'
+            ]),
+            $request->user()
+        );
 
         // Update members if provided
         if ($request->has('members')) {
-            // Separate regular members and custom members
-            $customMembers = [];
-            $regularMembers = [];
-            foreach ($request->members as $member) {
-                if (!empty($member['customName'])) {
-                    $customMembers[] = [
-                        'name' => $member['customName'],
-                        'role' => $member['role']
-                    ];
-                } elseif (!empty($member['user_id']) && $member['user_id'] > 0) {
-                    $regularMembers[$member['user_id']] = [
-                        'role_in_project' => $member['role']
-                    ];
-                }
-            }
-
-            // Update custom members
-            $project->update([
-                'custom_members' => !empty($customMembers) ? $customMembers : null
-            ]);
-
-            // Sync regular members
-            $project->members()->sync($regularMembers);
+            $this->memberService->syncMembers($project, $request->members);
         }
 
         // Update advisors if provided
         if ($request->has('advisors')) {
-            // Separate regular advisors and custom advisors
-            $customAdvisors = [];
-            $regularAdvisors = [];
-            foreach ($request->advisors as $advisor) {
-                if (!empty($advisor['customName'])) {
-                    $customAdvisors[] = [
-                        'name' => $advisor['customName'],
-                        'role' => $advisor['role']
-                    ];
-                } elseif (!empty($advisor['user_id']) && $advisor['user_id'] > 0) {
-                    $regularAdvisors[$advisor['user_id']] = [
-                        'advisor_role' => $advisor['role']
-                    ];
-                }
-            }
-
-            // Update custom advisors
-            $project->update([
-                'custom_advisors' => !empty($customAdvisors) ? $customAdvisors : null
-            ]);
-
-            // Sync regular advisors
-            $project->advisors()->sync($regularAdvisors);
+            $this->memberService->syncAdvisors($project, $request->advisors);
         }
 
         return response()->json([
@@ -600,7 +413,7 @@ class ProjectController extends Controller
             ], 403);
         }
 
-        $project->delete();
+        $this->projectService->deleteProject($project);
 
         return response()->json([
             'message' => 'Project deleted successfully'
@@ -628,9 +441,7 @@ class ProjectController extends Controller
             ], 422);
         }
 
-        $project->members()->syncWithoutDetaching([
-            $request->user_id => ['role_in_project' => $request->role]
-        ]);
+        $this->memberService->addMember($project, $request->user_id, $request->role);
 
         return response()->json([
             'message' => 'Member added successfully'
@@ -650,9 +461,7 @@ class ProjectController extends Controller
             ], 422);
         }
 
-        $project->members()->updateExistingPivot($user->id, [
-            'role_in_project' => $request->role
-        ]);
+        $this->memberService->updateMemberRole($project, $user->id, $request->role);
 
         return response()->json([
             'message' => 'Member role updated successfully'
@@ -661,7 +470,7 @@ class ProjectController extends Controller
 
     public function removeMember(Project $project, User $user)
     {
-        $project->members()->detach($user->id);
+        $this->memberService->removeMember($project, $user->id);
 
         return response()->json([
             'message' => 'Member removed successfully'
@@ -684,20 +493,8 @@ class ProjectController extends Controller
         ]);
         $user = $request->user();
 
-        // Apply visibility rules based on user role
-        if (!$user) {
-            // Unauthenticated users: only see approved projects
-            $query->where('admin_approval_status', 'approved');
-        } elseif ($user->hasRole('admin') || $user->hasRole('reviewer')) {
-            // Admin and Reviewer: can see all projects (including hidden ones)
-            // No additional filtering needed
-        } else {
-            // Regular users: can see approved projects and their own projects (including hidden ones)
-            $query->where(function ($q) use ($user) {
-                $q->where('admin_approval_status', 'approved')
-                  ->orWhere('created_by_user_id', $user->id);
-            });
-        }
+        // Apply visibility filters using service
+        $this->visibilityService->applyVisibilityFilters($query, $user);
 
         // Full-text search with ranking
         if ($request->has('q') && !empty($request->q)) {
@@ -757,33 +554,10 @@ class ProjectController extends Controller
     public function analytics(Request $request)
     {
         $user = $request->user();
-        
+
         // Helper function to create base query with user access filtering
         $createBaseQuery = function() use ($user) {
-            $query = Project::query();
-            
-            // Apply visibility rules based on user role
-            if (!$user) {
-                // Unauthenticated users: only see approved projects
-                $query->where('admin_approval_status', 'approved');
-            } elseif ($user->hasRole('admin') || $user->hasRole('reviewer')) {
-                // Admin and Reviewer: can see all projects (including hidden ones)
-                // No additional filtering needed
-            } else {
-                // Regular users: can see approved projects and their own projects (including hidden ones)
-                $query->where(function ($q) use ($user) {
-                    $q->where('admin_approval_status', 'approved')
-                      ->orWhere('created_by_user_id', $user->id)
-                      ->orWhereHas('members', function ($memberQuery) use ($user) {
-                          $memberQuery->where('user_id', $user->id);
-                      })
-                      ->orWhereHas('advisors', function ($advisorQuery) use ($user) {
-                          $advisorQuery->where('user_id', $user->id);
-                      });
-                });
-            }
-            
-            return $query;
+            return $this->visibilityService->createAnalyticsBaseQuery($user);
         };
 
         // Project status distribution
@@ -1339,22 +1113,13 @@ class ProjectController extends Controller
             ], 422);
         }
 
-        $updateData = [
-            'admin_approval_status' => 'approved',
-            'approved_by_user_id' => $request->user()->id,
-            'approved_at' => now(),
-            'admin_notes' => $request->admin_notes,
-        ];
-
-        // If status is provided, update it as well
-        if ($request->has('status')) {
-            $updateData['status'] = $request->status;
-        }
-
-        $project->update($updateData);
-
-        // Make all project files public when project is approved
-        $project->files()->update(['is_public' => true]);
+        // Use service to approve project
+        $project = $this->projectService->approveProject(
+            $project,
+            $request->user(),
+            $request->admin_notes,
+            $request->status ?? null
+        );
 
         // Create notification for project creator
         Notification::createForProjectCreator($project, 'approval', 'Project Approved', 
@@ -1393,15 +1158,12 @@ class ProjectController extends Controller
             ], 422);
         }
 
-        $project->update([
-            'admin_approval_status' => 'hidden',
-            'approved_by_user_id' => $request->user()->id,
-            'approved_at' => now(),
-            'admin_notes' => $request->admin_notes,
-        ]);
-
-        // Make all project files private when project is hidden
-        $project->files()->update(['is_public' => false]);
+        // Use service to hide project
+        $project = $this->projectService->hideProject(
+            $project,
+            $request->user(),
+            $request->admin_notes
+        );
 
         // Create notification for project creator
         Notification::createForProjectCreator($project, 'approval', 'Project Hidden', 
@@ -1440,15 +1202,14 @@ class ProjectController extends Controller
             ], 422);
         }
 
-        // Toggle between approved and hidden
-        $newStatus = $project->admin_approval_status === 'approved' ? 'hidden' : 'approved';
-        
-        $project->update([
-            'admin_approval_status' => $newStatus,
-            'approved_by_user_id' => $request->user()->id,
-            'approved_at' => now(),
-            'admin_notes' => $request->admin_notes,
-        ]);
+        // Use service to toggle visibility
+        $result = $this->projectService->toggleProjectVisibility(
+            $project,
+            $request->user(),
+            $request->admin_notes
+        );
+        $project = $result['project'];
+        $newStatus = $result['new_status'];
 
         // Create notification for project creator
         $action = $newStatus === 'approved' ? 'Approved' : 'Hidden';
