@@ -17,11 +17,6 @@ const getApiBaseUrl = () => {
 
 const API_BASE_URL = getApiBaseUrl();
 
-// Log the API base URL for debugging (only in development or when explicitly needed)
-if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
-  console.log('API Base URL:', API_BASE_URL);
-}
-
 class ApiService {
   private api: AxiosInstance;
 

@@ -95,29 +95,12 @@ export const ProjectDetailPage: React.FC = () => {
   const loadProjectFiles = async (projectId: number) => {
     setFilesLoading(true);
     try {
-      console.log(`[DEBUG] Loading files for project ${projectId}`);
       const filesResponse = await apiService.getProjectFiles(projectId);
-      console.log(`[DEBUG] Files response:`, filesResponse);
-      console.log(`[DEBUG] Files array:`, filesResponse.files);
-      console.log(`[DEBUG] Number of files:`, filesResponse.files?.length || 0);
-      
+
       if (filesResponse.files && filesResponse.files.length > 0) {
         filesResponse.files.forEach((file: any, index: number) => {
-          console.log(`[DEBUG] File ${index + 1}:`, {
-            id: file.id,
-            original_filename: file.original_filename,
-            filename: file.filename,
-            storage_url: file.storage_url,
-            size_bytes: file.size_bytes,
-            mime_type: file.mime_type,
-            is_public: file.is_public,
-            storage_exists: file.storage_exists,
-            uploaded_at: file.uploaded_at,
-            uploader: file.uploader
-          });
+          // File loaded
         });
-      } else {
-        console.log(`[DEBUG] No files found for project ${projectId}`);
       }
       
       setProject(prev => prev ? { ...prev, files: filesResponse.files || [] } : prev);
@@ -133,27 +116,9 @@ export const ProjectDetailPage: React.FC = () => {
 
   const fetchProject = async (projectId: number) => {
     try {
-      console.log('Fetching project:', projectId);
       const response = await apiService.getProject(projectId);
-      console.log('Project response:', response);
       setProject(response.project);
       await loadProjectFiles(projectId);
-      
-      // Debug: Log files data to console for verification
-      if (response.project.files) {
-        console.log('Project files loaded:', response.project.files);
-        console.log('Number of files:', response.project.files.length);
-        response.project.files.forEach((file, index) => {
-          console.log(`File ${index + 1}:`, {
-            id: file.id,
-            original_filename: file.original_filename,
-            storage_url: file.storage_url,
-            size_bytes: file.size_bytes
-          });
-        });
-      } else {
-        console.log('No files found for project');
-      }
     } catch (error: any) {
       console.error('Error fetching project:', error);
       setError(error.response?.data?.message || 'Failed to fetch project');
@@ -862,22 +827,9 @@ export const ProjectDetailPage: React.FC = () => {
                               startIcon={<FileDownloadIcon />}
                               onClick={async () => {
                                 try {
-                                  console.log(`[DEBUG] Starting download for file:`, {
-                                    id: file.id,
-                                    original_filename: file.original_filename,
-                                    storage_url: file.storage_url,
-                                    size_bytes: file.size_bytes,
-                                    storage_exists: file.storage_exists
-                                  });
-                                  
                                   // Use the API service to download the file
                                   const blob = await apiService.downloadFile(file.id);
-                                  
-                                  console.log(`[DEBUG] Blob received:`, {
-                                    size: blob.size,
-                                    type: blob.type
-                                  });
-                                  
+
                                   const url = window.URL.createObjectURL(blob);
                                   const link = document.createElement('a');
                                   link.href = url;
@@ -886,8 +838,6 @@ export const ProjectDetailPage: React.FC = () => {
                                   link.click();
                                   document.body.removeChild(link);
                                   window.URL.revokeObjectURL(url);
-                                  
-                                  console.log(`[DEBUG] File download completed: ${file.original_filename}`);
                                 } catch (error: any) {
                                   console.error('[DEBUG] Error downloading file:', error);
                                   console.error('[DEBUG] Error response:', error.response?.data);
@@ -898,7 +848,6 @@ export const ProjectDetailPage: React.FC = () => {
                                   
                                   // Fallback to opening the public URL or storage URL
                                   if (file.public_url || file.storage_url) {
-                                    console.log('[DEBUG] Attempting fallback download');
                                     window.open(file.public_url || file.storage_url, '_blank');
                                   }
                                 }

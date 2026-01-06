@@ -208,27 +208,19 @@ export const EditProjectPage: React.FC = () => {
     setError(null);
 
     try {
-      console.log('Updating project...', formData);
-      
       // Update the project first
       await apiService.updateProject(parseInt(id!), formData);
-      console.log('Project updated successfully');
 
       // If files are selected, upload them
       if (selectedFiles.length > 0) {
-        console.log(`Starting file upload: ${selectedFiles.length} files to project ${id}`);
-        
         let uploadedCount = 0;
         let failedCount = 0;
-        
+
         for (let i = 0; i < selectedFiles.length; i++) {
           const file = selectedFiles[i];
           try {
-            console.log(`[${i + 1}/${selectedFiles.length}] Uploading: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`);
-            
             const uploadResponse = await apiService.uploadFile(parseInt(id!), file, true);
-            
-            console.log(`✅ File uploaded successfully:`, uploadResponse);
+
             uploadedCount++;
           } catch (uploadError: any) {
             console.error(`❌ File upload failed for ${file.name}:`, uploadError);
@@ -236,9 +228,7 @@ export const EditProjectPage: React.FC = () => {
             failedCount++;
           }
         }
-        
-        console.log(`File upload complete: ${uploadedCount} succeeded, ${failedCount} failed`);
-        
+
         if (failedCount > 0) {
           setError(`Project updated but ${failedCount} file(s) failed to upload.`);
           // Wait a bit before navigating so user can see the error
