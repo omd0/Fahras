@@ -10,7 +10,6 @@ use App\Models\Rating;
 use App\Models\Bookmark;
 use App\Services\ProjectActivityService;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 
 class ProjectController extends Controller
