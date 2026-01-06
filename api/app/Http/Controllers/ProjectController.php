@@ -18,10 +18,10 @@ class ProjectController extends Controller
     public function index(Request $request)
     {
         $query = Project::with([
-            'program.department',
-            'creator',
-            'members',
-            'advisors',
+            'program.department.faculty',
+            'creator.roles',
+            'members.roles',
+            'advisors.roles',
             'files' => function ($fileQuery) {
                 $fileQuery->orderBy('uploaded_at', 'desc');
             },
@@ -674,10 +674,10 @@ class ProjectController extends Controller
     public function search(Request $request)
     {
         $query = Project::with([
-            'program.department',
-            'creator',
-            'members',
-            'advisors',
+            'program.department.faculty',
+            'creator.roles',
+            'members.roles',
+            'advisors.roles',
             'files' => function ($fileQuery) {
                 $fileQuery->orderBy('uploaded_at', 'desc');
             },
@@ -1481,10 +1481,10 @@ class ProjectController extends Controller
         }
 
         $query = Project::with([
-            'program.department',
-            'creator',
-            'members',
-            'advisors',
+            'program.department.faculty',
+            'creator.roles',
+            'members.roles',
+            'advisors.roles',
             'files' => function ($fileQuery) {
                 $fileQuery->orderBy('uploaded_at', 'desc');
             },
@@ -1544,10 +1544,10 @@ class ProjectController extends Controller
         }
 
         $query = Project::with([
-            'program.department',
-            'creator',
-            'members',
-            'advisors',
+            'program.department.faculty',
+            'creator.roles',
+            'members.roles',
+            'advisors.roles',
             'approver',
             'files' => function ($fileQuery) {
                 $fileQuery->orderBy('uploaded_at', 'desc');
@@ -1670,10 +1670,10 @@ class ProjectController extends Controller
         $bookmarks = Bookmark::where('user_id', $user->id)
             ->with(['project' => function ($query) {
                 $query->with([
-                    'program.department',
-                    'creator',
-                    'members',
-                    'advisors',
+                    'program.department.faculty',
+                    'creator.roles',
+                    'members.roles',
+                    'advisors.roles',
                     'files' => function ($fileQuery) {
                         $fileQuery->orderBy('uploaded_at', 'desc');
                     },
