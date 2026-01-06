@@ -56,6 +56,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { CreateProjectData, Program, User } from '../types';
 import { apiService } from '../services/api';
 import { ProgramTemplateSelector } from '../components/milestone-templates/ProgramTemplateSelector';
+import { getErrorMessage, logError } from '../utils/errorHandling';
 
 const steps = ['Basic Information', 'Keywords & Tags', 'Project Team', 'Files & Review'];
 
@@ -161,7 +162,7 @@ export const CreateProjectPage: React.FC = () => {
       const programs = await apiService.getPrograms();
       setPrograms(programs || []);
     } catch (error) {
-      console.error('Failed to fetch programs:', error);
+      // Silently fail - programs are fetched again if needed
       setPrograms([]);
     } finally {
       setLoadingPrograms(false);
@@ -174,7 +175,7 @@ export const CreateProjectPage: React.FC = () => {
       const users = await apiService.getUsers();
       setUsers(users || []);
     } catch (error) {
-      console.error('Failed to fetch users:', error);
+      // Silently fail - users list is optional for project creation
       setUsers([]);
     } finally {
       setLoadingUsers(false);
@@ -362,7 +363,7 @@ export const CreateProjectPage: React.FC = () => {
       // #region agent log
       fetch('http://127.0.0.1:7242/ingest/630c9ee4-de4f-48c7-bd76-5eabbd1dc8d2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CreateProjectPage.tsx:357',message:'projectData before API call',data:{projectData:JSON.stringify(projectData),membersCount:membersToSubmit.length,creatorInMembers:membersToSubmit[0]?.user_id===user?.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
       // #endregion
-      console.log('Creating project...', projectData);
+      // Creating project...
       
       // Create the project first
       const createdProject = await apiService.createProject(projectData);
@@ -380,21 +381,20 @@ export const CreateProjectPage: React.FC = () => {
             startDate,
             false // Don't preserve custom milestones (project is new)
           );
-          console.log('Milestone template applied successfully');
+          // Milestone template applied successfully
         } catch (templateError: any) {
-          console.error('Failed to apply template:', templateError);
           // Don't fail the whole creation if template application fails
-          setError(`Project created successfully, but failed to apply milestone template: ${templateError.response?.data?.message || templateError.message}`);
+          setError(`Project created successfully, but failed to apply milestone template: ${getErrorMessage(templateError, 'Template error')}`);
         }
       }
-      console.log('Project created:', createdProject);
+      // Project created successfully
       // #region agent log
       fetch('http://127.0.0.1:7242/ingest/630c9ee4-de4f-48c7-bd76-5eabbd1dc8d2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CreateProjectPage.tsx:379',message:'project creation success path',data:{hasProject:!!createdProject,projectId:createdProject?.project?.id,createdBy:createdProject?.project?.created_by_user_id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
       // #endregion
 
       // If files are selected, upload them individually
       if (selectedFiles.length > 0 && createdProject?.project?.id) {
-        console.log(`Starting file upload: ${selectedFiles.length} files to project ${createdProject.project.id}`);
+        // Starting file upload...
         
         let uploadedCount = 0;
         let failedCount = 0;
@@ -412,27 +412,21 @@ export const CreateProjectPage: React.FC = () => {
             
             const uploadResponse = await apiService.uploadFile(createdProject.project.id, file, true);
             
-            console.log(`✅ File uploaded successfully:`, uploadResponse);
+            // File uploaded successfully
             uploadedCount++;
           } catch (uploadError: any) {
-            console.error(`❌ File upload failed for ${file.name}:`, uploadError);
-            console.error('Error status:', uploadError.response?.status);
-            console.error('Error details:', uploadError.response?.data);
-            console.error('Error message:', uploadError.message);
-            console.error('Full error:', uploadError);
+            logError(`File upload failed: ${file.name}`, uploadError);
             failedCount++;
           }
         }
         
-        console.log(`File upload complete: ${uploadedCount} succeeded, ${failedCount} failed`);
+        // File upload complete
         
         if (failedCount > 0) {
           setError(`Project created but ${failedCount} file(s) failed to upload. Please try re-uploading them from the project page.`);
           // Wait a bit before navigating so user can see the error
           await new Promise(resolve => setTimeout(resolve, 3000));
         }
-      } else if (selectedFiles.length > 0) {
-        console.warn('Files were selected but project ID is missing!', createdProject);
       }
 
       setSuccessMessage('Project created successfully!');
@@ -449,9 +443,7 @@ export const CreateProjectPage: React.FC = () => {
       // #region agent log
       fetch('http://127.0.0.1:7242/ingest/630c9ee4-de4f-48c7-bd76-5eabbd1dc8d2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CreateProjectPage.tsx:error',message:'project creation error',data:{errorMessage:error?.message,errorStatus:error?.response?.status,errorData:error?.response?.data,hasResponse:!!error?.response},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
       // #endregion
-      console.error('Project creation failed:', error);
-      console.error('Error response:', error.response?.data);
-      setError(error.response?.data?.message || 'Failed to create project');
+      setError(getErrorMessage(error, 'Failed to create project'));
     } finally {
       setLoading(false);
     }

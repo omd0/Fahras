@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Notification;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -11,7 +12,7 @@ class NotificationController extends Controller
     /**
      * Get notifications for the authenticated user
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         $user = $request->user();
         
@@ -53,7 +54,7 @@ class NotificationController extends Controller
     /**
      * Get unread notifications count
      */
-    public function unreadCount(Request $request)
+    public function unreadCount(Request $request): JsonResponse
     {
         $user = $request->user();
         $count = $user->notifications()->where('is_read', false)->count();
@@ -64,7 +65,7 @@ class NotificationController extends Controller
     /**
      * Mark a notification as read
      */
-    public function markAsRead(Request $request, $notificationId)
+    public function markAsRead(Request $request, $notificationId): JsonResponse
     {
         $user = $request->user();
         
@@ -80,7 +81,7 @@ class NotificationController extends Controller
     /**
      * Mark all notifications as read
      */
-    public function markAllAsRead(Request $request)
+    public function markAllAsRead(Request $request): JsonResponse
     {
         $user = $request->user();
         
@@ -99,7 +100,7 @@ class NotificationController extends Controller
     /**
      * Delete a notification
      */
-    public function destroy(Request $request, $notificationId)
+    public function destroy(Request $request, $notificationId): JsonResponse
     {
         $user = $request->user();
         
@@ -114,7 +115,7 @@ class NotificationController extends Controller
     /**
      * Delete all notifications
      */
-    public function destroyAll(Request $request)
+    public function destroyAll(Request $request): JsonResponse
     {
         $user = $request->user();
         

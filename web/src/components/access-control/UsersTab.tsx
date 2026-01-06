@@ -38,6 +38,7 @@ import {
 import { User, Role } from '../../types';
 import { apiService } from '../../services/api';
 import { useTheme } from '../../contexts/ThemeContext';
+import { getErrorMessage } from '../../utils/errorHandling';
 
 export const UsersTab: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -67,8 +68,7 @@ export const UsersTab: React.FC = () => {
       setUsers(usersData || []);
       setRoles(rolesData || []);
     } catch (err: any) {
-      console.error('Failed to fetch data:', err);
-      setError(err.response?.data?.message || 'Failed to fetch users and roles');
+      setError(getErrorMessage(err, 'Failed to fetch users and roles'));
     } finally {
       setLoading(false);
     }
@@ -97,8 +97,7 @@ export const UsersTab: React.FC = () => {
       await fetchData();
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
-      console.error('Failed to update user roles:', err);
-      setError(err.response?.data?.message || 'Failed to update user roles');
+      setError(getErrorMessage(err, 'Failed to update user roles'));
     } finally {
       setSaving(false);
     }

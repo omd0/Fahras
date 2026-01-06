@@ -17,6 +17,7 @@ import { Role } from '../../types';
 import { apiService } from '../../services/api';
 import { useTheme } from '../../contexts/ThemeContext';
 import { PermissionSelector } from './PermissionSelector';
+import { getErrorMessage } from '../../utils/errorHandling';
 
 interface RoleDialogProps {
   open: boolean;
@@ -82,8 +83,7 @@ export const RoleDialog: React.FC<RoleDialogProps> = ({ open, onClose, role }) =
 
       onClose();
     } catch (err: any) {
-      console.error('Failed to save role:', err);
-      setError(err.response?.data?.message || 'Failed to save role');
+      setError(getErrorMessage(err, 'Failed to save role'));
     } finally {
       setSaving(false);
     }

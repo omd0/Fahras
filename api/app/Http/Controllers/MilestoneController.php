@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use App\Models\ProjectMilestone;
 use App\Services\ProjectActivityService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -16,7 +17,7 @@ class MilestoneController extends Controller
     /**
      * Display a listing of milestones for a project
      */
-    public function index(Project $project)
+    public function index(Project $project): JsonResponse
     {
         $milestones = $project->milestones()
             ->orderBy('order')
@@ -30,7 +31,7 @@ class MilestoneController extends Controller
     /**
      * Store a newly created milestone
      */
-    public function store(Request $request, Project $project)
+    public function store(Request $request, Project $project): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
@@ -85,7 +86,7 @@ class MilestoneController extends Controller
     /**
      * Update the specified milestone
      */
-    public function update(Request $request, ProjectMilestone $milestone)
+    public function update(Request $request, ProjectMilestone $milestone): JsonResponse
     {
         $project = $milestone->project;
 
@@ -161,7 +162,7 @@ class MilestoneController extends Controller
     /**
      * Remove the specified milestone
      */
-    public function destroy(ProjectMilestone $milestone)
+    public function destroy(ProjectMilestone $milestone): JsonResponse
     {
         $project = $milestone->project;
 
@@ -187,7 +188,7 @@ class MilestoneController extends Controller
     /**
      * Start a milestone
      */
-    public function start(ProjectMilestone $milestone)
+    public function start(ProjectMilestone $milestone): JsonResponse
     {
         $project = $milestone->project;
 
@@ -197,7 +198,7 @@ class MilestoneController extends Controller
             ], 422);
         }
 
-        if ($milestone->status === 'completed') {
+        if ($milestone->status === ProjectStatus::COMPLETED) {
             return response()->json([
                 'message' => 'Cannot start a completed milestone. Use reopen instead.'
             ], 422);
@@ -233,11 +234,11 @@ class MilestoneController extends Controller
     /**
      * Mark milestone as completed
      */
-    public function markComplete(Request $request, ProjectMilestone $milestone)
+    public function markComplete(Request $request, ProjectMilestone $milestone): JsonResponse
     {
         $project = $milestone->project;
 
-        if ($milestone->status === 'completed') {
+        if ($milestone->status === ProjectStatus::COMPLETED) {
             return response()->json([
                 'message' => 'Milestone is already completed'
             ], 422);
@@ -255,7 +256,7 @@ class MilestoneController extends Controller
         }
 
         $milestone->update([
-            'status' => 'completed',
+            'status' => ProjectStatus::COMPLETED,
             'completed_at' => now(),
             'completion_notes' => $request->completion_notes,
         ]);
@@ -275,11 +276,11 @@ class MilestoneController extends Controller
     /**
      * Reopen a completed milestone
      */
-    public function reopen(ProjectMilestone $milestone)
+    public function reopen(ProjectMilestone $milestone): JsonResponse
     {
         $project = $milestone->project;
 
-        if ($milestone->status !== 'completed') {
+        if ($milestone->status !== ProjectStatus::COMPLETED) {
             return response()->json([
                 'message' => 'Only completed milestones can be reopened'
             ], 422);
@@ -305,7 +306,7 @@ class MilestoneController extends Controller
     /**
      * Update milestone due date
      */
-    public function updateDueDate(Request $request, ProjectMilestone $milestone)
+    public function updateDueDate(Request $request, ProjectMilestone $milestone): JsonResponse
     {
         $project = $milestone->project;
 
@@ -339,7 +340,7 @@ class MilestoneController extends Controller
     /**
      * Get timeline view with dependencies
      */
-    public function getTimeline(Project $project)
+    public function getTimeline(Project $project): JsonResponse
     {
         $milestones = $project->milestones()
             ->orderBy('order')

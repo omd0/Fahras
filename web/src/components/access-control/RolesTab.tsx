@@ -15,6 +15,7 @@ import { apiService } from '../../services/api';
 import { RoleCard } from './RoleCard';
 import { RoleDialog } from './RoleDialog';
 import { useTheme } from '../../contexts/ThemeContext';
+import { getErrorMessage } from '../../utils/errorHandling';
 
 export const RolesTab: React.FC = () => {
   const [roles, setRoles] = useState<Role[]>([]);
@@ -36,8 +37,7 @@ export const RolesTab: React.FC = () => {
       const data = await apiService.getRoles();
       setRoles(Array.isArray(data) ? data : []);
     } catch (err: any) {
-      console.error('Failed to fetch roles:', err);
-      setError(err.response?.data?.message || 'Failed to fetch roles');
+      setError(getErrorMessage(err, 'Failed to fetch roles'));
     } finally {
       setLoading(false);
     }
@@ -67,8 +67,7 @@ export const RolesTab: React.FC = () => {
       await apiService.deleteRole(roleId);
       fetchRoles();
     } catch (err: any) {
-      console.error('Failed to delete role:', err);
-      alert(err.response?.data?.message || 'Failed to delete role');
+      alert(getErrorMessage(err, 'Failed to delete role'));
     }
   };
 

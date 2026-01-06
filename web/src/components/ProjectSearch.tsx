@@ -74,7 +74,7 @@ export const ProjectSearch: React.FC<SearchProps> = ({ onSearch, onClear, loadin
       const programs = await apiService.getPrograms();
       setPrograms(programs || []);
     } catch (error) {
-      console.error('Failed to fetch programs:', error);
+      // Silently fail - programs filter is optional
       setPrograms([]);
     }
   };
@@ -84,7 +84,7 @@ export const ProjectSearch: React.FC<SearchProps> = ({ onSearch, onClear, loadin
       const response = await apiService.getDepartments();
       setDepartments(response || []);
     } catch (error) {
-      console.error('Failed to fetch departments:', error);
+      // Silently fail - departments filter is optional
       setDepartments([]);
     }
   };
@@ -99,7 +99,7 @@ export const ProjectSearch: React.FC<SearchProps> = ({ onSearch, onClear, loadin
       const response = await apiService.getProjectSuggestions(query);
       setSuggestions(response.suggestions || response || []);
     } catch (error) {
-      console.error('Failed to fetch suggestions:', error);
+      // Silently fail - suggestions are optional
       setSuggestions([]);
     }
   };

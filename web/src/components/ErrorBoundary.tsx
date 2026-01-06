@@ -36,8 +36,9 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Log the error to console in development
+    // Log error in development only - no production console spam
     if (process.env.NODE_ENV === 'development') {
+      // Development-only error logging
       console.error('ErrorBoundary caught an error:', error, errorInfo);
     }
     
@@ -45,6 +46,8 @@ export class ErrorBoundary extends Component<Props, State> {
       error,
       errorInfo,
     });
+    
+    // TODO: Send error to logging service in production
   }
 
   handleRetry = () => {

@@ -6,7 +6,10 @@ import {
   Grid, 
   Button, 
   CircularProgress, 
-  Alert, 
+  Alert,
+} from '@mui/material';
+import { getErrorMessage } from '../../utils/errorHandling';
+import {
   Typography,
   Container,
   AppBar,
@@ -190,8 +193,7 @@ export const FacultyDashboard: React.FC = () => {
         }).length,
       });
     } catch (error: any) {
-      console.error('Failed to fetch dashboard data:', error);
-      setError(error.response?.data?.message || 'Failed to fetch dashboard data');
+      setError(getErrorMessage(error, 'Failed to fetch dashboard data'));
     } finally {
       setLoading(false);
     }
