@@ -32,6 +32,7 @@ import {
   Tab,
   Grid,
 } from '@mui/material';
+import { getStatusColor } from '../utils/projectHelpers';
 import {
   Assignment as AssignmentIcon,
   AccountCircle,

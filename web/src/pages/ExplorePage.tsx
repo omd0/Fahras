@@ -31,6 +31,7 @@ import {
   Slide,
 } from '@mui/material';
 import { guestColors, guestTheme, createDecorativeElements, backgroundPatterns } from '../theme/guestTheme';
+import { getStatusColor, getStatusLabel } from '../utils/projectHelpers';
 import {
   Search as SearchIcon,
   FilterList as FilterIcon,
@@ -229,18 +230,6 @@ export const ExplorePage: React.FC = () => {
 
   const handleInputChange = (field: keyof SearchFilters, value: string) => {
     setFilters(prev => ({ ...prev, [field]: value }));
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'draft': return 'warning';
-      case 'submitted': return 'info';
-      case 'under_review': return 'primary';
-      case 'approved': return 'success';
-      case 'rejected': return 'error';
-      case 'completed': return 'success';
-      default: return 'default';
-    }
   };
 
   const formatFileSize = (bytes: number) => {

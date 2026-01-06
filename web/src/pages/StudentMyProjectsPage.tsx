@@ -33,6 +33,7 @@ import {
   Tooltip,
   Stack,
 } from '@mui/material';
+import { getStatusColor, getStatusLabel } from '../utils/projectHelpers';
 import {
   Search as SearchIcon,
   FilterList as FilterIcon,
@@ -250,28 +251,6 @@ const StudentMyProjectsPage: React.FC = () => {
   const handleCloseDetailDialog = () => {
     setDetailDialogOpen(false);
     setSelectedProject(null);
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'submitted': return 'warning';
-      case 'approved': return 'success';
-      case 'rejected': return 'error';
-      case 'under_review': return 'info';
-      case 'draft': return 'default';
-      default: return 'default';
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'submitted': return 'Submitted';
-      case 'approved': return 'Approved';
-      case 'rejected': return 'Rejected';
-      case 'under_review': return 'Under Review';
-      case 'draft': return 'Draft';
-      default: return status;
-    }
   };
 
   const handleRefresh = () => {
