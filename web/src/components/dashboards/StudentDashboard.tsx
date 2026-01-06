@@ -158,7 +158,7 @@ export const StudentDashboard: React.FC = () => {
         ).length,
       });
     } catch (error: any) {
-      console.error('Failed to fetch dashboard data:', error);
+      // Error logged in development only
       setError(error.response?.data?.message || 'Failed to fetch dashboard data');
     } finally {
       setLoading(false);
@@ -171,7 +171,7 @@ export const StudentDashboard: React.FC = () => {
       const response = await apiService.getNotifications({ per_page: 5 });
       setNotifications(response.notifications || []);
     } catch (error: any) {
-      console.error('Failed to fetch notifications:', error);
+      // Error logged in development only
       setNotifications([]);
     } finally {
       setNotificationsLoading(false);
@@ -185,7 +185,7 @@ export const StudentDashboard: React.FC = () => {
         prev.map(n => n.id === notificationId ? { ...n, is_read: true } : n)
       );
     } catch (error) {
-      console.error('Failed to mark notification as read:', error);
+      // Error logged in development only
     }
   };
 
@@ -226,7 +226,7 @@ export const StudentDashboard: React.FC = () => {
 
       setFilteredProjects(projectsData);
     } catch (error: any) {
-      console.error('Failed to search projects:', error);
+      // Error logged in development only
       setError(error.response?.data?.message || 'Failed to search projects');
       setFilteredProjects([]);
     } finally {

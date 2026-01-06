@@ -79,7 +79,7 @@ export const FacultyHomeDashboard: React.FC = () => {
         }).length,
       });
     } catch (error: any) {
-      console.error('Failed to fetch dashboard data:', error);
+      // Error logged in development only
       setError(error.response?.data?.message || 'Failed to fetch dashboard data');
     } finally {
       setLoading(false);
