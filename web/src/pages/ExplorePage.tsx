@@ -1,70 +1,33 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   Typography,
   Box,
-  Card,
-  CardContent,
-  Grid,
-  TextField,
-  IconButton,
-  Button,
-  Chip,
   Avatar,
-  Rating,
   CircularProgress,
   Alert,
   Paper,
   Stack,
-  Divider,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Collapse,
-  Tooltip,
-  Badge,
   alpha,
-  useTheme as useMuiTheme,
-  CardActions,
+  Button,
   Fade,
-  Slide,
+  Grid,
 } from '@mui/material';
-import { guestColors, guestTheme, createDecorativeElements, backgroundPatterns } from '../theme/guestTheme';
+import { guestColors, createDecorativeElements, backgroundPatterns } from '../theme/guestTheme';
 import {
   Search as SearchIcon,
-  FilterList as FilterIcon,
   Clear as ClearIcon,
-  ExpandMore as ExpandMoreIcon,
-  ExpandLess as ExpandLessIcon,
-  School as SchoolIcon,
-  Person as PersonIcon,
-  Star as StarIcon,
-  AttachFile as AttachFileIcon,
-  Group as GroupIcon,
-  Visibility as VisibilityIcon,
-  TrendingUp as TrendingUpIcon,
-  Psychology as PsychologyIcon,
-  AutoAwesome as AutoAwesomeIcon,
   EmojiEvents as EmojiEventsIcon,
-  Lightbulb as LightbulbIcon,
   Rocket as RocketIcon,
-  Science as ScienceIcon,
-  Code as CodeIcon,
-  DesignServices as DesignIcon,
-  Business as BusinessIcon,
-  Engineering as EngineeringIcon,
-  Computer as ComputerIcon,
-  Comment as CommentIcon,
-  Share as ShareIcon,
-  Bookmark as BookmarkIcon,
+  FilterList as FilterIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { Project } from '../types';
 import { apiService } from '../services/api';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { BookmarkButton } from '../components/BookmarkButton';
+import { AdvancedFilters } from '../components/explore/AdvancedFilters';
+import { ProjectGrid } from '../components/explore/ProjectGrid';
 
 interface SearchFilters {
   search: string;
@@ -75,7 +38,6 @@ interface SearchFilters {
   sort_by: string;
   sort_order: string;
 }
-
 
 // Use the new guest theme colors
 const COLORS = guestColors;
@@ -103,9 +65,8 @@ export const ExplorePage: React.FC = () => {
   });
 
   const { theme } = useTheme();
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const navigate = useNavigate();
-  const muiTheme = useMuiTheme();
 
   useEffect(() => {
     fetchData();
@@ -231,68 +192,6 @@ export const ExplorePage: React.FC = () => {
     setFilters(prev => ({ ...prev, [field]: value }));
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'draft': return 'warning';
-      case 'submitted': return 'info';
-      case 'under_review': return 'primary';
-      case 'approved': return 'success';
-      case 'rejected': return 'error';
-      case 'completed': return 'success';
-      default: return 'default';
-    }
-  };
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return `0 ${t('Bytes')}`;
-    const k = 1024;
-    const sizes = [t('Bytes'), t('KB'), t('MB'), t('GB')];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
-  const getProjectIcon = (title: string) => {
-    const lowerTitle = title.toLowerCase();
-    if (lowerTitle.includes('web') || lowerTitle.includes('app') || lowerTitle.includes('software')) {
-      return <CodeIcon />;
-    } else if (lowerTitle.includes('design') || lowerTitle.includes('ui') || lowerTitle.includes('ux')) {
-      return <DesignIcon />;
-    } else if (lowerTitle.includes('business') || lowerTitle.includes('management') || lowerTitle.includes('marketing')) {
-      return <BusinessIcon />;
-    } else if (lowerTitle.includes('engineering') || lowerTitle.includes('mechanical') || lowerTitle.includes('electrical')) {
-      return <EngineeringIcon />;
-    } else if (lowerTitle.includes('computer') || lowerTitle.includes('ai') || lowerTitle.includes('machine learning')) {
-      return <ComputerIcon />;
-    } else {
-      return <ScienceIcon />;
-    }
-  };
-
-
-  const academicYearOptions = [
-    '2020-2021', '2021-2022', '2022-2023', '2023-2024', '2024-2025', '2025-2026'
-  ];
-
-  const semesterOptions = useMemo(
-    () => [
-      { value: 'fall', label: t('Fall') },
-      { value: 'spring', label: t('Spring') },
-      { value: 'summer', label: t('Summer') },
-    ],
-    [language, t],
-  );
-
-  const sortOptions = useMemo(
-    () => [
-      { value: 'created_at', label: t('Date Created') },
-      { value: 'updated_at', label: t('Last Updated') },
-      { value: 'title', label: t('Title') },
-      { value: 'academic_year', label: t('Academic Year') },
-      { value: 'average_rating', label: t('Rating') },
-    ],
-    [language, t],
-  );
-
   if (loading) {
     return (
       <Box sx={{ 
@@ -372,7 +271,6 @@ export const ExplorePage: React.FC = () => {
               },
             }}
           >
-
             {/* Main Hero Content */}
             <Grid container spacing={{ xs: 4, md: 6 }} alignItems="center" sx={{ position: 'relative', zIndex: 1 }}>
               <Grid size={{ xs: 12, md: 'auto' }}>
@@ -418,8 +316,6 @@ export const ExplorePage: React.FC = () => {
           </Paper>
         </Fade>
 
-
-
         {/* Search and Filter Section */}
         <Fade in timeout={1400}>
           <Paper
@@ -464,324 +360,17 @@ export const ExplorePage: React.FC = () => {
               </Box>
             </Stack>
 
-            <Grid container spacing={3} sx={{ mb: 4 }}>
-              <Grid size={{ xs: 12, md: 8 }}>
-                <TextField
-                  fullWidth
-                  placeholder={t('Search by project name, title, or keywords...')}
-                  value={filters.search}
-                  onChange={(e) => handleInputChange('search', e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                  InputProps={{
-                    startAdornment: <SearchIcon sx={{ mr: 2, color: COLORS.almostBlack, fontSize: 24 }} />,
-                    endAdornment: filters.search && (
-                      <IconButton 
-                        size="small" 
-                        onClick={() => handleInputChange('search', '')}
-                        sx={{ color: COLORS.textSecondary }}
-                      >
-                        <ClearIcon />
-                      </IconButton>
-                    ),
-                  }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 4,
-                      backgroundColor: COLORS.white,
-                      fontSize: '1.1rem',
-                      py: 1,
-                      '&:hover': {
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: COLORS.almostBlack,
-                          borderWidth: 2,
-                        },
-                      },
-                      '&.Mui-focused': {
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: COLORS.almostBlack,
-                          borderWidth: 2,
-                        },
-                      },
-                    },
-                  }}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, md: 4 }}>
-                <Stack direction="row" spacing={2}>
-                  <Button
-                    variant="outlined"
-                    startIcon={<FilterIcon />}
-                    onClick={() => setShowFilters(!showFilters)}
-                    sx={{
-                      borderColor: COLORS.almostBlack,
-                      color: COLORS.almostBlack,
-                      borderRadius: 4,
-                      px: 4,
-                      py: 1.5,
-                      fontWeight: 600,
-                      fontSize: '1rem',
-                      '&:hover': {
-                        borderColor: COLORS.almostBlack,
-                        backgroundColor: alpha(COLORS.almostBlack, 0.08),
-                        transform: 'translateY(-2px)',
-                      },
-                    }}
-                  >
-                    {t('Filters')}
-                    {showFilters ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                  </Button>
-                  <Button
-                    variant="contained"
-                    onClick={handleSearch}
-                    disabled={searching}
-                    sx={{
-                      background: guestColors.primaryGradient,
-                      borderRadius: 4,
-                      px: 4,
-                      py: 1.5,
-                      fontWeight: 600,
-                      fontSize: '1rem',
-                      textTransform: 'none',
-                      '&:hover': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: `0 8px 25px ${alpha(COLORS.almostBlack, 0.3)}`,
-                      },
-                    }}
-                  >
-                    {searching ? <CircularProgress size={20} color="inherit" /> : t('Search')}
-                  </Button>
-                </Stack>
-              </Grid>
-            </Grid>
-
-            {/* Advanced Filters */}
-            <Collapse in={showFilters}>
-              <Box sx={{ 
-                p: 4, 
-                backgroundColor: alpha(COLORS.almostBlack, 0.06), 
-                borderRadius: 4,
-                border: `1px solid ${alpha(COLORS.almostBlack, 0.15)}`,
-              }}>
-                <Grid container spacing={3}>
-                  <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                    <FormControl fullWidth>
-                      <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>
-                        {t('Program')}
-                      </InputLabel>
-                      <Select
-                        value={filters.program_id}
-                        onChange={(e) => handleInputChange('program_id', e.target.value)}
-                        label={t('Program')}
-                        sx={{ 
-                          borderRadius: 3,
-                          backgroundColor: COLORS.white,
-                          '& .MuiOutlinedInput-notchedOutline': {
-                            borderColor: alpha(COLORS.almostBlack, 0.2),
-                          },
-                          '&:hover .MuiOutlinedInput-notchedOutline': {
-                            borderColor: COLORS.almostBlack,
-                          },
-                        }}
-                      >
-                        <MenuItem value="">{t('All Programs')}</MenuItem>
-                        {(programs || []).map((program) => (
-                          <MenuItem key={program.id} value={program.id}>
-                            {program.name}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-
-                  <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                    <FormControl fullWidth>
-                      <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>
-                        {t('Department')}
-                      </InputLabel>
-                      <Select
-                        value={filters.department_id}
-                        onChange={(e) => handleInputChange('department_id', e.target.value)}
-                        label={t('Department')}
-                        sx={{ 
-                          borderRadius: 3,
-                          backgroundColor: COLORS.white,
-                          '& .MuiOutlinedInput-notchedOutline': {
-                            borderColor: alpha(COLORS.almostBlack, 0.2),
-                          },
-                          '&:hover .MuiOutlinedInput-notchedOutline': {
-                            borderColor: COLORS.almostBlack,
-                          },
-                        }}
-                      >
-                        <MenuItem value="">{t('All Departments')}</MenuItem>
-                        {(departments || []).map((dept) => (
-                          <MenuItem key={dept.id} value={dept.id}>
-                            {dept.name}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-
-                  <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                    <FormControl fullWidth>
-                      <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>
-                        {t('Academic Year')}
-                      </InputLabel>
-                      <Select
-                        value={filters.academic_year}
-                        onChange={(e) => handleInputChange('academic_year', e.target.value)}
-                        label={t('Academic Year')}
-                        sx={{ 
-                          borderRadius: 3,
-                          backgroundColor: COLORS.white,
-                          '& .MuiOutlinedInput-notchedOutline': {
-                            borderColor: alpha(COLORS.almostBlack, 0.2),
-                          },
-                          '&:hover .MuiOutlinedInput-notchedOutline': {
-                            borderColor: COLORS.almostBlack,
-                          },
-                        }}
-                      >
-                        <MenuItem value="">{t('All Years')}</MenuItem>
-                        {academicYearOptions.map((year) => (
-                          <MenuItem key={year} value={year}>
-                            {year}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-
-                  <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                    <FormControl fullWidth>
-                      <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>
-                        {t('Semester')}
-                      </InputLabel>
-                      <Select
-                        value={filters.semester}
-                        onChange={(e) => handleInputChange('semester', e.target.value)}
-                        label={t('Semester')}
-                        sx={{ 
-                          borderRadius: 3,
-                          backgroundColor: COLORS.white,
-                          '& .MuiOutlinedInput-notchedOutline': {
-                            borderColor: alpha(COLORS.almostBlack, 0.2),
-                          },
-                          '&:hover .MuiOutlinedInput-notchedOutline': {
-                            borderColor: COLORS.almostBlack,
-                          },
-                        }}
-                      >
-                        <MenuItem value="">{t('All Semesters')}</MenuItem>
-                        {semesterOptions.map((semester) => (
-                          <MenuItem key={semester.value} value={semester.value}>
-                            {semester.label}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-
-                  <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                    <FormControl fullWidth>
-                      <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>
-                        {t('Sort By')}
-                      </InputLabel>
-                      <Select
-                        value={filters.sort_by}
-                        onChange={(e) => handleInputChange('sort_by', e.target.value)}
-                        label={t('Sort By')}
-                        sx={{ 
-                          borderRadius: 3,
-                          backgroundColor: COLORS.white,
-                          '& .MuiOutlinedInput-notchedOutline': {
-                            borderColor: alpha(COLORS.almostBlack, 0.2),
-                          },
-                          '&:hover .MuiOutlinedInput-notchedOutline': {
-                            borderColor: COLORS.almostBlack,
-                          },
-                        }}
-                      >
-                        {sortOptions.map((option) => (
-                          <MenuItem key={option.value} value={option.value}>
-                            {option.label}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-
-                  <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                    <FormControl fullWidth>
-                      <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>
-                        {t('Order')}
-                      </InputLabel>
-                      <Select
-                        value={filters.sort_order}
-                        onChange={(e) => handleInputChange('sort_order', e.target.value)}
-                        label={t('Order')}
-                        sx={{ 
-                          borderRadius: 3,
-                          backgroundColor: COLORS.white,
-                          '& .MuiOutlinedInput-notchedOutline': {
-                            borderColor: alpha(COLORS.almostBlack, 0.2),
-                          },
-                          '&:hover .MuiOutlinedInput-notchedOutline': {
-                            borderColor: COLORS.almostBlack,
-                          },
-                        }}
-                      >
-                        <MenuItem value="desc">{t('Newest First')}</MenuItem>
-                        <MenuItem value="asc">{t('Oldest First')}</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                </Grid>
-
-                <Stack direction="row" spacing={3} sx={{ mt: 4, justifyContent: 'flex-end' }}>
-                  <Button
-                    variant="outlined"
-                    onClick={handleClearSearch}
-                    startIcon={<ClearIcon />}
-                    sx={{
-                      borderColor: COLORS.textSecondary,
-                      color: COLORS.textSecondary,
-                      borderRadius: 3,
-                      px: 4,
-                      py: 1.5,
-                      fontWeight: 600,
-                      '&:hover': {
-                        borderColor: COLORS.textSecondary,
-                        backgroundColor: alpha(COLORS.textSecondary, 0.05),
-                        transform: 'translateY(-2px)',
-                      },
-                    }}
-                  >
-                    {t('Clear All')}
-                  </Button>
-                  <Button
-                    variant="contained"
-                    onClick={handleSearch}
-                    disabled={searching}
-                    sx={{
-                      background: guestColors.primaryGradient,
-                      borderRadius: 3,
-                      px: 4,
-                      py: 1.5,
-                      fontWeight: 600,
-                      textTransform: 'none',
-                      '&:hover': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: `0 8px 25px ${alpha(COLORS.almostBlack, 0.3)}`,
-                      },
-                    }}
-                  >
-                    {t('Apply Filters')}
-                  </Button>
-                </Stack>
-              </Box>
-            </Collapse>
+            <AdvancedFilters
+              filters={filters}
+              showFilters={showFilters}
+              searching={searching}
+              programs={programs}
+              departments={departments}
+              onFilterChange={handleInputChange}
+              onSearch={handleSearch}
+              onClearSearch={handleClearSearch}
+              onToggleFilters={() => setShowFilters(!showFilters)}
+            />
           </Paper>
         </Fade>
 
@@ -885,163 +474,7 @@ export const ExplorePage: React.FC = () => {
                 </Box>
               </Stack>
 
-              <Grid container spacing={4}>
-                {topProjects.map((project, index) => (
-                  <Grid size={{ xs: 12, md: 6, lg: 4 }} key={project.id}>
-                  <Card
-                    sx={{
-                      ...backgroundPatterns.card,
-                      cursor: 'pointer',
-                      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      height: '100%',
-                      border: `2px solid ${alpha(COLORS.lightSkyBlue, 0.2)}`,
-                      '&:hover': {
-                        transform: 'translateY(-12px) scale(1.03)',
-                        boxShadow: `0 24px 48px ${alpha(COLORS.lightSkyBlue, 0.25)}`,
-                        borderColor: COLORS.deepPurple,
-                      },
-                      '&::before': {
-                        content: '""',
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        height: '6px',
-                        background: guestColors.secondaryGradient,
-                      },
-                    }}
-                    onClick={() => navigate(`/projects/${project.id}`)}
-                  >
-                      <CardContent sx={{ p: 3 }}>
-                        <Stack direction="row" alignItems="flex-start" justifyContent="space-between" sx={{ mb: 2 }}>
-                          <Box sx={{ flex: 1, minWidth: 0 }}>
-                            <Typography 
-                              variant="h6" 
-                              sx={{ 
-                                fontWeight: 700, 
-                                color: COLORS.textPrimary,
-                                mb: 1,
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                display: '-webkit-box',
-                                WebkitLineClamp: 2,
-                                WebkitBoxOrient: 'vertical',
-                              }}
-                            >
-                              {project.title}
-                            </Typography>
-                            <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
-                              <Tooltip title={`Created: ${new Date(project.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`} arrow>
-                                <Chip
-                                  label={project.academic_year}
-                                  size="small"
-                                  sx={{
-                                    background: guestColors.secondaryGradient,
-                                    color: COLORS.textPrimary,
-                                    fontWeight: 600,
-                                    fontSize: '0.75rem',
-                                    textTransform: 'capitalize',
-                                  }}
-                                />
-                              </Tooltip>
-                            </Stack>
-                          </Box>
-                          <Badge
-                            badgeContent={index + 1}
-                            sx={{
-                              '& .MuiBadge-badge': {
-                                background: guestColors.accentGradient,
-                                color: COLORS.white,
-                                fontWeight: 700,
-                                fontSize: '0.8rem',
-                              },
-                            }}
-                          >
-                            <Avatar
-                              sx={{
-                                width: 40,
-                                height: 40,
-                                background: guestColors.primaryGradient,
-                              }}
-                            >
-                              {getProjectIcon(project.title)}
-                            </Avatar>
-                          </Badge>
-                        </Stack>
-
-                        <Typography 
-                          variant="body2" 
-                          sx={{ 
-                            color: COLORS.textSecondary,
-                            mb: 3, 
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            display: '-webkit-box',
-                            WebkitLineClamp: 3,
-                            WebkitBoxOrient: 'vertical',
-                            lineHeight: 1.6,
-                          }}
-                        >
-                          {project.abstract}
-                        </Typography>
-
-                        {project.average_rating && project.rating_count && (
-                          <Box sx={{ mb: 3 }}>
-                            <Stack direction="row" alignItems="center" spacing={1}>
-                              <Rating
-                                value={project.average_rating}
-                                readOnly
-                                precision={0.1}
-                                size="small"
-                                sx={{
-                                  '& .MuiRating-iconFilled': {
-                                    color: COLORS.deepPurple,
-                                  },
-                                }}
-                              />
-                              <Typography variant="body2" sx={{ color: COLORS.textSecondary, fontWeight: 600 }}>
-                                {project.average_rating.toFixed(1)} ({project.rating_count} {t('ratings')})
-                              </Typography>
-                            </Stack>
-                          </Box>
-                        )}
-
-                        <CardActions sx={{ p: 0, justifyContent: 'space-between' }}>
-                          <Button
-                            variant="contained"
-                            startIcon={<VisibilityIcon />}
-                            sx={{
-                              background: guestColors.primaryGradient,
-                              borderRadius: 3,
-                              px: 3,
-                              py: 1,
-                              fontWeight: 600,
-                              textTransform: 'none',
-                              '&:hover': {
-                                transform: 'translateY(-2px)',
-                                boxShadow: `0 8px 25px ${alpha(COLORS.almostBlack, 0.3)}`,
-                              },
-                            }}
-                          >
-                            {t('View Project')}
-                          </Button>
-                          <Stack direction="row" spacing={1}>
-                            <IconButton size="small" sx={{ color: COLORS.textSecondary }}>
-                              <CommentIcon fontSize="small" />
-                            </IconButton>
-                            <BookmarkButton projectId={project.id} size="small" sx={{ color: COLORS.textSecondary }} />
-                            <IconButton size="small" sx={{ color: COLORS.textSecondary }}>
-                              <ShareIcon fontSize="small" />
-                            </IconButton>
-                          </Stack>
-                        </CardActions>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
-              </Grid>
+              <ProjectGrid projects={topProjects} showTopBadge={true} />
             </Box>
           </Fade>
         )}
@@ -1069,316 +502,7 @@ export const ExplorePage: React.FC = () => {
               </Box>
             </Stack>
 
-            <Grid container spacing={4}>
-              {(filteredProjects || []).map((project, index) => (
-                <Grid size={{ xs: 12, md: 6, lg: 4 }} key={project.id}>
-                  <Card
-                    sx={{
-                      ...backgroundPatterns.card,
-                      cursor: 'pointer',
-                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      height: '100%',
-                      '&:hover': {
-                        transform: 'translateY(-4px)',
-                        boxShadow: `0 12px 24px ${alpha(COLORS.almostBlack, 0.15)}`,
-                        borderColor: COLORS.almostBlack,
-                      },
-                      '&::before': {
-                        content: '""',
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        height: '6px',
-                        background: guestColors.primaryGradient,
-                        opacity: 0,
-                        transition: 'opacity 0.3s ease',
-                      },
-                      '&:hover::before': {
-                        opacity: 1,
-                      },
-                    }}
-                    onClick={() => navigate(`/projects/${project.id}`)}
-                  >
-                    <CardContent sx={{ p: 4, height: '100%', display: 'flex', flexDirection: 'column' }}>
-                      {/* Project Header - Improved Layout */}
-                      <Stack direction="row" alignItems="flex-start" justifyContent="space-between" sx={{ mb: 3 }}>
-                        <Box sx={{ flex: 1, minWidth: 0, pr: 3 }}>
-                          {/* Title and Year Tag - Horizontally Aligned */}
-                          <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 1.5, flexWrap: 'wrap', gap: 1 }}>
-                            <Typography 
-                              variant="h6" 
-                              sx={{ 
-                                fontWeight: 700, 
-                                color: COLORS.textPrimary,
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                display: '-webkit-box',
-                                WebkitLineClamp: 2,
-                                WebkitBoxOrient: 'vertical',
-                                fontSize: '1.2rem',
-                                lineHeight: 1.3,
-                                flex: 1,
-                                minWidth: 0,
-                              }}
-                            >
-                              {project.title}
-                            </Typography>
-                            <Tooltip title={`Created: ${new Date(project.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`} arrow>
-                              <Chip
-                                label={project.academic_year}
-                                size="small"
-                                sx={{
-                                  background: guestColors.secondaryGradient,
-                                  color: COLORS.textPrimary,
-                                  fontWeight: 600,
-                                  fontSize: '0.75rem',
-                                  height: 24,
-                                  textTransform: 'capitalize',
-                                  flexShrink: 0,
-                                }}
-                              />
-                            </Tooltip>
-                          </Stack>
-                        </Box>
-                        {/* Icon - Perfectly Aligned */}
-                        <Avatar
-                          sx={{
-                            width: 48,
-                            height: 48,
-                            background: guestColors.primaryGradient,
-                            flexShrink: 0,
-                          }}
-                        >
-                          {getProjectIcon(project.title)}
-                        </Avatar>
-                      </Stack>
-
-                      {/* Project Abstract - Improved Spacing */}
-                      <Typography 
-                        variant="body2" 
-                        sx={{ 
-                          color: COLORS.textSecondary,
-                          mb: 3, 
-                          flex: 1,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 3,
-                          WebkitBoxOrient: 'vertical',
-                          lineHeight: 1.6,
-                          fontSize: '1rem',
-                        }}
-                      >
-                        {project.abstract}
-                      </Typography>
-
-                      {/* Keywords - Increased Spacing */}
-                      {project.keywords && project.keywords.length > 0 && (
-                        <Box sx={{ mb: 3 }}>
-                          <Stack direction="row" spacing={1} flexWrap="wrap" gap={1}>
-                            {project.keywords.slice(0, 3).map((keyword, idx) => (
-                              <Chip
-                                key={idx}
-                                label={keyword}
-                                size="small"
-                                variant="outlined"
-                                sx={{
-                                  fontSize: '0.75rem',
-                                  height: 28,
-                                  borderColor: alpha(COLORS.lightSkyBlue, 0.35),
-                                  color: COLORS.deepPurple,
-                                  fontWeight: 500,
-                                  '&:hover': {
-                                    backgroundColor: alpha(COLORS.lightSkyBlue, 0.1),
-                                    borderColor: COLORS.deepPurple,
-                                  },
-                                }}
-                              />
-                            ))}
-                            {project.keywords.length > 3 && (
-                              <Chip
-                                label={`+${project.keywords.length - 3} ${t('more')}`}
-                                size="small"
-                                variant="outlined"
-                                sx={{
-                                  fontSize: '0.75rem',
-                                  height: 28,
-                                  borderColor: alpha(COLORS.lightSkyBlue, 0.35),
-                                  color: COLORS.deepPurple,
-                                  fontWeight: 500,
-                                }}
-                              />
-                            )}
-                          </Stack>
-                        </Box>
-                      )}
-
-                      {/* Rating - Moved Above Metadata */}
-                      {project.average_rating && project.rating_count && (
-                        <Box sx={{ mb: 3 }}>
-                          <Stack direction="row" alignItems="center" spacing={1.5}>
-                            <Rating
-                              value={project.average_rating}
-                              readOnly
-                              precision={0.1}
-                              size="small"
-                              sx={{
-                                '& .MuiRating-iconFilled': {
-                                  color: COLORS.deepPurple,
-                                },
-                              }}
-                            />
-                            <Typography variant="body2" sx={{ color: COLORS.textSecondary, fontWeight: 600 }}>
-                              {project.average_rating.toFixed(1)} ({project.rating_count} ratings)
-                            </Typography>
-                          </Stack>
-                        </Box>
-                      )}
-
-                      {/* Metadata Row - Reorganized: Author, Files, Action Icons */}
-                      <Box 
-                        sx={{ 
-                          mb: 3,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          flexWrap: 'wrap',
-                          gap: 1.5,
-                        }}
-                      >
-                        {/* Left: Author and Files */}
-                        <Stack direction="row" alignItems="center" spacing={1.5} flexWrap="wrap" sx={{ flex: 1, minWidth: 0 }}>
-                          <Stack direction="row" alignItems="center" spacing={1}>
-                            <PersonIcon sx={{ fontSize: 18, color: COLORS.textSecondary }} />
-                            <Typography 
-                              variant="body2" 
-                              sx={{ 
-                                color: COLORS.textSecondary, 
-                                fontWeight: 600,
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap',
-                              }}
-                            >
-                              {project.creator?.full_name || 'Unknown'}
-                            </Typography>
-                          </Stack>
-                          <Typography 
-                            variant="body2" 
-                            sx={{ 
-                              color: COLORS.textSecondary,
-                              mx: 0.5,
-                            }}
-                          >
-                            ·
-                          </Typography>
-                          <Stack direction="row" alignItems="center" spacing={1}>
-                            <AttachFileIcon sx={{ fontSize: 18, color: COLORS.textSecondary }} />
-                            <Typography variant="body2" sx={{ color: COLORS.textSecondary, fontWeight: 600 }}>
-                              {project.files?.length || 0} {t('files')}
-                            </Typography>
-                          </Stack>
-                        </Stack>
-
-                        {/* Right: Action Icons */}
-                        <Stack direction="row" spacing={0.5} sx={{ flexShrink: 0 }}>
-                          <Tooltip title={t('View Comments')}>
-                            <IconButton 
-                              size="small" 
-                              sx={{ 
-                                color: alpha(COLORS.textSecondary, 0.7),
-                                '&:hover': {
-                                  color: COLORS.textSecondary,
-                                  backgroundColor: alpha(COLORS.textSecondary, 0.08),
-                                },
-                              }}
-                              onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                                e.stopPropagation();
-                                // Handle comment click
-                              }}
-                            >
-                              <CommentIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                          <BookmarkButton 
-                            projectId={project.id} 
-                            size="small" 
-                            sx={{ 
-                              color: alpha(COLORS.textSecondary, 0.7),
-                              '&:hover': {
-                                color: COLORS.textSecondary,
-                                backgroundColor: alpha(COLORS.textSecondary, 0.08),
-                              },
-                            }}
-                          />
-                          <Tooltip title={t('Share Project')}>
-                            <IconButton 
-                              size="small" 
-                              sx={{ 
-                                color: alpha(COLORS.textSecondary, 0.7),
-                                '&:hover': {
-                                  color: COLORS.textSecondary,
-                                  backgroundColor: alpha(COLORS.textSecondary, 0.08),
-                                },
-                              }}
-                              onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                                e.stopPropagation();
-                                // Handle share click
-                              }}
-                            >
-                              <ShareIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                        </Stack>
-                      </Box>
-
-                      {/* Action Icon - Hover to View Project */}
-                      <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'flex-end', pt: 2 }}>
-                        <Tooltip 
-                          title={t('View Project')} 
-                          placement="bottom"
-                          arrow
-                          PopperProps={{
-                            modifiers: [
-                              {
-                                name: 'offset',
-                                options: {
-                                  offset: [0, 8],
-                                },
-                              },
-                            ],
-                          }}
-                        >
-                          <IconButton
-                            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                              e.stopPropagation();
-                              navigate(`/projects/${project.id}`);
-                            }}
-                            sx={{
-                              background: guestColors.primaryGradient,
-                              color: COLORS.white,
-                              width: 48,
-                              height: 48,
-                              '&:hover': {
-                                transform: 'translateY(-2px) scale(1.1)',
-                                boxShadow: `0 8px 25px ${alpha(COLORS.almostBlack, 0.3)}`,
-                                background: `linear-gradient(135deg, ${alpha(COLORS.deepPurple, 0.9)} 0%, ${alpha(COLORS.lightSkyBlue, 0.9)} 100%)`,
-                              },
-                              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                            }}
-                          >
-                            <VisibilityIcon />
-                          </IconButton>
-                        </Tooltip>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
+            <ProjectGrid projects={filteredProjects} />
           </Box>
         </Fade>
 
@@ -1420,7 +544,7 @@ export const ExplorePage: React.FC = () => {
                   textTransform: 'none',
                   '&:hover': {
                     transform: 'translateY(-3px)',
-                        boxShadow: `0 12px 30px ${alpha(COLORS.almostBlack, 0.3)}`,
+                    boxShadow: `0 12px 30px ${alpha(COLORS.almostBlack, 0.3)}`,
                   },
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
