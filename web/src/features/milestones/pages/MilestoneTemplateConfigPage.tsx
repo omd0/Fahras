@@ -30,6 +30,7 @@ import { apiService } from '@/lib/api';
 import { MilestoneTemplate, Program, Department } from '@/types';
 import { TemplateList } from '@/features/milestones/components/TemplateList';
 import { TemplateEditor } from '@/features/milestones/components/TemplateEditor';
+import { ConfirmDialog } from '@/components/shared';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -63,6 +64,9 @@ export const MilestoneTemplateConfigPage: React.FC = () => {
   const [editorOpen, setEditorOpen] = useState(false);
   const [filterProgram, setFilterProgram] = useState<number | ''>('');
   const [filterDepartment, setFilterDepartment] = useState<number | ''>('');
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [templateToDelete, setTemplateToDelete] = useState<number | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const navigate = useNavigate();
   const { theme } = useTheme();
@@ -121,16 +125,25 @@ export const MilestoneTemplateConfigPage: React.FC = () => {
     setEditorOpen(true);
   };
 
-  const handleDeleteTemplate = async (templateId: number) => {
-    if (!window.confirm('Are you sure you want to delete this program? This action cannot be undone.')) {
-      return;
-    }
+  const handleDeleteTemplate = (templateId: number) => {
+    setTemplateToDelete(templateId);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (templateToDelete === null) return;
 
     try {
-      await apiService.deleteMilestoneTemplate(templateId);
+      setDeleteLoading(true);
+      await apiService.deleteMilestoneTemplate(templateToDelete);
+      setDeleteConfirmOpen(false);
       await loadTemplates();
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to delete program');
+      setDeleteConfirmOpen(false);
+    } finally {
+      setDeleteLoading(false);
+      setTemplateToDelete(null);
     }
   };
 
@@ -250,6 +263,17 @@ export const MilestoneTemplateConfigPage: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        title="Delete Program Template"
+        message="Are you sure you want to delete this program template? This action cannot be undone and will affect all future projects using this template."
+        confirmText="Delete Template"
+        onConfirm={handleConfirmDelete}
+        onClose={() => setDeleteConfirmOpen(false)}
+        severity="error"
+        loading={deleteLoading}
+      />
     </DashboardContainer>
   );
 };

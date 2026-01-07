@@ -56,6 +56,7 @@ import { useAuthStore } from '@/features/auth/store';
 import { getDashboardTheme } from '@/config/dashboardThemes';
 import { apiService } from '@/lib/api';
 import { useLanguage } from '@/providers/LanguageContext';
+import { ConfirmDialog } from '@/components/shared';
 
 interface User {
   id: number;
@@ -113,6 +114,9 @@ export const UserManagementPage: React.FC = () => {
     password: '',
     role_ids: [],
   });
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<number | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
@@ -233,23 +237,33 @@ export const UserManagementPage: React.FC = () => {
     }
   };
 
-  const handleDeleteUser = async (userId: number) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      try {
-        setError(null);
-        setSuccess(null);
-        const response = await apiService.deleteUser(userId);
-        setSuccess(response.message || 'User deleted successfully');
-        await fetchUsers();
-        setTimeout(() => setSuccess(null), 3000);
-      } catch (error: any) {
-        console.error('Failed to delete user:', error);
-        const errorMessage = error.response?.data?.message 
-          || error.response?.data?.error
-          || 'Failed to delete user';
-        setError(errorMessage);
-        setSuccess(null);
-      }
+  const handleDeleteUser = (userId: number) => {
+    setUserToDelete(userId);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!userToDelete) return;
+    
+    try {
+      setDeleteLoading(true);
+      setError(null);
+      setSuccess(null);
+      const response = await apiService.deleteUser(userToDelete);
+      setSuccess(response.message || 'User deleted successfully');
+      await fetchUsers();
+      setTimeout(() => setSuccess(null), 3000);
+      setDeleteConfirmOpen(false);
+    } catch (error: any) {
+      console.error('Failed to delete user:', error);
+      const errorMessage = error.response?.data?.message 
+        || error.response?.data?.error
+        || 'Failed to delete user';
+      setError(errorMessage);
+      setSuccess(null);
+    } finally {
+      setDeleteLoading(false);
+      setUserToDelete(null);
     }
   };
 
@@ -729,6 +743,17 @@ export const UserManagementPage: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        title="Delete User"
+        message="Are you sure you want to delete this user? This action cannot be undone and will permanently remove all data associated with this user."
+        confirmText="Delete User"
+        onConfirm={handleConfirmDelete}
+        onClose={() => setDeleteConfirmOpen(false)}
+        severity="error"
+        loading={deleteLoading}
+      />
     </Box>
   );
 };

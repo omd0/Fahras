@@ -26,6 +26,7 @@ import {
 } from '@mui/icons-material';
 import { ProjectMilestone } from '@/types';
 import { apiService } from '@/lib/api';
+import { ConfirmDialog } from '@/components/shared';
 
 interface MilestoneDetailDialogProps {
   open: boolean;
@@ -57,6 +58,7 @@ export const MilestoneDetailDialog: React.FC<MilestoneDetailDialogProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [availableMilestones, setAvailableMilestones] = useState<ProjectMilestone[]>([]);
   const [selectedDependencies, setSelectedDependencies] = useState<number[]>([]);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   const isNew = milestone === null;
 
@@ -128,16 +130,22 @@ export const MilestoneDetailDialog: React.FC<MilestoneDetailDialogProps> = ({
 
   const handleDelete = async () => {
     if (!milestone || !onDelete) return;
-    if (!window.confirm('Are you sure you want to delete this milestone?')) return;
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!milestone || !onDelete) return;
 
     setLoading(true);
     setError(null);
 
     try {
       await onDelete(milestone.id);
+      setDeleteConfirmOpen(false);
       onClose();
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to delete milestone');
+      setDeleteConfirmOpen(false);
     } finally {
       setLoading(false);
     }
@@ -329,6 +337,17 @@ export const MilestoneDetailDialog: React.FC<MilestoneDetailDialogProps> = ({
           </Button>
         )}
       </DialogActions>
+
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        title="Delete Milestone"
+        message="Are you sure you want to delete this milestone? This action cannot be undone and may affect project progress tracking."
+        confirmText="Delete Milestone"
+        onConfirm={handleConfirmDelete}
+        onClose={() => setDeleteConfirmOpen(false)}
+        severity="error"
+        loading={loading}
+      />
     </Dialog>
   );
 };

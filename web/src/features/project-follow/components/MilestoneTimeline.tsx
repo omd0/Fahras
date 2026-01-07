@@ -27,6 +27,7 @@ import { ProjectMilestone, TimelineLink } from '@/types';
 import { apiService } from '@/lib/api';
 import { MilestoneTimelineItem } from './MilestoneTimelineItem';
 import { MilestoneDetailDialog } from './MilestoneDetailDialog';
+import { ConfirmDialog } from '../shared';
 
 interface MilestoneTimelineProps {
   projectId: number;
@@ -76,6 +77,8 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [milestoneToDelete, setMilestoneToDelete] = useState<number | null>(null);
 
   useEffect(() => {
     setMilestones(initialMilestones);
@@ -135,17 +138,26 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
 
   const handleDelete = async (milestoneId: number) => {
     if (!onDelete) return;
-    if (!window.confirm('Are you sure you want to delete this milestone?')) return;
+    setMilestoneToDelete(milestoneId);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!onDelete || milestoneToDelete === null) return;
+    
     setLoading(true);
     setError(null);
     try {
-      await onDelete(milestoneId);
+      await onDelete(milestoneToDelete);
       if (onRefresh) onRefresh();
       setDialogOpen(false);
+      setDeleteConfirmOpen(false);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to delete milestone');
+      setDeleteConfirmOpen(false);
     } finally {
       setLoading(false);
+      setMilestoneToDelete(null);
     }
   };
 
@@ -323,6 +335,17 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
           canEdit={canEdit}
         />
       )}
+
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        title="Delete Milestone"
+        message="Are you sure you want to delete this milestone? This action cannot be undone and may affect project progress tracking."
+        confirmText="Delete Milestone"
+        onConfirm={handleConfirmDelete}
+        onClose={() => setDeleteConfirmOpen(false)}
+        severity="error"
+        loading={loading}
+      />
     </Box>
   );
 };

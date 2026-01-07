@@ -29,6 +29,7 @@ import { ProjectHeader } from '@/features/projects/components/ProjectHeader';
 import { ProjectMainInfo } from '@/features/projects/components/ProjectMainInfo';
 import { ProjectFiles } from '@/features/projects/components/ProjectFiles';
 import { ProjectSidebar } from '@/features/projects/components/ProjectSidebar';
+import { ConfirmDialog } from '@/components/shared';
 
 export const ProjectDetailPage: React.FC = () => {
   const [project, setProject] = useState<Project | null>(null);
@@ -38,6 +39,7 @@ export const ProjectDetailPage: React.FC = () => {
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [filesLoading, setFilesLoading] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   const { user } = useAuthStore();
   const navigate = useNavigate();
@@ -154,17 +156,22 @@ export const ProjectDetailPage: React.FC = () => {
     }
   };
 
-  const handleDelete = async () => {
-    if (!project || !window.confirm('Are you sure you want to delete this project?')) {
-      return;
-    }
+  const handleDelete = () => {
+    if (!project) return;
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!project) return;
 
     setDeleting(true);
     try {
       await apiService.deleteProject(project.id);
+      setDeleteConfirmOpen(false);
       navigate('/dashboard');
     } catch (error: any) {
       setError(error.response?.data?.message || 'Failed to delete project');
+      setDeleteConfirmOpen(false);
     } finally {
       setDeleting(false);
     }
@@ -298,6 +305,17 @@ export const ProjectDetailPage: React.FC = () => {
           project={project}
         />
       )}
+
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        title="Delete Project"
+        message="Are you sure you want to delete this project? This action cannot be undone and will permanently remove all project data, files, and comments."
+        confirmText="Delete Project"
+        onConfirm={handleConfirmDelete}
+        onClose={() => setDeleteConfirmOpen(false)}
+        severity="error"
+        loading={deleting}
+      />
     </Box>
   );
 

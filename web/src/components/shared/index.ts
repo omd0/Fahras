@@ -14,4 +14,6 @@ export { StatsCard } from './StatsCard';
 export { ProjectCard } from './ProjectCard';
 export { QuickActions } from './QuickActions';
 export type { QuickAction } from './QuickActions';
+export { ConfirmDialog } from './ConfirmDialog';
+export type { ConfirmDialogProps } from './ConfirmDialog';
 
