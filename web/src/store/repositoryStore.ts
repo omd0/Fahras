@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { File } from '../types';
+import { File } from '@/types';
 
 // File tree node types
 export type FileTreeNodeType = 'file' | 'folder';

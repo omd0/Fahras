@@ -28,9 +28,9 @@ import {
   Brightness7 as LightModeIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { TVTCLogo } from '../components/TVTCLogo';
-import { useAuthStore } from '../store/authStore';
-import { getDashboardTheme } from '../config/dashboardThemes';
+import { TVTCLogo } from '@/components/TVTCLogo';
+import { useAuthStore } from '@/features/auth/store';
+import { getDashboardTheme } from '@/config/dashboardThemes';
 
 export const SettingsPage: React.FC = () => {
   const navigate = useNavigate();

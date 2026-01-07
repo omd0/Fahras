@@ -23,7 +23,7 @@ import {
   Fade,
   Slide,
 } from '@mui/material';
-import { guestColors } from '../theme/guestTheme';
+import { guestColors } from '@/styles/theme/guestTheme';
 import {
   Send as SendIcon,
   MoreVert as MoreVertIcon,
@@ -33,9 +33,9 @@ import {
   ThumbUp as ThumbUpIcon,
   Person as PersonIcon,
 } from '@mui/icons-material';
-import { Comment } from '../types';
-import { apiService } from '../services/api';
-import { useAuthStore } from '../store/authStore';
+import { Comment } from '@/types';
+import { apiService } from '@/lib/api';
+import { useAuthStore } from '@/features/auth/store';
 
 interface CommentSectionProps {
   projectId: number;

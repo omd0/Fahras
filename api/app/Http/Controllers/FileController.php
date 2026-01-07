@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\File;
-use App\Models\Project;
+use App\Domains\Projects\Models\Project;
 use App\Services\ProjectActivityService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;

@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\MilestoneTemplate;
 use App\Models\MilestoneTemplateItem;
-use App\Models\Project;
-use App\Models\ProjectMilestone;
+use App\Domains\Projects\Models\Project;
+use App\Domains\Projects\Models\ProjectMilestone;
 use App\Services\MilestoneTemplateService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;

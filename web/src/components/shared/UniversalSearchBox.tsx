@@ -23,7 +23,7 @@ import {
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
 } from '@mui/icons-material';
-import { apiService } from '../../services/api';
+import { apiService } from '@/lib/api';
 
 interface SearchFilters {
   search: string;

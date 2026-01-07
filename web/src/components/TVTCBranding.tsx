@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Typography, Chip, SxProps, Theme } from '@mui/material';
 import { TVTCLogo } from './TVTCLogo';
-import { getAppName, getProjectDescription, getTVTCDisplayName, getCopyrightText } from '../config/organization';
+import { getAppName, getProjectDescription, getTVTCDisplayName, getCopyrightText } from '@/config/organization';
 
 interface TVTCBrandingProps {
   variant?: 'header' | 'footer' | 'sidebar' | 'card';

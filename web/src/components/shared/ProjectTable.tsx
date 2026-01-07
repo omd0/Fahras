@@ -19,7 +19,7 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
 } from '@mui/icons-material';
-import { getStatusColor, getStatusLabel, formatDate } from '../../utils/projectHelpers';
+import { getStatusColor, getStatusLabel, formatDate } from '@/utils/projectHelpers';
 
 export interface Project {
   id: number;

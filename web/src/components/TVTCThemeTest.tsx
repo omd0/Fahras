@@ -9,7 +9,7 @@ import {
   Paper,
   Alert
 } from '@mui/material';
-import { tvtcColors } from '../theme/tvtcTheme';
+import { tvtcColors } from '@/styles/theme/tvtcTheme';
 
 // Test component to verify TVTC theme implementation
 export const TVTCThemeTest: React.FC = () => {

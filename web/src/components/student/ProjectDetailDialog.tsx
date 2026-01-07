@@ -13,7 +13,7 @@ import {
   CircularProgress,
   Stack,
 } from '@mui/material';
-import { Project } from '../../types';
+import { Project } from '@/types';
 
 interface ProjectDetailDialogProps {
   open: boolean;

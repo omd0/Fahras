@@ -26,7 +26,7 @@ import {
   Stack,
   Paper,
 } from '@mui/material';
-import { getStatusColor, getStatusLabel } from '../utils/projectHelpers';
+import { getStatusColor, getStatusLabel } from '@/utils/projectHelpers';
 import {
   ArrowBack as ArrowBackIcon,
   Approval as ApprovalIcon,
@@ -36,11 +36,11 @@ import {
   VisibilityOff as VisibilityOffIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore';
-import { apiService } from '../services/api';
-import { Project } from '../types';
-import { TVTCLogo } from '../components/TVTCLogo';
-import { getDashboardTheme } from '../config/dashboardThemes';
+import { useAuthStore } from '@/features/auth/store';
+import { apiService } from '@/lib/api';
+import { Project } from '@/types';
+import { TVTCLogo } from '@/components/TVTCLogo';
+import { getDashboardTheme } from '@/config/dashboardThemes';
 
 export const ApprovalsPage: React.FC = () => {
   const navigate = useNavigate();

@@ -3,7 +3,7 @@
  * Loads and provides access to organization-config.yml
  */
 
-import type { OrganizationConfig } from '../types/organization-config';
+import type { OrganizationConfig } from '@/types/organization-config';
 
 // Initialize with default config immediately for synchronous access
 // This ensures the app works even if YAML loading fails

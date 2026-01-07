@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Project;
-use App\Models\ProjectMilestone;
+use App\Domains\Projects\Models\Project;
+use App\Domains\Projects\Models\ProjectMilestone;
 use App\Services\ProjectActivityService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

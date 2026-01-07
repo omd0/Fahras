@@ -22,7 +22,7 @@ import {
   Edit as EditIcon,
   Add as AddIcon,
 } from '@mui/icons-material';
-import { Project } from '../../types';
+import { Project } from '@/types';
 
 interface TabPanelProps {
   children?: React.ReactNode;

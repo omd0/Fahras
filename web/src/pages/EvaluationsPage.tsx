@@ -32,7 +32,7 @@ import {
   Tab,
   Grid,
 } from '@mui/material';
-import { getStatusColor } from '../utils/projectHelpers';
+import { getStatusColor } from '@/utils/projectHelpers';
 import {
   Assignment as AssignmentIcon,
   AccountCircle,
@@ -44,10 +44,10 @@ import {
   Visibility as VisibilityIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore';
-import { apiService } from '../services/api';
-import { getDashboardTheme } from '../config/dashboardThemes';
-import { useLanguage } from '../contexts/LanguageContext';
+import { useAuthStore } from '@/features/auth/store';
+import { apiService } from '@/lib/api';
+import { getDashboardTheme } from '@/config/dashboardThemes';
+import { useLanguage } from '@/providers/LanguageContext';
 
 interface Evaluation {
   id: number;

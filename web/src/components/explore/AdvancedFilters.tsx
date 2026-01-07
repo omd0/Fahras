@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Box,
   Grid,
@@ -12,6 +12,7 @@ import {
   MenuItem,
   Stack,
   alpha,
+  Typography,
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -19,9 +20,11 @@ import {
   Clear as ClearIcon,
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
+  Add as AddIcon,
+  BookmarkBorder as BookmarkIcon,
 } from '@mui/icons-material';
-import { guestColors } from '../../theme/guestTheme';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { guestColors } from '@/styles/theme/guestTheme';
+import { useLanguage } from '@/providers/LanguageContext';
 
 const COLORS = guestColors;
 
@@ -45,6 +48,7 @@ interface AdvancedFiltersProps {
   onSearch: () => void;
   onClearSearch: () => void;
   onToggleFilters: () => void;
+  onOpenSavedSearches?: () => void;
 }
 
 const academicYearOptions = [
@@ -61,8 +65,10 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
   onSearch,
   onClearSearch,
   onToggleFilters,
+  onOpenSavedSearches,
 }) => {
   const { t, language } = useLanguage();
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
 
   const semesterOptions = useMemo(
     () => [
@@ -152,6 +158,29 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
               {t('Filters')}
               {showFilters ? <ExpandLessIcon /> : <ExpandMoreIcon />}
             </Button>
+            {onOpenSavedSearches && (
+              <Button
+                variant="outlined"
+                onClick={onOpenSavedSearches}
+                startIcon={<BookmarkIcon />}
+                sx={{
+                  borderColor: COLORS.almostBlack,
+                  color: COLORS.almostBlack,
+                  borderRadius: 4,
+                  px: 3,
+                  py: 1.5,
+                  fontWeight: 600,
+                  fontSize: '1rem',
+                  '&:hover': {
+                    borderColor: COLORS.almostBlack,
+                    backgroundColor: alpha(COLORS.almostBlack, 0.08),
+                    transform: 'translateY(-2px)',
+                  },
+                }}
+              >
+                {t('Saved')}
+              </Button>
+            )}
             <Button
               variant="contained"
               onClick={onSearch}
@@ -176,15 +205,19 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
         </Grid>
       </Grid>
 
-      {/* Advanced Filters */}
+      {/* Advanced Filters - Reorganized */}
       <Collapse in={showFilters}>
         <Box sx={{ 
           p: 4, 
           backgroundColor: alpha(COLORS.almostBlack, 0.06), 
           borderRadius: 4,
-          border: `1px solid \${alpha(COLORS.almostBlack, 0.15)}`,
+          border: `1px solid ${alpha(COLORS.almostBlack, 0.15)}`,
         }}>
-          <Grid container spacing={3}>
+          {/* Most-used filters (always visible) */}
+          <Typography variant="subtitle2" sx={{ mb: 2, color: COLORS.textSecondary, fontWeight: 600 }}>
+            {t('Primary Filters')}
+          </Typography>
+          <Grid container spacing={3} sx={{ mb: 3 }}>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <FormControl fullWidth>
                 <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>
@@ -278,36 +311,6 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <FormControl fullWidth>
                 <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>
-                  {t('Semester')}
-                </InputLabel>
-                <Select
-                  value={filters.semester}
-                  onChange={(e) => onFilterChange('semester', e.target.value)}
-                  label={t('Semester')}
-                  sx={{ 
-                    borderRadius: 3,
-                    backgroundColor: COLORS.white,
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: alpha(COLORS.almostBlack, 0.2),
-                    },
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: COLORS.almostBlack,
-                    },
-                  }}
-                >
-                  <MenuItem value="">{t('All Semesters')}</MenuItem>
-                  {semesterOptions.map((semester) => (
-                    <MenuItem key={semester.value} value={semester.value}>
-                      {semester.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <FormControl fullWidth>
-                <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>
                   {t('Sort By')}
                 </InputLabel>
                 <Select
@@ -333,33 +336,89 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
                 </Select>
               </FormControl>
             </Grid>
-
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <FormControl fullWidth>
-                <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>
-                  {t('Order')}
-                </InputLabel>
-                <Select
-                  value={filters.sort_order}
-                  onChange={(e) => onFilterChange('sort_order', e.target.value)}
-                  label={t('Order')}
-                  sx={{ 
-                    borderRadius: 3,
-                    backgroundColor: COLORS.white,
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: alpha(COLORS.almostBlack, 0.2),
-                    },
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: COLORS.almostBlack,
-                    },
-                  }}
-                >
-                  <MenuItem value="desc">{t('Newest First')}</MenuItem>
-                  <MenuItem value="asc">{t('Oldest First')}</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
           </Grid>
+
+          {/* "More Filters" button */}
+          <Button
+            variant="text"
+            size="small"
+            onClick={() => setShowMoreFilters(!showMoreFilters)}
+            startIcon={showMoreFilters ? <ExpandLessIcon /> : <AddIcon />}
+            sx={{
+              color: COLORS.almostBlack,
+              fontWeight: 600,
+              mb: showMoreFilters ? 2 : 0,
+              '&:hover': {
+                backgroundColor: alpha(COLORS.almostBlack, 0.05),
+              },
+            }}
+          >
+            {showMoreFilters ? t('Hide Advanced Filters') : t('More Filters')}
+          </Button>
+
+          {/* Rare filters (collapsed under "More") */}
+          <Collapse in={showMoreFilters}>
+            <Typography variant="subtitle2" sx={{ mb: 2, mt: 2, color: COLORS.textSecondary, fontWeight: 600 }}>
+              {t('Advanced Filters')}
+            </Typography>
+            <Grid container spacing={3}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                <FormControl fullWidth>
+                  <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>
+                    {t('Semester')}
+                  </InputLabel>
+                  <Select
+                    value={filters.semester}
+                    onChange={(e) => onFilterChange('semester', e.target.value)}
+                    label={t('Semester')}
+                    sx={{ 
+                      borderRadius: 3,
+                      backgroundColor: COLORS.white,
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: alpha(COLORS.almostBlack, 0.2),
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: COLORS.almostBlack,
+                      },
+                    }}
+                  >
+                    <MenuItem value="">{t('All Semesters')}</MenuItem>
+                    {semesterOptions.map((semester) => (
+                      <MenuItem key={semester.value} value={semester.value}>
+                        {semester.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                <FormControl fullWidth>
+                  <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>
+                    {t('Sort Order')}
+                  </InputLabel>
+                  <Select
+                    value={filters.sort_order}
+                    onChange={(e) => onFilterChange('sort_order', e.target.value)}
+                    label={t('Sort Order')}
+                    sx={{ 
+                      borderRadius: 3,
+                      backgroundColor: COLORS.white,
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: alpha(COLORS.almostBlack, 0.2),
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: COLORS.almostBlack,
+                      },
+                    }}
+                  >
+                    <MenuItem value="desc">{t('Newest First')}</MenuItem>
+                    <MenuItem value="asc">{t('Oldest First')}</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
+          </Collapse>
 
           <Stack direction="row" spacing={3} sx={{ mt: 4, justifyContent: 'flex-end' }}>
             <Button

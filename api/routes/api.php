@@ -1,14 +1,15 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ProjectController;
+use App\Domains\Projects\Controllers\ProjectController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\MilestoneTemplateController;
 use App\Http\Controllers\MilestoneController;
-use App\Http\Controllers\ProjectFollowController;
+use App\Domains\Projects\Controllers\ProjectFollowController;
+use App\Http\Controllers\SavedSearchController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -174,4 +175,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/projects/{project}/flags', [ProjectFollowController::class, 'createFlag']);
     Route::put('/flags/{flag}/resolve', [ProjectFollowController::class, 'resolveFlag']);
     Route::get('/projects/{project}/flags', [ProjectFollowController::class, 'getFlags']);
+
+    // Saved Search routes
+    Route::get('/saved-searches', [SavedSearchController::class, 'index']);
+    Route::post('/saved-searches', [SavedSearchController::class, 'store']);
+    Route::get('/saved-searches/{savedSearch}', [SavedSearchController::class, 'show']);
+    Route::put('/saved-searches/{savedSearch}', [SavedSearchController::class, 'update']);
+    Route::delete('/saved-searches/{savedSearch}', [SavedSearchController::class, 'destroy']);
+    Route::post('/saved-searches/{savedSearch}/use', [SavedSearchController::class, 'recordUsage']);
+    Route::post('/saved-searches/{savedSearch}/set-default', [SavedSearchController::class, 'setDefault']);
 });

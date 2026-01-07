@@ -55,12 +55,12 @@ import {
 } from '@mui/icons-material';
 // Chart components will be implemented with basic MUI components for now
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore';
-import { apiService } from '../services/api';
-import { TVTCLogo } from '../components/TVTCLogo';
-import { getDashboardTheme } from '../config/dashboardThemes';
-import { Project, Program } from '../types';
-import { useLanguage } from '../contexts/LanguageContext';
+import { useAuthStore } from '@/features/auth/store';
+import { apiService } from '@/lib/api';
+import { TVTCLogo } from '@/components/TVTCLogo';
+import { getDashboardTheme } from '@/config/dashboardThemes';
+import { Project, Program } from '@/types';
+import { useLanguage } from '@/providers/LanguageContext';
 
 interface AnalyticsData {
   status_distribution: Record<string, number>;

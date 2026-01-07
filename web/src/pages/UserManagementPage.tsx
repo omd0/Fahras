@@ -52,10 +52,10 @@ import {
   History as HistoryIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore';
-import { getDashboardTheme } from '../config/dashboardThemes';
-import { apiService } from '../services/api';
-import { useLanguage } from '../contexts/LanguageContext';
+import { useAuthStore } from '@/features/auth/store';
+import { getDashboardTheme } from '@/config/dashboardThemes';
+import { apiService } from '@/lib/api';
+import { useLanguage } from '@/providers/LanguageContext';
 
 interface User {
   id: number;

@@ -25,8 +25,8 @@ import {
   CheckCircle as CheckCircleIcon,
   Error as ErrorIcon,
 } from '@mui/icons-material';
-import { useAuthStore } from '../store/authStore';
-import { apiService } from '../services/api';
+import { useAuthStore } from '@/features/auth/store';
+import { apiService } from '@/lib/api';
 
 export const TestAuthPage: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuthStore();

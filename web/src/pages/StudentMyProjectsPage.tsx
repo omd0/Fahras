@@ -36,14 +36,14 @@ import {
   Add as AddIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore';
-import { useLanguage } from '../contexts/LanguageContext';
-import { Project, Program, Department } from '../types';
-import { apiService } from '../services/api';
-import { TVTCLogo } from '../components/TVTCLogo';
-import { getDashboardTheme } from '../config/dashboardThemes';
-import ProjectTable from '../components/shared/ProjectTable';
-import { getStatusColor, getStatusLabel } from '../utils/projectHelpers';
+import { useAuthStore } from '@/features/auth/store';
+import { useLanguage } from '@/providers/LanguageContext';
+import { Project, Program, Department } from '@/types';
+import { apiService } from '@/lib/api';
+import { TVTCLogo } from '@/components/TVTCLogo';
+import { getDashboardTheme } from '@/config/dashboardThemes';
+import ProjectTable from '@/components/shared/ProjectTable';
+import { getStatusColor, getStatusLabel } from '@/utils/projectHelpers';
 
 interface TabPanelProps {
   children?: React.ReactNode;

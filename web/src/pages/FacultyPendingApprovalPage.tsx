@@ -33,7 +33,7 @@ import {
   Tooltip,
   Stack,
 } from '@mui/material';
-import { getStatusColor, getStatusLabel } from '../utils/projectHelpers';
+import { getStatusColor, getStatusLabel } from '@/utils/projectHelpers';
 import {
   Search as SearchIcon,
   FilterList as FilterIcon,
@@ -43,12 +43,12 @@ import {
   Assignment as AssignmentIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore';
-import { Project, Program, Department } from '../types';
-import { apiService } from '../services/api';
-import { TVTCLogo } from '../components/TVTCLogo';
-import { getDashboardTheme } from '../config/dashboardThemes';
-import { useLanguage } from '../contexts/LanguageContext';
+import { useAuthStore } from '@/features/auth/store';
+import { Project, Program, Department } from '@/types';
+import { apiService } from '@/lib/api';
+import { TVTCLogo } from '@/components/TVTCLogo';
+import { getDashboardTheme } from '@/config/dashboardThemes';
+import { useLanguage } from '@/providers/LanguageContext';
 
 interface TabPanelProps {
   children?: React.ReactNode;

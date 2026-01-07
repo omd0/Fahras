@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Typography, IconButton, Tooltip } from '@mui/material';
-import { DashboardTheme } from '../../config/dashboardThemes';
+import { DashboardTheme } from '@/config/dashboardThemes';
 
 interface ActionIcon {
   icon: React.ReactNode;

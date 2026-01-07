@@ -19,15 +19,15 @@ import {
   Paper,
   Grid,
 } from '@mui/material';
-import { guestColors } from '../theme/guestTheme';
+import { guestColors } from '@/styles/theme/guestTheme';
 import {
   Star as StarIcon,
   StarBorder as StarBorderIcon,
   RateReview as RateReviewIcon,
 } from '@mui/icons-material';
-import { Rating } from '../types';
-import { apiService } from '../services/api';
-import { useAuthStore } from '../store/authStore';
+import { Rating } from '@/types';
+import { apiService } from '@/lib/api';
+import { useAuthStore } from '@/features/auth/store';
 
 interface RatingSectionProps {
   projectId: number;

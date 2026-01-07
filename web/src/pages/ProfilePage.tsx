@@ -30,9 +30,9 @@ import {
   Delete as DeleteIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { apiService } from '../services/api';
-import { User } from '../types';
-import { getDashboardTheme } from '../config/dashboardThemes';
+import { apiService } from '@/lib/api';
+import { User } from '@/types';
+import { getDashboardTheme } from '@/config/dashboardThemes';
 
 export const ProfilePage: React.FC = () => {
   const navigate = useNavigate();

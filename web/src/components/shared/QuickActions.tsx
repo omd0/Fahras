@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, Box, Typography, Button } from '@mui/material';
 import { SvgIconComponent } from '@mui/icons-material';
-import { DashboardTheme } from '../../config/dashboardThemes';
+import { DashboardTheme } from '@/config/dashboardThemes';
 
 export interface QuickAction {
   label: string;

@@ -1,0 +1,256 @@
+import React, { useState, useEffect } from 'react';
+import {
+  Box,
+  Tabs,
+  Tab,
+  IconButton,
+  Typography,
+  Card,
+  CardContent,
+  Chip,
+  Button,
+  Alert,
+  CircularProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from '@mui/material';
+import {
+  ArrowBack as ArrowBackIcon,
+  Timeline as TimelineIcon,
+  Add as AddIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+} from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import { DashboardContainer } from '@/components/shared/DashboardContainer';
+import { useTheme } from '@/providers/ThemeContext';
+import { apiService } from '@/lib/api';
+import { MilestoneTemplate, Program, Department } from '@/types';
+import { TemplateList } from '@/features/milestones/components/TemplateList';
+import { TemplateEditor } from '@/features/milestones/components/TemplateEditor';
+
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`template-config-tabpanel-${index}`}
+      aria-labelledby={`template-config-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ pt: 3 }}>{children}</Box>}
+    </div>
+  );
+}
+
+export const MilestoneTemplateConfigPage: React.FC = () => {
+  const [activeTab, setActiveTab] = useState(0);
+  const [templates, setTemplates] = useState<MilestoneTemplate[]>([]);
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<MilestoneTemplate | null>(null);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [filterProgram, setFilterProgram] = useState<number | ''>('');
+  const [filterDepartment, setFilterDepartment] = useState<number | ''>('');
+
+  const navigate = useNavigate();
+  const { theme } = useTheme();
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  useEffect(() => {
+    loadTemplates();
+  }, [filterProgram, filterDepartment]);
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const [programsRes, departmentsRes] = await Promise.all([
+        apiService.getPrograms(),
+        apiService.getDepartments(),
+      ]);
+      setPrograms(programsRes || []);
+      setDepartments(departmentsRes || []);
+    } catch (err: any) {
+      setError('Failed to load programs and departments');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadTemplates = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await apiService.getMilestoneTemplates({
+        program_id: filterProgram || undefined,
+        department_id: filterDepartment || undefined,
+      });
+      setTemplates(response.templates || []);
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to load templates');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
+  };
+
+  const handleCreateTemplate = () => {
+    setSelectedTemplate(null);
+    setEditorOpen(true);
+  };
+
+  const handleEditTemplate = (template: MilestoneTemplate) => {
+    setSelectedTemplate(template);
+    setEditorOpen(true);
+  };
+
+  const handleDeleteTemplate = async (templateId: number) => {
+    if (!window.confirm('Are you sure you want to delete this program? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      await apiService.deleteMilestoneTemplate(templateId);
+      await loadTemplates();
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to delete program');
+    }
+  };
+
+  const handleEditorClose = () => {
+    setEditorOpen(false);
+    setSelectedTemplate(null);
+  };
+
+  const handleEditorSave = async () => {
+    await loadTemplates();
+    setEditorOpen(false);
+    setSelectedTemplate(null);
+  };
+
+  return (
+    <DashboardContainer theme={theme}>
+      <Box sx={{ mb: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton
+              onClick={() => navigate('/dashboard')}
+              sx={{ mr: 2, color: theme.primary }}
+              aria-label="Back to dashboard"
+            >
+              <ArrowBackIcon />
+            </IconButton>
+            <TimelineIcon sx={{ color: theme.primary, mr: 1, fontSize: 32 }} />
+            <Box>
+              <Typography variant="h4" sx={{ fontWeight: 600, color: theme.primary }}>
+                Program Configuration
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                Create and manage program milestone structures
+              </Typography>
+            </Box>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Chip label="Admin Only" color="primary" size="small" sx={{ fontWeight: 600 }} />
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={handleCreateTemplate}
+                sx={{ ml: 1 }}
+              >
+                Create Program
+              </Button>
+          </Box>
+        </Box>
+      </Box>
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
+
+      {editorOpen && (
+        <TemplateEditor
+          open={editorOpen}
+          template={selectedTemplate}
+          programs={programs}
+          departments={departments}
+          onClose={handleEditorClose}
+          onSave={handleEditorSave}
+        />
+      )}
+
+      <Card sx={{ borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', backgroundColor: 'background.paper', p: 2 }}>
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+            <FormControl size="small" sx={{ minWidth: 200 }}>
+              <InputLabel>Filter by Program</InputLabel>
+              <Select
+                value={filterProgram}
+                onChange={(e) => setFilterProgram(e.target.value as number | '')}
+                label="Filter by Program"
+              >
+                <MenuItem value="">All Programs</MenuItem>
+                {programs.map((program) => (
+                  <MenuItem key={program.id} value={program.id}>
+                    {program.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl size="small" sx={{ minWidth: 200 }}>
+              <InputLabel>Filter by Department</InputLabel>
+              <Select
+                value={filterDepartment}
+                onChange={(e) => setFilterDepartment(e.target.value as number | '')}
+                label="Filter by Department"
+              >
+                <MenuItem value="">All Departments</MenuItem>
+                {departments.map((dept) => (
+                  <MenuItem key={dept.id} value={dept.id}>
+                    {dept.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        </Box>
+
+        <CardContent sx={{ p: 4 }}>
+          {loading && templates.length === 0 ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <TemplateList
+              templates={templates}
+              programs={programs}
+              departments={departments}
+              onEdit={handleEditTemplate}
+              onDelete={handleDeleteTemplate}
+            />
+          )}
+        </CardContent>
+      </Card>
+    </DashboardContainer>
+  );
+};
+

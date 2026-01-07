@@ -28,11 +28,11 @@ import {
   Public as PublicIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { getStatusColor } from '../utils/projectHelpers';
-import { Project } from '../types';
-import { apiService } from '../services/api';
-import { TVTCLogo } from '../components/TVTCLogo';
-import { TVTCBranding } from '../components/TVTCBranding';
+import { getStatusColor } from '@/utils/projectHelpers';
+import { Project } from '@/types';
+import { apiService } from '@/lib/api';
+import { TVTCLogo } from '@/components/TVTCLogo';
+import { TVTCBranding } from '@/components/TVTCBranding';
 
 export const PublicDashboardPage: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);

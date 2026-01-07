@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Container } from '@mui/material';
-import { DashboardTheme } from '../../config/dashboardThemes';
+import { DashboardTheme } from '@/config/dashboardThemes';
 
 interface DashboardContainerProps {
   theme: DashboardTheme;

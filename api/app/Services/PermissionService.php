@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Models\MilestoneTemplateItem;
-use App\Models\ProjectMilestone;
+use App\Domains\Projects\Models\ProjectMilestone;
 
 class PermissionService
 {

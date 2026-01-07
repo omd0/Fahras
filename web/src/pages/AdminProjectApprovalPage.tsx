@@ -32,7 +32,7 @@ import {
   IconButton,
   Tooltip,
 } from '@mui/material';
-import { getApprovalStatusColor, getApprovalStatusLabel } from '../utils/projectHelpers';
+import { getApprovalStatusColor, getApprovalStatusLabel } from '@/utils/projectHelpers';
 import {
   Search as SearchIcon,
   FilterList as FilterIcon,
@@ -45,11 +45,11 @@ import {
   Assignment as AssignmentIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { Project, Program, Department } from '../types';
-import { apiService } from '../services/api';
-import ProjectApprovalActions from '../components/ProjectApprovalActions';
-import ProjectVisibilityToggle from '../components/ProjectVisibilityToggle';
-import { useLanguage } from '../contexts/LanguageContext';
+import { Project, Program, Department } from '@/types';
+import { apiService } from '@/lib/api';
+import ProjectApprovalActions from '@/features/projects/components/ProjectApprovalActions';
+import ProjectVisibilityToggle from '@/features/projects/components/ProjectVisibilityToggle';
+import { useLanguage } from '@/providers/LanguageContext';
 
 interface TabPanelProps {
   children?: React.ReactNode;

@@ -17,10 +17,10 @@ import {
   Person as PersonIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { Project } from '../../types';
-import { DashboardTheme } from '../../config/dashboardThemes';
-import { useAuthStore } from '../../store/authStore';
-import { getProjectDetailUrl } from '../../utils/projectRoutes';
+import { Project } from '@/types';
+import { DashboardTheme } from '@/config/dashboardThemes';
+import { useAuthStore } from '@/features/auth/store';
+import { getProjectDetailUrl } from '@/utils/projectRoutes';
 
 interface ProjectCardProps {
   project: Project;

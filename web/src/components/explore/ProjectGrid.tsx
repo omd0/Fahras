@@ -27,11 +27,11 @@ import {
   Science as ScienceIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { Project } from '../../types';
-import { getProjectDetailUrl } from '../../utils/projectRoutes';
-import { guestColors, backgroundPatterns } from '../../theme/guestTheme';
-import { useLanguage } from '../../contexts/LanguageContext';
-import { BookmarkButton } from '../BookmarkButton';
+import { Project } from '@/types';
+import { getProjectDetailUrl } from '@/utils/projectRoutes';
+import { guestColors, backgroundPatterns } from '@/styles/theme/guestTheme';
+import { useLanguage } from '@/providers/LanguageContext';
+import { BookmarkButton } from '@/features/bookmarks/components/BookmarkButton';
 
 const COLORS = guestColors;
 

@@ -26,11 +26,11 @@ import {
   Explore as ExploreIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { TVTCLogo } from '../components/TVTCLogo';
-import { useAuthStore } from '../store/authStore';
-import { apiService } from '../services/api';
-import { Project } from '../types';
-import { useLanguage } from '../contexts/LanguageContext';
+import { TVTCLogo } from '@/components/TVTCLogo';
+import { useAuthStore } from '@/features/auth/store';
+import { apiService } from '@/lib/api';
+import { Project } from '@/types';
+import { useLanguage } from '@/providers/LanguageContext';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
