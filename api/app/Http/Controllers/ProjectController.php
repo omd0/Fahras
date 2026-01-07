@@ -12,6 +12,9 @@ use App\Services\ProjectActivityService;
 use App\Services\Project\ProjectService;
 use App\Services\Project\ProjectMemberService;
 use App\Services\Project\ProjectVisibilityService;
+use App\Http\Requests\Project\StoreProjectRequest;
+use App\Http\Requests\Project\UpdateProjectRequest;
+use App\Http\Requests\Project\SearchProjectRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
@@ -32,7 +35,7 @@ class ProjectController extends Controller
         $this->visibilityService = $visibilityService;
     }
 
-    public function index(Request $request)
+    public function index(SearchProjectRequest $request)
     {
         $query = Project::with([
             'program.department.faculty',
@@ -183,73 +186,8 @@ class ProjectController extends Controller
         return response()->json($response);
     }
 
-    public function store(Request $request)
+    public function store(StoreProjectRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'program_id' => 'required|exists:programs,id',
-            'title' => 'required|string|max:255',
-            'abstract' => 'required|string',
-            'keywords' => 'nullable|array',
-            'keywords.*' => 'string|max:50',
-            'academic_year' => 'required|string',
-            'semester' => 'required|in:fall,spring,summer',
-            'members' => 'required|array|min:1',
-            'members.*.user_id' => 'nullable|integer',
-            'members.*.customName' => 'nullable|string|max:255',
-            'members.*.role' => 'required|in:LEAD,MEMBER',
-            'advisors' => 'nullable|array',
-            'advisors.*.user_id' => 'nullable|integer',
-            'advisors.*.customName' => 'nullable|string|max:255',
-            'advisors.*.role' => 'required|in:MAIN,CO_ADVISOR,REVIEWER',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        // Validate that each member has either a valid user_id or a customName
-        foreach ($request->members as $index => $member) {
-            if (empty($member['customName']) && (empty($member['user_id']) || $member['user_id'] <= 0)) {
-                return response()->json([
-                    'message' => 'Validation failed',
-                    'errors' => ["members.{$index}" => ['Each member must have either a valid user_id or a custom name']]
-                ], 422);
-            }
-            // If user_id is provided and greater than 0, validate it exists
-            if (!empty($member['user_id']) && $member['user_id'] > 0) {
-                if (!User::find($member['user_id'])) {
-                    return response()->json([
-                        'message' => 'Validation failed',
-                        'errors' => ["members.{$index}.user_id" => ['The selected user does not exist']]
-                    ], 422);
-                }
-            }
-        }
-
-        // Validate advisors similarly
-        if ($request->has('advisors')) {
-            foreach ($request->advisors as $index => $advisor) {
-                if (empty($advisor['customName']) && (empty($advisor['user_id']) || $advisor['user_id'] <= 0)) {
-                    return response()->json([
-                        'message' => 'Validation failed',
-                        'errors' => ["advisors.{$index}" => ['Each advisor must have either a valid user_id or a custom name']]
-                    ], 422);
-                }
-                // If user_id is provided and greater than 0, validate it exists
-                if (!empty($advisor['user_id']) && $advisor['user_id'] > 0) {
-                    if (!User::find($advisor['user_id'])) {
-                        return response()->json([
-                            'message' => 'Validation failed',
-                            'errors' => ["advisors.{$index}.user_id" => ['The selected user does not exist']]
-                        ], 422);
-                    }
-                }
-            }
-        }
-
         // Separate members and advisors using service
         $membersSeparated = $this->memberService->separateMembers($request->members);
         $advisorsSeparated = $this->memberService->separateAdvisors($request->advisors ?? []);
@@ -340,43 +278,8 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function update(Request $request, Project $project)
+    public function update(UpdateProjectRequest $request, Project $project)
     {
-        // Check if user can update this project
-        if ($project->created_by_user_id !== $request->user()->id) {
-            return response()->json([
-                'message' => 'Unauthorized to update this project'
-            ], 403);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'program_id' => 'sometimes|required|exists:programs,id',
-            'title' => 'sometimes|required|string|max:255',
-            'abstract' => 'sometimes|required|string',
-            'keywords' => 'nullable|array',
-            'keywords.*' => 'string|max:50',
-            'academic_year' => 'sometimes|required|string',
-            'semester' => 'sometimes|required|in:fall,spring,summer',
-            'status' => 'sometimes|required|in:draft,submitted,under_review,approved,rejected,completed',
-            'is_public' => 'sometimes|boolean',
-            'doi' => 'nullable|string',
-            'repo_url' => 'nullable|url',
-            'members' => 'sometimes|array',
-            'members.*.user_id' => 'nullable|integer',
-            'members.*.customName' => 'nullable|string|max:255',
-            'members.*.role' => 'required_with:members|in:LEAD,MEMBER',
-            'advisors' => 'sometimes|array',
-            'advisors.*.user_id' => 'nullable|integer',
-            'advisors.*.customName' => 'nullable|string|max:255',
-            'advisors.*.role' => 'required_with:advisors|in:MAIN,CO_ADVISOR,REVIEWER',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
 
         // Update project using service
         $project = $this->projectService->updateProject(
@@ -480,7 +383,7 @@ class ProjectController extends Controller
     /**
      * Global search across projects with advanced filtering
      */
-    public function search(Request $request)
+    public function search(SearchProjectRequest $request)
     {
         $query = Project::with([
             'program.department.faculty',
