@@ -16,6 +16,7 @@ import { RoleCard } from './RoleCard';
 import { RoleDialog } from './RoleDialog';
 import { useTheme } from '../../contexts/ThemeContext';
 import { getErrorMessage } from '../../utils/errorHandling';
+import { ConfirmDialog } from '../shared';
 
 export const RolesTab: React.FC = () => {
   const [roles, setRoles] = useState<Role[]>([]);
@@ -24,6 +25,9 @@ export const RolesTab: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<Role | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [roleToDelete, setRoleToDelete] = useState<number | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const { theme } = useTheme();
 
   useEffect(() => {
@@ -59,15 +63,25 @@ export const RolesTab: React.FC = () => {
     fetchRoles(); // Refresh roles after create/edit
   };
 
-  const handleDeleteRole = async (roleId: number) => {
-    if (!window.confirm('Are you sure you want to delete this role?')) {
-      return;
-    }
+  const handleDeleteRole = (roleId: number) => {
+    setRoleToDelete(roleId);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (roleToDelete === null) return;
+    
     try {
-      await apiService.deleteRole(roleId);
+      setDeleteLoading(true);
+      await apiService.deleteRole(roleToDelete);
+      setDeleteConfirmOpen(false);
       fetchRoles();
     } catch (err: any) {
-      alert(getErrorMessage(err, 'Failed to delete role'));
+      setError(getErrorMessage(err, 'Failed to delete role'));
+      setDeleteConfirmOpen(false);
+    } finally {
+      setDeleteLoading(false);
+      setRoleToDelete(null);
     }
   };
 
@@ -182,6 +196,17 @@ export const RolesTab: React.FC = () => {
         open={dialogOpen}
         onClose={handleDialogClose}
         role={editingRole}
+      />
+
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        title="Delete Role"
+        message="Are you sure you want to delete this role? This action cannot be undone and may affect users assigned to this role."
+        confirmText="Delete Role"
+        onConfirm={handleConfirmDelete}
+        onClose={() => setDeleteConfirmOpen(false)}
+        severity="error"
+        loading={deleteLoading}
       />
     </Box>
   );
