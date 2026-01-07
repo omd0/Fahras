@@ -32,6 +32,7 @@ import {
   IconButton,
   Tooltip,
 } from '@mui/material';
+import { getApprovalStatusColor, getApprovalStatusLabel } from '../utils/projectHelpers';
 import {
   Search as SearchIcon,
   FilterList as FilterIcon,
@@ -190,15 +191,13 @@ const AdminProjectApprovalPage: React.FC = () => {
   };
 
   const getApprovalStatusChip = (status: string) => {
-    switch (status) {
-      case 'approved':
-        return <Chip label="Approved" color="success" size="small" />;
-      case 'hidden':
-        return <Chip label="Hidden" color="error" size="small" />;
-      case 'pending':
-      default:
-        return <Chip label="Pending" color="warning" size="small" />;
-    }
+    return (
+      <Chip
+        label={getApprovalStatusLabel(status)}
+        color={getApprovalStatusColor(status)}
+        size="small"
+      />
+    );
   };
 
   const currentProjects = tabValue === 0 ? pendingProjects : projects;

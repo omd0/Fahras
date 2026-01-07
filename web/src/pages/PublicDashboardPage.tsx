@@ -28,6 +28,7 @@ import {
   Public as PublicIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { getStatusColor } from '../utils/projectHelpers';
 import { Project } from '../types';
 import { apiService } from '../services/api';
 import { TVTCLogo } from '../components/TVTCLogo';
@@ -67,15 +68,6 @@ export const PublicDashboardPage: React.FC = () => {
       setProjects([]);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed': return 'success';
-      case 'approved': return 'success';
-      case 'under_review': return 'primary';
-      default: return 'default';
     }
   };
 

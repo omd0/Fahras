@@ -26,6 +26,7 @@ import {
   Stack,
   Paper,
 } from '@mui/material';
+import { getStatusColor, getStatusLabel } from '../utils/projectHelpers';
 import {
   ArrowBack as ArrowBackIcon,
   Approval as ApprovalIcon,
@@ -119,18 +120,6 @@ export const ApprovalsPage: React.FC = () => {
       setError(err.response?.data?.message || 'Failed to process approval');
     } finally {
       setProcessing(false);
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'draft': return 'warning';
-      case 'submitted': return 'info';
-      case 'under_review': return 'primary';
-      case 'approved': return 'success';
-      case 'rejected': return 'error';
-      case 'completed': return 'success';
-      default: return 'default';
     }
   };
 

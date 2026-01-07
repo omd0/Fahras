@@ -13,7 +13,8 @@ import {
   Fade,
   Grid,
 } from '@mui/material';
-import { guestColors, createDecorativeElements, backgroundPatterns } from '../theme/guestTheme';
+import { guestColors, guestTheme, createDecorativeElements, backgroundPatterns } from '../theme/guestTheme';
+import { getStatusColor, getStatusLabel } from '../utils/projectHelpers';
 import {
   Search as SearchIcon,
   Clear as ClearIcon,
@@ -191,7 +192,6 @@ export const ExplorePage: React.FC = () => {
   const handleInputChange = (field: keyof SearchFilters, value: string) => {
     setFilters(prev => ({ ...prev, [field]: value }));
   };
-
   if (loading) {
     return (
       <Box sx={{ 

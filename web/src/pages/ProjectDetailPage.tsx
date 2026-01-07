@@ -47,6 +47,7 @@ import { professorTheme, professorColors, professorDecorativeStyles } from '../t
 import { ThemeProvider } from '@mui/material/styles';
 import { useLanguage } from '../contexts/LanguageContext';
 import { BookmarkButton } from '../components/BookmarkButton';
+import { getStatusColor } from '../utils/projectHelpers';
 
 export const ProjectDetailPage: React.FC = () => {
   const [project, setProject] = useState<Project | null>(null);
@@ -184,32 +185,6 @@ export const ProjectDetailPage: React.FC = () => {
     await apiService.updateProject(project.id, { status: newStatus as any });
     // Refresh project data
     await fetchProject(project.id);
-  };
-
-
-
-  const getStatusColor = (status: string) => {
-    if (isProfessor) {
-      switch (status) {
-        case 'draft': return 'warning';
-        case 'submitted': return 'info';
-        case 'under_review': return 'primary';
-        case 'approved': return 'success';
-        case 'rejected': return 'error';
-        case 'completed': return 'success';
-        default: return 'default';
-      }
-    } else {
-      switch (status) {
-        case 'draft': return 'warning';
-        case 'submitted': return 'info';
-        case 'under_review': return 'primary';
-        case 'approved': return 'success';
-        case 'rejected': return 'error';
-        case 'completed': return 'success';
-        default: return 'default';
-      }
-    }
   };
 
   const getRoleColor = (role: string) => {
