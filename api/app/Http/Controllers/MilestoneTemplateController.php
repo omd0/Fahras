@@ -8,6 +8,7 @@ use App\Models\Project;
 use App\Models\ProjectMilestone;
 use App\Services\MilestoneTemplateService;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -17,14 +18,14 @@ class MilestoneTemplateController extends Controller
 {
     protected $templateService;
 
-    public function __construct(MilestoneTemplateService $templateService)
+    public function __construct(MilestoneTemplateService $templateService): JsonResponse
     {
         $this->templateService = $templateService;
     }
     /**
      * Display a listing of milestone templates
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         $query = MilestoneTemplate::with(['items' => function ($q) {
             $q->orderBy('order');
@@ -63,7 +64,7 @@ class MilestoneTemplateController extends Controller
     /**
      * Store a newly created milestone template
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
@@ -152,7 +153,7 @@ class MilestoneTemplateController extends Controller
     /**
      * Display the specified milestone template
      */
-    public function show(MilestoneTemplate $milestoneTemplate)
+    public function show(MilestoneTemplate $milestoneTemplate): JsonResponse
     {
         return response()->json([
             'template' => $milestoneTemplate->load(['items' => function ($query) {
@@ -164,7 +165,7 @@ class MilestoneTemplateController extends Controller
     /**
      * Update the specified milestone template
      */
-    public function update(Request $request, MilestoneTemplate $milestoneTemplate)
+    public function update(Request $request, MilestoneTemplate $milestoneTemplate): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|required|string|max:255',
@@ -245,7 +246,7 @@ class MilestoneTemplateController extends Controller
     /**
      * Remove the specified milestone template
      */
-    public function destroy(MilestoneTemplate $milestoneTemplate)
+    public function destroy(MilestoneTemplate $milestoneTemplate): JsonResponse
     {
         // Check if template is being used by any projects
         $projectsUsingTemplate = $milestoneTemplate->projects()->count();
@@ -266,7 +267,7 @@ class MilestoneTemplateController extends Controller
     /**
      * Get template items
      */
-    public function getItems(MilestoneTemplate $milestoneTemplate)
+    public function getItems(MilestoneTemplate $milestoneTemplate): JsonResponse
     {
         $items = $milestoneTemplate->items()->orderBy('order')->get();
 
@@ -278,7 +279,7 @@ class MilestoneTemplateController extends Controller
     /**
      * Add item to template
      */
-    public function addItem(Request $request, MilestoneTemplate $milestoneTemplate)
+    public function addItem(Request $request, MilestoneTemplate $milestoneTemplate): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
@@ -335,7 +336,7 @@ class MilestoneTemplateController extends Controller
     /**
      * Update template item
      */
-    public function updateItem(Request $request, MilestoneTemplateItem $milestoneTemplateItem)
+    public function updateItem(Request $request, MilestoneTemplateItem $milestoneTemplateItem): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'title' => 'sometimes|required|string|max:255',
@@ -385,7 +386,7 @@ class MilestoneTemplateController extends Controller
     /**
      * Delete template item
      */
-    public function deleteItem(MilestoneTemplateItem $milestoneTemplateItem)
+    public function deleteItem(MilestoneTemplateItem $milestoneTemplateItem): JsonResponse
     {
         $milestoneTemplateItem->delete();
 
@@ -397,7 +398,7 @@ class MilestoneTemplateController extends Controller
     /**
      * Reorder template items
      */
-    public function reorderItems(Request $request, MilestoneTemplate $milestoneTemplate)
+    public function reorderItems(Request $request, MilestoneTemplate $milestoneTemplate): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'item_orders' => 'required|array|min:1',
@@ -439,7 +440,7 @@ class MilestoneTemplateController extends Controller
     /**
      * Apply template to project
      */
-    public function applyToProject(Request $request, MilestoneTemplate $milestoneTemplate)
+    public function applyToProject(Request $request, MilestoneTemplate $milestoneTemplate): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'project_id' => 'required|exists:projects,id',
@@ -506,7 +507,7 @@ class MilestoneTemplateController extends Controller
 
             return response()->json([
                 'message' => 'Template applied to project successfully',
-                'milestones' => $project->milestones()->orderBy('order')->get()
+                'milestones' => $project->milestones()->with('templateItem')->orderBy('order')->get()
             ], 201);
 
         } catch (\Exception $e) {
@@ -522,7 +523,7 @@ class MilestoneTemplateController extends Controller
     /**
      * Helper: Unset other default templates in same scope
      */
-    private function unsetOtherDefaults($programId, $departmentId, $exceptId = null)
+    private function unsetOtherDefaults($programId, $departmentId, $exceptId = null): JsonResponse
     {
         $query = MilestoneTemplate::where('is_default', true);
 

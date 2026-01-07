@@ -24,10 +24,32 @@ class OptionalAuthSanctum
     {
         // Check if Authorization header is present
         if ($request->bearerToken() || $request->header('Authorization')) {
-            // Attempt to authenticate using Sanctum guard
-            if (Auth::guard('sanctum')->check()) {
-                // Set the authenticated user for the request
-                Auth::setUser(Auth::guard('sanctum')->user());
+            try {
+                // Use Sanctum's token resolution to authenticate the user
+                // This will find and validate the token if present
+                $token = $request->bearerToken();
+                
+                if ($token) {
+                    // Find the personal access token
+                    $accessToken = \Laravel\Sanctum\PersonalAccessToken::findToken($token);
+                    
+                    if ($accessToken) {
+                        // Get the user associated with the token
+                        $user = $accessToken->tokenable;
+                        
+                        if ($user) {
+                            // Set the authenticated user for the request
+                            // This ensures request()->user() works in controllers
+                            Auth::setUser($user);
+                            $request->setUserResolver(function () use ($user) {
+                                return $user;
+                            });
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                // If authentication fails, just continue without a user
+                // This allows the request to proceed as a guest
             }
         }
 

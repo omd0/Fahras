@@ -3,9 +3,9 @@ import {
   Container,
   Box,
   Grid,
-  Button,
   Alert,
   CircularProgress,
+  Button,
 } from '@mui/material';
 import {
   ArrowBack as ArrowBackIcon,
@@ -16,12 +16,13 @@ import { Project } from '../types';
 import { apiService } from '../services/api';
 import { CommentSection } from '../components/CommentSection';
 import { RatingSection } from '../components/RatingSection';
+import { StatusSelector } from '../components/StatusSelector';
 import { ProjectExportDialog } from '../components/ProjectExportDialog';
-import { professorTheme, professorColors } from '../theme/professorTheme';
+import { professorTheme } from '../theme/professorTheme';
 import { ThemeProvider } from '@mui/material/styles';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ProjectHeader } from '../components/project/ProjectHeader';
-import { ProjectMetadata } from '../components/project/ProjectMetadata';
+import { ProjectMainInfo } from '../components/project/ProjectMainInfo';
 import { ProjectFiles } from '../components/project/ProjectFiles';
 import { ProjectSidebar } from '../components/project/ProjectSidebar';
 
@@ -30,6 +31,7 @@ export const ProjectDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [filesLoading, setFilesLoading] = useState(false);
 
@@ -38,6 +40,7 @@ export const ProjectDetailPage: React.FC = () => {
   const location = useLocation();
   const { id } = useParams<{ id: string }>();
   const { t } = useLanguage();
+
   
   // Check if user is a professor
   const isProfessor = user?.roles?.some(role => role.name === 'faculty');
@@ -70,12 +73,29 @@ export const ProjectDetailPage: React.FC = () => {
   const loadProjectFiles = async (projectId: number) => {
     setFilesLoading(true);
     try {
+      console.log(`[DEBUG] Loading files for project ${projectId}`);
       const filesResponse = await apiService.getProjectFiles(projectId);
-
+      console.log(`[DEBUG] Files response:`, filesResponse);
+      console.log(`[DEBUG] Files array:`, filesResponse.files);
+      console.log(`[DEBUG] Number of files:`, filesResponse.files?.length || 0);
+      
       if (filesResponse.files && filesResponse.files.length > 0) {
         filesResponse.files.forEach((file: any, index: number) => {
-          // File loaded
+          console.log(`[DEBUG] File ${index + 1}:`, {
+            id: file.id,
+            original_filename: file.original_filename,
+            filename: file.filename,
+            storage_url: file.storage_url,
+            size_bytes: file.size_bytes,
+            mime_type: file.mime_type,
+            is_public: file.is_public,
+            storage_exists: file.storage_exists,
+            uploaded_at: file.uploaded_at,
+            uploader: file.uploader
+          });
         });
+      } else {
+        console.log(`[DEBUG] No files found for project ${projectId}`);
       }
       
       setProject(prev => prev ? { ...prev, files: filesResponse.files || [] } : prev);
@@ -91,9 +111,27 @@ export const ProjectDetailPage: React.FC = () => {
 
   const fetchProject = async (projectId: number) => {
     try {
+      console.log('Fetching project:', projectId);
       const response = await apiService.getProject(projectId);
+      console.log('Project response:', response);
       setProject(response.project);
       await loadProjectFiles(projectId);
+      
+      // Debug: Log files data to console for verification
+      if (response.project.files) {
+        console.log('Project files loaded:', response.project.files);
+        console.log('Number of files:', response.project.files.length);
+        response.project.files.forEach((file, index) => {
+          console.log(`File ${index + 1}:`, {
+            id: file.id,
+            original_filename: file.original_filename,
+            storage_url: file.storage_url,
+            size_bytes: file.size_bytes
+          });
+        });
+      } else {
+        console.log('No files found for project');
+      }
     } catch (error: any) {
       console.error('Error fetching project:', error);
       setError(error.response?.data?.message || 'Failed to fetch project');
@@ -126,82 +164,7 @@ export const ProjectDetailPage: React.FC = () => {
     await fetchProject(project.id);
   };
 
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case 'LEAD': return 'primary';
-      case 'MEMBER': return 'secondary';
-      case 'MAIN': return 'success';
-      case 'CO_ADVISOR': return 'info';
-      case 'REVIEWER': return 'warning';
-      default: return 'default';
-    }
-  };
 
-  if (loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error || !project) {
-    return (
-      <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
-        <Alert severity="error">
-          {error || t('Project not found')}
-        </Alert>
-        <Button
-          variant="outlined"
-          startIcon={<ArrowBackIcon />}
-          onClick={handleBackClick}
-          sx={{ mt: 2 }}
-        >
-          {t('Back to Dashboard')}
-        </Button>
-      </Container>
-    );
-  }
-
-  // Check if project is hidden and user is not admin or project owner
-  if (project.admin_approval_status === 'hidden' && 
-      !user?.roles?.some(role => role.name === 'admin') && 
-      project.created_by_user_id !== user?.id) {
-    return (
-      <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
-        <Alert severity="error">
-          {t('This project is not available for viewing.')}
-        </Alert>
-        <Button
-          variant="outlined"
-          startIcon={<ArrowBackIcon />}
-          onClick={handleBackClick}
-          sx={{ mt: 2 }}
-        >
-          Back to Dashboard
-        </Button>
-      </Container>
-    );
-  }
-
-  // Additional null check to prevent errors
-  if (!project) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  const canEdit = user?.id === project.created_by_user_id && !user?.roles?.some(role => role.name === 'reviewer');
-  const canDelete = user?.id === project.created_by_user_id && !user?.roles?.some(role => role.name === 'reviewer');
-
-  const professorCardStyle = isProfessor ? {
-    background: professorColors.backgroundGradient,
-    border: `1px solid ${professorColors.border}`,
-    borderRadius: '16px',
-    boxShadow: '0 4px 16px rgba(0, 74, 173, 0.15)',
-  } : {};
 
   const content = (
     <Box sx={{ flexGrow: 1 }}>
@@ -212,55 +175,65 @@ export const ProjectDetailPage: React.FC = () => {
         canEdit={canEdit}
         canDelete={canDelete}
         deleting={deleting}
-        onBackClick={handleBackClick}
+        onBack={handleBackClick}
+        onEdit={() => navigate(`/projects/${project.id}/edit`)}
         onDelete={handleDelete}
+        onViewRepository={() => navigate(`/projects/${project.id}/code`)}
+        onFollowTrack={() => navigate(`/projects/${project.id}/follow`)}
         onExport={() => setExportDialogOpen(true)}
-        onRefreshProject={() => fetchProject(project.id)}
+        onToggleVisibility={() => fetchProject(project.id)}
       />
 
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Grid container spacing={3}>
-          {/* Main Project Information */}
           <Grid size={{ xs: 12, md: 8 }}>
-            <ProjectMetadata
+            <ProjectMainInfo
               project={project}
               user={user}
               isProfessor={isProfessor}
               canEdit={canEdit}
-              onStatusChange={handleStatusChange}
+              onStatusClick={() => setStatusDialogOpen(true)}
             />
 
-            <ProjectFiles
-              project={project}
-              isProfessor={isProfessor}
-              filesLoading={filesLoading}
-            />
+            <Box sx={{ mt: 3 }}>
+              <ProjectFiles
+                files={project.files || []}
+                projectId={project.id}
+                loading={filesLoading}
+                isProfessor={isProfessor}
+                showRepositoryButton={!!user}
+                onNavigateToRepository={() => navigate(`/projects/${project.id}/code`)}
+              />
+            </Box>
           </Grid>
 
-          {/* Sidebar */}
           <Grid size={{ xs: 12, md: 4 }}>
             <ProjectSidebar
               project={project}
               isProfessor={isProfessor}
-              getRoleColor={getRoleColor}
-              professorCardStyle={professorCardStyle}
             />
           </Grid>
         </Grid>
 
-        {/* Project Interactions - Comments and Ratings */}
-        {/* Comments and Ratings Section */}
-        {project && (
-          <Grid container spacing={3}>
-            <Grid size={{ xs: 12 }}>
-              <RatingSection projectId={project.id} />
-            </Grid>
-            <Grid size={{ xs: 12 }}>
-              <CommentSection projectId={project.id} />
-            </Grid>
+        <Grid container spacing={3} sx={{ mt: 1 }}>
+          <Grid size={{ xs: 12 }}>
+            <RatingSection projectId={project.id} />
           </Grid>
-        )}
+          <Grid size={{ xs: 12 }}>
+            <CommentSection projectId={project.id} />
+          </Grid>
+        </Grid>
       </Container>
+
+      {/* Status Selector Dialog */}
+      {project && (
+        <StatusSelector
+          open={statusDialogOpen}
+          currentStatus={project.status}
+          onClose={() => setStatusDialogOpen(false)}
+          onSave={handleStatusChange}
+        />
+      )}
 
       {/* Export Dialog */}
       {project && (

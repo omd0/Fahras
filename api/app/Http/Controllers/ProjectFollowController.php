@@ -7,6 +7,7 @@ use App\Models\ProjectActivity;
 use App\Models\ProjectFollower;
 use App\Models\ProjectFlag;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 
 class ProjectFollowController extends Controller
@@ -14,7 +15,7 @@ class ProjectFollowController extends Controller
     /**
      * Get project activities (activity feed)
      */
-    public function getActivities(Request $request, Project $project)
+    public function getActivities(Request $request, Project $project): JsonResponse
     {
         $query = $project->activities()->with(['user']);
 
@@ -49,7 +50,7 @@ class ProjectFollowController extends Controller
     /**
      * Get timeline view (chronological events)
      */
-    public function getTimeline(Project $project)
+    public function getTimeline(Project $project): JsonResponse
     {
         // Get all activities grouped by date
         $activities = $project->activities()
@@ -62,6 +63,7 @@ class ProjectFollowController extends Controller
 
         // Get milestones
         $milestones = $project->milestones()
+            ->with('templateItem')
             ->orderBy('order')
             ->get();
 
@@ -82,7 +84,7 @@ class ProjectFollowController extends Controller
     /**
      * Follow a project
      */
-    public function followProject(Request $request, Project $project)
+    public function followProject(Request $request, Project $project): JsonResponse
     {
         $user = $request->user();
 
@@ -114,7 +116,7 @@ class ProjectFollowController extends Controller
     /**
      * Unfollow a project
      */
-    public function unfollowProject(Request $request, Project $project)
+    public function unfollowProject(Request $request, Project $project): JsonResponse
     {
         $user = $request->user();
 
@@ -138,7 +140,7 @@ class ProjectFollowController extends Controller
     /**
      * Get project followers
      */
-    public function getFollowers(Project $project)
+    public function getFollowers(Project $project): JsonResponse
     {
         $followers = $project->followers()
             ->with('user')
@@ -152,7 +154,7 @@ class ProjectFollowController extends Controller
     /**
      * Create a project flag (early warning)
      */
-    public function createFlag(Request $request, Project $project)
+    public function createFlag(Request $request, Project $project): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'flag_type' => 'required|in:scope_creep,technical_blocker,team_conflict,resource_shortage,timeline_risk,other',
@@ -190,7 +192,7 @@ class ProjectFollowController extends Controller
     /**
      * Resolve a flag
      */
-    public function resolveFlag(Request $request, ProjectFlag $flag)
+    public function resolveFlag(Request $request, ProjectFlag $flag): JsonResponse
     {
         if ($flag->isResolved()) {
             return response()->json([
@@ -232,7 +234,7 @@ class ProjectFollowController extends Controller
     /**
      * Get project flags
      */
-    public function getFlags(Request $request, Project $project)
+    public function getFlags(Request $request, Project $project): JsonResponse
     {
         $user = $request->user();
         $isAdmin = $user->roles()->where('name', 'admin')->exists();

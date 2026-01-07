@@ -4,29 +4,68 @@ import {
   Typography,
   Box,
   Card,
+  CardContent,
+  Grid,
+  TextField,
   Button,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
   Pagination,
   Alert,
   CircularProgress,
+  Tabs,
+  Tab,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   IconButton,
   Tooltip,
   Stack,
 } from '@mui/material';
-import { getStatusColor, getStatusLabel } from '../utils/projectHelpers';
 import {
+  Search as SearchIcon,
+  FilterList as FilterIcon,
+  Visibility as ViewIcon,
+  Refresh as RefreshIcon,
   Home as HomeIcon,
+  Assignment as AssignmentIcon,
+  Edit as EditIcon,
   Add as AddIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Project } from '../types';
+import { Project, Program, Department } from '../types';
 import { apiService } from '../services/api';
 import { TVTCLogo } from '../components/TVTCLogo';
 import { getDashboardTheme } from '../config/dashboardThemes';
-import { ProjectTabs } from '../components/student/ProjectTabs';
-import { ProjectFilters } from '../components/student/ProjectFilters';
-import { ProjectDetailDialog } from '../components/student/ProjectDetailDialog';
+import ProjectTable from '../components/shared/ProjectTable';
+import { getStatusColor, getStatusLabel } from '../utils/projectHelpers';
+
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+    </div>
+  );
+}
 
 const StudentMyProjectsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -34,7 +73,7 @@ const StudentMyProjectsPage: React.FC = () => {
   const { user } = useAuthStore();
   const { t } = useLanguage();
   const dashboardTheme = getDashboardTheme(user?.roles);
-
+  
   const [projects, setProjects] = useState<Project[]>([]);
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,6 +87,7 @@ const StudentMyProjectsPage: React.FC = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [detailError, setDetailError] = useState<string | null>(null);
 
   useEffect(() => {
     // Redirect non-student users
@@ -62,7 +102,7 @@ const StudentMyProjectsPage: React.FC = () => {
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const section = searchParams.get('section');
-
+    
     if (section) {
       switch (section) {
         case 'in-progress':
@@ -101,7 +141,7 @@ const StudentMyProjectsPage: React.FC = () => {
       setProjects([]);
       return;
     }
-
+    
     try {
       setLoading(true);
       const response = await apiService.getMyProjects({
@@ -112,12 +152,12 @@ const StudentMyProjectsPage: React.FC = () => {
       // Handle paginated response structure
       // Response should be: { data: Project[], current_page, last_page, total, per_page, ... }
       let projectsData: Project[] = [];
-
+      
       if (response && typeof response === 'object') {
         // Check if response has a 'data' property (paginated response)
         if ('data' in response && Array.isArray(response.data)) {
           projectsData = response.data;
-        }
+        } 
         // Check if response itself is an array (direct array response)
         else if (Array.isArray(response)) {
           projectsData = response;
@@ -127,15 +167,15 @@ const StudentMyProjectsPage: React.FC = () => {
           projectsData = response.projects;
         }
       }
-
+      
       // Filter out any null/undefined projects
       const validProjects = projectsData.filter(p => p != null && p !== undefined);
-
+      
       setProjects(validProjects);
       setError(null);
     } catch (err: any) {
       console.error('Failed to fetch data:', err);
-
+      
       // Check if it's an authentication error
       if (err.response?.status === 401) {
         setError('Authentication failed. Please log in again.');
@@ -183,15 +223,24 @@ const StudentMyProjectsPage: React.FC = () => {
   const handleViewProject = async (project: Project) => {
     setDetailDialogOpen(true);
     setDetailLoading(true);
+    setDetailError(null);
     try {
       const response = await apiService.getProject(project.id);
       setSelectedProject(response.project);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch project details:', error);
+      const errorMessage = error.response?.data?.message || 'Failed to load project details';
+      setDetailError(errorMessage);
+      // Still set the project so user can see basic info
       setSelectedProject(project);
     } finally {
       setDetailLoading(false);
     }
+  };
+
+  const handleViewFullDetails = (project: Project) => {
+    navigate(`/dashboard/projects/${project.id}`);
+    handleCloseDetailDialog();
   };
 
   const handleEditProject = (project: Project) => {
@@ -205,7 +254,9 @@ const StudentMyProjectsPage: React.FC = () => {
   const handleCloseDetailDialog = () => {
     setDetailDialogOpen(false);
     setSelectedProject(null);
+    setDetailError(null);
   };
+
 
   const handleRefresh = () => {
     fetchData();
@@ -360,7 +411,7 @@ const StudentMyProjectsPage: React.FC = () => {
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={handleCreateProject}
-                sx={{
+                sx={{ 
                   backgroundColor: 'rgba(255,255,255,0.2)',
                   backdropFilter: 'blur(10px)',
                   border: '1px solid rgba(255,255,255,0.3)',
@@ -371,7 +422,7 @@ const StudentMyProjectsPage: React.FC = () => {
                   fontWeight: 600,
                   borderRadius: 3,
                   textTransform: 'none',
-                  '&:hover': {
+                  '&:hover': { 
                     backgroundColor: 'rgba(255,255,255,0.3)',
                     transform: 'translateY(-2px)',
                     boxShadow: '0 8px 25px rgba(0,0,0,0.2)',
@@ -382,9 +433,9 @@ const StudentMyProjectsPage: React.FC = () => {
                 {t('Create New Project')}
               </Button>
               <Tooltip title="Go to Dashboard">
-                <IconButton
-                  onClick={handleGoHome}
-                  sx={{
+                <IconButton 
+                  onClick={handleGoHome} 
+                  sx={{ 
                     color: 'white',
                     backgroundColor: 'rgba(255,255,255,0.1)',
                     backdropFilter: 'blur(10px)',
@@ -411,63 +462,364 @@ const StudentMyProjectsPage: React.FC = () => {
           </Alert>
         )}
 
-        <ProjectFilters
-          searchTerm={searchTerm}
-          statusFilter={statusFilter}
-          academicYearFilter={academicYearFilter}
-          academicYears={academicYears}
-          onSearchChange={setSearchTerm}
-          onStatusChange={setStatusFilter}
-          onAcademicYearChange={setAcademicYearFilter}
-          dashboardTheme={dashboardTheme}
-        />
+        {/* Enhanced Filters */}
+        <Card sx={{ 
+          mb: 4, 
+          borderRadius: 3, 
+          boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+          background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+          border: `1px solid ${dashboardTheme.primary}20`,
+        }}>
+          <CardContent sx={{ p: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+              <FilterIcon sx={{ color: dashboardTheme.primary, mr: 1 }} />
+              <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                Filter & Search Projects
+              </Typography>
+            </Box>
+            <Grid container spacing={3} alignItems="center">
+              <Grid size={{ xs: 12, md: 4 }}>
+                <TextField
+                  fullWidth
+                  placeholder="Search by title or description..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  InputProps={{
+                    startAdornment: <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />,
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 2,
+                      '&:hover fieldset': {
+                        borderColor: dashboardTheme.primary,
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: dashboardTheme.primary,
+                      },
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid size={{ xs: 12, md: 4 }}>
+                <FormControl fullWidth>
+                  <InputLabel>Status</InputLabel>
+                  <Select
+                    value={statusFilter}
+                    label="Status"
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    sx={{
+                      borderRadius: 2,
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: dashboardTheme.primary,
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: dashboardTheme.primary,
+                      },
+                    }}
+                  >
+                    <MenuItem value="all">All Statuses</MenuItem>
+                    <MenuItem value="draft">Draft</MenuItem>
+                    <MenuItem value="submitted">Submitted</MenuItem>
+                    <MenuItem value="under_review">Under Review</MenuItem>
+                    <MenuItem value="approved">Approved</MenuItem>
+                    <MenuItem value="rejected">Rejected</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid size={{ xs: 12, md: 4 }}>
+                <FormControl fullWidth>
+                  <InputLabel>Academic Year</InputLabel>
+                  <Select
+                    value={academicYearFilter}
+                    label="Academic Year"
+                    onChange={(e) => setAcademicYearFilter(e.target.value)}
+                    sx={{
+                      borderRadius: 2,
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: dashboardTheme.primary,
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: dashboardTheme.primary,
+                      },
+                    }}
+                  >
+                    <MenuItem value="all">All Years</MenuItem>
+                    {academicYears.map((year) => (
+                      <MenuItem key={year} value={year}>
+                        {year}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
 
-        <Card sx={{
-          borderRadius: 3,
+        {/* Enhanced Tabs */}
+        <Card sx={{ 
+          borderRadius: 3, 
           boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
           background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
           border: `1px solid ${dashboardTheme.primary}20`,
           overflow: 'hidden',
         }}>
-          <ProjectTabs
-            tabValue={tabValue}
-            onTabChange={handleTabChange}
-            tabFilteredProjects={tabFilteredProjects}
-            currentProjects={currentProjects}
-            indexOfFirstProject={indexOfFirstProject}
-            indexOfLastProject={indexOfLastProject}
-            onViewProject={handleViewProject}
-            onEditProject={handleEditProject}
-            onCreateProject={handleCreateProject}
-            getStatusColor={getStatusColor}
-            getStatusLabel={getStatusLabel}
-            getTabFilteredProjects={getTabFilteredProjects}
-            dashboardTheme={dashboardTheme}
-            t={t}
-          />
-        </Card>
-
-        {totalPages > 1 && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-            <Pagination
-              count={totalPages}
-              page={currentPage}
-              onChange={handlePageChange}
-              color="primary"
-            />
+          <Box sx={{ 
+            borderBottom: 1, 
+            borderColor: 'divider',
+            background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
+          }}>
+            <Tabs 
+              value={tabValue} 
+              onChange={handleTabChange}
+              sx={{
+                '& .MuiTab-root': {
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  fontSize: '0.95rem',
+                  minHeight: 60,
+                  '&.Mui-selected': {
+                    color: dashboardTheme.primary,
+                    backgroundColor: 'rgba(255,255,255,0.8)',
+                  },
+                  '&:hover': {
+                    backgroundColor: 'rgba(0,0,0,0.04)',
+                  },
+                },
+                '& .MuiTabs-indicator': {
+                  backgroundColor: dashboardTheme.primary,
+                  height: 3,
+                  borderRadius: '3px 3px 0 0',
+                },
+              }}
+            >
+              <Tab label={`All Projects (${getTabFilteredProjects(0).length})`} />
+              <Tab label={`Drafts (${getTabFilteredProjects(1).length})`} />
+              <Tab label={`In Progress (${getTabFilteredProjects(2).length})`} />
+              <Tab label={`Pending Approval (${getTabFilteredProjects(3).length})`} />
+              <Tab label={`Completed (${getTabFilteredProjects(4).length})`} />
+              <Tab label={`Approved (${getTabFilteredProjects(5).length})`} />
+            </Tabs>
           </Box>
-        )}
+
+          <TabPanel value={tabValue} index={0}>
+            <ProjectTable
+              projects={currentProjects}
+              loading={false}
+              onView={handleViewProject}
+              onEdit={handleEditProject}
+              showStatus={true}
+              showProgram={false}
+              emptyMessage={searchTerm || statusFilter !== 'all' || academicYearFilter !== 'all'
+                ? 'No projects found. Try adjusting your filters.'
+                : 'You haven\'t created any projects yet.'}
+            />
+            {totalPages > 1 && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+                <Pagination
+                  count={totalPages}
+                  page={currentPage}
+                  onChange={handlePageChange}
+                  color="primary"
+                />
+              </Box>
+            )}
+          </TabPanel>
+
+          {/* Drafts Tab */}
+          <TabPanel value={tabValue} index={1}>
+            <ProjectTable
+              projects={getTabFilteredProjects(1).slice(indexOfFirstProject, indexOfLastProject)}
+              loading={false}
+              onView={handleViewProject}
+              onEdit={handleEditProject}
+              showStatus={false}
+              showProgram={false}
+              emptyMessage="No draft projects found."
+            />
+          </TabPanel>
+
+          {/* In Progress Tab */}
+          <TabPanel value={tabValue} index={2}>
+            <ProjectTable
+              projects={getTabFilteredProjects(2).slice(indexOfFirstProject, indexOfLastProject)}
+              loading={false}
+              onView={handleViewProject}
+              showStatus={true}
+              showProgram={false}
+              emptyMessage="No projects in progress. Projects that are submitted or under review will appear here."
+            />
+          </TabPanel>
+
+
+          {/* Approved Tab */}
+          <TabPanel value={tabValue} index={5}>
+            <ProjectTable
+              projects={getTabFilteredProjects(5).slice(indexOfFirstProject, indexOfLastProject)}
+              loading={false}
+              onView={handleViewProject}
+              showStatus={false}
+              showProgram={false}
+              emptyMessage="No approved projects found."
+            />
+          </TabPanel>
+
+          {/* Pending Approval Tab */}
+          <TabPanel value={tabValue} index={3}>
+            <ProjectTable
+              projects={getTabFilteredProjects(3).slice(indexOfFirstProject, indexOfLastProject)}
+              loading={false}
+              onView={handleViewProject}
+              showStatus={false}
+              showProgram={false}
+              showApprovalStatus={true}
+              emptyMessage="No projects pending approval."
+            />
+          </TabPanel>
+
+          {/* Completed Tab */}
+          <TabPanel value={tabValue} index={4}>
+            <ProjectTable
+              projects={getTabFilteredProjects(4).slice(indexOfFirstProject, indexOfLastProject)}
+              loading={false}
+              onView={handleViewProject}
+              showStatus={false}
+              showProgram={false}
+              emptyMessage="No completed projects found."
+            />
+          </TabPanel>
+        </Card>
       </Container>
 
-      <ProjectDetailDialog
+      {/* Project Detail Dialog */}
+      <Dialog
         open={detailDialogOpen}
-        loading={detailLoading}
-        project={selectedProject}
         onClose={handleCloseDetailDialog}
-        getStatusColor={getStatusColor}
-        getStatusLabel={getStatusLabel}
-        t={t}
-      />
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          Project Details
+          <IconButton
+            onClick={handleCloseDetailDialog}
+            sx={{ position: 'absolute', right: 8, top: 8 }}
+          >
+            ×
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          {detailLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : selectedProject ? (
+            <Box sx={{ pt: 2 }}>
+              {detailError && (
+                <Alert severity="warning" sx={{ mb: 2 }}>
+                  {detailError}
+                </Alert>
+              )}
+              <Grid container spacing={2}>
+                <Grid size={{ xs: 12 }}>
+                  <Typography variant="h6" gutterBottom>
+                    {selectedProject?.title || 'Untitled Project'}
+                  </Typography>
+                  <Typography variant="body1" paragraph>
+                    {selectedProject?.abstract || 'No description available'}
+                  </Typography>
+                </Grid>
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Status
+                  </Typography>
+                  <Chip
+                    label={getStatusLabel(selectedProject?.status || 'draft')}
+                    color={getStatusColor(selectedProject?.status || 'draft') as any}
+                    size="small"
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Academic Year
+                  </Typography>
+                  <Typography variant="body1">
+                    {selectedProject?.academic_year || 'N/A'}
+                  </Typography>
+                </Grid>
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Semester
+                  </Typography>
+                  <Typography variant="body1">
+                    {selectedProject?.semester || 'N/A'}
+                  </Typography>
+                </Grid>
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Program
+                  </Typography>
+                  <Typography variant="body1">
+                    {selectedProject?.program?.name || 'N/A'}
+                  </Typography>
+                </Grid>
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Department
+                  </Typography>
+                  <Typography variant="body1">
+                    {selectedProject?.department?.name || 'N/A'}
+                  </Typography>
+                </Grid>
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Created Date
+                  </Typography>
+                  <Typography variant="body1">
+                    {selectedProject?.created_at ? new Date(selectedProject.created_at).toLocaleDateString() : 'N/A'}
+                  </Typography>
+                </Grid>
+                {selectedProject?.files && selectedProject.files.length > 0 && (
+                  <Grid size={{ xs: 12 }}>
+                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                      Files
+                    </Typography>
+                    <Stack spacing={1}>
+                      {selectedProject.files.map((file, index) => (
+                        <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Typography variant="body2">
+                            {file?.original_filename || 'Unknown file'}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            ({file?.size_bytes || 0} bytes)
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Stack>
+                  </Grid>
+                )}
+              </Grid>
+            </Box>
+          ) : (
+            <Typography variant="body1" color="text.secondary">
+              {t('No project selected')}
+            </Typography>
+          )}
+        </DialogContent>
+        <DialogActions>
+          {selectedProject && (
+            <Button 
+              onClick={() => handleViewFullDetails(selectedProject)}
+              variant="outlined"
+              color="primary"
+            >
+              {t('View Full Details')}
+            </Button>
+          )}
+          <Button onClick={handleCloseDetailDialog}>
+            {t('Close')}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

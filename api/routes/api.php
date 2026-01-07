@@ -45,7 +45,8 @@ Route::get('/projects/analytics', [ProjectController::class, 'analytics'])->midd
 Route::get('/projects/search/global', [ProjectController::class, 'search'])->middleware('auth:sanctum');
 Route::get('/projects/suggestions', [ProjectController::class, 'suggestions'])->middleware('auth:sanctum');
 
-Route::get('/projects/{project}', [ProjectController::class, 'show']);
+// Public project view route (accessible to guests, but will authenticate if token is provided)
+Route::get('/projects/{project}', [ProjectController::class, 'show'])->middleware('auth.optional');
 
 // Public project interaction routes (comments and ratings) - read-only for guests
 Route::get('/projects/{project}/comments', [ProjectController::class, 'getComments']);

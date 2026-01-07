@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
+    public function register(Request $request): JsonResponse
     {
         // Define allowed email domains
         $allowedDomains = ['cti.edu.sa', 'tvtc.edu.sa'];
@@ -97,7 +98,7 @@ class AuthController extends Controller
         }
     }
 
-    public function login(Request $request)
+    public function login(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|string|email',
@@ -136,7 +137,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function logout(Request $request)
+    public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();
 
@@ -145,7 +146,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function user(Request $request)
+    public function user(Request $request): JsonResponse
     {
         $user = $request->user();
         $userData = $user->load('roles')->toArray();
@@ -155,7 +156,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function refresh(Request $request)
+    public function refresh(Request $request): JsonResponse
     {
         $user = $request->user();
         $user->tokens()->delete();
@@ -168,7 +169,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function updateProfile(Request $request)
+    public function updateProfile(Request $request): JsonResponse
     {
         $user = $request->user();
         
@@ -214,7 +215,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function uploadAvatar(Request $request)
+    public function uploadAvatar(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -245,7 +246,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function deleteAvatar(Request $request)
+    public function deleteAvatar(Request $request): JsonResponse
     {
         $user = $request->user();
         

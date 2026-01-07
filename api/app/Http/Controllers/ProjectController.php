@@ -9,48 +9,47 @@ use App\Models\Comment;
 use App\Models\Rating;
 use App\Models\Bookmark;
 use App\Services\ProjectActivityService;
-use App\Services\Project\ProjectService;
-use App\Services\Project\ProjectMemberService;
-use App\Services\Project\ProjectVisibilityService;
-use App\Http\Requests\Project\StoreProjectRequest;
-use App\Http\Requests\Project\UpdateProjectRequest;
-use App\Http\Requests\Project\SearchProjectRequest;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 
 class ProjectController extends Controller
 {
-    protected $projectService;
-    protected $memberService;
-    protected $visibilityService;
-
-    public function __construct(
-        ProjectService $projectService,
-        ProjectMemberService $memberService,
-        ProjectVisibilityService $visibilityService
-    ) {
-        $this->projectService = $projectService;
-        $this->memberService = $memberService;
-        $this->visibilityService = $visibilityService;
-    }
-
-    public function index(SearchProjectRequest $request)
+    public function index(Request $request): JsonResponse
     {
         $query = Project::with([
-            'program.department.faculty',
-            'creator.roles',
-            'members.roles',
-            'advisors.roles',
+            'program.department',
+            'creator',
+            'members',
+            'advisors',
             'files' => function ($fileQuery) {
                 $fileQuery->orderBy('uploaded_at', 'desc');
             },
         ]);
-
+        
+        // User authentication is now handled by OptionalAuthSanctum middleware
+        // If a valid token is present, user will be authenticated; otherwise null (guest)
         $user = $request->user();
-        $isMyProjects = $request->has('my_projects') && $request->boolean('my_projects');
 
-        // Apply visibility filters using service
-        $this->visibilityService->applyVisibilityFilters($query, $user, $isMyProjects);
+        // If requesting my_projects, skip visibility rules and show all user's projects
+        $isMyProjects = $request->has('my_projects') && $request->boolean('my_projects');
+        
+        if (!$isMyProjects) {
+            // Apply visibility rules based on user role
+            if (!$user) {
+                // Unauthenticated users: only see approved projects
+                $query->where('admin_approval_status', 'approved');
+            } elseif ($user->hasRole('admin') || $user->hasRole('reviewer')) {
+                // Admin and Reviewer: can see all projects (including hidden ones)
+                // No additional filtering needed
+            } else {
+                // Regular users: can see approved projects and their own projects (including hidden ones)
+                $query->where(function ($q) use ($user) {
+                    $q->where('admin_approval_status', 'approved')
+                      ->orWhere('created_by_user_id', $user->id);
+                });
+            }
+        }
 
         // Advanced filtering
         if ($request->has('status')) {
@@ -88,7 +87,9 @@ class ProjectController extends Controller
         }
 
         // Filter for user's own projects
-        if ($isMyProjects) {
+        if ($request->has('my_projects') && $request->boolean('my_projects')) {
+            $user = $request->user();
+            
             if (!$user) {
                 // Return empty result if user is not authenticated when requesting my_projects
                 return response()->json([
@@ -107,8 +108,14 @@ class ProjectController extends Controller
                     ],
                 ]);
             }
-
-            $this->visibilityService->applyMyProjectsFilter($query, $user);
+            
+            // Include projects where user is creator OR member
+            $query->where(function ($q) use ($user) {
+                $q->where('created_by_user_id', $user->id)
+                  ->orWhereHas('members', function ($memberQuery) use ($user) {
+                      $memberQuery->where('user_id', $user->id);
+                  });
+            });
         }
 
         if ($request->has('member_id')) {
@@ -185,33 +192,169 @@ class ProjectController extends Controller
         return response()->json($response);
     }
 
-    public function store(StoreProjectRequest $request)
+    public function store(Request $request): JsonResponse
     {
-        // Separate members and advisors using service
-        $membersSeparated = $this->memberService->separateMembers($request->members);
-        $advisorsSeparated = $this->memberService->separateAdvisors($request->advisors ?? []);
+        $validator = Validator::make($request->all(), [
+            'program_id' => 'required|exists:programs,id',
+            'title' => 'required|string|max:255',
+            'abstract' => 'required|string',
+            'keywords' => 'nullable|array',
+            'keywords.*' => 'string|max:50',
+            'academic_year' => 'required|string',
+            'semester' => 'required|in:fall,spring,summer',
+            'members' => 'required|array|min:1',
+            'members.*.user_id' => 'nullable|integer',
+            'members.*.customName' => 'nullable|string|max:255',
+            'members.*.role' => 'required|in:LEAD,MEMBER',
+            'advisors' => 'nullable|array',
+            'advisors.*.user_id' => 'nullable|integer',
+            'advisors.*.customName' => 'nullable|string|max:255',
+            'advisors.*.role' => 'required|in:MAIN,CO_ADVISOR,REVIEWER',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // Validate that each member has either a valid user_id or a customName
+        foreach ($request->members as $index => $member) {
+            if (empty($member['customName']) && (empty($member['user_id']) || $member['user_id'] <= 0)) {
+                return response()->json([
+                    'message' => 'Validation failed',
+                    'errors' => ["members.{$index}" => ['Each member must have either a valid user_id or a custom name']]
+                ], 422);
+            }
+            // If user_id is provided and greater than 0, validate it exists
+            if (!empty($member['user_id']) && $member['user_id'] > 0) {
+                if (!User::find($member['user_id'])) {
+                    return response()->json([
+                        'message' => 'Validation failed',
+                        'errors' => ["members.{$index}.user_id" => ['The selected user does not exist']]
+                    ], 422);
+                }
+            }
+        }
+
+        // Validate advisors similarly
+        if ($request->has('advisors')) {
+            foreach ($request->advisors as $index => $advisor) {
+                if (empty($advisor['customName']) && (empty($advisor['user_id']) || $advisor['user_id'] <= 0)) {
+                    return response()->json([
+                        'message' => 'Validation failed',
+                        'errors' => ["advisors.{$index}" => ['Each advisor must have either a valid user_id or a custom name']]
+                    ], 422);
+                }
+                // If user_id is provided and greater than 0, validate it exists
+                if (!empty($advisor['user_id']) && $advisor['user_id'] > 0) {
+                    if (!User::find($advisor['user_id'])) {
+                        return response()->json([
+                            'message' => 'Validation failed',
+                            'errors' => ["advisors.{$index}.user_id" => ['The selected user does not exist']]
+                        ], 422);
+                    }
+                }
+            }
+        }
+
+        // Separate regular members and custom members
+        $customMembers = [];
+        $regularMembers = [];
+        foreach ($request->members as $member) {
+            if (!empty($member['customName'])) {
+                $customMembers[] = [
+                    'name' => $member['customName'],
+                    'role' => $member['role']
+                ];
+            } elseif (!empty($member['user_id']) && $member['user_id'] > 0) {
+                $regularMembers[] = $member;
+            }
+        }
+
+        // Separate regular advisors and custom advisors
+        $customAdvisors = [];
+        $regularAdvisors = [];
+        if ($request->has('advisors')) {
+            foreach ($request->advisors as $advisor) {
+                if (!empty($advisor['customName'])) {
+                    $customAdvisors[] = [
+                        'name' => $advisor['customName'],
+                        'role' => $advisor['role']
+                    ];
+                } elseif (!empty($advisor['user_id']) && $advisor['user_id'] > 0) {
+                    $regularAdvisors[] = $advisor;
+                }
+            }
+        }
 
         $creator = $request->user();
 
         try {
-            $project = $this->projectService->createProject([
+            DB::beginTransaction();
+            
+            $project = Project::create([
                 'program_id' => $request->program_id,
+                'created_by_user_id' => $creator->id,
                 'title' => $request->title,
                 'abstract' => $request->abstract,
                 'keywords' => $request->keywords ?? [],
                 'academic_year' => $request->academic_year,
                 'semester' => $request->semester,
-                'custom_members' => !empty($membersSeparated['custom_members']) ? $membersSeparated['custom_members'] : null,
-                'custom_advisors' => !empty($advisorsSeparated['custom_advisors']) ? $advisorsSeparated['custom_advisors'] : null,
-                'regular_members' => $membersSeparated['regular_members'],
-                'regular_advisors' => $advisorsSeparated['regular_advisors'],
-            ], $creator);
+                'status' => 'draft',
+                'custom_members' => !empty($customMembers) ? $customMembers : null,
+                'custom_advisors' => !empty($customAdvisors) ? $customAdvisors : null,
+            ]);
+
+            // Add regular members (with user_id)
+            foreach ($regularMembers as $member) {
+                $project->members()->attach($member['user_id'], [
+                    'role_in_project' => $member['role']
+                ]);
+            }
+
+            // Add regular advisors (with user_id)
+            foreach ($regularAdvisors as $advisor) {
+                $project->advisors()->attach($advisor['user_id'], [
+                    'advisor_role' => $advisor['role']
+                ]);
+            }
+
+            if ($creator->hasRole('faculty')) {
+                $isCreatorAlreadyAdvisor = $project
+                    ->advisors()
+                    ->wherePivot('user_id', $creator->id)
+                    ->exists();
+
+                if (!$isCreatorAlreadyAdvisor) {
+                    $advisorFound = collect($regularAdvisors)->firstWhere('user_id', $creator->id);
+                    $advisorRole = $advisorFound ? ($advisorFound['role'] ?? 'MAIN') : 'MAIN';
+
+                    $project->advisors()->attach($creator->id, [
+                        'advisor_role' => $advisorRole,
+                    ]);
+                }
+            }
+
+            // Log project creation activity
+            ProjectActivityService::logProjectCreated($project, $creator);
+
+            DB::commit();
 
             return response()->json([
                 'message' => 'Project created successfully',
                 'project' => $project->load(['program', 'members', 'advisors'])
             ], 201);
         } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Project creation failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'user_id' => $creator->id,
+                'request_data' => $request->except(['password', 'token'])
+            ]);
+
             return response()->json([
                 'message' => 'Failed to create project',
                 'error' => $e->getMessage(),
@@ -224,17 +367,28 @@ class ProjectController extends Controller
         }
     }
 
-    public function show(Project $project)
+    public function show(Project $project): JsonResponse
     {
         $user = request()->user();
-
-        // Check visibility using service
-        if (!$this->visibilityService->canViewProject($project, $user)) {
-            return response()->json([
-                'message' => 'Project not found or not available'
-            ], 404);
+        
+        // Apply visibility rules based on user role
+        if (!$user) {
+            // Unauthenticated users: only see approved projects
+            if ($project->admin_approval_status !== 'approved') {
+                return response()->json([
+                    'message' => 'Project not found or not available'
+                ], 404);
+            }
+        } elseif (!$user->hasRole('admin') && !$user->hasRole('reviewer')) {
+            // Regular users: can see approved projects and their own projects (including hidden ones)
+            if ($project->admin_approval_status !== 'approved' && $project->created_by_user_id !== $user->id) {
+                return response()->json([
+                    'message' => 'Project not found or not available'
+                ], 404);
+            }
         }
-
+        // Admin and Reviewer: can see all projects (including hidden ones)
+        
         $projectWithFiles = $project->load([
             'program.department',
             'creator',
@@ -242,9 +396,59 @@ class ProjectController extends Controller
             'advisors'
         ]);
 
-        // Use member service to get merged members and advisors
-        $members = $this->memberService->getMergedMembers($project);
-        $advisors = $this->memberService->getMergedAdvisors($project);
+        // Merge regular members with custom members
+        $members = $projectWithFiles->members->map(function($member) {
+            return [
+                'id' => $member->id,
+                'full_name' => $member->full_name,
+                'email' => $member->email,
+                'pivot' => [
+                    'role_in_project' => $member->pivot->role_in_project
+                ]
+            ];
+        })->toArray();
+
+        // Add custom members
+        if ($project->custom_members) {
+            foreach ($project->custom_members as $customMember) {
+                $members[] = [
+                    'id' => null,
+                    'full_name' => $customMember['name'],
+                    'email' => null,
+                    'is_custom' => true,
+                    'pivot' => [
+                        'role_in_project' => $customMember['role']
+                    ]
+                ];
+            }
+        }
+
+        // Merge regular advisors with custom advisors
+        $advisors = $projectWithFiles->advisors->map(function($advisor) {
+            return [
+                'id' => $advisor->id,
+                'full_name' => $advisor->full_name,
+                'email' => $advisor->email,
+                'pivot' => [
+                    'advisor_role' => $advisor->pivot->advisor_role
+                ]
+            ];
+        })->toArray();
+
+        // Add custom advisors
+        if ($project->custom_advisors) {
+            foreach ($project->custom_advisors as $customAdvisor) {
+                $advisors[] = [
+                    'id' => null,
+                    'full_name' => $customAdvisor['name'],
+                    'email' => null,
+                    'is_custom' => true,
+                    'pivot' => [
+                        'advisor_role' => $customAdvisor['role']
+                    ]
+                ];
+            }
+        }
 
         // Replace members and advisors with merged arrays
         $projectData = $projectWithFiles->toArray();
@@ -277,27 +481,113 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function update(UpdateProjectRequest $request, Project $project)
+    public function update(Request $request, Project $project): JsonResponse
     {
+        // Check if user can update this project
+        if ($project->created_by_user_id !== $request->user()->id) {
+            return response()->json([
+                'message' => 'Unauthorized to update this project'
+            ], 403);
+        }
 
-        // Update project using service
-        $project = $this->projectService->updateProject(
-            $project,
-            $request->only([
-                'program_id', 'title', 'abstract', 'keywords', 'academic_year',
-                'semester', 'status', 'is_public', 'doi', 'repo_url'
-            ]),
-            $request->user()
-        );
+        $validator = Validator::make($request->all(), [
+            'program_id' => 'sometimes|required|exists:programs,id',
+            'title' => 'sometimes|required|string|max:255',
+            'abstract' => 'sometimes|required|string',
+            'keywords' => 'nullable|array',
+            'keywords.*' => 'string|max:50',
+            'academic_year' => 'sometimes|required|string',
+            'semester' => 'sometimes|required|in:fall,spring,summer',
+            'status' => 'sometimes|required|in:draft,submitted,under_review,approved,rejected,completed',
+            'is_public' => 'sometimes|boolean',
+            'doi' => 'nullable|string',
+            'repo_url' => 'nullable|url',
+            'members' => 'sometimes|array',
+            'members.*.user_id' => 'nullable|integer',
+            'members.*.customName' => 'nullable|string|max:255',
+            'members.*.role' => 'required_with:members|in:LEAD,MEMBER',
+            'advisors' => 'sometimes|array',
+            'advisors.*.user_id' => 'nullable|integer',
+            'advisors.*.customName' => 'nullable|string|max:255',
+            'advisors.*.role' => 'required_with:advisors|in:MAIN,CO_ADVISOR,REVIEWER',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // Track status change for activity logging
+        $oldStatus = $project->status;
+        
+        // Update basic project fields
+        $project->update($request->only([
+            'program_id', 'title', 'abstract', 'keywords', 'academic_year',
+            'semester', 'status', 'is_public', 'doi', 'repo_url'
+        ]));
+
+        // Log status change if status was updated
+        if ($request->has('status') && $oldStatus !== $project->status) {
+            ProjectActivityService::logStatusChange($project, $request->user(), $oldStatus, $project->status);
+        }
+
+        // Log project update
+        ProjectActivityService::logProjectUpdated($project, $request->user());
 
         // Update members if provided
         if ($request->has('members')) {
-            $this->memberService->syncMembers($project, $request->members);
+            // Separate regular members and custom members
+            $customMembers = [];
+            $regularMembers = [];
+            foreach ($request->members as $member) {
+                if (!empty($member['customName'])) {
+                    $customMembers[] = [
+                        'name' => $member['customName'],
+                        'role' => $member['role']
+                    ];
+                } elseif (!empty($member['user_id']) && $member['user_id'] > 0) {
+                    $regularMembers[$member['user_id']] = [
+                        'role_in_project' => $member['role']
+                    ];
+                }
+            }
+
+            // Update custom members
+            $project->update([
+                'custom_members' => !empty($customMembers) ? $customMembers : null
+            ]);
+
+            // Sync regular members
+            $project->members()->sync($regularMembers);
         }
 
         // Update advisors if provided
         if ($request->has('advisors')) {
-            $this->memberService->syncAdvisors($project, $request->advisors);
+            // Separate regular advisors and custom advisors
+            $customAdvisors = [];
+            $regularAdvisors = [];
+            foreach ($request->advisors as $advisor) {
+                if (!empty($advisor['customName'])) {
+                    $customAdvisors[] = [
+                        'name' => $advisor['customName'],
+                        'role' => $advisor['role']
+                    ];
+                } elseif (!empty($advisor['user_id']) && $advisor['user_id'] > 0) {
+                    $regularAdvisors[$advisor['user_id']] = [
+                        'advisor_role' => $advisor['role']
+                    ];
+                }
+            }
+
+            // Update custom advisors
+            $project->update([
+                'custom_advisors' => !empty($customAdvisors) ? $customAdvisors : null
+            ]);
+
+            // Sync regular advisors
+            $project->advisors()->sync($regularAdvisors);
         }
 
         return response()->json([
@@ -306,7 +596,7 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function destroy(Project $project)
+    public function destroy(Project $project): JsonResponse
     {
         // Check if user can delete this project
         if ($project->created_by_user_id !== request()->user()->id) {
@@ -315,21 +605,21 @@ class ProjectController extends Controller
             ], 403);
         }
 
-        $this->projectService->deleteProject($project);
+        $project->delete();
 
         return response()->json([
             'message' => 'Project deleted successfully'
         ]);
     }
 
-    public function members(Project $project)
+    public function members(Project $project): JsonResponse
     {
         return response()->json([
             'members' => $project->members()->withPivot('role_in_project')->get()
         ]);
     }
 
-    public function addMember(Request $request, Project $project)
+    public function addMember(Request $request, Project $project): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|exists:users,id',
@@ -343,14 +633,16 @@ class ProjectController extends Controller
             ], 422);
         }
 
-        $this->memberService->addMember($project, $request->user_id, $request->role);
+        $project->members()->syncWithoutDetaching([
+            $request->user_id => ['role_in_project' => $request->role]
+        ]);
 
         return response()->json([
             'message' => 'Member added successfully'
         ]);
     }
 
-    public function updateMember(Request $request, Project $project, User $user)
+    public function updateMember(Request $request, Project $project, User $user): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'role' => 'required|in:LEAD,MEMBER',
@@ -363,16 +655,18 @@ class ProjectController extends Controller
             ], 422);
         }
 
-        $this->memberService->updateMemberRole($project, $user->id, $request->role);
+        $project->members()->updateExistingPivot($user->id, [
+            'role_in_project' => $request->role
+        ]);
 
         return response()->json([
             'message' => 'Member role updated successfully'
         ]);
     }
 
-    public function removeMember(Project $project, User $user)
+    public function removeMember(Project $project, User $user): JsonResponse
     {
-        $this->memberService->removeMember($project, $user->id);
+        $project->members()->detach($user->id);
 
         return response()->json([
             'message' => 'Member removed successfully'
@@ -382,21 +676,33 @@ class ProjectController extends Controller
     /**
      * Global search across projects with advanced filtering
      */
-    public function search(SearchProjectRequest $request)
+    public function search(Request $request): JsonResponse
     {
         $query = Project::with([
-            'program.department.faculty',
-            'creator.roles',
-            'members.roles',
-            'advisors.roles',
+            'program.department',
+            'creator',
+            'members',
+            'advisors',
             'files' => function ($fileQuery) {
                 $fileQuery->orderBy('uploaded_at', 'desc');
             },
         ]);
         $user = $request->user();
 
-        // Apply visibility filters using service
-        $this->visibilityService->applyVisibilityFilters($query, $user);
+        // Apply visibility rules based on user role
+        if (!$user) {
+            // Unauthenticated users: only see approved projects
+            $query->where('admin_approval_status', 'approved');
+        } elseif ($user->hasRole('admin') || $user->hasRole('reviewer')) {
+            // Admin and Reviewer: can see all projects (including hidden ones)
+            // No additional filtering needed
+        } else {
+            // Regular users: can see approved projects and their own projects (including hidden ones)
+            $query->where(function ($q) use ($user) {
+                $q->where('admin_approval_status', 'approved')
+                  ->orWhere('created_by_user_id', $user->id);
+            });
+        }
 
         // Full-text search with ranking
         if ($request->has('q') && !empty($request->q)) {
@@ -453,13 +759,36 @@ class ProjectController extends Controller
     /**
      * Get project statistics and analytics
      */
-    public function analytics(Request $request)
+    public function analytics(Request $request): JsonResponse
     {
         $user = $request->user();
-
+        
         // Helper function to create base query with user access filtering
         $createBaseQuery = function() use ($user) {
-            return $this->visibilityService->createAnalyticsBaseQuery($user);
+            $query = Project::query();
+            
+            // Apply visibility rules based on user role
+            if (!$user) {
+                // Unauthenticated users: only see approved projects
+                $query->where('admin_approval_status', 'approved');
+            } elseif ($user->hasRole('admin') || $user->hasRole('reviewer')) {
+                // Admin and Reviewer: can see all projects (including hidden ones)
+                // No additional filtering needed
+            } else {
+                // Regular users: can see approved projects and their own projects (including hidden ones)
+                $query->where(function ($q) use ($user) {
+                    $q->where('admin_approval_status', 'approved')
+                      ->orWhere('created_by_user_id', $user->id)
+                      ->orWhereHas('members', function ($memberQuery) use ($user) {
+                          $memberQuery->where('user_id', $user->id);
+                      })
+                      ->orWhereHas('advisors', function ($advisorQuery) use ($user) {
+                          $advisorQuery->where('user_id', $user->id);
+                      });
+                });
+            }
+            
+            return $query;
         };
 
         // Project status distribution
@@ -512,7 +841,7 @@ class ProjectController extends Controller
     /**
      * Get project suggestions for autocomplete
      */
-    public function suggestions(Request $request)
+    public function suggestions(Request $request): JsonResponse
     {
         $query = $request->get('q', '');
         
@@ -537,304 +866,20 @@ class ProjectController extends Controller
         return response()->json(['suggestions' => $suggestions]);
     }
 
-    /**
-     * Get evaluations for a project
-     */
-    public function evaluations(Project $project)
-    {
-        $evaluations = $project->evaluations()
-            ->with(['evaluator', 'milestone'])
-            ->get();
 
-        return response()->json([
-            'evaluations' => $evaluations
-        ]);
-    }
 
-    /**
-     * Create a new evaluation
-     */
-    public function createEvaluation(Request $request, Project $project)
-    {
-        $validator = Validator::make($request->all(), [
-            'evaluator_user_id' => 'required|exists:users,id',
-            'milestone_id' => 'nullable|exists:milestones,id',
-            'score' => 'nullable|integer|min:0|max:100',
-            'remarks' => 'nullable|string|max:1000',
-            'criteria_scores' => 'nullable|array',
-        ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
 
-        // For now, we'll create a simple evaluation record
-        // In a full implementation, you'd have an Evaluation model
-        $evaluation = [
-            'id' => rand(1000, 9999),
-            'project_id' => $project->id,
-            'evaluator_user_id' => $request->evaluator_user_id,
-            'milestone_id' => $request->milestone_id,
-            'score' => $request->score,
-            'remarks' => $request->remarks,
-            'criteria_scores' => $request->criteria_scores,
-            'status' => 'pending',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ];
 
-        return response()->json([
-            'message' => 'Evaluation created successfully',
-            'evaluation' => $evaluation
-        ], 201);
-    }
 
-    /**
-     * Update an evaluation
-     */
-    public function updateEvaluation(Request $request, $evaluationId)
-    {
-        $validator = Validator::make($request->all(), [
-            'score' => 'nullable|integer|min:0|max:100',
-            'remarks' => 'nullable|string|max:1000',
-            'criteria_scores' => 'nullable|array',
-            'status' => 'sometimes|required|in:pending,in_progress,completed,cancelled',
-        ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
 
-        // For now, return a mock response
-        $evaluation = [
-            'id' => $evaluationId,
-            'score' => $request->score,
-            'remarks' => $request->remarks,
-            'criteria_scores' => $request->criteria_scores,
-            'status' => $request->status ?? 'pending',
-            'updated_at' => now(),
-        ];
 
-        return response()->json([
-            'message' => 'Evaluation updated successfully',
-            'evaluation' => $evaluation
-        ]);
-    }
-
-    /**
-     * Submit evaluation (mark as completed)
-     */
-    public function submitEvaluation(Request $request, $evaluationId)
-    {
-        $validator = Validator::make($request->all(), [
-            'score' => 'required|integer|min:0|max:100',
-            'remarks' => 'nullable|string|max:1000',
-            'criteria_scores' => 'nullable|array',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        // For now, return a mock response
-        $evaluation = [
-            'id' => $evaluationId,
-            'score' => $request->score,
-            'remarks' => $request->remarks,
-            'criteria_scores' => $request->criteria_scores,
-            'status' => 'completed',
-            'evaluated_at' => now(),
-            'updated_at' => now(),
-        ];
-
-        return response()->json([
-            'message' => 'Evaluation submitted successfully',
-            'evaluation' => $evaluation
-        ]);
-    }
-
-    /**
-     * Get evaluation statistics for a project
-     */
-    public function evaluationStatistics(Project $project)
-    {
-        // Mock statistics for now
-        $stats = [
-            'total_evaluations' => 3,
-            'completed_evaluations' => 2,
-            'pending_evaluations' => 1,
-            'in_progress_evaluations' => 0,
-            'average_score' => 85.5,
-            'highest_score' => 95,
-            'lowest_score' => 76,
-        ];
-
-        return response()->json($stats);
-    }
-
-    /**
-     * Get evaluations assigned to current user
-     */
-    public function myEvaluations(Request $request)
-    {
-        $user = $request->user();
-        
-        // Mock evaluations for now
-        $evaluations = [
-            'data' => [
-                [
-                    'id' => 1,
-                    'project_id' => 1,
-                    'project_title' => 'AI-Powered Learning System',
-                    'score' => null,
-                    'status' => 'pending',
-                    'due_date' => now()->addDays(7)->toDateString(),
-                    'created_at' => now()->subDays(2)->toISOString(),
-                ],
-                [
-                    'id' => 2,
-                    'project_id' => 2,
-                    'project_title' => 'Blockchain Voting System',
-                    'score' => 88,
-                    'status' => 'completed',
-                    'due_date' => now()->subDays(1)->toDateString(),
-                    'created_at' => now()->subDays(5)->toISOString(),
-                ],
-            ],
-            'current_page' => 1,
-            'last_page' => 1,
-            'total' => 2,
-        ];
-
-        return response()->json($evaluations);
-    }
-
-    /**
-     * Get approvals for a project
-     */
-    public function approvals(Project $project)
-    {
-        // Mock approvals for now
-        $approvals = [
-            [
-                'id' => 1,
-                'project_id' => $project->id,
-                'approver_name' => 'Dr. Sarah Johnson',
-                'stage' => 'department',
-                'decision' => 'pending',
-                'note' => null,
-                'created_at' => now()->subDays(1)->toISOString(),
-            ],
-        ];
-
-        return response()->json(['approvals' => $approvals]);
-    }
-
-    /**
-     * Create a new approval
-     */
-    public function createApproval(Request $request, Project $project)
-    {
-        $validator = Validator::make($request->all(), [
-            'approver_user_id' => 'required|exists:users,id',
-            'stage' => 'required|in:department,faculty,final',
-            'note' => 'nullable|string|max:500',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $approval = [
-            'id' => rand(1000, 9999),
-            'project_id' => $project->id,
-            'approver_user_id' => $request->approver_user_id,
-            'stage' => $request->stage,
-            'decision' => 'pending',
-            'note' => $request->note,
-            'created_at' => now(),
-        ];
-
-        return response()->json([
-            'message' => 'Approval created successfully',
-            'approval' => $approval
-        ], 201);
-    }
-
-    /**
-     * Update an approval
-     */
-    public function updateApproval(Request $request, $approvalId)
-    {
-        $validator = Validator::make($request->all(), [
-            'decision' => 'required|in:approved,rejected,needs_revision',
-            'note' => 'nullable|string|max:500',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $approval = [
-            'id' => $approvalId,
-            'decision' => $request->decision,
-            'note' => $request->note,
-            'decided_at' => now(),
-            'updated_at' => now(),
-        ];
-
-        return response()->json([
-            'message' => 'Approval updated successfully',
-            'approval' => $approval
-        ]);
-    }
-
-    /**
-     * Get pending approvals for current user
-     */
-    public function pendingApprovals(Request $request)
-    {
-        $user = $request->user();
-        
-        // Mock pending approvals
-        $approvals = [
-            'data' => [
-                [
-                    'id' => 1,
-                    'project_id' => 1,
-                    'project_title' => 'AI-Powered Learning System',
-                    'stage' => 'department',
-                    'decision' => 'pending',
-                    'created_at' => now()->subDays(1)->toISOString(),
-                ],
-            ],
-            'current_page' => 1,
-            'last_page' => 1,
-            'total' => 1,
-        ];
-
-        return response()->json($approvals);
-    }
 
     /**
      * Add a comment to a project
      */
-    public function addComment(Request $request, Project $project)
+    public function addComment(Request $request, Project $project): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'content' => 'required|string|max:1000',
@@ -894,7 +939,7 @@ class ProjectController extends Controller
     /**
      * Rate a project
      */
-    public function rateProject(Request $request, Project $project)
+    public function rateProject(Request $request, Project $project): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'rating' => 'required|integer|min:1|max:5',
@@ -961,7 +1006,7 @@ class ProjectController extends Controller
     /**
      * Get comments for a project
      */
-    public function getComments(Project $project)
+    public function getComments(Project $project): JsonResponse
     {
         $comments = $project->comments()
             ->with(['user', 'replies.user'])
@@ -975,7 +1020,7 @@ class ProjectController extends Controller
     /**
      * Get ratings for a project
      */
-    public function getRatings(Project $project)
+    public function getRatings(Project $project): JsonResponse
     {
         $ratings = $project->ratings()
             ->with('user')
@@ -994,7 +1039,7 @@ class ProjectController extends Controller
     /**
      * Approve a project (admin only)
      */
-    public function approveProject(Request $request, Project $project)
+    public function approveProject(Request $request, Project $project): JsonResponse
     {
         // Check if user is admin
         if (!$request->user()->hasRole('admin')) {
@@ -1015,13 +1060,22 @@ class ProjectController extends Controller
             ], 422);
         }
 
-        // Use service to approve project
-        $project = $this->projectService->approveProject(
-            $project,
-            $request->user(),
-            $request->admin_notes,
-            $request->status ?? null
-        );
+        $updateData = [
+            'admin_approval_status' => 'approved',
+            'approved_by_user_id' => $request->user()->id,
+            'approved_at' => now(),
+            'admin_notes' => $request->admin_notes,
+        ];
+
+        // If status is provided, update it as well
+        if ($request->has('status')) {
+            $updateData['status'] = $request->status;
+        }
+
+        $project->update($updateData);
+
+        // Make all project files public when project is approved
+        $project->files()->update(['is_public' => true]);
 
         // Create notification for project creator
         Notification::createForProjectCreator($project, 'approval', 'Project Approved', 
@@ -1040,7 +1094,7 @@ class ProjectController extends Controller
     /**
      * Hide a project (admin only)
      */
-    public function hideProject(Request $request, Project $project)
+    public function hideProject(Request $request, Project $project): JsonResponse
     {
         // Check if user is admin
         if (!$request->user()->hasRole('admin')) {
@@ -1060,12 +1114,15 @@ class ProjectController extends Controller
             ], 422);
         }
 
-        // Use service to hide project
-        $project = $this->projectService->hideProject(
-            $project,
-            $request->user(),
-            $request->admin_notes
-        );
+        $project->update([
+            'admin_approval_status' => 'hidden',
+            'approved_by_user_id' => $request->user()->id,
+            'approved_at' => now(),
+            'admin_notes' => $request->admin_notes,
+        ]);
+
+        // Make all project files private when project is hidden
+        $project->files()->update(['is_public' => false]);
 
         // Create notification for project creator
         Notification::createForProjectCreator($project, 'approval', 'Project Hidden', 
@@ -1084,7 +1141,7 @@ class ProjectController extends Controller
     /**
      * Toggle project visibility between approved and hidden (admin only)
      */
-    public function toggleProjectVisibility(Request $request, Project $project)
+    public function toggleProjectVisibility(Request $request, Project $project): JsonResponse
     {
         // Check if user is admin
         if (!$request->user()->hasRole('admin')) {
@@ -1104,14 +1161,15 @@ class ProjectController extends Controller
             ], 422);
         }
 
-        // Use service to toggle visibility
-        $result = $this->projectService->toggleProjectVisibility(
-            $project,
-            $request->user(),
-            $request->admin_notes
-        );
-        $project = $result['project'];
-        $newStatus = $result['new_status'];
+        // Toggle between approved and hidden
+        $newStatus = $project->admin_approval_status === 'approved' ? 'hidden' : 'approved';
+        
+        $project->update([
+            'admin_approval_status' => $newStatus,
+            'approved_by_user_id' => $request->user()->id,
+            'approved_at' => now(),
+            'admin_notes' => $request->admin_notes,
+        ]);
 
         // Create notification for project creator
         $action = $newStatus === 'approved' ? 'Approved' : 'Hidden';
@@ -1134,7 +1192,7 @@ class ProjectController extends Controller
     /**
      * Get projects pending approval (admin only)
      */
-    public function adminPendingApprovals(Request $request)
+    public function adminPendingApprovals(Request $request): JsonResponse
     {
         // Check if user is admin
         if (!$request->user()->hasRole('admin')) {
@@ -1144,10 +1202,10 @@ class ProjectController extends Controller
         }
 
         $query = Project::with([
-            'program.department.faculty',
-            'creator.roles',
-            'members.roles',
-            'advisors.roles',
+            'program.department',
+            'creator',
+            'members',
+            'advisors',
             'files' => function ($fileQuery) {
                 $fileQuery->orderBy('uploaded_at', 'desc');
             },
@@ -1197,7 +1255,7 @@ class ProjectController extends Controller
     /**
      * Get all projects with approval status (admin only)
      */
-    public function adminProjects(Request $request)
+    public function adminProjects(Request $request): JsonResponse
     {
         // Check if user is admin
         if (!$request->user()->hasRole('admin')) {
@@ -1207,10 +1265,10 @@ class ProjectController extends Controller
         }
 
         $query = Project::with([
-            'program.department.faculty',
-            'creator.roles',
-            'members.roles',
-            'advisors.roles',
+            'program.department',
+            'creator',
+            'members',
+            'advisors',
             'approver',
             'files' => function ($fileQuery) {
                 $fileQuery->orderBy('uploaded_at', 'desc');
@@ -1283,7 +1341,7 @@ class ProjectController extends Controller
     /**
      * Bookmark a project
      */
-    public function bookmarkProject(Request $request, Project $project)
+    public function bookmarkProject(Request $request, Project $project): JsonResponse
     {
         $user = $request->user();
         
@@ -1320,7 +1378,7 @@ class ProjectController extends Controller
     /**
      * Get user's bookmarked projects
      */
-    public function getBookmarkedProjects(Request $request)
+    public function getBookmarkedProjects(Request $request): JsonResponse
     {
         $user = $request->user();
         
@@ -1333,10 +1391,10 @@ class ProjectController extends Controller
         $bookmarks = Bookmark::where('user_id', $user->id)
             ->with(['project' => function ($query) {
                 $query->with([
-                    'program.department.faculty',
-                    'creator.roles',
-                    'members.roles',
-                    'advisors.roles',
+                    'program.department',
+                    'creator',
+                    'members',
+                    'advisors',
                     'files' => function ($fileQuery) {
                         $fileQuery->orderBy('uploaded_at', 'desc');
                     },
@@ -1360,7 +1418,7 @@ class ProjectController extends Controller
     /**
      * Check if project is bookmarked
      */
-    public function isBookmarked(Request $request, Project $project)
+    public function isBookmarked(Request $request, Project $project): JsonResponse
     {
         $user = $request->user();
         
@@ -1380,7 +1438,7 @@ class ProjectController extends Controller
     /**
      * Sync guest bookmarks to user account
      */
-    public function syncGuestBookmarks(Request $request)
+    public function syncGuestBookmarks(Request $request): JsonResponse
     {
         $user = $request->user();
         

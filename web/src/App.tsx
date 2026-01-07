@@ -16,6 +16,7 @@ import { CreateProjectPage } from './pages/CreateProjectPage';
 import { EditProjectPage } from './pages/EditProjectPage';
 import { ProjectDetailPage } from './pages/ProjectDetailPage';
 import { GuestProjectDetailPage } from './pages/GuestProjectDetailPage';
+import { RepositoryPage } from './pages/RepositoryPage';
 import { MyBookmarksPage } from './pages/MyBookmarksPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
 import { EvaluationsPage } from './pages/EvaluationsPage';
@@ -130,6 +131,24 @@ const AppContent: React.FC = () => {
             element={
               <ProtectedRoute>
                 <ProjectFollowPage />
+              </ProtectedRoute>
+            }
+          />
+          
+          {/* Repository-style routes (GitHub-like interface) */}
+          <Route
+            path="/projects/:id/code/*"
+            element={
+              <ProtectedRoute>
+                <RepositoryPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/projects/:id/code"
+            element={
+              <ProtectedRoute>
+                <RepositoryPage />
               </ProtectedRoute>
             }
           />

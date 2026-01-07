@@ -362,7 +362,7 @@ export const CreateProjectPage: React.FC = () => {
       // #region agent log
       fetch('http://127.0.0.1:7242/ingest/630c9ee4-de4f-48c7-bd76-5eabbd1dc8d2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CreateProjectPage.tsx:357',message:'projectData before API call',data:{projectData:JSON.stringify(projectData),membersCount:membersToSubmit.length,creatorInMembers:membersToSubmit[0]?.user_id===user?.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
       // #endregion
-
+      
       // Create the project first
       const createdProject = await apiService.createProject(projectData);
       // #region agent log
@@ -391,14 +391,21 @@ export const CreateProjectPage: React.FC = () => {
 
       // If files are selected, upload them individually
       if (selectedFiles.length > 0 && createdProject?.project?.id) {
+        
         let uploadedCount = 0;
         let failedCount = 0;
-
+        
         for (let i = 0; i < selectedFiles.length; i++) {
           const file = selectedFiles[i];
           try {
+              name: file.name,
+              size: file.size,
+              type: file.type,
+              lastModified: new Date(file.lastModified).toISOString()
+            });
+            
             const uploadResponse = await apiService.uploadFile(createdProject.project.id, file, true);
-
+            
             uploadedCount++;
           } catch (uploadError: any) {
             console.error(`❌ File upload failed for ${file.name}:`, uploadError);
@@ -409,7 +416,8 @@ export const CreateProjectPage: React.FC = () => {
             failedCount++;
           }
         }
-
+        
+        
         if (failedCount > 0) {
           setError(`Project created but ${failedCount} file(s) failed to upload. Please try re-uploading them from the project page.`);
           // Wait a bit before navigating so user can see the error

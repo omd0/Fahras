@@ -7,6 +7,7 @@ use App\Models\ProjectMilestone;
 use App\Services\ProjectActivityService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -20,6 +21,7 @@ class MilestoneController extends Controller
     public function index(Project $project): JsonResponse
     {
         $milestones = $project->milestones()
+            ->with('templateItem')
             ->orderBy('order')
             ->get();
 
@@ -343,6 +345,7 @@ class MilestoneController extends Controller
     public function getTimeline(Project $project): JsonResponse
     {
         $milestones = $project->milestones()
+            ->with('templateItem')
             ->orderBy('order')
             ->get();
 

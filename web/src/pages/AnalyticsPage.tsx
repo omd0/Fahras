@@ -220,13 +220,14 @@ export const AnalyticsPage: React.FC = () => {
 
       const response = await apiService.getProjects(params);
       const projects = Array.isArray(response) ? response : response.data || [];
-
+      
+      
       // For now, show all projects since we don't have rating data in the list
       // In a real implementation, you would need to fetch ratings separately
       const allProjects = projects
         .filter((project: any) => project.status === 'approved' || project.status === 'completed')
         .slice(0, 20); // Top 20 projects
-
+      
       setTopRatedProjects(allProjects);
     } catch (error: any) {
       console.error('Failed to fetch projects:', error);

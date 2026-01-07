@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Role;
 use App\Models\Permission;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -14,7 +15,7 @@ class RoleController extends Controller
     /**
      * Get all roles with user and permission counts
      */
-    public function index()
+    public function index(): JsonResponse
     {
         $roles = Role::withCount(['users', 'permissions'])
             ->with('permissions')
@@ -46,7 +47,7 @@ class RoleController extends Controller
     /**
      * Get all permissions
      */
-    public function getPermissions()
+    public function getPermissions(): JsonResponse
     {
         $permissions = Permission::all()->map(function ($permission) {
             return [
@@ -64,7 +65,7 @@ class RoleController extends Controller
     /**
      * Create a new role
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255|unique:roles,name',
@@ -124,7 +125,7 @@ class RoleController extends Controller
     /**
      * Update a role
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id): JsonResponse
     {
         $role = Role::findOrFail($id);
 
@@ -195,7 +196,7 @@ class RoleController extends Controller
     /**
      * Delete a role
      */
-    public function destroy($id)
+    public function destroy($id): JsonResponse
     {
         try {
             $role = Role::findOrFail($id);
@@ -241,14 +242,13 @@ class RoleController extends Controller
             'is_template' => $role->is_template ?? false,
             'user_count' => $role->users_count ?? $role->users()->count(),
             'permission_count' => $role->permissions_count ?? $role->permissions()->count(),
-            'permissions' => $role->permissions->map(function ($permission) use ($role) {
-                $pivot = $role->permissions()->where('permission_id', $permission->id)->first()?->pivot;
+            'permissions' => $role->permissions->map(function ($permission) {
                 return [
                     'id' => $permission->id,
                     'code' => $permission->code,
                     'category' => $permission->category,
                     'description' => $permission->description,
-                    'scope' => $pivot->scope ?? 'all',
+                    'scope' => $permission->pivot->scope ?? 'all',
                 ];
             }),
         ];
