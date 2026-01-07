@@ -16,4 +16,6 @@ export { QuickActions } from './QuickActions';
 export type { QuickAction } from './QuickActions';
 export { ConfirmDialog } from './ConfirmDialog';
 export type { ConfirmDialogProps } from './ConfirmDialog';
+export { Breadcrumb } from './Breadcrumb';
+export type { BreadcrumbItem } from './Breadcrumb';
 

@@ -120,266 +120,322 @@ export const tvtcLayout = {
   },
 };
 
-const tvtcThemeOptions: ThemeOptions = {
-  palette: {
-    primary: {
-      main: tvtcColors.primary,
-      light: tvtcColors.primaryLight,
-      dark: tvtcColors.primaryDark,
-      contrastText: tvtcColors.white,
-    },
-    secondary: {
-      main: tvtcColors.secondary,
-      light: tvtcColors.secondaryLight,
-      dark: tvtcColors.secondaryDark,
-      contrastText: tvtcColors.white,
-    },
-    background: {
-      default: tvtcColors.backgroundDefault,
-      paper: tvtcColors.backgroundPaper,
-    },
-    text: {
-      primary: tvtcColors.textPrimary,
-      secondary: tvtcColors.textSecondary,
-      disabled: tvtcColors.textDisabled,
-    },
-    success: {
-      main: tvtcColors.success,
-    },
-    warning: {
-      main: tvtcColors.warning,
-    },
-    error: {
-      main: tvtcColors.error,
-    },
-    info: {
-      main: tvtcColors.info,
-    },
-    divider: tvtcColors.border,
-  },
+// Dark mode color overrides
+export const tvtcColorsDark = {
+  // Primary brand colors remain consistent
+  primary: '#008a3e',
+  secondary: '#3B7D98',
+  accent: '#f3b200',
   
-  typography: {
-    fontFamily: tvtcTypography.fontFamily,
-    h1: {
-      fontFamily: tvtcTypography.fontFamilyHeadings,
-      fontSize: tvtcTypography.fontSize.h1,
-      fontWeight: tvtcTypography.fontWeight.bold,
-      color: tvtcColors.textPrimary,
-      lineHeight: tvtcTypography.lineHeight.tight,
-    },
-    h2: {
-      fontFamily: tvtcTypography.fontFamilyHeadings,
-      fontSize: tvtcTypography.fontSize.h2,
-      fontWeight: tvtcTypography.fontWeight.semiBold,
-      color: tvtcColors.textPrimary,
-      lineHeight: tvtcTypography.lineHeight.tight,
-    },
-    h3: {
-      fontFamily: tvtcTypography.fontFamilyHeadings,
-      fontSize: tvtcTypography.fontSize.h3,
-      fontWeight: tvtcTypography.fontWeight.semiBold,
-      color: tvtcColors.textPrimary,
-      lineHeight: tvtcTypography.lineHeight.normal,
-    },
-    h4: {
-      fontFamily: tvtcTypography.fontFamilyHeadings,
-      fontSize: tvtcTypography.fontSize.h4,
-      fontWeight: tvtcTypography.fontWeight.medium,
-      color: tvtcColors.textPrimary,
-      lineHeight: tvtcTypography.lineHeight.normal,
-    },
-    h5: {
-      fontFamily: tvtcTypography.fontFamilyHeadings,
-      fontSize: tvtcTypography.fontSize.h5,
-      fontWeight: tvtcTypography.fontWeight.medium,
-      color: tvtcColors.textPrimary,
-      lineHeight: tvtcTypography.lineHeight.normal,
-    },
-    h6: {
-      fontFamily: tvtcTypography.fontFamilyHeadings,
-      fontSize: tvtcTypography.fontSize.h6,
-      fontWeight: tvtcTypography.fontWeight.medium,
-      color: tvtcColors.textPrimary,
-      lineHeight: tvtcTypography.lineHeight.normal,
-    },
-    body1: {
-      fontSize: tvtcTypography.fontSize.body,
-      fontWeight: tvtcTypography.fontWeight.regular,
-      color: tvtcColors.textPrimary,
-      lineHeight: tvtcTypography.lineHeight.relaxed,
-    },
-    body2: {
-      fontSize: tvtcTypography.fontSize.small,
-      fontWeight: tvtcTypography.fontWeight.regular,
-      color: tvtcColors.textSecondary,
-      lineHeight: tvtcTypography.lineHeight.normal,
-    },
-    caption: {
-      fontSize: tvtcTypography.fontSize.caption,
-      fontWeight: tvtcTypography.fontWeight.regular,
-      color: tvtcColors.textSecondary,
-      lineHeight: tvtcTypography.lineHeight.normal,
-    },
-  },
+  // Dark mode specific colors
+  white: '#1a1a1a',           // Inverted for dark backgrounds
+  black: '#FFFFFF',            // Inverted for dark text
   
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: tvtcLayout.borderRadius,
-          textTransform: 'none',
-          fontWeight: tvtcTypography.fontWeight.medium,
-          padding: `${tvtcLayout.spacing.sm} ${tvtcLayout.spacing.md}`,
-          fontSize: tvtcTypography.fontSize.small,
-          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          boxShadow: tvtcLayout.boxShadow,
-          '&:hover': {
-            transform: 'translateY(-1px)',
-            boxShadow: tvtcLayout.boxShadowMedium,
-          },
-        },
-        contained: {
-          backgroundColor: tvtcColors.primary,
-          color: tvtcColors.white,
-          '&:hover': {
-            backgroundColor: tvtcColors.primaryDark,
-            boxShadow: tvtcLayout.boxShadowMedium,
-          },
-        },
-        outlined: {
-          borderColor: tvtcColors.primary,
-          color: tvtcColors.primary,
-          '&:hover': {
-            borderColor: tvtcColors.primaryDark,
-            backgroundColor: alpha(tvtcColors.primary, 0.1),
-          },
-        },
-        text: {
-          color: tvtcColors.primary,
-          '&:hover': {
-            backgroundColor: alpha(tvtcColors.primary, 0.1),
-          },
-        },
-      },
-    },
-    
-    MuiCard: {
-      styleOverrides: {
-        root: {
-          borderRadius: tvtcLayout.borderRadiusLarge,
-          boxShadow: tvtcLayout.boxShadow,
-          border: `1px solid ${tvtcColors.border}`,
-          backgroundColor: tvtcColors.backgroundPaper,
-          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          '&:hover': {
-            boxShadow: tvtcLayout.boxShadowMedium,
-            transform: 'translateY(-2px)',
-          },
-        },
-      },
-    },
-    
-    MuiPaper: {
-      styleOverrides: {
-        root: {
-          backgroundColor: tvtcColors.backgroundPaper,
-          borderRadius: tvtcLayout.borderRadius,
-        },
-        elevation1: {
-          boxShadow: tvtcLayout.boxShadow,
-        },
-        elevation2: {
-          boxShadow: tvtcLayout.boxShadowMedium,
-        },
-        elevation3: {
-          boxShadow: tvtcLayout.boxShadowLarge,
-        },
-      },
-    },
-    
-    MuiTextField: {
-      styleOverrides: {
-        root: {
-          '& .MuiOutlinedInput-root': {
-            borderRadius: tvtcLayout.borderRadius,
-            backgroundColor: tvtcColors.backgroundPaper,
-            '&:hover .MuiOutlinedInput-notchedOutline': {
-              borderColor: tvtcColors.primary,
-              borderWidth: 2,
-            },
-            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-              borderColor: tvtcColors.primary,
-              borderWidth: 2,
-            },
-          },
-        },
-      },
-    },
-    
-    MuiAppBar: {
-      styleOverrides: {
-        root: {
-          backgroundColor: tvtcColors.primary,
-          boxShadow: tvtcLayout.boxShadow,
-          color: tvtcColors.white,
-        },
-      },
-    },
-    
-    MuiChip: {
-      styleOverrides: {
-        root: {
-          borderRadius: tvtcLayout.borderRadius,
-          fontWeight: tvtcTypography.fontWeight.medium,
-        },
-        filled: {
-          backgroundColor: tvtcColors.primary,
-          color: tvtcColors.white,
-        },
-        outlined: {
-          borderColor: tvtcColors.primary,
-          color: tvtcColors.primary,
-        },
-      },
-    },
-    
-    MuiDivider: {
-      styleOverrides: {
-        root: {
-          borderColor: tvtcColors.border,
-        },
-      },
-    },
-    
-    MuiAlert: {
-      styleOverrides: {
-        root: {
-          borderRadius: tvtcLayout.borderRadius,
-        },
-        standardSuccess: {
-          backgroundColor: alpha(tvtcColors.success, 0.1),
-          color: tvtcColors.success,
-        },
-        standardWarning: {
-          backgroundColor: alpha(tvtcColors.warning, 0.1),
-          color: tvtcColors.warning,
-        },
-        standardError: {
-          backgroundColor: alpha(tvtcColors.error, 0.1),
-          color: tvtcColors.error,
-        },
-        standardInfo: {
-          backgroundColor: alpha(tvtcColors.info, 0.1),
-          color: tvtcColors.info,
-        },
-      },
-    },
-  },
+  // Grayscale colors for dark mode
+  textPrimary: '#E0E0E0',      // Light text on dark background
+  textSecondary: '#B0B0B0',    // Secondary text
+  border: '#404040',           // Darker borders
+  backgroundLight: '#242424',   // Slightly lighter than default
+  
+  // Additional brand colors (consistent across themes)
+  primaryLight: '#4CAF50',
+  primaryDark: '#2E7D32',
+  secondaryLight: '#5DADE2',
+  secondaryDark: '#2E86AB',
+  accentLight: '#FFC107',
+  accentDark: '#FF8F00',
+  
+  // Status colors (consistent)
+  success: '#4CAF50',
+  warning: '#FF9800',
+  error: '#F44336',
+  info: '#2196F3',
+  
+  // Dark mode backgrounds
+  backgroundDefault: '#1a1a1a',
+  backgroundPaper: '#242424',
+  backgroundElevated: '#2a2a2a',
+  
+  // Dark mode text variations
+  textDisabled: '#606060',
+  textHint: '#808080',
+  
+  // Dark mode border variations
+  borderLight: '#303030',
+  borderMedium: '#404040',
+  borderDark: '#505050',
+  
+  // Shadow colors for dark mode
+  shadowLight: 'rgba(0, 0, 0, 0.3)',
+  shadowMedium: 'rgba(0, 0, 0, 0.5)',
+  shadowDark: 'rgba(0, 0, 0, 0.7)',
 };
 
-export const createTvtcTheme = (direction: 'ltr' | 'rtl' = 'ltr') =>
+const createThemeOptions = (mode: 'light' | 'dark' = 'light'): ThemeOptions => {
+  const colors = mode === 'dark' ? tvtcColorsDark : tvtcColors;
+  
+  return {
+    palette: {
+      mode,
+      primary: {
+        main: colors.primary,
+        light: colors.primaryLight,
+        dark: colors.primaryDark,
+        contrastText: mode === 'dark' ? colors.black : colors.white,
+      },
+      secondary: {
+        main: colors.secondary,
+        light: colors.secondaryLight,
+        dark: colors.secondaryDark,
+        contrastText: mode === 'dark' ? colors.black : colors.white,
+      },
+      background: {
+        default: colors.backgroundDefault,
+        paper: colors.backgroundPaper,
+      },
+      text: {
+        primary: colors.textPrimary,
+        secondary: colors.textSecondary,
+        disabled: colors.textDisabled,
+      },
+      success: {
+        main: colors.success,
+      },
+      warning: {
+        main: colors.warning,
+      },
+      error: {
+        main: colors.error,
+      },
+      info: {
+        main: colors.info,
+      },
+      divider: colors.border,
+    },
+    
+    typography: {
+      fontFamily: tvtcTypography.fontFamily,
+      h1: {
+        fontFamily: tvtcTypography.fontFamilyHeadings,
+        fontSize: tvtcTypography.fontSize.h1,
+        fontWeight: tvtcTypography.fontWeight.bold,
+        color: colors.textPrimary,
+        lineHeight: tvtcTypography.lineHeight.tight,
+      },
+      h2: {
+        fontFamily: tvtcTypography.fontFamilyHeadings,
+        fontSize: tvtcTypography.fontSize.h2,
+        fontWeight: tvtcTypography.fontWeight.semiBold,
+        color: colors.textPrimary,
+        lineHeight: tvtcTypography.lineHeight.tight,
+      },
+      h3: {
+        fontFamily: tvtcTypography.fontFamilyHeadings,
+        fontSize: tvtcTypography.fontSize.h3,
+        fontWeight: tvtcTypography.fontWeight.semiBold,
+        color: colors.textPrimary,
+        lineHeight: tvtcTypography.lineHeight.normal,
+      },
+      h4: {
+        fontFamily: tvtcTypography.fontFamilyHeadings,
+        fontSize: tvtcTypography.fontSize.h4,
+        fontWeight: tvtcTypography.fontWeight.medium,
+        color: colors.textPrimary,
+        lineHeight: tvtcTypography.lineHeight.normal,
+      },
+      h5: {
+        fontFamily: tvtcTypography.fontFamilyHeadings,
+        fontSize: tvtcTypography.fontSize.h5,
+        fontWeight: tvtcTypography.fontWeight.medium,
+        color: colors.textPrimary,
+        lineHeight: tvtcTypography.lineHeight.normal,
+      },
+      h6: {
+        fontFamily: tvtcTypography.fontFamilyHeadings,
+        fontSize: tvtcTypography.fontSize.h6,
+        fontWeight: tvtcTypography.fontWeight.medium,
+        color: colors.textPrimary,
+        lineHeight: tvtcTypography.lineHeight.normal,
+      },
+      body1: {
+        fontSize: tvtcTypography.fontSize.body,
+        fontWeight: tvtcTypography.fontWeight.regular,
+        color: colors.textPrimary,
+        lineHeight: tvtcTypography.lineHeight.relaxed,
+      },
+      body2: {
+        fontSize: tvtcTypography.fontSize.small,
+        fontWeight: tvtcTypography.fontWeight.regular,
+        color: colors.textSecondary,
+        lineHeight: tvtcTypography.lineHeight.normal,
+      },
+      caption: {
+        fontSize: tvtcTypography.fontSize.caption,
+        fontWeight: tvtcTypography.fontWeight.regular,
+        color: colors.textSecondary,
+        lineHeight: tvtcTypography.lineHeight.normal,
+      },
+    },
+    
+    components: {
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            borderRadius: tvtcLayout.borderRadius,
+            textTransform: 'none',
+            fontWeight: tvtcTypography.fontWeight.medium,
+            padding: `${tvtcLayout.spacing.sm} ${tvtcLayout.spacing.md}`,
+            fontSize: tvtcTypography.fontSize.small,
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            boxShadow: tvtcLayout.boxShadow,
+            '&:hover': {
+              transform: 'translateY(-1px)',
+              boxShadow: tvtcLayout.boxShadowMedium,
+            },
+          },
+          contained: {
+            backgroundColor: colors.primary,
+            color: mode === 'dark' ? colors.black : colors.white,
+            '&:hover': {
+              backgroundColor: colors.primaryDark,
+              boxShadow: tvtcLayout.boxShadowMedium,
+            },
+          },
+          outlined: {
+            borderColor: colors.primary,
+            color: colors.primary,
+            '&:hover': {
+              borderColor: colors.primaryDark,
+              backgroundColor: alpha(colors.primary, 0.1),
+            },
+          },
+          text: {
+            color: colors.primary,
+            '&:hover': {
+              backgroundColor: alpha(colors.primary, 0.1),
+            },
+          },
+        },
+      },
+      
+      MuiCard: {
+        styleOverrides: {
+          root: {
+            borderRadius: tvtcLayout.borderRadiusLarge,
+            boxShadow: tvtcLayout.boxShadow,
+            border: `1px solid ${colors.border}`,
+            backgroundColor: colors.backgroundPaper,
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            '&:hover': {
+              boxShadow: tvtcLayout.boxShadowMedium,
+              transform: 'translateY(-2px)',
+            },
+          },
+        },
+      },
+      
+      MuiPaper: {
+        styleOverrides: {
+          root: {
+            backgroundColor: colors.backgroundPaper,
+            borderRadius: tvtcLayout.borderRadius,
+          },
+          elevation1: {
+            boxShadow: tvtcLayout.boxShadow,
+          },
+          elevation2: {
+            boxShadow: tvtcLayout.boxShadowMedium,
+          },
+          elevation3: {
+            boxShadow: tvtcLayout.boxShadowLarge,
+          },
+        },
+      },
+      
+      MuiTextField: {
+        styleOverrides: {
+          root: {
+            '& .MuiOutlinedInput-root': {
+              borderRadius: tvtcLayout.borderRadius,
+              backgroundColor: colors.backgroundPaper,
+              '&:hover .MuiOutlinedInput-notchedOutline': {
+                borderColor: colors.primary,
+                borderWidth: 2,
+              },
+              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                borderColor: colors.primary,
+                borderWidth: 2,
+              },
+            },
+          },
+        },
+      },
+      
+      MuiAppBar: {
+        styleOverrides: {
+          root: {
+            backgroundColor: colors.primary,
+            boxShadow: tvtcLayout.boxShadow,
+            color: mode === 'dark' ? colors.black : colors.white,
+          },
+        },
+      },
+      
+      MuiChip: {
+        styleOverrides: {
+          root: {
+            borderRadius: tvtcLayout.borderRadius,
+            fontWeight: tvtcTypography.fontWeight.medium,
+          },
+          filled: {
+            backgroundColor: colors.primary,
+            color: mode === 'dark' ? colors.black : colors.white,
+          },
+          outlined: {
+            borderColor: colors.primary,
+            color: colors.primary,
+          },
+        },
+      },
+      
+      MuiDivider: {
+        styleOverrides: {
+          root: {
+            borderColor: colors.border,
+          },
+        },
+      },
+      
+      MuiAlert: {
+        styleOverrides: {
+          root: {
+            borderRadius: tvtcLayout.borderRadius,
+          },
+          standardSuccess: {
+            backgroundColor: alpha(colors.success, mode === 'dark' ? 0.2 : 0.1),
+            color: colors.success,
+          },
+          standardWarning: {
+            backgroundColor: alpha(colors.warning, mode === 'dark' ? 0.2 : 0.1),
+            color: colors.warning,
+          },
+          standardError: {
+            backgroundColor: alpha(colors.error, mode === 'dark' ? 0.2 : 0.1),
+            color: colors.error,
+          },
+          standardInfo: {
+            backgroundColor: alpha(colors.info, mode === 'dark' ? 0.2 : 0.1),
+            color: colors.info,
+          },
+        },
+      },
+    },
+  };
+};
+
+export const createTvtcTheme = (direction: 'ltr' | 'rtl' = 'ltr', mode: 'light' | 'dark' = 'light') =>
   createTheme({
-    ...tvtcThemeOptions,
+    ...createThemeOptions(mode),
     direction,
   });
 

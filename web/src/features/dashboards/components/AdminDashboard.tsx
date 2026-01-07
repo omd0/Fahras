@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Card, CardContent, Grid, Button, CircularProgress, Alert, Typography, IconButton, Chip } from '@mui/material';
+import { Box, Card, CardContent, Grid, Button, CircularProgress, Alert, Typography, IconButton, Chip, Skeleton } from '@mui/material';
 import { getErrorMessage } from '@/utils/errorHandling';
 import {
   Assignment as AssignmentIcon,
@@ -136,8 +136,79 @@ export const AdminDashboard: React.FC = () => {
       {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-          <CircularProgress sx={{ color: theme.primary }} />
+        <Box>
+          {/* Stats Cards Skeleton */}
+          <Grid container spacing={3} sx={{ mb: 4 }}>
+            {Array.from({ length: 4 }).map((_, index) => (
+              <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index}>
+                <Card sx={{ borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+                  <CardContent sx={{ p: 3 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Box>
+                        <Skeleton variant="text" width={60} height={48} />
+                        <Skeleton variant="text" width={120} height={24} />
+                      </Box>
+                      <Skeleton variant="circular" width={56} height={56} />
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+
+          {/* Quick Actions Skeleton */}
+          <Card sx={{ borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.08)', mb: 4 }}>
+            <CardContent sx={{ p: 3 }}>
+              <Skeleton variant="text" width="30%" height={32} sx={{ mb: 3 }} />
+              <Grid container spacing={2}>
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <Grid size={{ xs: 12, sm: 6, md: 'grow' }} key={index}>
+                    <Skeleton variant="rounded" height={120} sx={{ borderRadius: 3 }} />
+                  </Grid>
+                ))}
+              </Grid>
+            </CardContent>
+          </Card>
+
+          {/* Recent Projects Skeleton */}
+          <Card sx={{ borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Skeleton variant="text" width={200} height={32} />
+                <Skeleton variant="text" width={100} height={32} />
+              </Box>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <Card
+                    key={index}
+                    sx={{
+                      border: '1px solid',
+                      borderColor: theme.borderColor,
+                      borderRadius: 2,
+                    }}
+                  >
+                    <CardContent>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                        <Box sx={{ flex: 1 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                            <Skeleton variant="circular" width={24} height={24} sx={{ mr: 1 }} />
+                            <Skeleton variant="text" width="60%" height={32} />
+                          </Box>
+                          <Skeleton variant="text" width="90%" />
+                          <Skeleton variant="text" width="70%" />
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+                            <Skeleton variant="rounded" width={80} height={24} />
+                            <Skeleton variant="text" width={150} />
+                          </Box>
+                        </Box>
+                        <Skeleton variant="circular" width={40} height={40} />
+                      </Box>
+                    </CardContent>
+                  </Card>
+                ))}
+              </Box>
+            </CardContent>
+          </Card>
         </Box>
       ) : (
         <>

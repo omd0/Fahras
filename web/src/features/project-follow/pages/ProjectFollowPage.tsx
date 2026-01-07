@@ -35,6 +35,7 @@ import { ActivityFeed } from '@/features/project-follow/components/ActivityFeed'
 import { ProjectHealthScore } from '@/features/project-follow/components/ProjectHealthScore';
 import { ProjectFlags } from '@/features/project-follow/components/ProjectFlags';
 import { ProjectFollowers } from '@/features/project-follow/components/ProjectFollowers';
+import { Breadcrumb, BreadcrumbItem } from '@/components/shared/Breadcrumb';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -214,8 +215,16 @@ export const ProjectFollowPage: React.FC = () => {
     );
   }
 
+  // Generate breadcrumbs
+  const breadcrumbItems: BreadcrumbItem[] = [
+    { label: 'Projects', path: '/explore' },
+    { label: project.title, path: getProjectDetailUrl(project) },
+    { label: 'Follow Manager', icon: <TimelineIcon fontSize="small" /> },
+  ];
+
   return (
     <DashboardContainer theme={theme}>
+      <Breadcrumb items={breadcrumbItems} />
       <Box sx={{ mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, flexWrap: 'wrap', gap: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>

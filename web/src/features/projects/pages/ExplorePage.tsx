@@ -4,7 +4,6 @@ import {
   Typography,
   Box,
   Avatar,
-  CircularProgress,
   Alert,
   Paper,
   Stack,
@@ -12,6 +11,7 @@ import {
   Button,
   Fade,
   Grid,
+  Skeleton,
 } from '@mui/material';
 import { guestColors, guestTheme, createDecorativeElements, backgroundPatterns } from '@/styles/theme/guestTheme';
 import { getStatusColor, getStatusLabel } from '@/utils/projectHelpers';
@@ -30,6 +30,7 @@ import { useLanguage } from '@/providers/LanguageContext';
 import { AdvancedFilters } from '@/components/explore/AdvancedFilters';
 import { SavedSearches } from '@/components/explore/SavedSearches';
 import { SmartProjectGrid } from '@/components/explore/SmartProjectGrid';
+import { ProjectGridSkeleton } from '@/components/skeletons';
 
 interface SearchFilters {
   search: string;
@@ -233,29 +234,93 @@ export const ExplorePage: React.FC = () => {
   if (loading) {
     return (
       <Box sx={{ 
-        minHeight: '100vh', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        ...backgroundPatterns.hero,
+        minHeight: '100vh',
+        ...backgroundPatterns.content,
         position: 'relative',
-        '&::before': decorativeElements.largeCircle,
-        '&::after': decorativeElements.mediumCircle,
+        '&::before': decorativeElements.geometricBackground,
       }}>
-        <Stack alignItems="center" spacing={3}>
-          <CircularProgress 
-            size={60} 
-            sx={{ 
-              color: COLORS.deepPurple,
-              '& .MuiCircularProgress-circle': {
-                strokeLinecap: 'round',
-              },
-            }} 
-          />
-          <Typography variant="h6" sx={{ color: COLORS.textSecondary, fontWeight: 500 }}>
-            {t('Loading amazing projects...')}
-          </Typography>
-        </Stack>
+        <Container maxWidth="xl" sx={{ py: 6 }}>
+          {/* Hero Section Skeleton */}
+          <Paper
+            elevation={0}
+            sx={{
+              mb: 6,
+              p: { xs: 3, sm: 4, md: 6 },
+              ...backgroundPatterns.hero,
+              borderRadius: 4,
+            }}
+          >
+            <Grid container spacing={{ xs: 4, md: 6 }} alignItems="center">
+              <Grid size={{ xs: 12, md: 'auto' }}>
+                <Box sx={{ display: 'flex', justifyContent: { xs: 'center', md: 'flex-start' } }}>
+                  <Skeleton variant="circular" width={140} height={140} />
+                </Box>
+              </Grid>
+              <Grid size={{ xs: 12, md: "grow" }}>
+                <Box sx={{ textAlign: { xs: 'center', md: 'left' } }}>
+                  <Skeleton variant="text" width="60%" height={60} sx={{ mb: 2 }} />
+                  <Skeleton variant="text" width="80%" height={30} />
+                  <Skeleton variant="text" width="70%" height={30} />
+                </Box>
+              </Grid>
+            </Grid>
+          </Paper>
+
+          {/* Search Section Skeleton */}
+          <Paper
+            elevation={0}
+            sx={{
+              mb: 6,
+              p: 5,
+              ...backgroundPatterns.card,
+            }}
+          >
+            <Stack direction="row" alignItems="center" spacing={3} sx={{ mb: 4 }}>
+              <Skeleton variant="circular" width={56} height={56} />
+              <Box sx={{ flex: 1 }}>
+                <Skeleton variant="text" width="40%" height={40} sx={{ mb: 1 }} />
+                <Skeleton variant="text" width="60%" height={30} />
+              </Box>
+            </Stack>
+            <Skeleton variant="rounded" width="100%" height={56} sx={{ borderRadius: 2 }} />
+          </Paper>
+
+          {/* Projects Grid Skeleton */}
+          <Box sx={{ mb: 6 }}>
+            <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 4 }}>
+              <Skeleton variant="circular" width={56} height={56} />
+              <Box sx={{ flex: 1 }}>
+                <Skeleton variant="text" width="30%" height={40} sx={{ mb: 1 }} />
+                <Skeleton variant="text" width="50%" height={30} />
+              </Box>
+            </Stack>
+            <ProjectGridSkeleton 
+              theme={{ 
+                primary: COLORS.deepPurple, 
+                borderColor: alpha(COLORS.almostBlack, 0.1) 
+              } as any} 
+              count={6} 
+            />
+          </Box>
+
+          {/* All Projects Section Skeleton */}
+          <Box>
+            <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 4 }}>
+              <Skeleton variant="circular" width={48} height={48} />
+              <Box sx={{ flex: 1 }}>
+                <Skeleton variant="text" width="30%" height={40} sx={{ mb: 1 }} />
+                <Skeleton variant="text" width="50%" height={30} />
+              </Box>
+            </Stack>
+            <ProjectGridSkeleton 
+              theme={{ 
+                primary: COLORS.deepPurple, 
+                borderColor: alpha(COLORS.almostBlack, 0.1) 
+              } as any} 
+              count={9} 
+            />
+          </Box>
+        </Container>
       </Box>
     );
   }

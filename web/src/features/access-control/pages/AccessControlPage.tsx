@@ -12,6 +12,7 @@ import { DashboardContainer } from '@/components/shared/DashboardContainer';
 import { useTheme } from '@/providers/ThemeContext';
 import { RolesTab } from '@/features/access-control/components/RolesTab';
 import { UsersTab } from '@/features/access-control/components/UsersTab';
+import { Breadcrumb, BreadcrumbItem } from '@/components/shared/Breadcrumb';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -44,8 +45,15 @@ export const AccessControlPage: React.FC = () => {
     setActiveTab(newValue);
   };
 
+  // Generate breadcrumbs
+  const breadcrumbItems: BreadcrumbItem[] = [
+    { label: 'Admin', path: '/dashboard' },
+    { label: 'Access Control', icon: <SecurityIcon fontSize="small" /> },
+  ];
+
   return (
     <DashboardContainer theme={theme}>
+      <Breadcrumb items={breadcrumbItems} />
       <Box sx={{ mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>

@@ -36,6 +36,7 @@ import { HeaderLogo } from '@/components/layout/HeaderLogo';
 import { Header } from '@/components/layout/Header';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { LanguageProvider, useLanguage } from '@/providers/LanguageContext';
+import { useThemeStore } from '@/store/themeStore';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import { prefixer } from 'stylis';
@@ -56,8 +57,9 @@ const createEmotionCache = (direction: 'ltr' | 'rtl') =>
 
 const AppContent: React.FC = () => {
   const { direction } = useLanguage();
+  const { mode } = useThemeStore();
 
-  const theme = useMemo(() => createTvtcTheme(direction), [direction]);
+  const theme = useMemo(() => createTvtcTheme(direction, mode), [direction, mode]);
   const rtlCache = useMemo(() => createEmotionCache('rtl'), []);
   const ltrCache = useMemo(() => createEmotionCache('ltr'), []);
   const cache = direction === 'rtl' ? rtlCache : ltrCache;

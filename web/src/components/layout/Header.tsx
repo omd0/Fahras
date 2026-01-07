@@ -5,6 +5,7 @@ import { Rocket as RocketIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/providers/LanguageContext';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { ThemeToggle } from './ThemeToggle';
 import { guestColors } from '@/styles/theme/guestTheme';
 
 export const Header: React.FC = () => {
@@ -84,6 +85,7 @@ export const Header: React.FC = () => {
               justifyContent: { xs: 'flex-end', sm: 'flex-end' },
             }}
           >
+            <ThemeToggle />
             <LanguageSwitcher />
             <Button
               variant="contained"

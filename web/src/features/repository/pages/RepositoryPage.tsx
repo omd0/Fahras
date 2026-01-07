@@ -8,6 +8,8 @@ import { RepositoryLayout } from '@/features/repository/components/RepositoryLay
 import { FileBrowser } from '@/features/repository/components/FileBrowser';
 import { FileContentViewer } from '@/features/repository/components/FileContentViewer';
 import { useRepositoryStore } from '@/store/repositoryStore';
+import { Breadcrumb, BreadcrumbItem } from '@/components/shared/Breadcrumb';
+import { Code as CodeIcon } from '@mui/icons-material';
 
 export const RepositoryPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -85,8 +87,16 @@ export const RepositoryPage: React.FC = () => {
     );
   }
 
+  // Generate breadcrumbs
+  const breadcrumbItems: BreadcrumbItem[] = [
+    { label: 'Projects', path: '/explore' },
+    { label: project.title, path: getProjectDetailUrl(project) },
+    { label: 'Repository', icon: <CodeIcon fontSize="small" /> },
+  ];
+
   return (
     <RepositoryLayout project={project} onBack={handleBack}>
+      <Breadcrumb items={breadcrumbItems} />
       <Grid container sx={{ height: '100%' }}>
         <Grid size={{ xs: 12, md: 3 }} sx={{ height: '100%', overflow: 'hidden' }}>
           <FileBrowser

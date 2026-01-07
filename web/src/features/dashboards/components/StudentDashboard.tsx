@@ -26,6 +26,7 @@ import {
   Container,
   useTheme as useMuiTheme,
   alpha,
+  Skeleton,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -70,6 +71,7 @@ import { DashboardContainer } from '@/components/shared/DashboardContainer';
 import { DashboardHeader } from '@/components/shared/DashboardHeader';
 import { StatsCard } from '@/components/shared/StatsCard';
 import { ProjectCard } from '@/components/shared/ProjectCard';
+import { ProjectGridSkeleton } from '@/components/skeletons';
 import { UniversalSearchBox } from '@/components/shared/UniversalSearchBox';
 
 interface StudentStats {
@@ -378,21 +380,115 @@ export const StudentDashboard: React.FC = () => {
         )}
 
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-            <Stack alignItems="center" spacing={3}>
-              <CircularProgress 
-                size={60} 
-                sx={{ 
-                  color: theme.primary,
-                  '& .MuiCircularProgress-circle': {
-                    strokeLinecap: 'round',
-                  },
-                }} 
-              />
-              <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 500 }}>
-                {t('Loading your dashboard...')}
-              </Typography>
+        <Box>
+          {/* Stats Cards Skeleton */}
+          <Grid container spacing={3} sx={{ mb: 5 }}>
+            {Array.from({ length: 4 }).map((_, index) => (
+              <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index}>
+                <Card
+                  sx={{
+                    borderRadius: 4,
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                  }}
+                >
+                  <CardContent sx={{ p: 3 }}>
+                    <Stack direction="row" alignItems="center" justifyContent="space-between">
+                      <Box>
+                        <Skeleton variant="text" width={60} height={50} />
+                        <Skeleton variant="text" width={120} height={30} />
+                      </Box>
+                      <Skeleton variant="circular" width={60} height={60} />
+                    </Stack>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+
+          {/* Activity Feed and Quick Actions Skeleton */}
+          <Grid container spacing={4} sx={{ mb: 5 }}>
+            <Grid size={{ xs: 12, lg: 4 }}>
+              <Card sx={{ borderRadius: 4, height: '100%' }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 3 }}>
+                    <Skeleton variant="circular" width={48} height={48} />
+                    <Box sx={{ flex: 1 }}>
+                      <Skeleton variant="text" width="60%" height={30} />
+                      <Skeleton variant="text" width="80%" height={20} />
+                    </Box>
+                  </Stack>
+                  {Array.from({ length: 3 }).map((_, index) => (
+                    <Box key={index} sx={{ mb: 2 }}>
+                      <Stack direction="row" alignItems="center" spacing={2}>
+                        <Skeleton variant="circular" width={40} height={40} />
+                        <Box sx={{ flex: 1 }}>
+                          <Skeleton variant="text" width="80%" />
+                          <Skeleton variant="text" width="60%" />
+                        </Box>
+                      </Stack>
+                    </Box>
+                  ))}
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, lg: 8 }}>
+              <Card sx={{ borderRadius: 4, height: '100%' }}>
+                <CardContent sx={{ p: 4, textAlign: 'center' }}>
+                  <Skeleton variant="circular" width={120} height={120} sx={{ mx: 'auto', mb: 3 }} />
+                  <Skeleton variant="text" width="60%" height={40} sx={{ mx: 'auto', mb: 2 }} />
+                  <Skeleton variant="text" width="80%" height={30} sx={{ mx: 'auto', mb: 4 }} />
+                  <Skeleton variant="rounded" width={200} height={48} sx={{ mx: 'auto' }} />
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+
+          {/* Search Section Skeleton */}
+          <Paper elevation={0} sx={{ p: 4, borderRadius: 4, mb: 5 }}>
+            <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 3 }}>
+              <Skeleton variant="circular" width={48} height={48} />
+              <Box sx={{ flex: 1 }}>
+                <Skeleton variant="text" width="30%" height={30} />
+                <Skeleton variant="text" width="50%" height={20} />
+              </Box>
             </Stack>
+            <Skeleton variant="rounded" width="100%" height={56} />
+          </Paper>
+
+          {/* My Projects Skeleton */}
+          <Paper elevation={0} sx={{ mb: 5, borderRadius: 4 }}>
+            <Box sx={{ p: 4 }}>
+              <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 4 }}>
+                <Skeleton variant="circular" width={56} height={56} />
+                <Box sx={{ flex: 1 }}>
+                  <Skeleton variant="text" width="30%" height={40} />
+                  <Skeleton variant="text" width="50%" height={25} />
+                </Box>
+              </Stack>
+              <ProjectGridSkeleton 
+                theme={theme} 
+                count={3} 
+                showProgress={true}
+              />
+            </Box>
+          </Paper>
+
+          {/* Community Projects Skeleton */}
+          <Paper elevation={0} sx={{ borderRadius: 4 }}>
+            <Box sx={{ p: 4 }}>
+              <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 4 }}>
+                <Skeleton variant="circular" width={56} height={56} />
+                <Box sx={{ flex: 1 }}>
+                  <Skeleton variant="text" width="35%" height={40} />
+                  <Skeleton variant="text" width="55%" height={25} />
+                </Box>
+              </Stack>
+              <ProjectGridSkeleton 
+                theme={theme} 
+                count={6} 
+              />
+            </Box>
+          </Paper>
         </Box>
       ) : (
         <>

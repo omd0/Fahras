@@ -27,7 +27,7 @@ import { ProjectMilestone, TimelineLink } from '@/types';
 import { apiService } from '@/lib/api';
 import { MilestoneTimelineItem } from './MilestoneTimelineItem';
 import { MilestoneDetailDialog } from './MilestoneDetailDialog';
-import { ConfirmDialog } from '../shared';
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 
 interface MilestoneTimelineProps {
   projectId: number;

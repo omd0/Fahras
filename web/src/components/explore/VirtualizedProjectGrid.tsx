@@ -1,5 +1,6 @@
 import React, { useRef, useCallback, useMemo } from 'react';
-import { FixedSizeGrid } from 'react-window';
+// TODO: Fix react-window compatibility - new version uses Grid instead of FixedSizeGrid
+// import { FixedSizeGrid } from 'react-window';
 import { Box, useMediaQuery, useTheme } from '@mui/material';
 import { Project } from '@/types';
 import {

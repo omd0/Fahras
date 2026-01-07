@@ -1,8 +1,8 @@
 import React from 'react';
 import { Project } from '@/types';
 import { ProjectGrid } from './ProjectGrid';
-import { VirtualizedProjectGrid } from './VirtualizedProjectGrid';
-import { useOptimalVirtualization } from '@/hooks/useVirtualization';
+// import { VirtualizedProjectGrid } from './VirtualizedProjectGrid';
+// import { useOptimalVirtualization } from '@/hooks/useVirtualization';
 
 interface SmartProjectGridProps {
   projects: Project[];
@@ -29,23 +29,24 @@ export const SmartProjectGrid: React.FC<SmartProjectGridProps> = ({
   forceVirtualization,
   virtualizationThreshold = 50,
 }) => {
-  const { enabled, config } = useOptimalVirtualization(projects.length);
-  
-  // Use forced setting if provided, otherwise use auto-detection
-  const shouldVirtualize = forceVirtualization !== undefined 
-    ? forceVirtualization 
-    : projects.length > virtualizationThreshold;
+  // TODO: Fix react-window compatibility issue (API changed from FixedSizeGrid to Grid)
+  // Temporarily disabled virtualization to fix build errors
 
-  if (shouldVirtualize) {
-    return (
-      <VirtualizedProjectGrid
-        projects={projects}
-        showTopBadge={showTopBadge}
-        containerHeight={config.containerHeight}
-        itemGap={config.itemGap}
-      />
-    );
-  }
+  // const { enabled, config } = useOptimalVirtualization(projects.length);
+  // const shouldVirtualize = forceVirtualization !== undefined
+  //   ? forceVirtualization
+  //   : projects.length > virtualizationThreshold;
+
+  // if (shouldVirtualize) {
+  //   return (
+  //     <VirtualizedProjectGrid
+  //       projects={projects}
+  //       showTopBadge={showTopBadge}
+  //       containerHeight={config.containerHeight}
+  //       itemGap={config.itemGap}
+  //     />
+  //   );
+  // }
 
   return (
     <ProjectGrid
