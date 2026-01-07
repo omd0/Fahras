@@ -138,7 +138,7 @@ docker compose exec node npm test
 - `src/store/` - Zustand stores (`authStore.ts`, `repositoryStore.ts`)
 - `src/types/` - TypeScript type definitions
 - `src/theme/` - MUI theme configuration
-- `src/utils/` - Utility functions
+- `src/utils/` - Utility functions including project routing and helpers
 
 **State Management**:
 - `authStore.ts` - Authentication state (user, token, login/logout/register)
@@ -150,6 +150,12 @@ docker compose exec node npm test
 - Axios interceptors handle auth token injection and 401 redirects
 - All endpoints typed with TypeScript interfaces
 - Defensive error handling with fallback values
+
+**Utility Functions**:
+- `projectRoutes.ts` - Centralized project URL routing (detail, edit, follow, code views)
+- `projectHelpers.ts` - Project status utilities (color coding, status labels)
+- `bookmarkCookies.ts` - Guest bookmark management with cookie persistence
+- `errorHandling.ts` - Standardized error handling utilities
 
 ### Key Integration Points
 
@@ -175,7 +181,35 @@ docker compose exec node npm test
    - Activity tracking for all project changes
    - Project following system with notification preferences
 
+5. **Project Slugs and Routing**:
+   - Projects use unique alphanumeric slugs (e.g., "244k3n") for URLs instead of numeric IDs
+   - Backend: `Project` model auto-generates slugs on creation, supports route binding by slug
+   - Backend: Fallback to numeric ID for backward compatibility during migration
+   - Frontend: Use `projectRoutes` utility for all project URLs (never hardcode)
+   - Example: `/pr/244k3n` instead of `/projects/123`
+
 ## Critical Development Patterns
+
+### Project URL Routing
+**ALWAYS use the `projectRoutes` utility** from `web/src/utils/projectRoutes.ts`:
+```typescript
+// ✅ Correct - Use centralized routing utility
+import { projectRoutes, getProjectDetailUrl } from '@/utils/projectRoutes';
+
+// Navigate to project detail
+navigate(projectRoutes.detail(project.slug));
+// Or with project object
+navigate(getProjectDetailUrl(project));
+
+// Link to project edit
+<Link to={projectRoutes.edit(project.slug)}>Edit</Link>
+
+// Other routes: projectRoutes.follow(), projectRoutes.code(), projectRoutes.codeFile()
+
+// ❌ Wrong - Never hardcode project URLs
+navigate(`/projects/${project.id}`); // Outdated pattern
+<Link to={`/project/${project.id}`}>View</Link> // Wrong prefix
+```
 
 ### Material-UI v7 Grid Syntax
 **ALWAYS use the `size` prop** (not `item` prop from v4):
@@ -197,6 +231,7 @@ docker compose exec node npm test
 // ✅ Correct
 {(items || []).map(item => <div key={item.id}>{item.name}</div>)}
 const userName = user?.full_name || 'Unknown';
+const roleName = user?.roles?.[0]?.name || 'No Role';
 
 // ❌ Wrong
 {items.map(item => <div key={item.id}>{item.name}</div>)} // crashes if items is null/undefined
@@ -217,9 +252,31 @@ const fetchData = async () => {
   }
 };
 
-// State initialization
-const [data, setData] = useState<User[]>([]); // Initialize with empty array
+// State initialization with try-catch-finally
+const [data, setData] = useState<User[]>([]);
+const [loading, setLoading] = useState(true);
+
+try {
+  const response = await apiService.getUsers();
+  setData(response.data || response || []);
+} catch (error) {
+  setData([]); // Set to fallback on error
+} finally {
+  setLoading(false);
+}
 ```
+
+### Import Management
+**Remove unused imports to avoid linting errors**:
+```typescript
+// ✅ Correct - Only import what you use
+import { Box, Typography, Button } from '@mui/material';
+
+// ❌ Incorrect - Imports unused components
+import { Box, Typography, Button, Card, CardContent } from '@mui/material';
+```
+
+Always run `npm run lint -- --fix` before committing to auto-remove unused imports.
 
 ### Axios Interceptor Behavior
 - Request interceptor: Reads token from localStorage (`auth-storage`), injects as `Bearer` token
@@ -325,7 +382,7 @@ docker compose exec php chmod -R 775 storage bootstrap/cache
 - `users` - User accounts with roles
 - `roles` - Custom roles with permissions
 - `permissions` - Granular permissions with categories and scopes
-- `projects` - Projects with approval status, visibility, and custom members
+- `projects` - Projects with approval status, visibility, custom members, and unique slugs
 - `files` - File metadata with cloud storage paths
 - `project_milestones` - Project milestones with dependencies
 - `milestone_templates` - Reusable milestone templates
@@ -356,3 +413,4 @@ docker compose exec php chmod -R 775 storage bootstrap/cache
 4. **Cloud Storage**: Supports multiple providers (MinIO, AWS S3, Google Cloud, Azure, Dropbox)
 5. **RBAC System**: Custom role system with granular permissions and scopes (not using Laravel's built-in policies)
 6. **Docker-First**: All development happens in containers; avoid running commands on host machine
+7. **Project Slugs**: Use slug-based URLs for SEO and user-friendly routing; backend supports backward compatibility with numeric IDs

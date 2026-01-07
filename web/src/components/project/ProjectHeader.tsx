@@ -16,6 +16,7 @@ import {
   Timeline as TimelineIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { getProjectDetailUrl, getProjectEditUrl, getProjectFollowUrl, getProjectCodeUrl, projectRoutes, getProjectSlug } from '../../utils/projectRoutes';
 import { Project } from '../../types';
 import { BookmarkButton } from '../BookmarkButton';
 import ProjectVisibilityToggle from '../ProjectVisibilityToggle';
@@ -80,7 +81,7 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({
           <Button
             color="inherit"
             startIcon={<EditIcon />}
-            onClick={() => navigate(`/projects/${project.id}/edit`)}
+            onClick={() => navigate(getProjectEditUrl(project))}
             sx={{ 
               mr: 1,
               color: isProfessor ? professorColors.secondary : '#4CAF50', // Light Blue/Turquoise for Edit
@@ -108,7 +109,7 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({
           <Button
             color="inherit"
             startIcon={<TimelineIcon />}
-            onClick={() => navigate(`/projects/${project.id}/follow`)}
+            onClick={() => navigate(getProjectFollowUrl(project))}
             sx={{ 
               mr: 1,
               color: isProfessor ? professorColors.secondary : '#9C27B0', // Purple for Timeline

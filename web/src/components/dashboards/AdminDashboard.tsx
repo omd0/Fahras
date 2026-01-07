@@ -14,6 +14,7 @@ import {
   Timeline as TimelineIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { getProjectDetailUrl, getProjectEditUrl, getProjectFollowUrl, getProjectCodeUrl, projectRoutes, getProjectSlug } from '../../utils/projectRoutes';
 import { Project } from '../../types';
 import { apiService } from '../../services/api';
 import { getRoleInfo } from '../../config/dashboardThemes';
@@ -201,7 +202,7 @@ export const AdminDashboard: React.FC = () => {
                         borderColor: theme.primary,
                       },
                     }}
-                    onClick={() => navigate(`/dashboard/projects/${project.id}`)}
+                    onClick={() => navigate(getProjectDetailUrl(project))}
                   >
                     <CardContent>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>

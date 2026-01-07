@@ -35,6 +35,7 @@ import {
   Description as DescriptionIcon,
 } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
+import { getProjectDetailUrl, getProjectEditUrl, getProjectFollowUrl, getProjectCodeUrl, projectRoutes, getProjectSlug } from '../../utils/projectRoutes';
 import { useAuthStore } from '../store/authStore';
 import { CreateProjectData, Program, User } from '../types';
 import { apiService } from '../services/api';

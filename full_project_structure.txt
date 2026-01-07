@@ -1,0 +1,456 @@
+.
+├── ADMIN_DASHBOARD.md
+├── ADMIN_DASHBOARD_REVIEW.md
+├── api
+│   ├── add_faculty_users.php
+│   ├── app
+│   │   ├── Constants
+│   │   │   ├── AdvisorRole.php
+│   │   │   ├── ApprovalStatus.php
+│   │   │   ├── MemberRole.php
+│   │   │   └── ProjectStatus.php
+│   │   ├── Http
+│   │   │   ├── Controllers
+│   │   │   │   ├── AuthController.php
+│   │   │   │   ├── Controller.php
+│   │   │   │   ├── FileController.php
+│   │   │   │   ├── MilestoneController.php
+│   │   │   │   ├── MilestoneTemplateController.php
+│   │   │   │   ├── NotificationController.php
+│   │   │   │   ├── ProjectController.php
+│   │   │   │   ├── ProjectFollowController.php
+│   │   │   │   ├── RoleController.php
+│   │   │   │   └── UserController.php
+│   │   │   ├── Middleware
+│   │   │   │   └── OptionalAuthSanctum.php
+│   │   │   └── Requests
+│   │   │       └── Project
+│   │   ├── Models
+│   │   │   ├── Bookmark.php
+│   │   │   ├── Comment.php
+│   │   │   ├── Department.php
+│   │   │   ├── Faculty.php
+│   │   │   ├── File.php
+│   │   │   ├── MilestoneTemplateItem.php
+│   │   │   ├── MilestoneTemplate.php
+│   │   │   ├── Notification.php
+│   │   │   ├── Permission.php
+│   │   │   ├── Program.php
+│   │   │   ├── ProjectActivity.php
+│   │   │   ├── ProjectFlag.php
+│   │   │   ├── ProjectFollower.php
+│   │   │   ├── ProjectMilestone.php
+│   │   │   ├── Project.php
+│   │   │   ├── Rating.php
+│   │   │   ├── Role.php
+│   │   │   ├── Student.php
+│   │   │   └── User.php
+│   │   ├── Providers
+│   │   │   ├── AppServiceProvider.php
+│   │   │   ├── AuthServiceProvider.php
+│   │   │   ├── EventServiceProvider.php
+│   │   │   └── RouteServiceProvider.php
+│   │   └── Services
+│   │       ├── MilestoneTemplateService.php
+│   │       ├── PermissionService.php
+│   │       ├── Project
+│   │       │   ├── ProjectMemberService.php
+│   │       │   ├── ProjectService.php
+│   │       │   └── ProjectVisibilityService.php
+│   │       └── ProjectActivityService.php
+│   ├── artisan
+│   ├── bootstrap
+│   │   ├── app.php
+│   │   └── cache
+│   │       ├── packages.php
+│   │       └── services.php
+│   ├── check-email-config.php
+│   ├── cleanup_incomplete_users.php
+│   ├── clear-email-config.bat
+│   ├── clear-email-config.sh
+│   ├── cloud-storage-config.example
+│   ├── composer.json
+│   ├── composer.lock
+│   ├── config
+│   │   ├── app.php
+│   │   ├── database.php
+│   │   ├── filesystems.php
+│   │   ├── mail.php
+│   │   ├── milestone_templates.php
+│   │   ├── organization.php
+│   │   ├── resend.php
+│   │   └── sanctum.php
+│   ├── create_user.php
+│   ├── database
+│   │   ├── migrations
+│   │   │   ├── 2019_12_14_000001_create_personal_access_tokens_table.php
+│   │   │   ├── 2024_01_01_000001_create_users_table.php
+│   │   │   ├── 2024_01_01_000002_create_roles_table.php
+│   │   │   ├── 2024_01_01_000003_create_academic_structure_table.php
+│   │   │   ├── 2024_01_01_000004_create_projects_table.php
+│   │   │   ├── 2024_01_01_000005_create_files_table.php
+│   │   │   ├── 2024_01_01_000006_create_notifications_table.php
+│   │   │   ├── 2024_01_01_000007_add_avatar_url_to_users_table.php
+│   │   │   ├── 2024_01_01_000008_create_comments_and_ratings_table.php
+│   │   │   ├── 2024_01_01_000009_add_approval_fields_to_projects_table.php
+│   │   │   ├── 2024_01_01_000014_add_custom_members_to_projects_table.php
+│   │   │   ├── 2024_01_01_000015_create_email_verifications_table.php
+│   │   │   ├── 2025_11_06_084148_fix_email_verifications_table_structure.php
+│   │   │   ├── 2025_12_14_124717_create_bookmarks_table.php
+│   │   │   ├── 2025_12_18_102944_add_new_fields_to_roles_permissions_and_permission_role_tables.php
+│   │   │   ├── 2025_12_19_000001_create_project_follow_tables.php
+│   │   │   ├── 2025_12_19_000002_create_graduate_program_template.php
+│   │   │   ├── 2026_01_07_112415_add_slug_to_projects_table.php
+│   │   │   └── 2026_01_07_112416_populate_project_slugs.php
+│   │   └── seeders
+│   │       ├── DatabaseSeeder.php
+│   │       ├── DepartmentSeeder.php
+│   │       ├── PermissionSeeder.php
+│   │       ├── ProgramSeeder.php
+│   │       ├── ProjectSeeder.php
+│   │       ├── RoleSeeder.php
+│   │       └── UserSeeder.php
+│   ├── Dockerfile
+│   ├── env.example
+│   ├── fix_user_passwords.php
+│   ├── .forgejo
+│   │   └── workflows
+│   │       ├── build-release.yml
+│   │       ├── ci.yml
+│   │       └── dependency-audit.yml
+│   ├── init-minio.bat
+│   ├── init-minio.sh
+│   ├── install-cloud-storage.bat
+│   ├── install-cloud-storage.sh
+│   ├── php-custom.ini
+│   ├── phpunit.xml
+│   ├── public
+│   │   └── index.php
+│   ├── routes
+│   │   ├── api.php
+│   │   ├── console.php
+│   │   └── web.php
+│   ├── storage
+│   ├── test
+│   │   ├── debug-pdf-display.php
+│   │   ├── test-cloud-storage.php
+│   │   ├── test-complete-flow.php
+│   │   ├── test-direct-upload.php
+│   │   ├── test-file-upload.php
+│   │   ├── test-login.php
+│   │   └── test-upload.txt
+│   ├── test-email-config.php
+│   ├── test-role-api.php
+│   └── tests
+│       ├── Feature
+│       │   └── ExampleTest.php
+│       ├── TestCase.php
+│       └── Unit
+│           └── ExampleTest.php
+├── API_DEBUG_GUIDE.md
+├── artisan
+├── CLAUDE.md
+├── CLEAR_BUTTON_IMPLEMENTATION.md
+├── Component-Library-Archive.md
+├── .cursor
+│   ├── debug.log
+│   └── rules
+│       ├── api-data-patterns.mdc
+│       ├── material-ui-patterns.mdc
+│       ├── project-structure.mdc
+│       └── react-development-workflow.mdc
+├── deploy.bat
+├── deploy.sh
+├── dev
+│   ├── Backend-implemntion.plan.md
+│   ├── command
+│   │   └── exrtact-ui.command.md
+│   ├── components.md
+│   ├── DOCKER.md
+│   ├── githubLike-Implemention.plan.md
+│   ├── grid-system.md
+│   ├── MINIO_INTEGRATION.md
+│   ├── pages.md
+│   ├── plan
+│   ├── PRODUCTION_DEPLOYMENT.md
+│   ├── PROJECT_STRUCTURE.md
+│   ├── QUICK_START_MINIO.md
+│   ├── README.md
+│   ├── SCRIPTS.md
+│   ├── theme-system.md
+│   ├── ui-overview.md
+│   └── ui-patterns.md
+├── dev.bat
+├── dev.sh
+├── docker-compose.forgejo.yml
+├── docker-compose.yml
+├── docker-entrypoint.sh
+├── Dockerfile.production
+├── docker-helpers.bat
+├── docker-helpers.sh
+├── DOCKER.md
+├── Dynamic-Project-Detail-Layouts.md
+├── FILE_DEBUG_GUIDE.md
+├── forgejo
+│   ├── docker-registry-config.yml
+│   ├── env.example
+│   ├── nginx-forgejo.conf
+│   └── README.md
+├── FORGEJO_IMPLEMENTATION_GUIDE.md
+├── FORGEJO_IMPLEMENTATION_SUMMARY.md
+├── FORGEJO_QUICKSTART.md
+├── FRONTEND_IMPLEMENTATION_PLAN.md
+├── full_project_structure.txt
+├── .github
+│   └── workflows
+│       └── ci-cd.yml
+├── GITHUB_LIKE_IMPLEMENTATION_PLAN.plan.md
+├── .gitignore
+├── HEADER_THEME_UPDATE.md
+├── Home-to-Explore-Transition.md
+├── HOW_TO_ACCESS_PROJECT_FOLLOW_MANAGER.md
+├── MILESTONE_TEMPLATE_USER_FLOW.md
+├── nginx.conf
+├── nginx.production.conf
+├── ORGANIZATION_CONFIG_README.md
+├── organization-config.yml
+├── PHASE_4C_TRANSACTION_SUMMARY.md
+├── PHASE_6C_PROGRESS_REPORT.md
+├── .plan
+│   ├── Project-Viewer-Layouts.md
+│   └── routing-redesign-plan.md
+├── PROJECT_ACCESS_CONTROL.md
+├── PROJECT_STATUS_FEATURE.md
+├── project_structure.txt
+├── README.md
+├── requirements.txt
+├── REVIEWER_SEARCH_FEATURE.md
+├── screenshot_automation.py
+├── screenshots
+│   ├── analytics.png
+│   ├── approvals.png
+│   ├── create_project.png
+│   ├── dashboard.png
+│   ├── evaluations.png
+│   ├── explore_page_final.png
+│   ├── explore_page_guest.png
+│   ├── explore_page.png
+│   ├── loading.png
+│   ├── login_page.png
+│   ├── login.png
+│   ├── main_page.png
+│   ├── profile.png
+│   ├── projects.png
+│   ├── register_page.png
+│   ├── register.png
+│   ├── SCREENSHOTS_INDEX.md
+│   ├── settings.png
+│   ├── student_create_project.png
+│   ├── student_dashboard.png
+│   ├── student_profile.png
+│   └── user_management.png
+├── scripts
+│   ├── backup-forgejo.sh
+│   ├── init-forgejo.sh
+│   ├── setup-forgejo.sh
+│   └── sync-org-config.sh
+├── .serena
+│   ├── cache
+│   │   └── typescript
+│   │       ├── document_symbols.pkl
+│   │       └── raw_document_symbols.pkl
+│   ├── .gitignore
+│   ├── memories
+│   └── project.yml
+├── setup.bat
+├── setup.sh
+├── simple_screenshot.py
+├── SORT_BY_ENHANCEMENT.md
+├── test
+├── test-cloud-storage.php
+├── test_file.txt
+├── tests
+│   └── Feature
+│       └── ProjectTransactionTest.php
+├── UI-Inventory-Report.md
+├── UI-UX-Improvement-Plan.md
+├── .vite
+│   └── deps
+│       ├── _metadata.json
+│       └── package.json
+├── VITE_DEPLOYMENT_SUCCESS.md
+├── VITE_MIGRATION.md
+└── web
+    ├── DASHBOARD_REDESIGN_SUMMARY.md
+    ├── env.example
+    ├── .gitignore
+    ├── index.html
+    ├── package.json
+    ├── package-lock.json
+    ├── PHASE_6C_IMPLEMENTATION_SUMMARY.md
+    ├── pnpm-lock.yaml
+    ├── public
+    │   └── organization-config.yml
+    ├── README.md
+    ├── src
+    │   ├── App.css
+    │   ├── App.test.tsx
+    │   ├── App.tsx
+    │   ├── components
+    │   │   ├── access-control
+    │   │   │   ├── AnalyticsTab.tsx
+    │   │   │   ├── PermissionSelector.tsx
+    │   │   │   ├── PermissionsTab.tsx
+    │   │   │   ├── RoleCard.tsx
+    │   │   │   ├── RoleDialog.tsx
+    │   │   │   ├── RolesTab.tsx
+    │   │   │   └── UsersTab.tsx
+    │   │   ├── BookmarkButton.tsx
+    │   │   ├── CommentSection.tsx
+    │   │   ├── dashboards
+    │   │   │   ├── AdminDashboard.tsx
+    │   │   │   ├── FacultyDashboard.tsx
+    │   │   │   ├── FacultyHomeDashboard.tsx
+    │   │   │   ├── ReviewerDashboard.tsx
+    │   │   │   └── StudentDashboard.tsx
+    │   │   ├── ErrorBoundary.tsx
+    │   │   ├── explore
+    │   │   │   ├── AdvancedFilters.tsx
+    │   │   │   └── ProjectGrid.tsx
+    │   │   ├── HeaderLogo.tsx
+    │   │   ├── Header.tsx
+    │   │   ├── LanguageSwitcher.tsx
+    │   │   ├── milestone-templates
+    │   │   │   ├── ProgramTemplateSelector.tsx
+    │   │   │   ├── TemplateEditor.tsx
+    │   │   │   └── TemplateList.tsx
+    │   │   ├── NotificationCenter.tsx
+    │   │   ├── PageTransition.tsx
+    │   │   ├── project
+    │   │   │   ├── MemberManagementForm.tsx
+    │   │   │   ├── ProjectBasicInfoForm.tsx
+    │   │   │   ├── ProjectFiles.tsx
+    │   │   │   ├── ProjectHeader.tsx
+    │   │   │   ├── ProjectInfo.tsx
+    │   │   │   ├── ProjectMainInfo.tsx
+    │   │   │   ├── ProjectMetadata.tsx
+    │   │   │   └── ProjectSidebar.tsx
+    │   │   ├── ProjectApprovalActions.tsx
+    │   │   ├── ProjectExportDialog.tsx
+    │   │   ├── project-follow
+    │   │   │   ├── ActivityFeed.tsx
+    │   │   │   ├── ActivityItem.tsx
+    │   │   │   ├── MilestoneDetailDialog.tsx
+    │   │   │   ├── MilestoneTimelineItem.tsx
+    │   │   │   ├── MilestoneTimeline.tsx
+    │   │   │   ├── ProgressTimeline.tsx
+    │   │   │   ├── ProjectFlagDialog.tsx
+    │   │   │   ├── ProjectFlags.tsx
+    │   │   │   ├── ProjectFollowers.tsx
+    │   │   │   └── ProjectHealthScore.tsx
+    │   │   ├── ProjectInteractions.tsx
+    │   │   ├── ProjectSearch.tsx
+    │   │   ├── ProjectTable.md
+    │   │   ├── ProjectTable.tsx
+    │   │   ├── ProjectVisibilityToggle.tsx
+    │   │   ├── ProtectedRoute.tsx
+    │   │   ├── RatingSection.tsx
+    │   │   ├── repository
+    │   │   │   ├── FileBrowser.tsx
+    │   │   │   ├── FileContentViewer.tsx
+    │   │   │   ├── index.ts
+    │   │   │   ├── RepositoryHeader.tsx
+    │   │   │   ├── RepositoryLayout.tsx
+    │   │   │   └── RepositoryTabs.tsx
+    │   │   ├── RoleProtectedRoute.tsx
+    │   │   ├── shared
+    │   │   │   ├── DashboardContainer.tsx
+    │   │   │   ├── DashboardHeader.tsx
+    │   │   │   ├── index.ts
+    │   │   │   ├── ProjectCard.tsx
+    │   │   │   ├── ProjectTable.tsx
+    │   │   │   ├── QuickActions.tsx
+    │   │   │   ├── StatsCard.tsx
+    │   │   │   └── UniversalSearchBox.tsx
+    │   │   ├── StatusSelector.tsx
+    │   │   ├── student
+    │   │   │   ├── ProjectDetailDialog.tsx
+    │   │   │   ├── ProjectFilters.tsx
+    │   │   │   └── ProjectTabs.tsx
+    │   │   ├── TVTCBranding.tsx
+    │   │   ├── TVTCLogo.tsx
+    │   │   └── TVTCThemeTest.tsx
+    │   ├── config
+    │   │   ├── dashboardThemes.ts
+    │   │   └── organization.ts
+    │   ├── contexts
+    │   │   ├── LanguageContext.tsx
+    │   │   └── ThemeContext.tsx
+    │   ├── hooks
+    │   │   ├── useBookmark.ts
+    │   │   └── useNotifications.ts
+    │   ├── i18n
+    │   │   └── translations.ts
+    │   ├── index.css
+    │   ├── index.tsx
+    │   ├── logo.svg
+    │   ├── pages
+    │   │   ├── AccessControlPage.tsx
+    │   │   ├── AdminProjectApprovalPage.tsx
+    │   │   ├── AnalyticsPage.tsx
+    │   │   ├── ApprovalsPage.tsx
+    │   │   ├── CatsSavePage.tsx
+    │   │   ├── CreateProjectPage.tsx
+    │   │   ├── DashboardPage.tsx
+    │   │   ├── EditProjectPage.tsx
+    │   │   ├── EvaluationsPage.tsx
+    │   │   ├── ExplorePage.tsx
+    │   │   ├── FacultyPendingApprovalPage.tsx
+    │   │   ├── GuestProjectDetailPage.tsx
+    │   │   ├── HomePage.tsx
+    │   │   ├── LoginPage.tsx
+    │   │   ├── MilestoneTemplateConfigPage.tsx
+    │   │   ├── MyBookmarksPage.tsx
+    │   │   ├── NotificationsPage.tsx
+    │   │   ├── ProfilePage.tsx
+    │   │   ├── ProjectDetailPage.tsx
+    │   │   ├── ProjectDetailPage.tsx.backup
+    │   │   ├── ProjectFollowPage.tsx
+    │   │   ├── PublicDashboardPage.tsx
+    │   │   ├── RegisterPage.tsx
+    │   │   ├── RepositoryPage.tsx
+    │   │   ├── SettingsPage.tsx
+    │   │   ├── StudentMyProjectsPage.tsx
+    │   │   ├── TestAuthPage.tsx
+    │   │   └── UserManagementPage.tsx
+    │   ├── reportWebVitals.ts
+    │   ├── services
+    │   │   ├── api.ts
+    │   │   ├── notificationService.ts
+    │   │   └── repositoryService.ts
+    │   ├── setupTests.ts
+    │   ├── store
+    │   │   ├── authStore.ts
+    │   │   └── repositoryStore.ts
+    │   ├── __tests__
+    │   │   └── App.test.tsx
+    │   ├── theme
+    │   │   ├── guestTheme.ts
+    │   │   ├── professorTheme.ts
+    │   │   └── tvtcTheme.ts
+    │   ├── types
+    │   │   ├── index.ts
+    │   │   ├── milestones.ts
+    │   │   └── organization-config.ts
+    │   ├── utils
+    │   │   ├── bookmarkCookies.ts
+    │   │   ├── errorHandling.ts
+    │   │   ├── projectHelpers.ts
+    │   │   └── projectRoutes.ts
+    │   └── vite-env.d.ts
+    ├── test-dashboard.html
+    ├── tsconfig.json
+    ├── tsconfig.node.json
+    └── vite.config.ts
+
+71 directories, 383 files

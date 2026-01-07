@@ -6,10 +6,14 @@ import {
   Alert,
   CircularProgress,
   Button,
+  Fade,
+  Slide,
+  Grow,
 } from '@mui/material';
 import {
   ArrowBack as ArrowBackIcon,
 } from '@mui/icons-material';
+import { PageTransition } from '../components/PageTransition';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { Project } from '../types';
@@ -38,12 +42,22 @@ export const ProjectDetailPage: React.FC = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const { t } = useLanguage();
 
-  
+
   // Check if user is a professor
   const isProfessor = user?.roles?.some(role => role.name === 'faculty');
+
+  // Check if user can edit or delete the project
+  const canEdit = user && project && (
+    user.id === project.created_by_user_id ||
+    user.roles?.some(role => role.name === 'admin')
+  );
+  const canDelete = user && project && (
+    user.id === project.created_by_user_id ||
+    user.roles?.some(role => role.name === 'admin')
+  );
 
   const handleBackClick = () => {
     // Go back to the previous page or to dashboard if no history
@@ -60,15 +74,15 @@ export const ProjectDetailPage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (id) {
-      fetchProject(parseInt(id));
+    if (slug) {
+      fetchProject(slug);
     }
-  }, [id]);
+  }, [slug]);
 
-  // Scroll to top when project details page loads or project ID changes
+  // Scroll to top when project details page loads or project slug changes
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [id]);
+  }, [slug]);
 
   const loadProjectFiles = async (projectId: number) => {
     setFilesLoading(true);
@@ -109,13 +123,13 @@ export const ProjectDetailPage: React.FC = () => {
     }
   };
 
-  const fetchProject = async (projectId: number) => {
+  const fetchProject = async (slugOrId: string | number) => {
     try {
-      console.log('Fetching project:', projectId);
-      const response = await apiService.getProject(projectId);
+      console.log('Fetching project:', slugOrId);
+      const response = await apiService.getProject(slugOrId);
       console.log('Project response:', response);
       setProject(response.project);
-      await loadProjectFiles(projectId);
+      await loadProjectFiles(response.project.id);
       
       // Debug: Log files data to console for verification
       if (response.project.files) {
@@ -164,27 +178,70 @@ export const ProjectDetailPage: React.FC = () => {
     await fetchProject(project.id);
   };
 
+  // Show loading state
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
+  // Show error state
+  if (error) {
+    return (
+      <Container maxWidth="lg" sx={{ mt: 4 }}>
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+        <Button
+          startIcon={<ArrowBackIcon />}
+          onClick={handleBackClick}
+        >
+          {t('Back')}
+        </Button>
+      </Container>
+    );
+  }
+
+  // Show error if project not found
+  if (!project) {
+    return (
+      <Container maxWidth="lg" sx={{ mt: 4 }}>
+        <Alert severity="error" sx={{ mb: 2 }}>
+          Project not found
+        </Alert>
+        <Button
+          startIcon={<ArrowBackIcon />}
+          onClick={handleBackClick}
+        >
+          {t('Back')}
+        </Button>
+      </Container>
+    );
+  }
 
   const content = (
     <Box sx={{ flexGrow: 1 }}>
-      <ProjectHeader
-        project={project}
-        user={user}
-        isProfessor={isProfessor}
-        canEdit={canEdit}
-        canDelete={canDelete}
-        deleting={deleting}
-        onBack={handleBackClick}
-        onEdit={() => navigate(`/projects/${project.id}/edit`)}
-        onDelete={handleDelete}
-        onViewRepository={() => navigate(`/projects/${project.id}/code`)}
-        onFollowTrack={() => navigate(`/projects/${project.id}/follow`)}
-        onExport={() => setExportDialogOpen(true)}
-        onToggleVisibility={() => fetchProject(project.id)}
-      />
+      <Fade in={true} timeout={400}>
+        <Box>
+          <ProjectHeader
+            project={project}
+            user={user}
+            isProfessor={isProfessor}
+            canEdit={canEdit}
+            canDelete={canDelete}
+            deleting={deleting}
+            onBackClick={handleBackClick}
+            onDelete={handleDelete}
+            onExport={() => setExportDialogOpen(true)}
+            onRefreshProject={() => fetchProject(project.id)}
+          />
+        </Box>
+      </Fade>
 
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      <Slide in={true} direction="up" timeout={500} mountOnEnter>
+        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 8 }}>
             <ProjectMainInfo
@@ -197,12 +254,9 @@ export const ProjectDetailPage: React.FC = () => {
 
             <Box sx={{ mt: 3 }}>
               <ProjectFiles
-                files={project.files || []}
-                projectId={project.id}
-                loading={filesLoading}
+                project={project}
                 isProfessor={isProfessor}
-                showRepositoryButton={!!user}
-                onNavigateToRepository={() => navigate(`/projects/${project.id}/code`)}
+                filesLoading={filesLoading}
               />
             </Box>
           </Grid>
@@ -223,7 +277,8 @@ export const ProjectDetailPage: React.FC = () => {
             <CommentSection projectId={project.id} />
           </Grid>
         </Grid>
-      </Container>
+        </Container>
+      </Slide>
 
       {/* Status Selector Dialog */}
       {project && (

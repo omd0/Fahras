@@ -20,6 +20,7 @@ import { useNavigate } from 'react-router-dom';
 import { Project } from '../../types';
 import { DashboardTheme } from '../../config/dashboardThemes';
 import { useAuthStore } from '../../store/authStore';
+import { getProjectDetailUrl } from '../../utils/projectRoutes';
 
 interface ProjectCardProps {
   project: Project;
@@ -64,14 +65,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     return statusProgress[status] || 0;
   };
 
-  // Determine the correct route based on authentication status
+  // Get the project detail URL using the utility function
   const getProjectRoute = () => {
-    // If user is authenticated, use the protected dashboard route
-    if (user) {
-      return `/dashboard/projects/${project.id}`;
-    }
-    // If not authenticated, use the public route
-    return `/projects/${project.id}`;
+    return getProjectDetailUrl(project);
   };
 
   return (
@@ -80,12 +76,16 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         border: `1px solid ${theme.borderColor}`,
         borderRadius: 2,
         cursor: 'pointer',
-        transition: 'all 0.3s ease',
         height: '100%',
+        transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
         '&:hover': {
-          boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
-          transform: 'translateY(-2px)',
+          boxShadow: '0 12px 32px rgba(0,0,0,0.15)',
+          transform: 'translateY(-8px) scale(1.02)',
           borderColor: theme.primary,
+        },
+        '&:active': {
+          transform: 'translateY(-2px) scale(0.98)',
+          transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
         },
       }}
       onClick={() => navigate(getProjectRoute())}

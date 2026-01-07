@@ -24,6 +24,7 @@ import {
   NotificationsOff as NotificationsOffIcon,
 } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
+import { getProjectDetailUrl, getProjectEditUrl, getProjectFollowUrl, getProjectCodeUrl, projectRoutes, getProjectSlug } from '../../utils/projectRoutes';
 import { DashboardContainer } from '../components/shared/DashboardContainer';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuthStore } from '../store/authStore';

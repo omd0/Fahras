@@ -306,8 +306,8 @@ class ApiService {
     return response.data;
   }
 
-  async getProject(id: number): Promise<{ project: Project }> {
-    const response: AxiosResponse = await this.api.get(`/projects/${id}`);
+  async getProject(slugOrId: string | number): Promise<{ project: Project }> {
+    const response: AxiosResponse = await this.api.get(`/projects/${slugOrId}`);
     return response.data;
   }
 
@@ -316,17 +316,17 @@ class ApiService {
     return response.data;
   }
 
-  async updateProject(id: number, data: Partial<CreateProjectData>): Promise<{ project: Project }> {
-    const response: AxiosResponse = await this.api.put(`/projects/${id}`, data);
+  async updateProject(slugOrId: string | number, data: Partial<CreateProjectData>): Promise<{ project: Project }> {
+    const response: AxiosResponse = await this.api.put(`/projects/${slugOrId}`, data);
     return response.data;
   }
 
-  async deleteProject(id: number): Promise<void> {
-    await this.api.delete(`/projects/${id}`);
+  async deleteProject(slugOrId: string | number): Promise<void> {
+    await this.api.delete(`/projects/${slugOrId}`);
   }
 
   // File endpoints
-  async uploadFile(projectId: number, file: globalThis.File, isPublic: boolean = false): Promise<{ file: File }> {
+  async uploadFile(slugOrId: string | number, file: globalThis.File, isPublic: boolean = false): Promise<{ file: File }> {
     const formData = new FormData();
     formData.append('file', file);
     // Send boolean as string '1' for true, '0' for false (Laravel compatible)
@@ -334,13 +334,13 @@ class ApiService {
 
     // Content-Type header will be automatically set by the interceptor for FormData
     // The interceptor removes the default Content-Type to let browser set it with boundary
-    const response: AxiosResponse = await this.api.post(`/projects/${projectId}/files`, formData);
+    const response: AxiosResponse = await this.api.post(`/projects/${slugOrId}/files`, formData);
     return response.data;
   }
 
 
-  async getProjectFiles(projectId: number): Promise<{ files: File[]; debug?: any }> {
-    const response: AxiosResponse = await this.api.get(`/projects/${projectId}/files`);
+  async getProjectFiles(slugOrId: string | number): Promise<{ files: File[]; debug?: any }> {
+    const response: AxiosResponse = await this.api.get(`/projects/${slugOrId}/files`);
     return response.data;
   }
 

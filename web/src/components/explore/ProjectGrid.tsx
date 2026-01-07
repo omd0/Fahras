@@ -28,6 +28,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { Project } from '../../types';
+import { getProjectDetailUrl } from '../../utils/projectRoutes';
 import { guestColors, backgroundPatterns } from '../../theme/guestTheme';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { BookmarkButton } from '../BookmarkButton';
@@ -72,10 +73,10 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({ projects, showTopBadge
               position: 'relative',
               overflow: 'hidden',
               height: '100%',
-              border: showTopBadge ? \`2px solid \${alpha(COLORS.lightSkyBlue, 0.2)}\` : undefined,
+              border: showTopBadge ? `2px solid ${alpha(COLORS.lightSkyBlue, 0.2)}` : undefined,
               '&:hover': {
                 transform: 'translateY(-4px)',
-                boxShadow: \`0 12px 24px \${alpha(COLORS.almostBlack, 0.15)}\`,
+                boxShadow: `0 12px 24px ${alpha(COLORS.almostBlack, 0.15)}`,
                 borderColor: COLORS.almostBlack,
               },
               '&::before': {
@@ -93,7 +94,7 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({ projects, showTopBadge
                 opacity: 1,
               },
             }}
-            onClick={() => navigate(\`/projects/\${project.id}\`)}
+            onClick={() => navigate(getProjectDetailUrl(project))}
           >
             <CardContent sx={{ p: 4, height: '100%', display: 'flex', flexDirection: 'column' }}>
               {/* Project Header */}
@@ -119,7 +120,7 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({ projects, showTopBadge
                     >
                       {project.title}
                     </Typography>
-                    <Tooltip title={\`Created: \${new Date(project.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}\`} arrow>
+                    <Tooltip title={`Created: \${new Date(project.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`} arrow>
                       <Chip
                         label={project.academic_year}
                         size="small"
@@ -193,7 +194,7 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({ projects, showTopBadge
                     ))}
                     {project.keywords.length > 3 && (
                       <Chip
-                        label={\`+\${project.keywords.length - 3} \${t('more')}\`}
+                        label={`+\${project.keywords.length - 3} \${t('more')}`}
                         size="small"
                         variant="outlined"
                         sx={{
@@ -348,7 +349,7 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({ projects, showTopBadge
                   <IconButton
                     onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                       e.stopPropagation();
-                      navigate(\`/projects/\${project.id}\`);
+                      navigate(`/projects/\${project.id}`);
                     }}
                     sx={{
                       background: guestColors.primaryGradient,
@@ -357,8 +358,8 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({ projects, showTopBadge
                       height: 48,
                       '&:hover': {
                         transform: 'translateY(-2px) scale(1.1)',
-                        boxShadow: \`0 8px 25px \${alpha(COLORS.almostBlack, 0.3)}\`,
-                        background: \`linear-gradient(135deg, \${alpha(COLORS.deepPurple, 0.9)} 0%, \${alpha(COLORS.lightSkyBlue, 0.9)} 100%)\`,
+                        boxShadow: `0 8px 25px \${alpha(COLORS.almostBlack, 0.3)}`,
+                        background: `linear-gradient(135deg, \${alpha(COLORS.deepPurple, 0.9)} 0%, \${alpha(COLORS.lightSkyBlue, 0.9)} 100%)`,
                       },
                       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     }}

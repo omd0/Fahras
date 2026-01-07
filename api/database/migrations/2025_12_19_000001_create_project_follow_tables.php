@@ -32,6 +32,8 @@ return new class extends Migration
             $table->integer('order')->default(0);
             $table->integer('estimated_days')->default(0)->comment('Days from previous milestone');
             $table->boolean('is_required')->default(true);
+            $table->json('allowed_roles')->nullable()->comment('Array of roles: admin, faculty, student');
+            $table->json('allowed_actions')->nullable()->comment('Array of actions: start, pause, extend, view, edit, complete');
             $table->timestamps();
             
             $table->index(['template_id', 'order']);

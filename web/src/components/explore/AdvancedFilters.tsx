@@ -166,7 +166,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
                 textTransform: 'none',
                 '&:hover': {
                   transform: 'translateY(-2px)',
-                  boxShadow: \`0 8px 25px \${alpha(COLORS.almostBlack, 0.3)}\`,
+                  boxShadow: `0 8px 25px ${alpha(COLORS.almostBlack, 0.3)}`,
                 },
               }}
             >
@@ -182,7 +182,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
           p: 4, 
           backgroundColor: alpha(COLORS.almostBlack, 0.06), 
           borderRadius: 4,
-          border: \`1px solid \${alpha(COLORS.almostBlack, 0.15)}\`,
+          border: `1px solid \${alpha(COLORS.almostBlack, 0.15)}`,
         }}>
           <Grid container spacing={3}>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -395,7 +395,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
                 textTransform: 'none',
                 '&:hover': {
                   transform: 'translateY(-2px)',
-                  boxShadow: \`0 8px 25px \${alpha(COLORS.almostBlack, 0.3)}\`,
+                  boxShadow: `0 8px 25px ${alpha(COLORS.almostBlack, 0.3)}`,
                 },
               }}
             >

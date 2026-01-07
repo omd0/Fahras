@@ -76,6 +76,7 @@ export interface Program {
 
 export interface Project {
   id: number;
+  slug: string;
   program_id: number;
   created_by_user_id: number;
   title: string;

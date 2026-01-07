@@ -9,6 +9,7 @@ import {
   MenuBook as WikiIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { getProjectDetailUrl, getProjectEditUrl, getProjectFollowUrl, getProjectCodeUrl, projectRoutes, getProjectSlug } from '../../utils/projectRoutes';
 
 interface TabConfig {
   value: string;

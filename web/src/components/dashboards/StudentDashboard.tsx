@@ -59,6 +59,7 @@ import {
   Refresh as RefreshIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { getProjectDetailUrl, getProjectEditUrl, projectRoutes } from '../../utils/projectRoutes';
 import { Project } from '../../types';
 import { apiService } from '../../services/api';
 import { getRoleInfo } from '../../config/dashboardThemes';
@@ -725,7 +726,7 @@ export const StudentDashboard: React.FC = () => {
                                 handleMarkNotificationRead(notification.id);
                               }
                               if (notification.project?.id) {
-                                navigate(`/dashboard/projects/${notification.project.id}`);
+                                navigate(getProjectDetailUrl(notification.project));
                               }
                             }}
                           >
@@ -917,7 +918,7 @@ export const StudentDashboard: React.FC = () => {
                     variant="contained"
                     size="large"
                     startIcon={<AddIcon />}
-                    onClick={() => navigate('/projects/create')}
+                    onClick={() => navigate(projectRoutes.create())}
                     sx={{
                             background: `linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%)`,
                             px: 6,
@@ -1179,7 +1180,7 @@ export const StudentDashboard: React.FC = () => {
                                 opacity: 1,
                               },
                             }}
-                            onClick={() => navigate(`/dashboard/projects/${project.id}`)}
+                            onClick={() => navigate(getProjectDetailUrl(project))}
                           >
                             <CardContent sx={{ p: 3 }}>
                               <Stack direction="row" alignItems="flex-start" justifyContent="space-between" sx={{ mb: 2 }}>
@@ -1220,7 +1221,7 @@ export const StudentDashboard: React.FC = () => {
                                       size="small"
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        navigate(`/projects/${project.id}/edit`);
+                                        navigate(getProjectEditUrl(project));
                                       }}
                                       sx={{
                                         color: theme.primary,
@@ -1356,7 +1357,7 @@ export const StudentDashboard: React.FC = () => {
                     variant="contained"
                         size="large"
                     startIcon={<AddIcon />}
-                    onClick={() => navigate('/projects/create')}
+                    onClick={() => navigate(projectRoutes.create())}
                         sx={{
                           background: `linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%)`,
                           px: 6,
@@ -1483,7 +1484,7 @@ export const StudentDashboard: React.FC = () => {
                                 opacity: 1,
                               },
                             }}
-                            onClick={() => navigate(`/dashboard/projects/${project.id}`)}
+                            onClick={() => navigate(getProjectDetailUrl(project))}
                           >
                             <CardContent sx={{ p: 3 }}>
                               <Stack direction="row" alignItems="flex-start" justifyContent="space-between" sx={{ mb: 2 }}>
@@ -1645,7 +1646,7 @@ export const StudentDashboard: React.FC = () => {
                         variant="contained"
                         size="large"
                         startIcon={<AddIcon />}
-                        onClick={() => navigate('/projects/create')}
+                        onClick={() => navigate(projectRoutes.create())}
                         sx={{
                           background: `linear-gradient(135deg, ${theme.secondary} 0%, ${theme.accent} 100%)`,
                           px: 6,

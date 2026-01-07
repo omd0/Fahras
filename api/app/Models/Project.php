@@ -12,6 +12,7 @@ class Project extends Model
     protected $fillable = [
         'program_id',
         'created_by_user_id',
+        'slug',
         'title',
         'abstract',
         'keywords',
@@ -37,6 +38,81 @@ class Project extends Model
         'is_public' => 'boolean',
         'approved_at' => 'datetime',
     ];
+
+    /**
+     * Boot method to auto-generate slug on creation
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($project) {
+            if (empty($project->slug)) {
+                $project->slug = $project->generateUniqueSlug();
+            }
+        });
+    }
+
+    /**
+     * Get the route key name for Laravel route model binding
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    /**
+     * Resolve route binding - supports both slug and ID (backward compatibility)
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        // Try to find by slug first
+        $project = $this->where('slug', $value)->first();
+
+        // Fallback to ID if numeric (for backward compatibility)
+        if (!$project && is_numeric($value)) {
+            $project = $this->find($value);
+        }
+
+        return $project ?: abort(404);
+    }
+
+    /**
+     * Generate a unique 6-character alphanumeric slug
+     */
+    protected function generateUniqueSlug(): string
+    {
+        $maxAttempts = 100;
+        $attempt = 0;
+
+        do {
+            // Convert ID to base36 for compactness (ID may not be set yet during creation)
+            $baseId = $this->id ?? rand(1, 999999);
+            $base = base_convert($baseId, 10, 36);
+
+            // Generate random suffix to reach 6 characters
+            $randomLength = 6 - strlen($base);
+            if ($randomLength > 0) {
+                $random = substr(str_shuffle('0123456789abcdefghijklmnopqrstuvwxyz'), 0, $randomLength);
+            } else {
+                $random = '';
+            }
+
+            // Combine and ensure exactly 6 characters
+            $slug = strtolower(substr($base . $random, 0, 6));
+            $slug = str_pad($slug, 6, '0', STR_PAD_RIGHT);
+
+            // Check uniqueness
+            $exists = static::where('slug', $slug)->exists();
+
+            $attempt++;
+            if ($attempt >= $maxAttempts) {
+                throw new \Exception("Failed to generate unique slug after {$maxAttempts} attempts");
+            }
+        } while ($exists);
+
+        return $slug;
+    }
 
     public function program()
     {

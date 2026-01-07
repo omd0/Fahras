@@ -15,7 +15,6 @@ import { ExplorePage } from './pages/ExplorePage';
 import { CreateProjectPage } from './pages/CreateProjectPage';
 import { EditProjectPage } from './pages/EditProjectPage';
 import { ProjectDetailPage } from './pages/ProjectDetailPage';
-import { GuestProjectDetailPage } from './pages/GuestProjectDetailPage';
 import { RepositoryPage } from './pages/RepositoryPage';
 import { MyBookmarksPage } from './pages/MyBookmarksPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
@@ -92,52 +91,45 @@ const AppContent: React.FC = () => {
             }
           />
           
-          {/* Project routes - Create and Edit restricted for Reviewer users */}
+          {/* Project routes - New /pr/ prefix with slug-based routing */}
           <Route
-            path="/projects/create"
+            path="/pr/create"
             element={
               <RoleProtectedRoute restrictedRoles={['reviewer']}>
                 <CreateProjectPage />
               </RoleProtectedRoute>
             }
           />
-          {/* Public project detail route */}
+
+          {/* Unified project detail route (works for both guest and authenticated users) */}
           <Route
-            path="/projects/:id"
-            element={<GuestProjectDetailPage />}
+            path="/pr/:slug"
+            element={<ProjectDetailPage />}
           />
-          
-          {/* Protected project detail route for authenticated users */}
+
+          {/* Project edit route */}
           <Route
-            path="/dashboard/projects/:id"
-            element={
-              <ProtectedRoute>
-                <ProjectDetailPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/projects/:id/edit"
+            path="/pr/:slug/edit"
             element={
               <RoleProtectedRoute restrictedRoles={['reviewer']}>
                 <EditProjectPage />
               </RoleProtectedRoute>
             }
           />
-          
+
           {/* Project Follow Manager route */}
           <Route
-            path="/projects/:id/follow"
+            path="/pr/:slug/follow"
             element={
               <ProtectedRoute>
                 <ProjectFollowPage />
               </ProtectedRoute>
             }
           />
-          
+
           {/* Repository-style routes (GitHub-like interface) */}
           <Route
-            path="/projects/:id/code/*"
+            path="/pr/:slug/code/*"
             element={
               <ProtectedRoute>
                 <RepositoryPage />
@@ -145,7 +137,7 @@ const AppContent: React.FC = () => {
             }
           />
           <Route
-            path="/projects/:id/code"
+            path="/pr/:slug/code"
             element={
               <ProtectedRoute>
                 <RepositoryPage />

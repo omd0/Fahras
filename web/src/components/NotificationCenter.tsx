@@ -24,6 +24,8 @@ import {
   Assignment as AssignmentIcon,
   Delete as DeleteIcon,
 } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import { getProjectDetailUrl, getProjectEditUrl, getProjectFollowUrl, getProjectCodeUrl, projectRoutes, getProjectSlug } from '../../utils/projectRoutes';
 import { useNotifications } from '../hooks/useNotifications';
 
 interface NotificationCenterProps {
@@ -32,6 +34,7 @@ interface NotificationCenterProps {
 }
 
 export const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, onClose }) => {
+  const navigate = useNavigate();
   const {
     notifications,
     unreadCount,

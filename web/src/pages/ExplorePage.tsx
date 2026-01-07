@@ -288,7 +288,7 @@ export const ExplorePage: React.FC = () => {
                   </Avatar>
                 </Box>
               </Grid>
-              <Grid size={{ xs: 12, md: true }}>
+              <Grid size={{ xs: 12, md: "grow" }}>
                 <Box sx={{ textAlign: { xs: 'center', md: 'left' } }}>
                   <Typography variant="h1" sx={{ 
                     fontWeight: 800, 

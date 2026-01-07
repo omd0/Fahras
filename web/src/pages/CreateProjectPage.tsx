@@ -398,12 +398,6 @@ export const CreateProjectPage: React.FC = () => {
         for (let i = 0; i < selectedFiles.length; i++) {
           const file = selectedFiles[i];
           try {
-              name: file.name,
-              size: file.size,
-              type: file.type,
-              lastModified: new Date(file.lastModified).toISOString()
-            });
-            
             const uploadResponse = await apiService.uploadFile(createdProject.project.id, file, true);
             
             uploadedCount++;

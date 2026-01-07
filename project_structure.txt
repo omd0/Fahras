@@ -1,0 +1,210 @@
+.
+├── ADMIN_DASHBOARD.md
+├── ADMIN_DASHBOARD_REVIEW.md
+├── api
+│   ├── add_faculty_users.php
+│   ├── app
+│   │   ├── Constants
+│   │   ├── Http
+│   │   ├── Models
+│   │   ├── Providers
+│   │   └── Services
+│   ├── artisan
+│   ├── bootstrap
+│   │   ├── app.php
+│   │   └── cache
+│   ├── check-email-config.php
+│   ├── cleanup_incomplete_users.php
+│   ├── clear-email-config.bat
+│   ├── clear-email-config.sh
+│   ├── cloud-storage-config.example
+│   ├── composer.json
+│   ├── composer.lock
+│   ├── config
+│   │   ├── app.php
+│   │   ├── database.php
+│   │   ├── filesystems.php
+│   │   ├── mail.php
+│   │   ├── milestone_templates.php
+│   │   ├── organization.php
+│   │   ├── resend.php
+│   │   └── sanctum.php
+│   ├── create_user.php
+│   ├── database
+│   │   ├── migrations
+│   │   └── seeders
+│   ├── Dockerfile
+│   ├── env.example
+│   ├── fix_user_passwords.php
+│   ├── init-minio.bat
+│   ├── init-minio.sh
+│   ├── install-cloud-storage.bat
+│   ├── install-cloud-storage.sh
+│   ├── php-custom.ini
+│   ├── phpunit.xml
+│   ├── public
+│   │   └── index.php
+│   ├── routes
+│   │   ├── api.php
+│   │   ├── console.php
+│   │   └── web.php
+│   ├── storage
+│   ├── test
+│   │   ├── debug-pdf-display.php
+│   │   ├── test-cloud-storage.php
+│   │   ├── test-complete-flow.php
+│   │   ├── test-direct-upload.php
+│   │   ├── test-file-upload.php
+│   │   ├── test-login.php
+│   │   └── test-upload.txt
+│   ├── test-email-config.php
+│   ├── test-role-api.php
+│   └── tests
+│       ├── Feature
+│       ├── TestCase.php
+│       └── Unit
+├── API_DEBUG_GUIDE.md
+├── artisan
+├── CLAUDE.md
+├── CLEAR_BUTTON_IMPLEMENTATION.md
+├── Component-Library-Archive.md
+├── deploy.bat
+├── deploy.sh
+├── dev
+│   ├── Backend-implemntion.plan.md
+│   ├── command
+│   │   └── exrtact-ui.command.md
+│   ├── components.md
+│   ├── DOCKER.md
+│   ├── githubLike-Implemention.plan.md
+│   ├── grid-system.md
+│   ├── MINIO_INTEGRATION.md
+│   ├── pages.md
+│   ├── plan
+│   ├── PRODUCTION_DEPLOYMENT.md
+│   ├── PROJECT_STRUCTURE.md
+│   ├── QUICK_START_MINIO.md
+│   ├── README.md
+│   ├── SCRIPTS.md
+│   ├── theme-system.md
+│   ├── ui-overview.md
+│   └── ui-patterns.md
+├── dev.bat
+├── dev.sh
+├── docker-compose.forgejo.yml
+├── docker-compose.yml
+├── docker-entrypoint.sh
+├── Dockerfile.production
+├── docker-helpers.bat
+├── docker-helpers.sh
+├── DOCKER.md
+├── Dynamic-Project-Detail-Layouts.md
+├── FILE_DEBUG_GUIDE.md
+├── forgejo
+│   ├── docker-registry-config.yml
+│   ├── env.example
+│   ├── nginx-forgejo.conf
+│   └── README.md
+├── FORGEJO_IMPLEMENTATION_GUIDE.md
+├── FORGEJO_IMPLEMENTATION_SUMMARY.md
+├── FORGEJO_QUICKSTART.md
+├── FRONTEND_IMPLEMENTATION_PLAN.md
+├── GITHUB_LIKE_IMPLEMENTATION_PLAN.plan.md
+├── HEADER_THEME_UPDATE.md
+├── Home-to-Explore-Transition.md
+├── HOW_TO_ACCESS_PROJECT_FOLLOW_MANAGER.md
+├── MILESTONE_TEMPLATE_USER_FLOW.md
+├── nginx.conf
+├── nginx.production.conf
+├── ORGANIZATION_CONFIG_README.md
+├── organization-config.yml
+├── PHASE_4C_TRANSACTION_SUMMARY.md
+├── PHASE_6C_PROGRESS_REPORT.md
+├── PROJECT_ACCESS_CONTROL.md
+├── PROJECT_STATUS_FEATURE.md
+├── project_structure.txt
+├── README.md
+├── requirements.txt
+├── REVIEWER_SEARCH_FEATURE.md
+├── screenshot_automation.py
+├── screenshots
+│   ├── analytics.png
+│   ├── approvals.png
+│   ├── create_project.png
+│   ├── dashboard.png
+│   ├── evaluations.png
+│   ├── explore_page_final.png
+│   ├── explore_page_guest.png
+│   ├── explore_page.png
+│   ├── loading.png
+│   ├── login_page.png
+│   ├── login.png
+│   ├── main_page.png
+│   ├── profile.png
+│   ├── projects.png
+│   ├── register_page.png
+│   ├── register.png
+│   ├── SCREENSHOTS_INDEX.md
+│   ├── settings.png
+│   ├── student_create_project.png
+│   ├── student_dashboard.png
+│   ├── student_profile.png
+│   └── user_management.png
+├── scripts
+│   ├── backup-forgejo.sh
+│   ├── init-forgejo.sh
+│   ├── setup-forgejo.sh
+│   └── sync-org-config.sh
+├── setup.bat
+├── setup.sh
+├── simple_screenshot.py
+├── SORT_BY_ENHANCEMENT.md
+├── test
+├── test-cloud-storage.php
+├── test_file.txt
+├── tests
+│   └── Feature
+│       └── ProjectTransactionTest.php
+├── UI-Inventory-Report.md
+├── UI-UX-Improvement-Plan.md
+├── VITE_DEPLOYMENT_SUCCESS.md
+├── VITE_MIGRATION.md
+└── web
+    ├── DASHBOARD_REDESIGN_SUMMARY.md
+    ├── env.example
+    ├── index.html
+    ├── package.json
+    ├── package-lock.json
+    ├── PHASE_6C_IMPLEMENTATION_SUMMARY.md
+    ├── pnpm-lock.yaml
+    ├── public
+    │   └── organization-config.yml
+    ├── README.md
+    ├── src
+    │   ├── App.css
+    │   ├── App.test.tsx
+    │   ├── App.tsx
+    │   ├── components
+    │   ├── config
+    │   ├── contexts
+    │   ├── hooks
+    │   ├── i18n
+    │   ├── index.css
+    │   ├── index.tsx
+    │   ├── logo.svg
+    │   ├── pages
+    │   ├── reportWebVitals.ts
+    │   ├── services
+    │   ├── setupTests.ts
+    │   ├── store
+    │   ├── __tests__
+    │   ├── theme
+    │   ├── types
+    │   ├── utils
+    │   └── vite-env.d.ts
+    ├── test-dashboard.html
+    ├── tsconfig.json
+    ├── tsconfig.node.json
+    └── vite.config.ts
+
+44 directories, 164 files

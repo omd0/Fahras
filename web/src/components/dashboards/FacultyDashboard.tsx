@@ -65,6 +65,7 @@ import {
   ViewModule as ViewModuleIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { getProjectDetailUrl, getProjectEditUrl, projectRoutes } from '../../utils/projectRoutes';
 import { Project } from '../../types';
 import { apiService } from '../../services/api';
 import { getRoleInfo } from '../../config/dashboardThemes';
@@ -217,8 +218,12 @@ export const FacultyDashboard: React.FC = () => {
     navigate('/login');
   };
 
-  const handleProjectClick = (projectId: number) => {
-    navigate(`/dashboard/projects/${projectId}`);
+  const handleProjectClick = (project: Project | number) => {
+    if (typeof project === 'number') {
+      navigate(`/pr/${project}`); // Fallback for numeric ID
+    } else {
+      navigate(getProjectDetailUrl(project));
+    }
   };
 
   const handleClearFilters = () => {
@@ -870,7 +875,7 @@ export const FacultyDashboard: React.FC = () => {
                         <Button
                           variant="contained"
                           startIcon={<AssignmentIcon />}
-                          onClick={() => navigate('/projects/create')}
+                          onClick={() => navigate(projectRoutes.create())}
                           sx={{
                             background: `linear-gradient(135deg, ${ANALYTICS_COLORS.primary.main} 0%, ${ANALYTICS_COLORS.primary.light} 100%)`,
                             '&:hover': {
