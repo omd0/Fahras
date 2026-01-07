@@ -4,74 +4,28 @@ import {
   Typography,
   Box,
   Card,
-  CardContent,
-  Grid,
-  TextField,
   Button,
-  Chip,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   Pagination,
   Alert,
   CircularProgress,
-  Tabs,
-  Tab,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   IconButton,
   Tooltip,
   Stack,
 } from '@mui/material';
 import {
-  Search as SearchIcon,
-  FilterList as FilterIcon,
-  Visibility as ViewIcon,
-  Refresh as RefreshIcon,
   Home as HomeIcon,
-  Assignment as AssignmentIcon,
-  Edit as EditIcon,
   Add as AddIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Project, Program, Department } from '../types';
+import { Project } from '../types';
 import { apiService } from '../services/api';
 import { TVTCLogo } from '../components/TVTCLogo';
 import { getDashboardTheme } from '../config/dashboardThemes';
-
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-    </div>
-  );
-}
+import { ProjectTabs } from '../components/student/ProjectTabs';
+import { ProjectFilters } from '../components/student/ProjectFilters';
+import { ProjectDetailDialog } from '../components/student/ProjectDetailDialog';
 
 const StudentMyProjectsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -79,7 +33,7 @@ const StudentMyProjectsPage: React.FC = () => {
   const { user } = useAuthStore();
   const { t } = useLanguage();
   const dashboardTheme = getDashboardTheme(user?.roles);
-  
+
   const [projects, setProjects] = useState<Project[]>([]);
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -107,7 +61,7 @@ const StudentMyProjectsPage: React.FC = () => {
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const section = searchParams.get('section');
-    
+
     if (section) {
       switch (section) {
         case 'in-progress':
@@ -146,7 +100,7 @@ const StudentMyProjectsPage: React.FC = () => {
       setProjects([]);
       return;
     }
-    
+
     try {
       setLoading(true);
       const response = await apiService.getMyProjects({
@@ -157,12 +111,12 @@ const StudentMyProjectsPage: React.FC = () => {
       // Handle paginated response structure
       // Response should be: { data: Project[], current_page, last_page, total, per_page, ... }
       let projectsData: Project[] = [];
-      
+
       if (response && typeof response === 'object') {
         // Check if response has a 'data' property (paginated response)
         if ('data' in response && Array.isArray(response.data)) {
           projectsData = response.data;
-        } 
+        }
         // Check if response itself is an array (direct array response)
         else if (Array.isArray(response)) {
           projectsData = response;
@@ -172,15 +126,15 @@ const StudentMyProjectsPage: React.FC = () => {
           projectsData = response.projects;
         }
       }
-      
+
       // Filter out any null/undefined projects
       const validProjects = projectsData.filter(p => p != null && p !== undefined);
-      
+
       setProjects(validProjects);
       setError(null);
     } catch (err: any) {
       console.error('Failed to fetch data:', err);
-      
+
       // Check if it's an authentication error
       if (err.response?.status === 401) {
         setError('Authentication failed. Please log in again.');
@@ -427,7 +381,7 @@ const StudentMyProjectsPage: React.FC = () => {
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={handleCreateProject}
-                sx={{ 
+                sx={{
                   backgroundColor: 'rgba(255,255,255,0.2)',
                   backdropFilter: 'blur(10px)',
                   border: '1px solid rgba(255,255,255,0.3)',
@@ -438,7 +392,7 @@ const StudentMyProjectsPage: React.FC = () => {
                   fontWeight: 600,
                   borderRadius: 3,
                   textTransform: 'none',
-                  '&:hover': { 
+                  '&:hover': {
                     backgroundColor: 'rgba(255,255,255,0.3)',
                     transform: 'translateY(-2px)',
                     boxShadow: '0 8px 25px rgba(0,0,0,0.2)',
@@ -449,9 +403,9 @@ const StudentMyProjectsPage: React.FC = () => {
                 {t('Create New Project')}
               </Button>
               <Tooltip title="Go to Dashboard">
-                <IconButton 
-                  onClick={handleGoHome} 
-                  sx={{ 
+                <IconButton
+                  onClick={handleGoHome}
+                  sx={{
                     color: 'white',
                     backgroundColor: 'rgba(255,255,255,0.1)',
                     backdropFilter: 'blur(10px)',
@@ -478,962 +432,63 @@ const StudentMyProjectsPage: React.FC = () => {
           </Alert>
         )}
 
-        {/* Enhanced Filters */}
-        <Card sx={{ 
-          mb: 4, 
-          borderRadius: 3, 
-          boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
-          background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-          border: `1px solid ${dashboardTheme.primary}20`,
-        }}>
-          <CardContent sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-              <FilterIcon sx={{ color: dashboardTheme.primary, mr: 1 }} />
-              <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary' }}>
-                Filter & Search Projects
-              </Typography>
-            </Box>
-            <Grid container spacing={3} alignItems="center">
-              <Grid size={{ xs: 12, md: 4 }}>
-                <TextField
-                  fullWidth
-                  placeholder="Search by title or description..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  InputProps={{
-                    startAdornment: <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />,
-                  }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&:hover fieldset': {
-                        borderColor: dashboardTheme.primary,
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: dashboardTheme.primary,
-                      },
-                    },
-                  }}
-                />
-              </Grid>
-              <Grid size={{ xs: 12, md: 4 }}>
-                <FormControl fullWidth>
-                  <InputLabel>Status</InputLabel>
-                  <Select
-                    value={statusFilter}
-                    label="Status"
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    sx={{
-                      borderRadius: 2,
-                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: dashboardTheme.primary,
-                      },
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: dashboardTheme.primary,
-                      },
-                    }}
-                  >
-                    <MenuItem value="all">All Statuses</MenuItem>
-                    <MenuItem value="draft">Draft</MenuItem>
-                    <MenuItem value="submitted">Submitted</MenuItem>
-                    <MenuItem value="under_review">Under Review</MenuItem>
-                    <MenuItem value="approved">Approved</MenuItem>
-                    <MenuItem value="rejected">Rejected</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid size={{ xs: 12, md: 4 }}>
-                <FormControl fullWidth>
-                  <InputLabel>Academic Year</InputLabel>
-                  <Select
-                    value={academicYearFilter}
-                    label="Academic Year"
-                    onChange={(e) => setAcademicYearFilter(e.target.value)}
-                    sx={{
-                      borderRadius: 2,
-                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: dashboardTheme.primary,
-                      },
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: dashboardTheme.primary,
-                      },
-                    }}
-                  >
-                    <MenuItem value="all">All Years</MenuItem>
-                    {academicYears.map((year) => (
-                      <MenuItem key={year} value={year}>
-                        {year}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-            </Grid>
-          </CardContent>
-        </Card>
+        <ProjectFilters
+          searchTerm={searchTerm}
+          statusFilter={statusFilter}
+          academicYearFilter={academicYearFilter}
+          academicYears={academicYears}
+          onSearchChange={setSearchTerm}
+          onStatusChange={setStatusFilter}
+          onAcademicYearChange={setAcademicYearFilter}
+          dashboardTheme={dashboardTheme}
+        />
 
-        {/* Enhanced Tabs */}
-        <Card sx={{ 
-          borderRadius: 3, 
+        <Card sx={{
+          borderRadius: 3,
           boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
           background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
           border: `1px solid ${dashboardTheme.primary}20`,
           overflow: 'hidden',
         }}>
-          <Box sx={{ 
-            borderBottom: 1, 
-            borderColor: 'divider',
-            background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
-          }}>
-            <Tabs 
-              value={tabValue} 
-              onChange={handleTabChange}
-              sx={{
-                '& .MuiTab-root': {
-                  textTransform: 'none',
-                  fontWeight: 600,
-                  fontSize: '0.95rem',
-                  minHeight: 60,
-                  '&.Mui-selected': {
-                    color: dashboardTheme.primary,
-                    backgroundColor: 'rgba(255,255,255,0.8)',
-                  },
-                  '&:hover': {
-                    backgroundColor: 'rgba(0,0,0,0.04)',
-                  },
-                },
-                '& .MuiTabs-indicator': {
-                  backgroundColor: dashboardTheme.primary,
-                  height: 3,
-                  borderRadius: '3px 3px 0 0',
-                },
-              }}
-            >
-              <Tab label={`All Projects (${getTabFilteredProjects(0).length})`} />
-              <Tab label={`Drafts (${getTabFilteredProjects(1).length})`} />
-              <Tab label={`In Progress (${getTabFilteredProjects(2).length})`} />
-              <Tab label={`Pending Approval (${getTabFilteredProjects(3).length})`} />
-              <Tab label={`Completed (${getTabFilteredProjects(4).length})`} />
-              <Tab label={`Approved (${getTabFilteredProjects(5).length})`} />
-            </Tabs>
-          </Box>
-
-          <TabPanel value={tabValue} index={0}>
-            <TableContainer 
-              component={Paper} 
-              sx={{ 
-                borderRadius: 2, 
-                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                border: `1px solid ${dashboardTheme.primary}15`,
-              }}
-            >
-              <Table>
-                <TableHead sx={{ background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)' }}>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Project Title</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Status</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Academic Year</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Semester</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Created Date</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {currentProjects.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={6} align="center">
-                        <Box sx={{ py: 4, textAlign: 'center' }}>
-                          <AssignmentIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
-                          <Typography variant="h6" color="text.secondary">
-                            No projects found
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            {searchTerm || statusFilter !== 'all' || academicYearFilter !== 'all'
-                              ? 'Try adjusting your filters'
-                              : 'You haven\'t created any projects yet'}
-                          </Typography>
-                          <Button
-                            variant="contained"
-                            startIcon={<AddIcon />}
-                            onClick={handleCreateProject}
-                            sx={{ mt: 2 }}
-                          >
-                            Create Your First Project
-                          </Button>
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    currentProjects.filter(project => project != null).map((project) => (
-                      <TableRow 
-                        key={project?.id || `project-${Math.random()}`} 
-                        hover
-                        sx={{
-                          '&:hover': {
-                            backgroundColor: `${dashboardTheme.primary}08`,
-                            transform: 'scale(1.01)',
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                          },
-                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                          borderBottom: `1px solid ${dashboardTheme.primary}10`,
-                        }}
-                      >
-                        <TableCell sx={{ py: 2 }}>
-                          <Typography variant="subtitle1" fontWeight="600" sx={{ mb: 0.5, color: 'text.primary' }}>
-                            {project?.title || 'Untitled Project'}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary" sx={{ 
-                            display: '-webkit-box',
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden',
-                            lineHeight: 1.4,
-                          }}>
-                            {project?.abstract?.substring(0, 120) || 'No description available'}
-                            {project?.abstract && project.abstract.length > 120 && '...'}
-                          </Typography>
-                        </TableCell>
-                        <TableCell sx={{ py: 2 }}>
-                          <Chip
-                            label={getStatusLabel(project?.status || 'draft')}
-                            color={getStatusColor(project?.status || 'draft') as any}
-                            size="small"
-                            sx={{
-                              fontWeight: 600,
-                              borderRadius: 2,
-                              textTransform: 'capitalize',
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell sx={{ py: 2 }}>
-                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                            {project?.academic_year || 'N/A'}
-                          </Typography>
-                        </TableCell>
-                        <TableCell sx={{ py: 2 }}>
-                          <Typography variant="body2" sx={{ fontWeight: 500, textTransform: 'capitalize' }}>
-                            {project?.semester || 'N/A'}
-                          </Typography>
-                        </TableCell>
-                        <TableCell sx={{ py: 2 }}>
-                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                            {project?.created_at ? new Date(project.created_at).toLocaleDateString() : 'N/A'}
-                          </Typography>
-                        </TableCell>
-                        <TableCell sx={{ py: 2 }}>
-                          <Stack direction="row" spacing={1}>
-                            <Tooltip title={t('View Details')}>
-                              <IconButton
-                                size="small"
-                                onClick={() => project && handleViewProject(project)}
-                                sx={{
-                                  color: dashboardTheme.primary,
-                                  backgroundColor: `${dashboardTheme.primary}10`,
-                                  '&:hover': {
-                                    backgroundColor: `${dashboardTheme.primary}20`,
-                                    transform: 'scale(1.1)',
-                                  },
-                                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                }}
-                                disabled={!project}
-                              >
-                                <ViewIcon />
-                              </IconButton>
-                            </Tooltip>
-                            {project?.status === 'draft' && (
-                              <Tooltip title="Edit Project">
-                                <IconButton
-                                  size="small"
-                                  onClick={() => project && handleEditProject(project)}
-                                  sx={{
-                                    color: dashboardTheme.accent,
-                                    backgroundColor: `${dashboardTheme.accent}10`,
-                                    '&:hover': {
-                                      backgroundColor: `${dashboardTheme.accent}20`,
-                                      transform: 'scale(1.1)',
-                                    },
-                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                  }}
-                                  disabled={!project}
-                                >
-                                  <EditIcon />
-                                </IconButton>
-                              </Tooltip>
-                            )}
-                          </Stack>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-
-            {totalPages > 1 && (
-              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-                <Pagination
-                  count={totalPages}
-                  page={currentPage}
-                  onChange={handlePageChange}
-                  color="primary"
-                />
-              </Box>
-            )}
-          </TabPanel>
-
-          {/* Drafts Tab */}
-          <TabPanel value={tabValue} index={1}>
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Project Title</TableCell>
-                    <TableCell>Academic Year</TableCell>
-                    <TableCell>Semester</TableCell>
-                    <TableCell>Created Date</TableCell>
-                    <TableCell>Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {getTabFilteredProjects(1).length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={5} align="center">
-                        <Box sx={{ py: 4, textAlign: 'center' }}>
-                          <AssignmentIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
-                          <Typography variant="h6" color="text.secondary">
-                            No draft projects
-                          </Typography>
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    getTabFilteredProjects(1)
-                      .slice(indexOfFirstProject, indexOfLastProject)
-                      .filter(project => project != null)
-                      .map((project) => (
-                        <TableRow key={project?.id || `draft-project-${Math.random()}`} hover>
-                          <TableCell>
-                            <Typography variant="subtitle2" fontWeight="medium">
-                              {project?.title || 'Untitled Project'}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary" noWrap>
-                              {project?.abstract?.substring(0, 100) || 'No description available'}
-                              {project?.abstract && project.abstract.length > 100 && '...'}
-                            </Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Typography variant="body2">
-                              {project?.academic_year || 'N/A'}
-                            </Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Typography variant="body2">
-                              {project?.semester || 'N/A'}
-                            </Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Typography variant="body2">
-                              {project?.created_at ? new Date(project.created_at).toLocaleDateString() : 'N/A'}
-                            </Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Stack direction="row" spacing={1}>
-                              <Tooltip title={t('View Details')}>
-                                <IconButton
-                                  size="small"
-                                  onClick={() => project && handleViewProject(project)}
-                                  color="primary"
-                                  disabled={!project}
-                                >
-                                  <ViewIcon />
-                                </IconButton>
-                              </Tooltip>
-                              <Tooltip title="Edit Project">
-                                <IconButton
-                                  size="small"
-                                  onClick={() => project && handleEditProject(project)}
-                                  color="secondary"
-                                  disabled={!project}
-                                >
-                                  <EditIcon />
-                                </IconButton>
-                              </Tooltip>
-                            </Stack>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </TabPanel>
-
-          {/* In Progress Tab */}
-          <TabPanel value={tabValue} index={2}>
-            <TableContainer 
-              component={Paper} 
-              sx={{ 
-                borderRadius: 2, 
-                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                border: `1px solid ${dashboardTheme.primary}15`,
-              }}
-            >
-              <Table>
-                <TableHead sx={{ background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)' }}>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Project Title</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Status</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Academic Year</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Semester</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Last Updated</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {getTabFilteredProjects(2).length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={6} align="center">
-                        <Box sx={{ py: 4, textAlign: 'center' }}>
-                          <AssignmentIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
-                          <Typography variant="h6" color="text.secondary">
-                            No projects in progress
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                            Projects that are submitted or under review will appear here
-                          </Typography>
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    getTabFilteredProjects(2)
-                      .slice(indexOfFirstProject, indexOfLastProject)
-                      .filter(project => project != null)
-                      .map((project) => (
-                        <TableRow 
-                          key={project?.id || `in-progress-project-${Math.random()}`} 
-                          hover
-                          sx={{
-                            '&:hover': {
-                              backgroundColor: `${dashboardTheme.primary}08`,
-                              transform: 'scale(1.01)',
-                              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                            },
-                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                            borderBottom: `1px solid ${dashboardTheme.primary}10`,
-                          }}
-                        >
-                          <TableCell sx={{ py: 2 }}>
-                            <Typography variant="subtitle1" fontWeight="600" sx={{ mb: 0.5, color: 'text.primary' }}>
-                              {project?.title || 'Untitled Project'}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary" sx={{ 
-                              display: '-webkit-box',
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: 'vertical',
-                              overflow: 'hidden',
-                              lineHeight: 1.4,
-                            }}>
-                              {project?.abstract?.substring(0, 120) || 'No description available'}
-                              {project?.abstract && project.abstract.length > 120 && '...'}
-                            </Typography>
-                          </TableCell>
-                          <TableCell sx={{ py: 2 }}>
-                            <Chip
-                              label={getStatusLabel(project?.status || 'submitted')}
-                              color={getStatusColor(project?.status || 'submitted') as any}
-                              size="small"
-                              sx={{
-                                fontWeight: 600,
-                                borderRadius: 2,
-                                textTransform: 'capitalize',
-                              }}
-                            />
-                          </TableCell>
-                          <TableCell sx={{ py: 2 }}>
-                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                              {project?.academic_year || 'N/A'}
-                            </Typography>
-                          </TableCell>
-                          <TableCell sx={{ py: 2 }}>
-                            <Typography variant="body2" sx={{ fontWeight: 500, textTransform: 'capitalize' }}>
-                              {project?.semester || 'N/A'}
-                            </Typography>
-                          </TableCell>
-                          <TableCell sx={{ py: 2 }}>
-                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                              {project?.updated_at ? new Date(project.updated_at).toLocaleDateString() : 'N/A'}
-                            </Typography>
-                          </TableCell>
-                          <TableCell sx={{ py: 2 }}>
-                            <Tooltip title={t('View Details')}>
-                              <IconButton
-                                size="small"
-                                onClick={() => project && handleViewProject(project)}
-                                sx={{
-                                  color: dashboardTheme.primary,
-                                  backgroundColor: `${dashboardTheme.primary}10`,
-                                  '&:hover': {
-                                    backgroundColor: `${dashboardTheme.primary}20`,
-                                    transform: 'scale(1.1)',
-                                  },
-                                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                }}
-                                disabled={!project}
-                              >
-                                <ViewIcon />
-                              </IconButton>
-                            </Tooltip>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </TabPanel>
-
-
-          {/* Approved Tab */}
-          <TabPanel value={tabValue} index={5}>
-            <TableContainer 
-              component={Paper} 
-              sx={{ 
-                borderRadius: 2, 
-                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                border: `1px solid ${dashboardTheme.primary}15`,
-              }}
-            >
-              <Table>
-                <TableHead sx={{ background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)' }}>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Project Title</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Academic Year</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Semester</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Approved Date</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {getTabFilteredProjects(5).length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={5} align="center">
-                        <Box sx={{ py: 4, textAlign: 'center' }}>
-                          <AssignmentIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
-                          <Typography variant="h6" color="text.secondary">
-                            No approved projects
-                          </Typography>
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    getTabFilteredProjects(5)
-                      .slice(indexOfFirstProject, indexOfLastProject)
-                      .filter(project => project != null)
-                      .map((project) => (
-                        <TableRow 
-                          key={project?.id || `approved-project-${Math.random()}`} 
-                          hover
-                          sx={{
-                            '&:hover': {
-                              backgroundColor: `${dashboardTheme.primary}08`,
-                              transform: 'scale(1.01)',
-                              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                            },
-                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                            borderBottom: `1px solid ${dashboardTheme.primary}10`,
-                          }}
-                        >
-                          <TableCell sx={{ py: 2 }}>
-                            <Typography variant="subtitle1" fontWeight="600" sx={{ mb: 0.5, color: 'text.primary' }}>
-                              {project?.title || 'Untitled Project'}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary" sx={{ 
-                              display: '-webkit-box',
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: 'vertical',
-                              overflow: 'hidden',
-                              lineHeight: 1.4,
-                            }}>
-                              {project?.abstract?.substring(0, 120) || 'No description available'}
-                              {project?.abstract && project.abstract.length > 120 && '...'}
-                            </Typography>
-                          </TableCell>
-                          <TableCell sx={{ py: 2 }}>
-                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                              {project?.academic_year || 'N/A'}
-                            </Typography>
-                          </TableCell>
-                          <TableCell sx={{ py: 2 }}>
-                            <Typography variant="body2" sx={{ fontWeight: 500, textTransform: 'capitalize' }}>
-                              {project?.semester || 'N/A'}
-                            </Typography>
-                          </TableCell>
-                          <TableCell sx={{ py: 2 }}>
-                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                              {project?.updated_at ? new Date(project.updated_at).toLocaleDateString() : 'N/A'}
-                            </Typography>
-                          </TableCell>
-                          <TableCell sx={{ py: 2 }}>
-                            <Tooltip title={t('View Details')}>
-                              <IconButton
-                                size="small"
-                                onClick={() => project && handleViewProject(project)}
-                                sx={{
-                                  color: dashboardTheme.primary,
-                                  backgroundColor: `${dashboardTheme.primary}10`,
-                                  '&:hover': {
-                                    backgroundColor: `${dashboardTheme.primary}20`,
-                                    transform: 'scale(1.1)',
-                                  },
-                                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                }}
-                                disabled={!project}
-                              >
-                                <ViewIcon />
-                              </IconButton>
-                            </Tooltip>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </TabPanel>
-
-          {/* Pending Approval Tab */}
-          <TabPanel value={tabValue} index={3}>
-            <TableContainer 
-              component={Paper} 
-              sx={{ 
-                borderRadius: 2, 
-                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                border: `1px solid ${dashboardTheme.primary}15`,
-              }}
-            >
-              <Table>
-                <TableHead sx={{ background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)' }}>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Project Title</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Academic Year</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Semester</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Submitted Date</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {getTabFilteredProjects(3).length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={5} align="center">
-                        <Box sx={{ py: 4, textAlign: 'center' }}>
-                          <AssignmentIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
-                          <Typography variant="h6" color="text.secondary">
-                            No projects pending approval
-                          </Typography>
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    getTabFilteredProjects(3)
-                      .slice(indexOfFirstProject, indexOfLastProject)
-                      .filter(project => project != null)
-                      .map((project) => (
-                        <TableRow 
-                          key={project?.id || `pending-approval-project-${Math.random()}`} 
-                          hover
-                          sx={{
-                            '&:hover': {
-                              backgroundColor: `${dashboardTheme.primary}08`,
-                              transform: 'scale(1.01)',
-                              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                            },
-                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                            borderBottom: `1px solid ${dashboardTheme.primary}10`,
-                          }}
-                        >
-                          <TableCell sx={{ py: 2 }}>
-                            <Typography variant="subtitle1" fontWeight="600" sx={{ mb: 0.5, color: 'text.primary' }}>
-                              {project?.title || 'Untitled Project'}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary" sx={{ 
-                              display: '-webkit-box',
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: 'vertical',
-                              overflow: 'hidden',
-                              lineHeight: 1.4,
-                            }}>
-                              {project?.abstract?.substring(0, 120) || 'No description available'}
-                              {project?.abstract && project.abstract.length > 120 && '...'}
-                            </Typography>
-                          </TableCell>
-                          <TableCell sx={{ py: 2 }}>
-                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                              {project?.academic_year || 'N/A'}
-                            </Typography>
-                          </TableCell>
-                          <TableCell sx={{ py: 2 }}>
-                            <Typography variant="body2" sx={{ fontWeight: 500, textTransform: 'capitalize' }}>
-                              {project?.semester || 'N/A'}
-                            </Typography>
-                          </TableCell>
-                          <TableCell sx={{ py: 2 }}>
-                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                              {project?.created_at ? new Date(project.created_at).toLocaleDateString() : 'N/A'}
-                            </Typography>
-                          </TableCell>
-                          <TableCell sx={{ py: 2 }}>
-                            <Tooltip title={t('View Details')}>
-                              <IconButton
-                                size="small"
-                                onClick={() => project && handleViewProject(project)}
-                                sx={{
-                                  color: dashboardTheme.primary,
-                                  backgroundColor: `${dashboardTheme.primary}10`,
-                                  '&:hover': {
-                                    backgroundColor: `${dashboardTheme.primary}20`,
-                                    transform: 'scale(1.1)',
-                                  },
-                                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                }}
-                                disabled={!project}
-                              >
-                                <ViewIcon />
-                              </IconButton>
-                            </Tooltip>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </TabPanel>
-
-          {/* Completed Tab */}
-          <TabPanel value={tabValue} index={4}>
-            <TableContainer 
-              component={Paper} 
-              sx={{ 
-                borderRadius: 2, 
-                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                border: `1px solid ${dashboardTheme.primary}15`,
-              }}
-            >
-              <Table>
-                <TableHead sx={{ background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)' }}>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Project Title</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Academic Year</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Semester</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Completed Date</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {getTabFilteredProjects(4).length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={5} align="center">
-                        <Box sx={{ py: 4, textAlign: 'center' }}>
-                          <AssignmentIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
-                          <Typography variant="h6" color="text.secondary">
-                            No completed projects
-                          </Typography>
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    getTabFilteredProjects(4)
-                      .slice(indexOfFirstProject, indexOfLastProject)
-                      .filter(project => project != null)
-                      .map((project) => (
-                        <TableRow 
-                          key={project?.id || `completed-project-${Math.random()}`} 
-                          hover
-                          sx={{
-                            '&:hover': {
-                              backgroundColor: `${dashboardTheme.primary}08`,
-                              transform: 'scale(1.01)',
-                              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                            },
-                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                            borderBottom: `1px solid ${dashboardTheme.primary}10`,
-                          }}
-                        >
-                          <TableCell sx={{ py: 2 }}>
-                            <Typography variant="subtitle1" fontWeight="600" sx={{ mb: 0.5, color: 'text.primary' }}>
-                              {project?.title || 'Untitled Project'}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary" sx={{ 
-                              display: '-webkit-box',
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: 'vertical',
-                              overflow: 'hidden',
-                              lineHeight: 1.4,
-                            }}>
-                              {project?.abstract?.substring(0, 120) || 'No description available'}
-                              {project?.abstract && project.abstract.length > 120 && '...'}
-                            </Typography>
-                          </TableCell>
-                          <TableCell sx={{ py: 2 }}>
-                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                              {project?.academic_year || 'N/A'}
-                            </Typography>
-                          </TableCell>
-                          <TableCell sx={{ py: 2 }}>
-                            <Typography variant="body2" sx={{ fontWeight: 500, textTransform: 'capitalize' }}>
-                              {project?.semester || 'N/A'}
-                            </Typography>
-                          </TableCell>
-                          <TableCell sx={{ py: 2 }}>
-                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                              {project?.updated_at ? new Date(project.updated_at).toLocaleDateString() : 'N/A'}
-                            </Typography>
-                          </TableCell>
-                          <TableCell sx={{ py: 2 }}>
-                            <Tooltip title={t('View Details')}>
-                              <IconButton
-                                size="small"
-                                onClick={() => project && handleViewProject(project)}
-                                sx={{
-                                  color: dashboardTheme.primary,
-                                  backgroundColor: `${dashboardTheme.primary}10`,
-                                  '&:hover': {
-                                    backgroundColor: `${dashboardTheme.primary}20`,
-                                    transform: 'scale(1.1)',
-                                  },
-                                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                }}
-                                disabled={!project}
-                              >
-                                <ViewIcon />
-                              </IconButton>
-                            </Tooltip>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </TabPanel>
+          <ProjectTabs
+            tabValue={tabValue}
+            onTabChange={handleTabChange}
+            tabFilteredProjects={tabFilteredProjects}
+            currentProjects={currentProjects}
+            indexOfFirstProject={indexOfFirstProject}
+            indexOfLastProject={indexOfLastProject}
+            onViewProject={handleViewProject}
+            onEditProject={handleEditProject}
+            onCreateProject={handleCreateProject}
+            getStatusColor={getStatusColor}
+            getStatusLabel={getStatusLabel}
+            getTabFilteredProjects={getTabFilteredProjects}
+            dashboardTheme={dashboardTheme}
+            t={t}
+          />
         </Card>
+
+        {totalPages > 1 && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+            <Pagination
+              count={totalPages}
+              page={currentPage}
+              onChange={handlePageChange}
+              color="primary"
+            />
+          </Box>
+        )}
       </Container>
 
-      {/* Project Detail Dialog */}
-      <Dialog
+      <ProjectDetailDialog
         open={detailDialogOpen}
+        loading={detailLoading}
+        project={selectedProject}
         onClose={handleCloseDetailDialog}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>
-          Project Details
-          <IconButton
-            onClick={handleCloseDetailDialog}
-            sx={{ position: 'absolute', right: 8, top: 8 }}
-          >
-            ×
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
-          {detailLoading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <CircularProgress />
-            </Box>
-          ) : selectedProject ? (
-            <Box sx={{ pt: 2 }}>
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 12 }}>
-                  <Typography variant="h6" gutterBottom>
-                    {selectedProject?.title || 'Untitled Project'}
-                  </Typography>
-                  <Typography variant="body1" paragraph>
-                    {selectedProject?.abstract || 'No description available'}
-                  </Typography>
-                </Grid>
-                <Grid size={{ xs: 12, md: 6 }}>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    Status
-                  </Typography>
-                  <Chip
-                    label={getStatusLabel(selectedProject?.status || 'draft')}
-                    color={getStatusColor(selectedProject?.status || 'draft') as any}
-                    size="small"
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, md: 6 }}>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    Academic Year
-                  </Typography>
-                  <Typography variant="body1">
-                    {selectedProject?.academic_year || 'N/A'}
-                  </Typography>
-                </Grid>
-                <Grid size={{ xs: 12, md: 6 }}>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    Semester
-                  </Typography>
-                  <Typography variant="body1">
-                    {selectedProject?.semester || 'N/A'}
-                  </Typography>
-                </Grid>
-                <Grid size={{ xs: 12, md: 6 }}>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    Program
-                  </Typography>
-                  <Typography variant="body1">
-                    {selectedProject?.program?.name || 'N/A'}
-                  </Typography>
-                </Grid>
-                <Grid size={{ xs: 12, md: 6 }}>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    Department
-                  </Typography>
-                  <Typography variant="body1">
-                    {selectedProject?.department?.name || 'N/A'}
-                  </Typography>
-                </Grid>
-                <Grid size={{ xs: 12, md: 6 }}>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    Created Date
-                  </Typography>
-                  <Typography variant="body1">
-                    {selectedProject?.created_at ? new Date(selectedProject.created_at).toLocaleDateString() : 'N/A'}
-                  </Typography>
-                </Grid>
-                {selectedProject?.files && selectedProject.files.length > 0 && (
-                  <Grid size={{ xs: 12 }}>
-                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                      Files
-                    </Typography>
-                    <Stack spacing={1}>
-                      {selectedProject.files.map((file, index) => (
-                        <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Typography variant="body2">
-                            {file?.original_filename || 'Unknown file'}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            ({file?.size_bytes || 0} bytes)
-                          </Typography>
-                        </Box>
-                      ))}
-                    </Stack>
-                  </Grid>
-                )}
-              </Grid>
-            </Box>
-          ) : (
-            <Typography variant="body1" color="text.secondary">
-              {t('No project selected')}
-            </Typography>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDetailDialog}>
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
+        getStatusColor={getStatusColor}
+        getStatusLabel={getStatusLabel}
+        t={t}
+      />
     </Box>
   );
 };
