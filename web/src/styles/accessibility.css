@@ -1,0 +1,152 @@
+/**
+ * Accessibility-specific CSS utilities
+ */
+
+/* Screen reader only - visually hidden but accessible to screen readers */
+.sr-only,
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Focusable screen reader only - becomes visible on focus */
+.sr-only-focusable:focus,
+.visually-hidden-focusable:focus {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  padding: inherit !important;
+  margin: inherit !important;
+  overflow: visible !important;
+  clip: auto !important;
+  white-space: normal !important;
+}
+
+/* Skip link styles */
+.skip-link {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.skip-link:focus {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  z-index: 9999;
+  padding: 1rem;
+  background-color: #008a3e;
+  color: white;
+  text-decoration: none;
+  border-radius: 0 0 4px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  font-weight: 600;
+}
+
+/* Focus visible styles - modern approach */
+*:focus {
+  outline: 2px solid #008a3e;
+  outline-offset: 2px;
+}
+
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: 3px solid #008a3e;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(0, 138, 62, 0.25);
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  * {
+    border-color: currentColor !important;
+  }
+  
+  button,
+  a {
+    text-decoration: underline;
+  }
+}
+
+/* Improve text readability */
+body {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure proper color contrast for links */
+a {
+  text-decoration-skip-ink: auto;
+}
+
+/* Better focus indicators for keyboard navigation */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid #008a3e;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(0, 138, 62, 0.25);
+}
+
+/* Accessible focus styles for custom elements */
+[role="button"]:focus-visible,
+[role="link"]:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: 3px solid #008a3e;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(0, 138, 62, 0.25);
+}
+
+/* Ensure sufficient spacing for touch targets */
+button,
+a,
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .skip-link:focus {
+    background-color: #4CAF50;
+    color: #000;
+  }
+  
+  *:focus-visible {
+    outline-color: #4CAF50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.25);
+  }
+}

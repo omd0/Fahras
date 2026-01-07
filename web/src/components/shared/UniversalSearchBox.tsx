@@ -148,6 +148,13 @@ export const UniversalSearchBox: React.FC<UniversalSearchBoxProps> = ({
 
   return (
     <Paper 
+      component="form"
+      role="search"
+      aria-label="Project search form"
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSearch();
+      }}
       elevation={2} 
       sx={{ 
         p: isCompact ? 2 : 3, 
@@ -165,12 +172,19 @@ export const UniversalSearchBox: React.FC<UniversalSearchBoxProps> = ({
           value={filters.search}
           onChange={(e) => handleFilterChange('search', e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+          inputProps={{
+            'aria-label': 'Search projects by title, description, or keywords',
+          }}
           InputProps={{
-            startAdornment: <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />,
+            startAdornment: <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} aria-hidden="true" />,
             endAdornment: loading ? (
-              <CircularProgress size={20} />
+              <CircularProgress size={20} aria-label="Searching..." />
             ) : filters.search ? (
-              <IconButton size="small" onClick={() => handleFilterChange('search', '')}>
+              <IconButton 
+                size="small" 
+                onClick={() => handleFilterChange('search', '')}
+                aria-label="Clear search"
+              >
                 <ClearIcon />
               </IconButton>
             ) : null,
@@ -220,6 +234,9 @@ export const UniversalSearchBox: React.FC<UniversalSearchBoxProps> = ({
         {showAdvancedFilters && (
           <IconButton
             onClick={() => setShowFilters(!showFilters)}
+            aria-label={showFilters ? 'Hide advanced filters' : 'Show advanced filters'}
+            aria-expanded={showFilters}
+            aria-controls="advanced-filters"
             sx={{
               backgroundColor: showFilters ? theme?.primary : 'transparent',
               color: showFilters ? 'white' : theme?.primary,
@@ -237,7 +254,12 @@ export const UniversalSearchBox: React.FC<UniversalSearchBoxProps> = ({
       {/* Advanced Filters */}
       {showAdvancedFilters && (
         <Collapse in={showFilters}>
-          <Box sx={{ pt: 2, borderTop: `1px solid ${theme?.borderColor || '#e0e0e0'}` }}>
+          <Box 
+            id="advanced-filters"
+            role="region"
+            aria-label="Advanced search filters"
+            sx={{ pt: 2, borderTop: `1px solid ${theme?.borderColor || '#e0e0e0'}` }}
+          >
             <Grid container spacing={2}>
               <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <FormControl fullWidth size="small">

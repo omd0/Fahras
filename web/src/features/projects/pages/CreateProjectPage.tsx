@@ -56,6 +56,8 @@ import { useLanguage } from '@/providers/LanguageContext';
 import { CreateProjectData, Program, User } from '@/types';
 import { apiService } from '@/lib/api';
 import { ProgramTemplateSelector } from '@/features/milestones/components/ProgramTemplateSelector';
+import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 
 const steps = ['Basic Information', 'Keywords & Tags', 'Project Team', 'Files & Review'];
 
@@ -84,11 +86,23 @@ export const CreateProjectPage: React.FC = () => {
   const [newAdvisor, setNewAdvisor] = useState({ user_id: 0, role: 'MAIN' as 'MAIN' | 'CO_ADVISOR' | 'REVIEWER', customName: undefined as string | undefined });
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
+  const [isDirty, setIsDirty] = useState(false);
   const keywordInputRef = useRef<HTMLInputElement>(null);
 
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const { t } = useLanguage();
+
+  // Unsaved changes protection
+  const {
+    showDialog: showUnsavedDialog,
+    confirmNavigation,
+    cancelNavigation,
+  } = useUnsavedChanges({
+    isDirty,
+    message: 'You have unsaved changes. Are you sure you want to leave without creating the project?',
+    enableBeforeUnload: true,
+  });
 
   // Redirect reviewers and admins away from this page
   useEffect(() => {
@@ -224,6 +238,8 @@ export const CreateProjectPage: React.FC = () => {
 
   const handleInputChange = (field: keyof CreateProjectData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    setIsDirty(true); // Mark form as dirty when any field changes
+    
     // Clear validation error for this field when user starts typing
     if (validationErrors[field]) {
       setValidationErrors(prev => {
@@ -241,6 +257,7 @@ export const CreateProjectPage: React.FC = () => {
         keywords: [...(prev.keywords || []), newKeyword.trim()]
       }));
       setNewKeyword('');
+      setIsDirty(true); // Mark form as dirty
       // Focus back on input for better UX
       setTimeout(() => {
         keywordInputRef.current?.focus();
@@ -253,6 +270,7 @@ export const CreateProjectPage: React.FC = () => {
       ...prev,
       keywords: prev.keywords?.filter(k => k !== keyword) || []
     }));
+    setIsDirty(true); // Mark form as dirty
   };
 
   const handleAddMember = () => {
@@ -262,6 +280,7 @@ export const CreateProjectPage: React.FC = () => {
         members: [...prev.members, { ...newMember }]
       }));
       setNewMember({ user_id: 0, role: 'MEMBER', customName: undefined });
+      setIsDirty(true); // Mark form as dirty
     }
   };
 
@@ -276,6 +295,7 @@ export const CreateProjectPage: React.FC = () => {
       ...prev,
       members: prev.members.filter((_, i) => i !== index)
     }));
+    setIsDirty(true); // Mark form as dirty
   };
 
   const handleAddAdvisor = () => {
@@ -285,6 +305,7 @@ export const CreateProjectPage: React.FC = () => {
         advisors: [...(prev.advisors || []), { ...newAdvisor }]
       }));
       setNewAdvisor({ user_id: 0, role: 'MAIN', customName: undefined });
+      setIsDirty(true); // Mark form as dirty
     }
   };
 
@@ -293,15 +314,18 @@ export const CreateProjectPage: React.FC = () => {
       ...prev,
       advisors: prev.advisors?.filter((_, i) => i !== index) || []
     }));
+    setIsDirty(true); // Mark form as dirty
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     setSelectedFiles(prev => [...prev, ...files]);
+    setIsDirty(true); // Mark form as dirty
   };
 
   const handleRemoveFile = (index: number) => {
     setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+    setIsDirty(true); // Mark form as dirty
   };
 
   const formatFileSize = (bytes: number) => {
@@ -422,6 +446,8 @@ export const CreateProjectPage: React.FC = () => {
       }
 
       setSuccessMessage('Project created successfully!');
+      setIsDirty(false); // Mark form as clean after successful submission
+      
       // Navigate after a short delay to show success message
       setTimeout(() => {
         // Navigate to dashboard with a timestamp to force refresh
@@ -1043,6 +1069,18 @@ export const CreateProjectPage: React.FC = () => {
           </form>
         </Paper>
       </Container>
+
+      {/* Unsaved Changes Warning Dialog */}
+      <ConfirmDialog
+        open={showUnsavedDialog}
+        title="Unsaved Changes"
+        message="You have unsaved changes. Are you sure you want to leave without creating the project?"
+        confirmText="Leave"
+        cancelText="Stay"
+        onConfirm={confirmNavigation}
+        onClose={cancelNavigation}
+        severity="warning"
+      />
     </Box>
   );
 }; 

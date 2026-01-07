@@ -16,6 +16,7 @@ export const Header: React.FC = () => {
   return (
     <Box
       component="header"
+      role="banner"
       sx={{
         width: '100%',
         bgcolor: 'background.paper',
@@ -58,8 +59,10 @@ export const Header: React.FC = () => {
                 background: guestColors.primaryGradient,
                 boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.3)}`,
               }}
+              role="img"
+              aria-label="TVTC Project Explorer Logo"
             >
-              <RocketIcon sx={{ fontSize: { xs: 20, sm: 24 }, color: '#fff' }} />
+              <RocketIcon sx={{ fontSize: { xs: 20, sm: 24 }, color: '#fff' }} aria-hidden="true" />
             </Avatar>
             <Typography
               variant="h5"
@@ -91,6 +94,7 @@ export const Header: React.FC = () => {
               variant="contained"
               startIcon={<LoginIcon />}
               onClick={() => navigate('/login')}
+              aria-label={t('Login to your account')}
               sx={{
                 background: guestColors.primaryGradient,
                 borderRadius: '28px',

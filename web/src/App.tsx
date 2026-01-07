@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -35,6 +35,8 @@ import { TestAuthPage } from '@/pages/TestAuthPage';
 import { HeaderLogo } from '@/components/layout/HeaderLogo';
 import { Header } from '@/components/layout/Header';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { SkipNavigation } from '@/components/shared/SkipLink';
+import { CommandPalette } from '@/components/CommandPalette';
 import { LanguageProvider, useLanguage } from '@/providers/LanguageContext';
 import { useThemeStore } from '@/store/themeStore';
 import { CacheProvider } from '@emotion/react';
@@ -58,22 +60,47 @@ const createEmotionCache = (direction: 'ltr' | 'rtl') =>
 const AppContent: React.FC = () => {
   const { direction } = useLanguage();
   const { mode } = useThemeStore();
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
 
   const theme = useMemo(() => createTvtcTheme(direction, mode), [direction, mode]);
   const rtlCache = useMemo(() => createEmotionCache('rtl'), []);
   const ltrCache = useMemo(() => createEmotionCache('ltr'), []);
   const cache = direction === 'rtl' ? rtlCache : ltrCache;
 
+  // Global keyboard shortcut for Command Palette (Ctrl+K / Cmd+K)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setCommandPaletteOpen(true);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
     <CacheProvider value={cache}>
       <MuiThemeProvider theme={theme}>
         <CssBaseline />
         <ThemeProvider>
+            <SkipNavigation />
             <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+              {/* Command Palette */}
+              <CommandPalette 
+                open={commandPaletteOpen} 
+                onClose={() => setCommandPaletteOpen(false)} 
+              />
+              
               {/* Header with Logo, Language Switcher, and Login */}
               <Header />
               
-              <Box sx={{ flexGrow: 1 }}>
+              <Box 
+                id="main-content"
+                component="main"
+                sx={{ flexGrow: 1 }}
+              >
                 <Routes>
           {/* Public routes */}
           <Route path="/" element={<ExplorePage />} />

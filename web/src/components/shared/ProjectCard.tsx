@@ -72,6 +72,16 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 
   return (
     <Card
+      component="article"
+      role="article"
+      aria-label={`Project: ${project.title}`}
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          navigate(getProjectRoute());
+        }
+      }}
       sx={{
         border: `1px solid ${theme.borderColor}`,
         borderRadius: 2,
@@ -87,14 +97,25 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           transform: 'translateY(-2px) scale(0.98)',
           transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
         },
+        '&:focus': {
+          outline: `3px solid ${theme.primary}`,
+          outlineOffset: '2px',
+        },
+        '&:focus:not(:focus-visible)': {
+          outline: 'none',
+        },
+        '&:focus-visible': {
+          outline: `3px solid ${theme.primary}`,
+          outlineOffset: '2px',
+        },
       }}
       onClick={() => navigate(getProjectRoute())}
     >
       <CardContent>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-            <SchoolIcon sx={{ color: theme.primary, mr: 1 }} />
-            <Typography variant="h6" sx={{ fontWeight: 600, flex: 1 }}>
+            <SchoolIcon sx={{ color: theme.primary, mr: 1 }} aria-hidden="true" />
+            <Typography variant="h6" component="h2" sx={{ fontWeight: 600, flex: 1 }}>
               {project.title}
             </Typography>
           </Box>
@@ -103,6 +124,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             color={getStatusColor(project.status) as any}
             size="small"
             sx={{ textTransform: 'capitalize' }}
+            aria-label={`Project status: ${project.status.replace('_', ' ')}`}
           />
         </Box>
 
@@ -124,6 +146,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             <LinearProgress 
               variant="determinate" 
               value={getProjectProgress(project.status)}
+              aria-label={`Project progress: ${getProjectProgress(project.status)} percent complete`}
+              aria-valuenow={getProjectProgress(project.status)}
+              aria-valuemin={0}
+              aria-valuemax={100}
               sx={{
                 height: 6,
                 borderRadius: 3,
@@ -172,6 +198,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                   navigate(`/projects/${project.id}/edit`); 
                 }}
                 sx={{ color: theme.primary }}
+                aria-label={`Edit project ${project.title}`}
               >
                 <EditIcon fontSize="small" />
               </IconButton>
@@ -183,6 +210,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 navigate(getProjectRoute()); 
               }}
               sx={{ color: theme.primary }}
+              aria-label={`View project ${project.title}`}
             >
               <VisibilityIcon fontSize="small" />
             </IconButton>

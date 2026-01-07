@@ -39,6 +39,8 @@ import { getProjectDetailUrl, getProjectEditUrl, getProjectFollowUrl, getProject
 import { useAuthStore } from '@/features/auth/store';
 import { CreateProjectData, Program, User } from '@/types';
 import { apiService } from '@/lib/api';
+import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 
 export const EditProjectPage: React.FC = () => {
   const [formData, setFormData] = useState<CreateProjectData>({
@@ -61,10 +63,22 @@ export const EditProjectPage: React.FC = () => {
   const [newMember, setNewMember] = useState({ user_id: 0, role: 'MEMBER' as 'LEAD' | 'MEMBER', customName: undefined as string | undefined });
   const [newAdvisor, setNewAdvisor] = useState({ user_id: 0, role: 'MAIN' as 'MAIN' | 'CO_ADVISOR' | 'REVIEWER', customName: undefined as string | undefined });
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [isDirty, setIsDirty] = useState(false);
 
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+
+  // Unsaved changes protection
+  const {
+    showDialog: showUnsavedDialog,
+    confirmNavigation,
+    cancelNavigation,
+  } = useUnsavedChanges({
+    isDirty,
+    message: 'You have unsaved changes. Are you sure you want to leave without saving?',
+    enableBeforeUnload: true,
+  });
 
   // Redirect reviewers away from this page
   useEffect(() => {
@@ -133,6 +147,7 @@ export const EditProjectPage: React.FC = () => {
 
   const handleInputChange = (field: keyof CreateProjectData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    setIsDirty(true); // Mark form as dirty when any field changes
   };
 
   const handleAddKeyword = () => {
@@ -142,6 +157,7 @@ export const EditProjectPage: React.FC = () => {
         keywords: [...(prev.keywords || []), newKeyword.trim()]
       }));
       setNewKeyword('');
+      setIsDirty(true); // Mark form as dirty
     }
   };
 
@@ -150,6 +166,7 @@ export const EditProjectPage: React.FC = () => {
       ...prev,
       keywords: prev.keywords?.filter(k => k !== keyword) || []
     }));
+    setIsDirty(true); // Mark form as dirty
   };
 
   const handleAddMember = () => {
@@ -159,6 +176,7 @@ export const EditProjectPage: React.FC = () => {
         members: [...prev.members, { ...newMember }]
       }));
       setNewMember({ user_id: 0, role: 'MEMBER', customName: undefined });
+      setIsDirty(true); // Mark form as dirty
     }
   };
 
@@ -167,6 +185,7 @@ export const EditProjectPage: React.FC = () => {
       ...prev,
       members: prev.members.filter((_, i) => i !== index)
     }));
+    setIsDirty(true); // Mark form as dirty
   };
 
   const handleAddAdvisor = () => {
@@ -176,6 +195,7 @@ export const EditProjectPage: React.FC = () => {
         advisors: [...(prev.advisors || []), { ...newAdvisor }]
       }));
       setNewAdvisor({ user_id: 0, role: 'MAIN', customName: undefined });
+      setIsDirty(true); // Mark form as dirty
     }
   };
 
@@ -184,15 +204,18 @@ export const EditProjectPage: React.FC = () => {
       ...prev,
       advisors: prev.advisors?.filter((_, i) => i !== index) || []
     }));
+    setIsDirty(true); // Mark form as dirty
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     setSelectedFiles(prev => [...prev, ...files]);
+    setIsDirty(true); // Mark form as dirty
   };
 
   const handleRemoveFile = (index: number) => {
     setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+    setIsDirty(true); // Mark form as dirty
   };
 
   const formatFileSize = (bytes: number) => {
@@ -212,6 +235,7 @@ export const EditProjectPage: React.FC = () => {
       
       // Update the project first
       await apiService.updateProject(parseInt(id!), formData);
+      setIsDirty(false); // Mark form as clean after successful submission
 
       // If files are selected, upload them
       if (selectedFiles.length > 0) {
@@ -1262,6 +1286,18 @@ export const EditProjectPage: React.FC = () => {
           </Paper>
         </form>
       </Container>
+
+      {/* Unsaved Changes Warning Dialog */}
+      <ConfirmDialog
+        open={showUnsavedDialog}
+        title="Unsaved Changes"
+        message="You have unsaved changes. Are you sure you want to leave without saving?"
+        confirmText="Leave"
+        cancelText="Stay"
+        onConfirm={confirmNavigation}
+        onClose={cancelNavigation}
+        severity="warning"
+      />
     </Box>
   );
 };

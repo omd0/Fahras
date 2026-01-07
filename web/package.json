@@ -10,6 +10,7 @@
     "@mui/material": "^7.3.2",
     "@types/react-window": "^1.8.8",
     "axios": "^1.12.2",
+    "cmdk": "^1.0.0",
     "js-yaml": "^4.1.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
