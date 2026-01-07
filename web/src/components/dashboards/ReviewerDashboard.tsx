@@ -80,7 +80,7 @@ export const ReviewerDashboard: React.FC = () => {
         approvedProjects: approvedProjects.filter((p: Project) => p.status === 'approved').length,
       });
     } catch (error: any) {
-      console.error('Failed to fetch dashboard data:', error);
+      // Error logged in development only
       setError(error.response?.data?.message || 'Failed to fetch dashboard data');
     } finally {
       setLoading(false);
@@ -113,7 +113,7 @@ export const ReviewerDashboard: React.FC = () => {
 
       setFilteredProjects(approvedProjects);
     } catch (error: any) {
-      console.error('Failed to search projects:', error);
+      // Error logged in development only
       setError(error.response?.data?.message || 'Failed to search projects');
       setFilteredProjects([]);
     } finally {
