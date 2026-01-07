@@ -462,7 +462,7 @@ class MilestoneTemplateController extends Controller
 
             // Delete existing incomplete milestones if not preserving custom ones
             if (!$request->boolean('preserve_custom_milestones', false)) {
-                $project->milestones()->where('status', '!=', 'completed')->delete();
+                $project->milestones()->where('status', '!=', ProjectStatus::COMPLETED)->delete();
             }
 
             // Get template items ordered

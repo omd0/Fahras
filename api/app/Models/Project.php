@@ -112,22 +112,22 @@ class Project extends Model
 
     public function getLeadMember()
     {
-        return $this->members()->wherePivot('role_in_project', 'LEAD')->first();
+        return $this->members()->wherePivot('role_in_project', MemberRole::LEAD)->first();
     }
 
     public function isApproved()
     {
-        return $this->admin_approval_status === 'approved';
+        return $this->admin_approval_status === ApprovalStatus::APPROVED;
     }
 
     public function isHidden()
     {
-        return $this->admin_approval_status === 'hidden';
+        return $this->admin_approval_status === ApprovalStatus::HIDDEN;
     }
 
     public function isPendingApproval()
     {
-        return $this->admin_approval_status === 'pending';
+        return $this->admin_approval_status === ApprovalStatus::PENDING;
     }
 
     public function isVisibleToPublic()

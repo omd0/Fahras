@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Card, CardContent, Grid, Button, CircularProgress, Alert, Typography, IconButton, Chip } from '@mui/material';
+import { getErrorMessage } from '../../utils/errorHandling';
 import {
   Assignment as AssignmentIcon,
   CheckCircle as CheckCircleIcon,
@@ -74,8 +75,7 @@ export const AdminDashboard: React.FC = () => {
         }).length,
       });
     } catch (error: any) {
-      console.error('Failed to fetch dashboard data:', error);
-      setError(error.response?.data?.message || 'Failed to fetch dashboard data');
+      setError(getErrorMessage(error, 'Failed to fetch dashboard data'));
     } finally {
       setLoading(false);
     }

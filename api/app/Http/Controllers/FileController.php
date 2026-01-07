@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\File;
 use App\Models\Project;
 use App\Services\ProjectActivityService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -12,7 +13,7 @@ use Illuminate\Support\Str;
 
 class FileController extends Controller
 {
-    public function upload(Request $request, Project $project)
+    public function upload(Request $request, Project $project): JsonResponse
     {
         \Log::info('File upload request received', [
             'project_id' => $project->id,
@@ -109,7 +110,7 @@ class FileController extends Controller
         ], 201);
     }
 
-    public function index(Project $project)
+    public function index(Project $project): JsonResponse
     {
         $user = request()->user();
         
@@ -226,7 +227,7 @@ class FileController extends Controller
         return Storage::disk($disk)->response($file->storage_url, $filename, $headers);
     }
 
-    public function destroy(File $file)
+    public function destroy(File $file): JsonResponse
     {
         $user = request()->user();
 

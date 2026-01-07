@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Faculty;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -16,7 +17,7 @@ class UserController extends Controller
     /**
      * Get all users with their roles
      */
-    public function index()
+    public function index(): JsonResponse
     {
         $users = User::with('roles')->get()->map(function ($user) {
             // Add legacy status to user data
@@ -30,7 +31,7 @@ class UserController extends Controller
     /**
      * Get all roles
      */
-    public function getRoles()
+    public function getRoles(): JsonResponse
     {
         $roles = Role::all();
         return response()->json($roles);
@@ -39,7 +40,7 @@ class UserController extends Controller
     /**
      * Create a new user
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'full_name' => 'required|string|max:255',
@@ -106,7 +107,7 @@ class UserController extends Controller
     /**
      * Update a user
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id): JsonResponse
     {
         $user = User::findOrFail($id);
 
@@ -243,7 +244,7 @@ class UserController extends Controller
     /**
      * Delete a user
      */
-    public function destroy($id)
+    public function destroy($id): JsonResponse
     {
         try {
             $user = User::findOrFail($id);
@@ -263,7 +264,7 @@ class UserController extends Controller
     /**
      * Toggle user status
      */
-    public function toggleStatus(Request $request, $id)
+    public function toggleStatus(Request $request, $id): JsonResponse
     {
         $user = User::findOrFail($id);
 
