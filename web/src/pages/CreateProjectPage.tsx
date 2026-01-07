@@ -362,8 +362,7 @@ export const CreateProjectPage: React.FC = () => {
       // #region agent log
       fetch('http://127.0.0.1:7242/ingest/630c9ee4-de4f-48c7-bd76-5eabbd1dc8d2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CreateProjectPage.tsx:357',message:'projectData before API call',data:{projectData:JSON.stringify(projectData),membersCount:membersToSubmit.length,creatorInMembers:membersToSubmit[0]?.user_id===user?.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
       // #endregion
-      console.log('Creating project...', projectData);
-      
+
       // Create the project first
       const createdProject = await apiService.createProject(projectData);
       // #region agent log
@@ -380,39 +379,26 @@ export const CreateProjectPage: React.FC = () => {
             startDate,
             false // Don't preserve custom milestones (project is new)
           );
-          console.log('Milestone template applied successfully');
         } catch (templateError: any) {
           console.error('Failed to apply template:', templateError);
           // Don't fail the whole creation if template application fails
           setError(`Project created successfully, but failed to apply milestone template: ${templateError.response?.data?.message || templateError.message}`);
         }
       }
-      console.log('Project created:', createdProject);
       // #region agent log
       fetch('http://127.0.0.1:7242/ingest/630c9ee4-de4f-48c7-bd76-5eabbd1dc8d2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CreateProjectPage.tsx:379',message:'project creation success path',data:{hasProject:!!createdProject,projectId:createdProject?.project?.id,createdBy:createdProject?.project?.created_by_user_id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
       // #endregion
 
       // If files are selected, upload them individually
       if (selectedFiles.length > 0 && createdProject?.project?.id) {
-        console.log(`Starting file upload: ${selectedFiles.length} files to project ${createdProject.project.id}`);
-        
         let uploadedCount = 0;
         let failedCount = 0;
-        
+
         for (let i = 0; i < selectedFiles.length; i++) {
           const file = selectedFiles[i];
           try {
-            console.log(`[${i + 1}/${selectedFiles.length}] Uploading: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`);
-            console.log('File details:', {
-              name: file.name,
-              size: file.size,
-              type: file.type,
-              lastModified: new Date(file.lastModified).toISOString()
-            });
-            
             const uploadResponse = await apiService.uploadFile(createdProject.project.id, file, true);
-            
-            console.log(`✅ File uploaded successfully:`, uploadResponse);
+
             uploadedCount++;
           } catch (uploadError: any) {
             console.error(`❌ File upload failed for ${file.name}:`, uploadError);
@@ -423,9 +409,7 @@ export const CreateProjectPage: React.FC = () => {
             failedCount++;
           }
         }
-        
-        console.log(`File upload complete: ${uploadedCount} succeeded, ${failedCount} failed`);
-        
+
         if (failedCount > 0) {
           setError(`Project created but ${failedCount} file(s) failed to upload. Please try re-uploading them from the project page.`);
           // Wait a bit before navigating so user can see the error

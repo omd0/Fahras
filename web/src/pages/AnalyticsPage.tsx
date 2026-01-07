@@ -218,19 +218,15 @@ export const AnalyticsPage: React.FC = () => {
         params.academic_year = selectedYear;
       }
 
-      console.log('Fetching projects with params:', params);
       const response = await apiService.getProjects(params);
       const projects = Array.isArray(response) ? response : response.data || [];
-      
-      console.log('Fetched projects:', projects.length);
-      
+
       // For now, show all projects since we don't have rating data in the list
       // In a real implementation, you would need to fetch ratings separately
       const allProjects = projects
         .filter((project: any) => project.status === 'approved' || project.status === 'completed')
         .slice(0, 20); // Top 20 projects
-      
-      console.log('Filtered projects:', allProjects.length);
+
       setTopRatedProjects(allProjects);
     } catch (error: any) {
       console.error('Failed to fetch projects:', error);

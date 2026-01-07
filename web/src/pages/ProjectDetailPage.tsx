@@ -70,29 +70,12 @@ export const ProjectDetailPage: React.FC = () => {
   const loadProjectFiles = async (projectId: number) => {
     setFilesLoading(true);
     try {
-      console.log(`[DEBUG] Loading files for project ${projectId}`);
       const filesResponse = await apiService.getProjectFiles(projectId);
-      console.log(`[DEBUG] Files response:`, filesResponse);
-      console.log(`[DEBUG] Files array:`, filesResponse.files);
-      console.log(`[DEBUG] Number of files:`, filesResponse.files?.length || 0);
-      
+
       if (filesResponse.files && filesResponse.files.length > 0) {
         filesResponse.files.forEach((file: any, index: number) => {
-          console.log(`[DEBUG] File ${index + 1}:`, {
-            id: file.id,
-            original_filename: file.original_filename,
-            filename: file.filename,
-            storage_url: file.storage_url,
-            size_bytes: file.size_bytes,
-            mime_type: file.mime_type,
-            is_public: file.is_public,
-            storage_exists: file.storage_exists,
-            uploaded_at: file.uploaded_at,
-            uploader: file.uploader
-          });
+          // File loaded
         });
-      } else {
-        console.log(`[DEBUG] No files found for project ${projectId}`);
       }
       
       setProject(prev => prev ? { ...prev, files: filesResponse.files || [] } : prev);
@@ -108,27 +91,9 @@ export const ProjectDetailPage: React.FC = () => {
 
   const fetchProject = async (projectId: number) => {
     try {
-      console.log('Fetching project:', projectId);
       const response = await apiService.getProject(projectId);
-      console.log('Project response:', response);
       setProject(response.project);
       await loadProjectFiles(projectId);
-      
-      // Debug: Log files data to console for verification
-      if (response.project.files) {
-        console.log('Project files loaded:', response.project.files);
-        console.log('Number of files:', response.project.files.length);
-        response.project.files.forEach((file, index) => {
-          console.log(`File ${index + 1}:`, {
-            id: file.id,
-            original_filename: file.original_filename,
-            storage_url: file.storage_url,
-            size_bytes: file.size_bytes
-          });
-        });
-      } else {
-        console.log('No files found for project');
-      }
     } catch (error: any) {
       console.error('Error fetching project:', error);
       setError(error.response?.data?.message || 'Failed to fetch project');

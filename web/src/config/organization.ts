@@ -29,7 +29,6 @@ export async function loadOrganizationConfig(): Promise<OrganizationConfig> {
             // Only update if we successfully loaded valid config
             if (loadedConfig && loadedConfig.project && loadedConfig.organization) {
               orgConfig = loadedConfig;
-              console.log('Organization config loaded from YAML');
             }
           }
       } catch (yamlError) {
