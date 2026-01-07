@@ -1,5 +1,5 @@
 import React, { useRef, useCallback, useMemo } from 'react';
-import { FixedSizeList } from 'react-window';
+import { List, useListRef } from 'react-window';
 import {
   Table,
   TableBody,
@@ -209,9 +209,9 @@ const VirtualizedProjectTable: React.FC<VirtualizedProjectTableProps> = ({
   containerHeight = 600,
   itemHeight = 73,
 }) => {
-  const listRef = useRef<any>(null);
+  const [listRef] = useListRef();
 
-  const itemData = useMemo(
+  const rowProps = useMemo(
     () => ({
       projects,
       showProgram,
@@ -239,9 +239,9 @@ const VirtualizedProjectTable: React.FC<VirtualizedProjectTableProps> = ({
   // Scroll to item function
   const scrollToItem = useCallback((index: number) => {
     if (listRef.current) {
-      listRef.current.scrollToItem(index, 'start');
+      listRef.current.scrollToRow(index);
     }
-  }, []);
+  }, [listRef]);
 
   if (loading) {
     return (
@@ -260,6 +260,11 @@ const VirtualizedProjectTable: React.FC<VirtualizedProjectTableProps> = ({
       </Paper>
     );
   }
+
+  // Create the row component that will be passed to List
+  const RowComponent = useCallback(({ index, style }: { index: number; style: React.CSSProperties }) => {
+    return <Row index={index} style={style} data={rowProps} />;
+  }, [rowProps]);
 
   return (
     <TableContainer component={Paper}>
@@ -313,17 +318,15 @@ const VirtualizedProjectTable: React.FC<VirtualizedProjectTableProps> = ({
         </TableHead>
       </Table>
       <Box sx={{ height: containerHeight }}>
-        <FixedSizeList
-          ref={listRef}
-          height={containerHeight}
-          itemCount={projects.length}
-          itemSize={itemHeight}
-          width="100%"
-          itemData={itemData}
+        <List
+          listRef={listRef}
+          defaultHeight={containerHeight}
+          rowCount={projects.length}
+          rowHeight={itemHeight}
           overscanCount={5}
-        >
-          {Row}
-        </FixedSizeList>
+          rowComponent={RowComponent}
+          rowProps={{}}
+        />
       </Box>
     </TableContainer>
   );

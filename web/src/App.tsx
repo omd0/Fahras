@@ -32,6 +32,7 @@ import FacultyPendingApprovalPage from '@/pages/FacultyPendingApprovalPage';
 import StudentMyProjectsPage from '@/pages/StudentMyProjectsPage';
 import { NotificationsPage } from '@/features/notifications/pages/NotificationsPage';
 import { TestAuthPage } from '@/pages/TestAuthPage';
+import { FileUploadDemoPage } from '@/pages/FileUploadDemoPage';
 import { HeaderLogo } from '@/components/layout/HeaderLogo';
 import { Header } from '@/components/layout/Header';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -314,6 +315,12 @@ const AppContent: React.FC = () => {
           <Route
             path="/test-auth"
             element={<TestAuthPage />}
+          />
+          
+          {/* File Upload Demo route */}
+          <Route
+            path="/demo/file-upload"
+            element={<FileUploadDemoPage />}
           />
           
           {/* Catch all route - redirect to home */}

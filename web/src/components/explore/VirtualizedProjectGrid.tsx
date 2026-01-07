@@ -1,6 +1,5 @@
 import React, { useRef, useCallback, useMemo } from 'react';
-// TODO: Fix react-window compatibility - new version uses Grid instead of FixedSizeGrid
-// import { FixedSizeGrid } from 'react-window';
+import { Grid, useGridRef } from 'react-window';
 import { Box, useMediaQuery, useTheme } from '@mui/material';
 import { Project } from '@/types';
 import {
@@ -386,7 +385,7 @@ export const VirtualizedProjectGrid: React.FC<VirtualizedProjectGridProps> = ({
   itemGap = 32,
 }) => {
   const theme = useTheme();
-  const gridRef = useRef<any>(null);
+  const [gridRef] = useGridRef();
   
   // Responsive column count based on screen size
   const isXs = useMediaQuery(theme.breakpoints.down('md'));
@@ -422,12 +421,12 @@ export const VirtualizedProjectGrid: React.FC<VirtualizedProjectGridProps> = ({
   const scrollToItem = useCallback((index: number) => {
     if (gridRef.current) {
       const rowIndex = Math.floor(index / columnCount);
-      gridRef.current.scrollToItem({ rowIndex, columnIndex: 0 });
+      gridRef.current.scrollToCell({ columnIndex: 0, rowIndex });
     }
-  }, [columnCount]);
+  }, [columnCount, gridRef]);
 
-  // Cell renderer
-  const Cell = useCallback(({ columnIndex, rowIndex, style }: any) => {
+  // Cell renderer component - now using the new cellComponent prop
+  const CellComponent = useCallback(({ columnIndex, rowIndex, style }: { columnIndex: number; rowIndex: number; style: React.CSSProperties }) => {
     const index = rowIndex * columnCount + columnIndex;
     if (index >= projects.length) return null;
 
@@ -450,21 +449,21 @@ export const VirtualizedProjectGrid: React.FC<VirtualizedProjectGridProps> = ({
 
   return (
     <Box ref={containerRef} sx={{ width: '100%', height: containerHeight }}>
-      <FixedSizeGrid
-        ref={gridRef}
+      <Grid
+        gridRef={gridRef}
         columnCount={columnCount}
         columnWidth={itemWidth + itemGap}
-        height={containerHeight}
+        defaultHeight={containerHeight}
+        defaultWidth={containerWidth}
         rowCount={rowCount}
         rowHeight={itemHeight}
-        width={containerWidth}
-        overscanRowCount={2}
+        overscanCount={2}
         style={{
           overflowX: 'hidden',
         }}
-      >
-        {Cell}
-      </FixedSizeGrid>
+        cellComponent={CellComponent}
+        cellProps={{}}
+      />
     </Box>
   );
 };
