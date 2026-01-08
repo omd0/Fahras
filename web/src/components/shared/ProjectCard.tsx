@@ -82,29 +82,29 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         }
       }}
       sx={{
-        border: `1px solid ${theme.borderColor}`,
-        borderRadius: 2,
+        border: `2px solid #18B3A8`, // Portal Hub teal outline
+        borderRadius: '14px', // Portal Hub card radius
         cursor: 'pointer',
         height: '100%',
-        transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
+        boxShadow: 'none', // Portal Hub: no shadow
+        transition: 'all 0.2s ease-out',
         '&:hover': {
-          boxShadow: '0 12px 32px rgba(0,0,0,0.15)',
-          transform: 'translateY(-8px) scale(1.02)',
-          borderColor: theme.primary,
+          borderColor: '#008A3E', // Deepen on hover
+          transform: 'translateY(-1px)', // Subtle lift
         },
         '&:active': {
-          transform: 'translateY(-2px) scale(0.98)',
-          transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
+          transform: 'translateY(0)',
+          transition: 'all 0.1s ease-out',
         },
         '&:focus': {
-          outline: `3px solid ${theme.primary}`,
+          outline: `3px solid #008A3E`,
           outlineOffset: '2px',
         },
         '&:focus:not(:focus-visible)': {
           outline: 'none',
         },
         '&:focus-visible': {
-          outline: `3px solid ${theme.primary}`,
+          outline: `3px solid #008A3E`,
           outlineOffset: '2px',
         },
       }}

@@ -41,7 +41,7 @@ services:
 
   # Forgejo Application Server
   forgejo:
-    image: codeberg.org/forgejo/forgejo:latest
+    image: codeberg.org/forgejo/forgejo:9
     container_name: forgejo-app
     restart: unless-stopped
     environment:
@@ -63,9 +63,9 @@ services:
       
       # Server Configuration
       - FORGEJO__server__PROTOCOL=http
-      - FORGEJO__server__DOMAIN=${FORGEJO_DOMAIN:-forgejo.local}
+      - FORGEJO__server__DOMAIN=localhost
       - FORGEJO__server__HTTP_PORT=3000
-      - FORGEJO__server__ROOT_URL=http://${FORGEJO_DOMAIN:-forgejo.local}:3000
+      - FORGEJO__server__ROOT_URL=http://localhost:9847/
       
       # Repository Configuration
       - FORGEJO__repository__ROOT=/data/gitea/repositories

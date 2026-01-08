@@ -1,0 +1,479 @@
+Design System Guidelines — “TVTC Portal Hub” (based on provided screenshots)
+Version: 1.1
+Audience: Designers + engineers + AI agents generating UI for this project
+Goal: Recreate the official, airy TVTC portal look (RTL-first, blue hero overlay, teal/green accents, thin bordered cards) with Arduino-like grid discipline.
+
+============================================================
+1) Brand & Creative Direction (the “feel”)
+============================================================
+
+Personality
+- Institutional but friendly: confident, calm, and clear.
+- “Government portal polish”: structured navigation, consistent iconography, restrained color, generous whitespace.
+- Visual hierarchy is obvious at a glance; nothing is loud except the primary teal/green accents.
+
+Core design principles
+- Clarity beats decoration: large white surfaces, light dividers, one restrained accent family.
+- RTL-first composition: right-aligned headlines, navigation, and primary anchors; LTR utility controls are allowed in the top utility bar.
+- Layered hero: big photography with a cool blue overlay that keeps text readable.
+- Thin-border elegance: cards feel “outlined” more than “shadowed”.
+- Consistent rhythm: stable spacing scale, stable card geometry, stable alignment across screens.
+
+============================================================
+2) Layout System (structure + grid)
+============================================================
+
+Page container
+- Max content width: 1200–1280px (Arduino-like content discipline).
+- Centered container with responsive side padding:
+  - Mobile: 16px
+  - Tablet: 24px
+  - Desktop: 32px
+
+Grid
+- 12-column grid for desktop and tablet.
+- Gutter: 24px desktop/tablet, 16px mobile.
+- Prefer 3-up or 4-up card grids on desktop; collapse to 2-up on tablet; 1-up on mobile.
+
+Section rhythm (vertical spacing)
+- Between major sections: 40–56px desktop, 32–40px tablet, 24–32px mobile.
+- Within a section (headline → content): 12–20px.
+
+Alignment rules
+- RTL pages: default to right alignment for headings, nav, and body copy.
+- Keep baselines aligned: buttons align to text baselines or card bottoms where possible.
+- Center alignment is reserved for hero headline blocks and icon-only micro-CTAs.
+
+============================================================
+3) Spacing & Sizing Tokens (the rhythm)
+============================================================
+
+Spacing scale (use consistently)
+- 4, 8, 12, 16, 20, 24, 32, 40, 48, 56, 64
+
+Touch targets
+- Minimum interactive size: 44x44px.
+- Icon buttons: 40–44px square, with large click area and small icon inside.
+
+Common heights
+- Primary buttons: 40–44px
+- Inputs/selects: 40–44px
+- App header: 64–72px
+
+============================================================
+4) Typography (fonts + hierarchy)
+============================================================
+
+Type character
+- Clean, institutional sans with strong Arabic legibility.
+- Prefer simple weights and high contrast; avoid decorative fonts.
+
+Recommended font stack (web)
+- Primary (Arabic-first): "Tahoma", "Arial", "Segoe UI", system-ui, sans-serif
+- If you choose a modern Arabic webfont, keep it neutral and readable (e.g., "Cairo", "Tajawal") and use it consistently.
+- Mono (code snippets only): ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace
+
+Hierarchy (desktop defaults)
+- Display / Hero Title (Arabic): 40–52px, weight 700, line-height 1.1–1.2
+- H1: 32–36px, weight 700, line-height 1.15–1.25
+- H2: 24–28px, weight 700, line-height 1.2–1.3
+- H3: 18–20px, weight 700, line-height 1.25–1.35
+- Body: 14–16px, weight 400–500, line-height 1.5–1.7
+- Caption/Meta: 12–13px, weight 500, line-height 1.3–1.5
+
+Text style rules
+- Headlines: Sentence case or Title Case; keep them short and high-signal.
+- Navigation labels: Title Case, medium weight (500–600).
+- Primary CTAs: Title Case (preferred). If using ALL CAPS, apply subtle letter spacing (+0.06em) and reduce font size slightly.
+- Avoid heavy italics; use weight and color for emphasis.
+
+============================================================
+5) Color System (tokens)
+============================================================
+
+Design intent
+- White, airy surfaces with cool neutrals.
+- Primary accents are TVTC-like teal/green + a supporting institutional blue.
+- Hero uses a cool blue overlay on photography (signature look from the screenshot).
+
+Core palette (inferred from provided screenshots; tune hex if you have official values)
+- Primary (TVTC green/teal family):
+  - primary.600 (main):   #008A3E  (deep green used for focus/brand accents in portals)
+  - primary.500 (teal):   #18B3A8  (teal used in UI buttons/controls)
+  - primary.050 (tint):   #E7F7F5
+
+- Secondary (institutional blue family):
+  - secondary.700:        #1F6F8B
+  - secondary.600:        #3B7D98
+  - secondary.050:        #E9F3F7
+
+- Accent (gold highlight; use sparingly):
+  - accent.600:           #F3B200
+  - accent.050:           #FFF6D6
+
+- Neutrals:
+  - white:              #FFFFFF
+  - surface.050:        #F7FAFB
+  - surface.100:        #EEF3F5
+  - border.200:         #D7E3E8  (cool, slightly blue)
+
+- Text:
+  - text.primary:       #0E2A35  (deep blue-gray)
+  - text.secondary:     #4F6772
+  - text.muted:         #7D929B
+
+- Status (keep quiet; no neon)
+  - success:            #2E7D32
+  - warning:            #B26A00
+  - error:              #C62828
+  - info:               #1E88E5
+
+Hero overlay (signature)
+- Blue overlay over photography:
+  - overlay: rgba(27, 125, 153, 0.55) → rgba(27, 125, 153, 0.75)
+  - Keep hero text in white with subtle shadow for legibility.
+
+Color usage rules
+- Background is almost always white; use surface.050/100 for subtle panels only.
+- Borders are light and cool; avoid strong dark outlines.
+- Text uses deep blue-gray, not pure black.
+- Primary teal/green is reserved for: CTAs, active states, key links, focus rings.
+- Secondary blue is used for: hero overlays, section headers, and institutional emphasis.
+- Gold accent is rare: “special” CTA or badge only; never for large surfaces.
+
+============================================================
+6) Depth, Borders, and Shape (cards + softness)
+============================================================
+
+Radii
+- Circular utility buttons: 9999px (true circles)
+- Service cards: 12–14px (soft but formal)
+- Inputs/selects: 10–12px
+- Menus/popovers: 12px
+
+Borders
+- Default border: 1px solid border.200
+- Service/portal cards: emphasize border (thin teal outline); shadows should be extremely subtle or off.
+
+Shadows (restrained; the screenshot is border-forward)
+- Elevation 1 (optional): 0 2px 10px rgba(14, 42, 53, 0.08)
+- Elevation 2 (hover):    0 6px 18px rgba(14, 42, 53, 0.12)
+- Elevation 3 (overlay):  0 16px 48px rgba(14, 42, 53, 0.18)
+
+Hover lift rule
+- Hoverable cards/buttons can lift subtly:
+  - translateY(-1px to -2px)
+  - shadow increases slightly
+  - NEVER jump more than 2px
+
+============================================================
+7) Iconography & Illustration
+============================================================
+
+Icon style
+- Simple, line-based icons with consistent stroke (1.5–2px).
+- Rounded line caps, minimal detail.
+- Color: text.secondary by default; primary/secondary for active states.
+
+Illustrations/photos
+- Use high-quality images with clean backgrounds.
+- Crop images to feel editorial (confident framing), not cramped.
+- Hero visuals can overlap slightly within a card, but keep padding generous.
+
+============================================================
+8) Motion & Interaction
+============================================================
+
+Timing
+- Micro-interactions: 150–200ms
+- Surface transitions / hover: 200–300ms
+
+Easing
+- Standard: cubic-bezier(0.4, 0, 0.2, 1)
+- Hover lift: ease-out
+
+Motion rules
+- Keep motion subtle: fade + small translate + soft shadow.
+- Respect reduced motion preferences (already present in `web/src/index.css` + `web/src/styles/accessibility.css`).
+
+============================================================
+9) Accessibility (non-negotiables)
+============================================================
+
+Focus
+- Use a clearly visible focus ring with primary green/teal tint:
+  - outline: 3px solid primary.600
+  - outer glow: 0 0 0 3px rgba(0, 138, 62, 0.25)
+
+Contrast
+- Body text must meet WCAG AA.
+- Secondary text should remain readable on white; avoid light gray text for important info.
+
+Touch
+- Maintain 44px minimum targets (already enforced in accessibility CSS).
+
+============================================================
+10) Component Library — High-Level Specs
+============================================================
+
+This section defines every component needed for a cohesive design system. Implementations may use any UI framework,
+but the visual outcomes must match these rules.
+
+------------------------------------------------------------
+10.1 App Shell
+------------------------------------------------------------
+
+Header (Two-tier, RTL-first) — matches provided screenshots
+- Tier 1 (Utility bar):
+  - Height: 48–56px
+  - Background: white
+  - Layout (RTL): logo lockup on far right; utilities/icons grouped with thin vertical separators
+  - Content: accessibility/size toggles, language toggle (EN), account, mail, phone, print, etc. (icons), plus a circular search button
+  - Icon style: simple line icons, secondary blue tone
+  - Search CTA: circular button, fill primary.500 (teal), icon white
+  - Divider: 1px bottom border (border.200)
+
+- Tier 2 (Primary nav):
+  - Height: 44–56px
+  - Background: white
+  - RTL nav links with dropdown carets; consistent spacing between items
+  - Hover: shift to secondary.600
+  - Active: underline 2px in primary.600/primary.500
+  - Keep it flat and clean (no heavy shadows)
+
+Global Container
+- Use a centered max-width container; keep header content aligned with page grid.
+- Default reading direction: RTL for Arabic screens; align headings and nav to the right.
+
+Hero (Full-bleed carousel) — matches provided screenshots
+- Background: full-width photo
+- Overlay: cool blue overlay gradient (see “Hero overlay (signature)”)
+- Copy block: centered, Arabic headline + one supporting line, all in white
+- Carousel dots: centered near hero bottom
+  - Inactive: semi-transparent white
+  - Active: solid white
+- Optional “section header card” overlay near bottom edge: white rounded card with title aligned right and a small emblem icon.
+
+Floating Assist Buttons (Left vertical stack)
+- Position: fixed on left side, vertically centered
+- Buttons: 3 circular teal buttons (48–56px), icon white
+- Hover: subtle brightening only
+- Focus: primary focus ring (see accessibility)
+
+------------------------------------------------------------
+10.2 Navigation Components
+------------------------------------------------------------
+
+Primary Nav Link
+- Typography: 14–15px, weight 500–600
+- Default: text.primary
+- Hover: secondary.600 or text.primary with subtle secondary underline
+- Active: primary.600 underline (2px) and slightly stronger weight
+
+Breadcrumbs
+- Small, muted, unobtrusive
+- Use chevrons; current page in text.primary
+
+Tabs (horizontal)
+- Underlined style; active tab uses primary.600 underline
+- Tabs sit on white; no heavy backgrounds
+
+Pagination
+- Minimal, icon-forward; left/right arrows in circular buttons
+- Current page indicated by primary highlight
+
+------------------------------------------------------------
+10.3 Buttons
+------------------------------------------------------------
+
+Primary Button (Pill CTA)
+- Shape: pill (radius 9999)
+- Fill: primary.500 (teal) or primary.600 (green) depending on emphasis
+- Text: white, weight 600
+- Padding: 14–18px horizontal
+- Height: 40–44px
+- Hover: slightly darker fill, optional 1px lift
+- Pressed: darker fill, remove lift
+
+Secondary Button (Pill / Outline)
+- Background: white
+- Border: 1px solid border.200
+- Text: text.primary (or secondary.600 for emphasis)
+- Hover: surface.050 background, border slightly darker
+
+Tertiary Button (Link Button)
+- No border, no fill
+- Text: secondary.600, underline on hover only
+
+Icon Button
+- 40–44px square click area
+- Icon is 18–22px, centered
+- Hover: surface.050 background
+
+------------------------------------------------------------
+10.4 Forms & Filters (Search + Select bar)
+------------------------------------------------------------
+
+Search Field
+- Shape: rounded (10–12px)
+- Background: white
+- Border: 1px solid border.200
+- Placeholder: text.muted
+- Leading icon: magnifier in text.muted
+- Focus: primary ring (see accessibility)
+
+Select / Dropdown
+- Same height and corner radius as inputs
+- Caret icon in text.muted
+- Menu surface: white, radius 12px, shadow elevation 3
+- Menu items: generous vertical padding (10–12px)
+
+Filter Bar Pattern
+- Horizontal row: Search field + 2–4 selects
+- Spacing: 12–16px between controls
+- On mobile: stack vertically with consistent gaps
+
+Checkbox / Radio / Switch
+- Minimal and modern; primary.600 for “on/checked”
+- Labels: body size 14–15px
+
+------------------------------------------------------------
+10.5 Cards & Content Tiles
+------------------------------------------------------------
+
+Portal Service Card (Outlined) — matches provided screenshots
+- Surface: white
+- Radius: 12–14px
+- Border: 1.5–2px outline in primary.500 (teal)
+- Shadow: none or extremely subtle (border is the separator)
+- Layout (centered):
+  - Top: emblem/icon inside a soft circular badge (secondary.050 background)
+  - Middle: Arabic title (2 lines max), weight 600–700
+  - Bottom: rating row (stars) in primary.500 + muted remainder
+- Hover: slightly stronger border + subtle lift; keep it calm (no dramatic shadows)
+
+Section Band (Deep teal/blue panel) — matches provided screenshots
+- Background: deep teal/blue gradient (secondary.700 → secondary.600)
+- Content: right-aligned section title in white + small emblem icon
+- Supports an outline button on the left side of the band (white border, white text)
+- Cards below the band remain white and airy
+
+------------------------------------------------------------
+10.6 Category Navigation (Icon + Label Row)
+------------------------------------------------------------
+
+Category Chip/Button
+- Visual: icon above label or icon-left label
+- Default: text.secondary icon + label
+- Active: primary.600 icon + label; optional small underline
+- Hit area: at least 56px tall
+- Horizontal scroll on small viewports; show subtle left/right affordance
+
+Carousel Controls (Left/Right)
+- Circular buttons, border.200
+- Hover: surface.050
+- Use on white background; keep unobtrusive
+
+------------------------------------------------------------
+10.7 Lists, Tables, and Data Display
+------------------------------------------------------------
+
+List Item
+- White background, subtle divider between items
+- Hover: surface.050
+- Primary text: weight 600, secondary: muted
+
+Table
+- Minimal gridlines: use light borders
+- Header: weight 600, text.secondary
+- Row hover: surface.050
+
+Badges / Tags / Chips
+- Pill shape
+- Default: surface.050 background, text.secondary
+- Emphasis: primary.050 background with primary.600 text
+- Keep small: 24–28px height
+
+------------------------------------------------------------
+10.8 Feedback & Status
+------------------------------------------------------------
+
+Alert
+- Use soft tinted background + subtle border; no screaming saturation
+- Icon on left, concise message
+
+Toast / Snackbar
+- Dark-ish neutral or white surface with shadow elevation 3
+- One clear action max
+
+Progress
+- Use primary.600 for progress indication
+- Skeletons: neutral shimmer on surface.050, no strong contrast
+
+Empty States
+- Friendly illustration/icon + short headline + supporting copy + single CTA
+- Keep centered with generous whitespace
+
+------------------------------------------------------------
+10.9 Overlays
+------------------------------------------------------------
+
+Modal / Dialog
+- Radius: 16px
+- Background: white
+- Shadow: elevation 3
+- Header: title left, close icon right
+- Actions: primary on the right
+
+Menu / Popover
+- Radius: 12px
+- Shadow: elevation 3
+- Items: 40–44px height, hover surface.050
+
+Drawer (side panel)
+- White surface, subtle border, minimal shadow
+- Keep spacing consistent with main page container
+
+Tooltip
+- Minimal, small radius 8–10px
+- Background: text.primary, text: white
+
+------------------------------------------------------------
+10.10 Footer
+------------------------------------------------------------
+
+Footer Bar
+- Background: surface.050 or surface.100
+- Thin top border (border.200)
+- Left: brand mark
+- Right: legal + utility links
+- Links: text.secondary, hover primary.600
+
+============================================================
+11) Content & Microcopy Style
+============================================================
+
+Voice
+- Direct, helpful, not cute.
+- Prefer short nouns for nav in Arabic (e.g., “الخدمات”, “المنشآت”, “الإدارات”, “تواصل معنا”).
+- CTAs use clear verbs (e.g., “عرض”, “استعراض”, “ابدأ”, “جميع الخدمات”).
+
+Formatting
+- Avoid long paragraphs; break into scannable lines.
+- Use consistent naming: Title Case for sections, sentence case for descriptions.
+
+============================================================
+12) Build Notes (framework-agnostic; follow the screenshots)
+============================================================
+
+How to implement this look reliably
+- Create a small set of tokens (primary/secondary/accent + neutrals + radii + spacing) and use them everywhere.
+- Default direction is RTL; only the utility bar may include LTR fragments (like “EN”).
+- Keep the header flat with thin dividers; avoid heavy shadows in the top chrome.
+- Prefer outlined service cards (teal outline) over shadow-heavy cards.
+- Hero must be photo + blue overlay + white centered Arabic headline + dots.
+
+Non-goals
+- Do not introduce neon gradients, glassmorphism, or high-contrast dark UI for this style.
+- Avoid thick borders, harsh drop shadows, or busy background patterns.
+

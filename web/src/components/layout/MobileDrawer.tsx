@@ -121,7 +121,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({ open, onClose }) => 
               sx={{
                 width: 40,
                 height: 40,
-                background: 'linear-gradient(135deg, #008a3e 0%, #4CAF50 100%)',
+                background: 'linear-gradient(135deg, #008A3E 0%, #18B3A8 100%)',
               }}
             >
               <RocketIcon sx={{ fontSize: 24, color: 'white' }} />
@@ -240,16 +240,15 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({ open, onClose }) => 
                     onClick={() => handleNavigation(item.path)}
                     sx={{
                       py: 1.5,
-                      px: 2,
-                      borderRadius: 2,
+                      px: 3,
+                      borderRadius: 9999, // pill-shaped
                       minHeight: tvtcMobile.touchTarget.comfortable,
                       bgcolor: item.primary ? 'primary.main' : 'transparent',
                       color: item.primary ? 'primary.contrastText' : 'text.primary',
-                      border: item.primary ? 0 : 1,
-                      borderColor: 'divider',
+                      border: item.primary ? 0 : `1px solid #D7E3E8`,
                       '&:hover': {
-                        bgcolor: item.primary 
-                          ? 'primary.dark' 
+                        bgcolor: item.primary
+                          ? 'primary.dark'
                           : (theme) => alpha(theme.palette.primary.main, 0.08),
                       },
                     }}

@@ -169,6 +169,9 @@ public
 docker-compose.override.yml
 .docker/
 
+# Forgejo (local runtime data - do not commit)
+forgejo/data/
+
 # IDE and Editor files
 .vscode/
 .idea/

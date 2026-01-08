@@ -4,8 +4,6 @@ import {
   Typography,
   Box,
   Button,
-  AppBar,
-  Toolbar,
   Grid,
   Card,
   CardContent,
@@ -13,11 +11,10 @@ import {
   CircularProgress,
   Chip,
   Divider,
+  useTheme,
 } from '@mui/material';
 import {
   School as SchoolIcon,
-  Login as LoginIcon,
-  AppRegistration as RegisterIcon,
   Add as AddIcon,
   ArrowForward as ArrowForwardIcon,
   Person as PersonIcon,
@@ -26,18 +23,48 @@ import {
   Explore as ExploreIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { TVTCLogo } from '@/components/TVTCLogo';
 import { useAuthStore } from '@/features/auth/store';
 import { apiService } from '@/lib/api';
 import { Project } from '@/types';
 import { useLanguage } from '@/providers/LanguageContext';
+import { HeroCarousel, HeroSlide } from '@/components/shared/HeroCarousel';
+import { SectionBand } from '@/components/shared/SectionBand';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
+  const theme = useTheme();
   const { isAuthenticated, user } = useAuthStore();
   const { t } = useLanguage();
   const [recentProjects, setRecentProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Hero carousel slides
+  const heroSlides: HeroSlide[] = [
+    {
+      id: '1',
+      backgroundImage: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&h=600&fit=crop',
+      title: t('Welcome to Fahras') || 'Welcome to Fahras',
+      subtitle: t('Discover and explore innovative graduation projects from students across TVTC programs') || 'Discover innovative projects',
+      ctaText: t('Explore Projects') || 'Explore',
+      ctaAction: () => navigate('/explore'),
+    },
+    {
+      id: '2',
+      backgroundImage: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&h=600&fit=crop',
+      title: t('Share Your Innovation') || 'Share Your Innovation',
+      subtitle: t('Showcase your graduation project and inspire the next generation of technologists') || 'Showcase your work',
+      ctaText: t('Submit a Project') || 'Submit',
+      ctaAction: () => handleSubmitProject(),
+    },
+    {
+      id: '3',
+      backgroundImage: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&h=600&fit=crop',
+      title: t('Join Our Community') || 'Join Our Community',
+      subtitle: t('Connect with talented developers and collaborate on groundbreaking projects') || 'Connect and collaborate',
+      ctaText: t('Get Started') || 'Start',
+      ctaAction: () => navigate('/explore'),
+    },
+  ];
 
   useEffect(() => {
     // Redirect logged-in students to their dashboard
@@ -84,188 +111,28 @@ export const HomePage: React.FC = () => {
   };
 
   return (
-    <Box sx={{ flexGrow: 1, minHeight: '100vh', bgcolor: '#f8fafc' }}>
-      {/* Top Navigation Bar */}
-      <AppBar position="static" elevation={2} sx={{ bgcolor: '#1e3a8a' }}>
-        <Toolbar 
-          sx={{ 
-            minHeight: { xs: 56, sm: 64 },
-            px: { xs: 2, sm: 3 },
-          }}
-        >
-          <TVTCLogo 
-            size="medium" 
-            variant="icon" 
-            color="inherit" 
-            sx={{ 
-              mr: { xs: 1, sm: 2 },
-              display: { xs: 'none', sm: 'block' },
-            }} 
-          />
-          <Typography 
-            variant="h6" 
-            component="div" 
-            sx={{ 
-              flexGrow: 1, 
-              fontWeight: 600,
-              fontSize: { xs: '0.95rem', sm: '1.25rem' },
-            }}
-          >
-            {t('Fahras')} - {t('Projects')} {t('Repository')}
-          </Typography>
-          {!isAuthenticated && (
-            <>
-              <Button
-                color="inherit"
-                startIcon={<LoginIcon sx={{ display: { xs: 'none', sm: 'block' } }} />}
-                onClick={() => navigate('/login')}
-                sx={{ 
-                  mr: { xs: 0.5, sm: 1 },
-                  minWidth: { xs: 60, sm: 80 },
-                  fontSize: { xs: '0.875rem', sm: '1rem' },
-                }}
-              >
-                {t('Login')}
-              </Button>
-              <Button
-                variant="outlined"
-                color="inherit"
-                startIcon={<RegisterIcon sx={{ display: { xs: 'none', sm: 'block' } }} />}
-                onClick={() => navigate('/register')}
-                sx={{ 
-                  borderColor: 'white',
-                  minWidth: { xs: 70, sm: 100 },
-                  fontSize: { xs: '0.875rem', sm: '1rem' },
-                  '&:hover': { 
-                    borderColor: 'white', 
-                    backgroundColor: 'rgba(255,255,255,0.1)' 
-                  } 
-                }}
-              >
-                {t('Register')}
-              </Button>
-            </>
-          )}
-        </Toolbar>
-      </AppBar>
+    <Box sx={{ flexGrow: 1, minHeight: '100vh', bgcolor: theme.palette.background.default }}>
+      {/* Hero Carousel - Replaces old AppBar + Hero Section */}
+      <HeroCarousel slides={heroSlides} autoplayInterval={6000} />
 
-      {/* Hero Section */}
-      <Box
-        sx={{
-          background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
-          color: 'white',
-          py: { xs: 8, md: 12 },
-        }}
-      >
-        <Container maxWidth="lg">
-          <Box sx={{ textAlign: 'center', mb: 6 }}>
-            <TVTCLogo size="large" variant="full" color="inherit" sx={{ mb: 3 }} />
-            <Typography 
-              variant="h2" 
-              sx={{ 
-                fontWeight: 700, 
-                mb: 2,
-                fontSize: { xs: '2rem', md: '3rem' },
-                color: 'white',
-              }}
-              >
-                {t('Welcome to Fahras')}
-              </Typography>
-            <Typography 
-              variant="h6" 
-              sx={{ 
-                mb: 4, 
-                opacity: 0.95,
-                fontSize: { xs: '1rem', md: '1.25rem' },
-                color: 'white',
-                fontWeight: 400,
-                maxWidth: 700,
-                mx: 'auto',
-              }}
-            >
-              {t('Discover and explore innovative graduation projects from students across TVTC programs')}
-            </Typography>
-
-            <Box 
-              sx={{ 
-                display: 'flex', 
-                gap: { xs: 1.5, sm: 2 }, 
-                justifyContent: 'center', 
-                flexDirection: { xs: 'column', sm: 'row' },
-                alignItems: 'stretch',
-                width: { xs: '100%', sm: 'auto' },
-                maxWidth: { xs: 400, sm: '100%' },
-                mx: 'auto',
-              }}
-            >
-              <Button
-                variant="contained"
-                size="large"
-                startIcon={<AddIcon />}
-                onClick={handleSubmitProject}
-                sx={{
-                  backgroundColor: 'white',
-                  color: '#1e3a8a',
-                  px: { xs: 3, sm: 4 },
-                  py: { xs: 1.25, sm: 1.5 },
-                  fontSize: { xs: '1rem', sm: '1.1rem' },
-                  fontWeight: 600,
-                  borderRadius: 2,
-                  minHeight: 48,
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-                  '&:hover': {
-                    backgroundColor: '#f8fafc',
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 6px 16px rgba(0,0,0,0.3)',
-                  },
-                  '@media (hover: none)': {
-                    '&:hover': {
-                      transform: 'none',
-                    },
-                  },
-                  transition: 'all 0.3s ease',
-                }}
-              >
-                {t('Submit a Project')}
-              </Button>
-              <Button
-                variant="outlined"
-                size="large"
-                startIcon={<ExploreIcon />}
-                onClick={() => navigate('/explore')}
-                sx={{
-                  borderColor: 'white',
-                  color: 'white',
-                  px: { xs: 3, sm: 4 },
-                  py: { xs: 1.25, sm: 1.5 },
-                  fontSize: { xs: '1rem', sm: '1.1rem' },
-                  fontWeight: 600,
-                  borderRadius: 2,
-                  minHeight: 48,
-                  '&:hover': {
-                    borderColor: 'white',
-                    backgroundColor: 'rgba(255,255,255,0.1)',
-                  },
-                }}
-              >
-                {t('Explore Projects')}
-              </Button>
-            </Box>
-          </Box>
-        </Container>
-      </Box>
+      {/* Section Band - Recent Projects Introduction */}
+      <SectionBand
+        title={t('Featured Projects') || 'Featured Projects'}
+        subtitle={t('Explore the latest graduation projects from our talented students') || 'Discover innovative work'}
+        variant="secondary"
+        align="center"
+        icon={<SchoolIcon sx={{ fontSize: 32 }} />}
+      />
 
       {/* Recent Projects Section */}
       <Container maxWidth="lg" sx={{ py: 8 }}>
-        <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Box>
-            <Typography variant="h4" sx={{ fontWeight: 700, color: '#1e3a8a', mb: 1 }}>
-              {t('Recent Projects')}
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              {t('Explore the latest graduation projects from our talented students')}
-            </Typography>
-          </Box>
+        <Box sx={{ mb: 6 }}>
+          <Typography variant="h5" sx={{ fontWeight: 700, color: theme.palette.text.primary, mb: 1 }}>
+            {t('Newest Submissions')}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {t('Check out what students have been working on')}
+          </Typography>
         </Box>
 
         {loading ? (
@@ -274,19 +141,19 @@ export const HomePage: React.FC = () => {
           </Box>
         ) : recentProjects.length > 0 ? (
           <>
-            <Grid container spacing={3} sx={{ mb: 4 }}>
+            <Grid container spacing={3} sx={{ mb: 6 }}>
               {recentProjects.map((project) => (
                 <Grid size={{ xs: 12, md: 6, lg: 4 }} key={project.id}>
                   <Card
                     sx={{
                       height: '100%',
-                      borderRadius: 3,
-                      border: '1px solid #e5e7eb',
-                      transition: 'all 0.3s ease',
+                      borderRadius: '14px',
+                      border: `2px solid ${theme.palette.primary.main}`,
+                      boxShadow: 'none',
+                      transition: 'all 0.2s ease-out',
                       '&:hover': {
-                        boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-                        transform: 'translateY(-4px)',
-                        borderColor: '#3b82f6',
+                        borderColor: theme.palette.secondary.main,
+                        transform: 'translateY(-1px)',
                       },
                     }}
                   >
@@ -295,7 +162,7 @@ export const HomePage: React.FC = () => {
                       <Box
                         sx={{
                           height: 120,
-                          background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+                          background: `linear-gradient(135deg, ${theme.palette.secondary.main} 0%, ${theme.palette.primary.main} 100%)`,
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -313,6 +180,7 @@ export const HomePage: React.FC = () => {
                             bgcolor: 'rgba(255,255,255,0.95)',
                             fontWeight: 600,
                             textTransform: 'capitalize',
+                            borderRadius: '9999px',
                           }}
                         />
                       </Box>
@@ -388,7 +256,7 @@ export const HomePage: React.FC = () => {
             </Grid>
 
             {/* Show More Button */}
-            <Box sx={{ textAlign: 'center', mt: 4 }}>
+            <Box sx={{ textAlign: 'center', mt: 6 }}>
               <Button
                 variant="contained"
                 size="large"
@@ -397,15 +265,16 @@ export const HomePage: React.FC = () => {
                 sx={{
                   px: 5,
                   py: 1.5,
-                  fontSize: '1.1rem',
+                  fontSize: '1rem',
                   fontWeight: 600,
-                  borderRadius: 2,
-                  background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+                  borderRadius: '9999px',
+                  backgroundColor: theme.palette.primary.main,
+                  color: 'white',
                   '&:hover': {
+                    backgroundColor: theme.palette.secondary.main,
                     transform: 'translateY(-2px)',
-                    boxShadow: '0 8px 20px rgba(0,0,0,0.2)',
                   },
-                  transition: 'all 0.3s ease',
+                  transition: 'all 0.2s ease-out',
                 }}
               >
                 {t('Show More Projects')}
@@ -425,41 +294,16 @@ export const HomePage: React.FC = () => {
         )}
       </Container>
 
-      {/* CTA Section */}
-      <Box sx={{ bgcolor: '#f1f5f9', py: 8 }}>
-        <Container maxWidth="md">
-          <Box sx={{ textAlign: 'center' }}>
-            <SchoolIcon sx={{ fontSize: 64, color: '#1e3a8a', mb: 2 }} />
-            <Typography variant="h4" sx={{ fontWeight: 700, mb: 2, color: '#1e3a8a' }}>
-              {t('Ready to Share Your Work?')}
-            </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 600, mx: 'auto' }}>
-              {t('Join TVTC\'s growing community of innovators. Submit your graduation project and showcase your achievements to the world.')}
-            </Typography>
-            <Button
-              variant="contained"
-              size="large"
-              startIcon={isAuthenticated ? <AddIcon /> : <RegisterIcon />}
-              onClick={isAuthenticated ? handleSubmitProject : () => navigate('/register')}
-              sx={{
-                px: 5,
-                py: 1.5,
-                fontSize: '1.1rem',
-                fontWeight: 600,
-                borderRadius: 2,
-                background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 8px 20px rgba(0,0,0,0.2)',
-                },
-                transition: 'all 0.3s ease',
-              }}
-            >
-              {isAuthenticated ? t('Submit Your Project') : t('Get Started - Register Now')}
-            </Button>
-          </Box>
-        </Container>
-      </Box>
+      {/* CTA Section - Using SectionBand for visual consistency */}
+      <SectionBand
+        title={t('Ready to Share Your Work?') || 'Ready to Share Your Work?'}
+        subtitle={t("Join TVTC's growing community of innovators. Submit your graduation project and showcase your achievements.") || 'Showcase your innovations'}
+        icon={<SchoolIcon sx={{ fontSize: 32 }} />}
+        ctaText={isAuthenticated ? (t('Submit Your Project') || 'Submit') : (t('Get Started - Register') || 'Register')}
+        ctaAction={isAuthenticated ? handleSubmitProject : () => navigate('/register')}
+        variant="primary"
+        align="center"
+      />
     </Box>
   );
 };

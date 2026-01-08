@@ -1,75 +1,78 @@
 import { createTheme, alpha } from '@mui/material/styles';
 import type { ThemeOptions } from '@mui/material/styles';
 
-// TVTC Official Brand Colors based on the provided JSON instructions
+// TVTC Official Brand Colors - Portal Hub Design System
 export const tvtcColors = {
-  // Primary brand colors from TVTC logo and portals
-  primary: '#008a3e',        // Main brand green from TVTC logo
-  secondary: '#3B7D98',     // Secondary brand blue for portals and links
-  accent: '#f3b200',        // Accent color for special call-to-actions
-  
+  // Primary brand colors (TVTC green/teal family)
+  primary: '#008A3E',        // primary.600 - deep green
+  primaryTeal: '#18B3A8',    // primary.500 - teal (buttons, controls)
+  primaryTint: '#E7F7F5',    // primary.050 - light tint
+
+  // Secondary colors (institutional blue family)
+  secondary: '#3B7D98',      // secondary.600 - main secondary
+  secondaryDark: '#1F6F8B',  // secondary.700 - darker blue
+  secondaryTint: '#E9F3F7',  // secondary.050 - light tint
+
+  // Accent (gold - use sparingly)
+  accent: '#F3B200',         // accent.600
+  accentTint: '#FFF6D6',     // accent.050
+
   // Common colors
   white: '#FFFFFF',
   black: '#000000',
-  
-  // Grayscale colors for text and backgrounds (WCAG AA compliant)
-  textPrimary: '#212121',     // For headings and primary text (contrast ratio 16:1)
-  textSecondary: '#424242',   // For subheadings and body copy (contrast ratio 12:1)
-  border: '#E0E0E0',         // For card borders and dividers
-  backgroundLight: '#F9F9F9', // For light page backgrounds or cards
-  
-  // Additional TVTC brand colors for enhanced theming
-  primaryLight: '#4CAF50',    // Lighter green for hover states
-  primaryDark: '#2E7D32',     // Darker green for active states
-  secondaryLight: '#5DADE2',  // Lighter blue for hover states
-  secondaryDark: '#2E86AB',   // Darker blue for active states
-  accentLight: '#FFC107',     // Lighter accent for hover states
-  accentDark: '#FF8F00',      // Darker accent for active states
-  
-  // Status colors (WCAG AA compliant on white background)
-  success: '#2E7D32',         // Darker success green (4.5:1 contrast)
-  warning: '#E65100',         // Darker warning orange (4.5:1 contrast)
-  error: '#C62828',           // Darker error red (4.5:1 contrast)
-  info: '#1565C0',            // Darker info blue (4.5:1 contrast)
-  
+
+  // Text colors (deep blue-gray, NOT pure black)
+  textPrimary: '#0E2A35',    // deep blue-gray (NOT #212121)
+  textSecondary: '#4F6772',  // secondary gray
+  textMuted: '#7D929B',      // muted gray
+  textDisabled: '#9E9E9E',   // disabled state
+  textHint: '#A8B5BC',       // hint text
+
   // Background variations
-  backgroundDefault: '#F9F9F9',
+  backgroundDefault: '#FFFFFF',
   backgroundPaper: '#FFFFFF',
   backgroundElevated: '#FFFFFF',
-  
-  // Text variations (improved contrast)
-  textDisabled: '#9E9E9E',  // Better contrast for disabled text
-  textHint: '#757575',       // Better contrast for hint text
-  
-  // Border variations
-  borderLight: '#F5F5F5',
-  borderMedium: '#E0E0E0',
-  borderDark: '#BDBDBD',
-  
-  // Shadow colors
-  shadowLight: 'rgba(0, 0, 0, 0.05)',
-  shadowMedium: 'rgba(0, 0, 0, 0.1)',
-  shadowDark: 'rgba(0, 0, 0, 0.2)',
+  surface50: '#F7FAFB',      // light surface
+  surface100: '#EEF3F5',     // slightly darker surface
+
+  // Border - cool, slightly blue-tinted
+  border: '#D7E3E8',         // main border color
+  borderLight: '#EBF0F3',    // light border
+  borderMedium: '#D7E3E8',   // medium border
+  borderDark: '#B8C8D1',     // dark border
+
+  // Status colors (quiet, no neon)
+  success: '#2E7D32',        // success green
+  warning: '#B26A00',        // warning orange (not neon)
+  error: '#C62828',          // error red
+  info: '#1E88E5',           // info blue
+
+  // Shadow colors (restrained)
+  shadowLight: 'rgba(14, 42, 53, 0.08)',
+  shadowMedium: 'rgba(14, 42, 53, 0.12)',
+  shadowDark: 'rgba(14, 42, 53, 0.18)',
 };
 
-// TVTC Typography based on Arial font family
+// TVTC Typography - Tahoma-based with RTL support
 export const tvtcTypography = {
-  fontFamily: "Arial, 'Helvetica Neue', Helvetica, sans-serif",
-  fontFamilyHeadings: "Arial, 'Helvetica Neue', Helvetica, sans-serif",
-  
-  // Font sizes
+  fontFamily: '"Tahoma", "Arial", "Segoe UI", system-ui, sans-serif',
+  fontFamilyHeadings: '"Tahoma", "Arial", "Segoe UI", system-ui, sans-serif',
+
+  // Font sizes (portal hub design system)
   fontSize: {
-    body: '16px',
-    h1: '2.5rem',
-    h2: '2rem',
-    h3: '1.75rem',
-    h4: '1.5rem',
-    h5: '1.25rem',
-    h6: '1rem',
-    small: '0.875rem',
-    caption: '0.75rem',
+    display: '52px',      // Large display text
+    h1: '36px',           // Heading 1
+    h2: '28px',           // Heading 2
+    h3: '20px',           // Heading 3
+    h4: '16px',           // Heading 4
+    h5: '14px',           // Heading 5
+    h6: '12px',           // Heading 6
+    body: '16px',         // Body text
+    bodySmall: '14px',    // Small body
+    small: '13px',        // Small text
+    caption: '12px',      // Caption text
   },
-  
+
   // Font weights
   fontWeight: {
     light: 300,
@@ -78,36 +81,47 @@ export const tvtcTypography = {
     semiBold: 600,
     bold: 700,
   },
-  
-  // Line heights
+
+  // Line heights (portal hub design system)
   lineHeight: {
-    tight: 1.2,
-    normal: 1.4,
-    relaxed: 1.6,
-    loose: 1.8,
+    tight: 1.1,       // 1.1-1.2
+    normal: 1.25,     // 1.25-1.35
+    relaxed: 1.5,     // 1.5-1.7
+    loose: 1.8,       // Generous spacing
   },
 };
 
-// TVTC Layout and spacing
+// TVTC Layout and spacing - Portal Hub Design System
 export const tvtcLayout = {
-  borderRadius: '4px',
-  borderRadiusLarge: '8px',
-  borderRadiusSmall: '2px',
-  
-  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
-  boxShadowMedium: '0 4px 8px rgba(0, 0, 0, 0.1)',
-  boxShadowLarge: '0 8px 16px rgba(0, 0, 0, 0.15)',
-  
-  spacingUnit: '8px',
+  // Border radius values
+  borderRadiusCircle: 9999,     // pill buttons (border-radius: 9999px)
+  borderRadiusCard: '14px',     // service cards
+  borderRadiusInput: '12px',    // inputs/selects
+  borderRadiusMenu: '12px',     // menus/popovers
+  borderRadius: '10px',         // default
+  borderRadiusSmall: '6px',     // small elements
+
+  // Shadows (restrained)
+  boxShadow: '0 2px 10px rgba(14, 42, 53, 0.08)',    // elevation1
+  boxShadowMedium: '0 6px 18px rgba(14, 42, 53, 0.12)',   // elevation2
+  boxShadowLarge: '0 16px 48px rgba(14, 42, 53, 0.18)',   // elevation3
+
+  // Spacing (8px base unit)
+  spacingUnit: '4px',
   spacing: {
     xs: '4px',
     sm: '8px',
-    md: '16px',
-    lg: '24px',
-    xl: '32px',
-    xxl: '48px',
+    md: '12px',
+    lg: '16px',
+    xl: '20px',
+    xxl: '24px',
+    '32px': '32px',
+    '40px': '40px',
+    '48px': '48px',
+    '56px': '56px',
+    '64px': '64px',
   },
-  
+
   // Z-index scale
   zIndex: {
     dropdown: 1000,
@@ -190,51 +204,52 @@ export const tvtcMobile = {
   },
 };
 
-// Dark mode color overrides
+// Dark mode color overrides - Portal Hub Design System
 export const tvtcColorsDark = {
   // Primary brand colors remain consistent
-  primary: '#008a3e',
-  secondary: '#3B7D98',
-  accent: '#f3b200',
-  
-  // Dark mode specific colors
-  white: '#1a1a1a',           // Inverted for dark backgrounds
-  black: '#FFFFFF',            // Inverted for dark text
-  
-  // Grayscale colors for dark mode
-  textPrimary: '#E0E0E0',      // Light text on dark background
-  textSecondary: '#B0B0B0',    // Secondary text
-  border: '#404040',           // Darker borders
-  backgroundLight: '#242424',   // Slightly lighter than default
-  
-  // Additional brand colors (consistent across themes)
-  primaryLight: '#4CAF50',
-  primaryDark: '#2E7D32',
-  secondaryLight: '#5DADE2',
-  secondaryDark: '#2E86AB',
-  accentLight: '#FFC107',
-  accentDark: '#FF8F00',
-  
-  // Status colors (consistent)
+  primary: '#008A3E',        // primary.600
+  primaryTeal: '#18B3A8',    // primary.500
+  primaryTint: '#1A4D45',    // dark mode tint
+
+  // Secondary colors (adjusted for dark mode)
+  secondary: '#3B7D98',      // secondary.600
+  secondaryDark: '#1F6F8B',  // secondary.700
+  secondaryTint: '#254555',  // dark mode tint
+
+  // Accent
+  accent: '#F3B200',
+  accentTint: '#8B5F00',     // dark mode tint
+
+  // Common colors (inverted)
+  white: '#1a1a1a',
+  black: '#FFFFFF',
+
+  // Text colors for dark mode
+  textPrimary: '#E8F1F5',       // light text on dark
+  textSecondary: '#B0C4CE',     // secondary text
+  textMuted: '#7D929B',         // muted gray
+  textDisabled: '#606060',      // disabled state
+  textHint: '#808080',          // hint text
+
+  // Background variations (dark mode)
+  backgroundDefault: '#1a1a1a',
+  backgroundPaper: '#242424',
+  backgroundElevated: '#2a2a2a',
+  surface50: '#2a2a2a',         // light surface
+  surface100: '#303030',        // darker surface
+
+  // Border colors (dark mode)
+  border: '#404040',
+  borderLight: '#303030',
+  borderMedium: '#404040',
+  borderDark: '#505050',
+
+  // Status colors
   success: '#4CAF50',
   warning: '#FF9800',
   error: '#F44336',
   info: '#2196F3',
-  
-  // Dark mode backgrounds
-  backgroundDefault: '#1a1a1a',
-  backgroundPaper: '#242424',
-  backgroundElevated: '#2a2a2a',
-  
-  // Dark mode text variations
-  textDisabled: '#606060',
-  textHint: '#808080',
-  
-  // Dark mode border variations
-  borderLight: '#303030',
-  borderMedium: '#404040',
-  borderDark: '#505050',
-  
+
   // Shadow colors for dark mode
   shadowLight: 'rgba(0, 0, 0, 0.3)',
   shadowMedium: 'rgba(0, 0, 0, 0.5)',
@@ -351,26 +366,22 @@ const createThemeOptions = (mode: 'light' | 'dark' = 'light'): ThemeOptions => {
       MuiButton: {
         styleOverrides: {
           root: {
-            borderRadius: tvtcLayout.borderRadius,
             textTransform: 'none',
             fontWeight: tvtcTypography.fontWeight.medium,
-            padding: `${tvtcLayout.spacing.sm} ${tvtcLayout.spacing.md}`,
-            fontSize: tvtcTypography.fontSize.small,
             // Ensure minimum touch target size on mobile
-            minHeight: tvtcMobile.touchTarget.minimum,
-            minWidth: tvtcMobile.touchTarget.minimum,
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            boxShadow: tvtcLayout.boxShadow,
+            minHeight: tvtcMobile.touchTarget.comfortable,
+            minWidth: tvtcMobile.touchTarget.comfortable,
+            transition: 'all 0.15s ease-out',
             // Responsive padding
             '@media (max-width: 600px)': {
-              padding: '10px 16px',
-              fontSize: '0.9rem',
+              padding: '14px 18px',
+              fontSize: '0.95rem',
+              minHeight: 40,
             },
             '&:hover': {
               transform: 'translateY(-1px)',
-              boxShadow: tvtcLayout.boxShadowMedium,
             },
-            // Remove hover transform on touch devices to prevent sticky hover states
+            // Remove hover transform on touch devices
             '@media (hover: none)': {
               '&:hover': {
                 transform: 'none',
@@ -389,20 +400,27 @@ const createThemeOptions = (mode: 'light' | 'dark' = 'light'): ThemeOptions => {
               boxShadow: `0 0 0 3px ${alpha(colors.primary, 0.25)}`,
             },
           },
-          contained: {
-            backgroundColor: colors.primary,
-            color: mode === 'dark' ? colors.black : colors.white,
+          containedPrimary: {
+            borderRadius: tvtcLayout.borderRadiusCircle,
+            backgroundColor: colors.primaryTeal,
+            color: colors.white,
+            padding: '14px 32px',
+            height: '44px',
             '&:hover': {
-              backgroundColor: colors.primaryDark,
+              backgroundColor: colors.primary,
               boxShadow: tvtcLayout.boxShadowMedium,
             },
           },
           outlined: {
-            borderColor: colors.primary,
-            color: colors.primary,
+            borderRadius: tvtcLayout.borderRadiusCircle,
+            borderColor: colors.border,
+            borderWidth: '1px',
+            color: colors.textPrimary,
+            padding: '14px 32px',
+            height: '44px',
             '&:hover': {
-              borderColor: colors.primaryDark,
-              backgroundColor: alpha(colors.primary, 0.1),
+              backgroundColor: colors.surface50,
+              borderColor: colors.primary,
             },
           },
           text: {
@@ -417,14 +435,14 @@ const createThemeOptions = (mode: 'light' | 'dark' = 'light'): ThemeOptions => {
       MuiCard: {
         styleOverrides: {
           root: {
-            borderRadius: tvtcLayout.borderRadiusLarge,
-            boxShadow: tvtcLayout.boxShadow,
-            border: `1px solid ${colors.border}`,
+            borderRadius: tvtcLayout.borderRadiusCard,
+            boxShadow: 'none',
+            border: `2px solid ${colors.primaryTeal}`,
             backgroundColor: colors.backgroundPaper,
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            transition: 'all 0.2s ease-out',
             '&:hover': {
-              boxShadow: tvtcLayout.boxShadowMedium,
-              transform: 'translateY(-2px)',
+              borderWidth: '2px',
+              transform: 'translateY(-1px)',
             },
             '&:focus': {
               outline: `3px solid ${colors.primary}`,
@@ -463,20 +481,23 @@ const createThemeOptions = (mode: 'light' | 'dark' = 'light'): ThemeOptions => {
         styleOverrides: {
           root: {
             '& .MuiOutlinedInput-root': {
-              borderRadius: tvtcLayout.borderRadius,
+              borderRadius: tvtcLayout.borderRadiusInput,
               backgroundColor: colors.backgroundPaper,
               transition: 'all 0.2s ease-in-out',
               '&:hover .MuiOutlinedInput-notchedOutline': {
-                borderColor: colors.primary,
-                borderWidth: 2,
+                borderColor: colors.primaryTeal,
+                borderWidth: '1.5px',
               },
               '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                 borderColor: colors.primary,
-                borderWidth: 2,
-                boxShadow: `0 0 0 3px ${alpha(colors.primary, 0.25)}`,
+                borderWidth: '2px',
+                boxShadow: `0 0 0 3px ${alpha(colors.primary, 0.1)}`,
               },
               '&:focus-within': {
-                boxShadow: `0 0 0 3px ${alpha(colors.primary, 0.25)}`,
+                boxShadow: `0 0 0 3px ${alpha(colors.primary, 0.1)}`,
+              },
+              '& .MuiOutlinedInput-notchedOutline': {
+                borderColor: colors.border,
               },
             },
           },
@@ -496,16 +517,19 @@ const createThemeOptions = (mode: 'light' | 'dark' = 'light'): ThemeOptions => {
       MuiChip: {
         styleOverrides: {
           root: {
-            borderRadius: tvtcLayout.borderRadius,
+            borderRadius: tvtcLayout.borderRadiusCircle,
             fontWeight: tvtcTypography.fontWeight.medium,
+            height: '28px',
+            fontSize: '13px',
           },
           filled: {
-            backgroundColor: colors.primary,
-            color: mode === 'dark' ? colors.black : colors.white,
+            backgroundColor: colors.primaryTint,
+            color: colors.primary,
           },
           outlined: {
-            borderColor: colors.primary,
-            color: colors.primary,
+            borderColor: colors.border,
+            color: colors.textPrimary,
+            backgroundColor: colors.surface50,
           },
         },
       },

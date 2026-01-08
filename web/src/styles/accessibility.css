@@ -48,7 +48,7 @@
   overflow: visible;
   z-index: 9999;
   padding: 1rem;
-  background-color: #008a3e;
+  background-color: #008A3E;
   color: white;
   text-decoration: none;
   border-radius: 0 0 4px 0;
@@ -56,9 +56,9 @@
   font-weight: 600;
 }
 
-/* Focus visible styles - modern approach */
+/* Focus visible styles - modern approach (TVTC Portal Hub Design) */
 *:focus {
-  outline: 2px solid #008a3e;
+  outline: 3px solid #008A3E;
   outline-offset: 2px;
 }
 
@@ -67,7 +67,7 @@
 }
 
 *:focus-visible {
-  outline: 3px solid #008a3e;
+  outline: 3px solid #008A3E;
   outline-offset: 2px;
   box-shadow: 0 0 0 3px rgba(0, 138, 62, 0.25);
 }
@@ -114,7 +114,7 @@ a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 3px solid #008a3e;
+  outline: 3px solid #008A3E;
   outline-offset: 2px;
   box-shadow: 0 0 0 3px rgba(0, 138, 62, 0.25);
 }
@@ -123,7 +123,7 @@ textarea:focus-visible {
 [role="button"]:focus-visible,
 [role="link"]:focus-visible,
 [tabindex]:not([tabindex="-1"]):focus-visible {
-  outline: 3px solid #008a3e;
+  outline: 3px solid #008A3E;
   outline-offset: 2px;
   box-shadow: 0 0 0 3px rgba(0, 138, 62, 0.25);
 }
@@ -141,12 +141,12 @@ input[type="reset"] {
 /* Dark mode adjustments */
 @media (prefers-color-scheme: dark) {
   .skip-link:focus {
-    background-color: #4CAF50;
+    background-color: #18B3A8;
     color: #000;
   }
-  
+
   *:focus-visible {
-    outline-color: #4CAF50;
-    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.25);
+    outline-color: #18B3A8;
+    box-shadow: 0 0 0 3px rgba(24, 179, 168, 0.25);
   }
 }

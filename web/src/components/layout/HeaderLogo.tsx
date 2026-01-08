@@ -17,12 +17,12 @@ export const HeaderLogo: React.FC<HeaderLogoProps> = ({ variant = 'header' }) =>
     boxShadow: theme.shadows[2],
   };
 
-  // Footer styles: subtle, distinct background
+  // Footer styles: subtle, distinct background (Portal Hub Design)
   const footerStyles = {
-    bgcolor: theme.palette.mode === 'dark' 
-      ? theme.palette.grey[900] 
-      : theme.palette.grey[50],
-    borderTop: `2px solid ${theme.palette.divider}`,
+    bgcolor: theme.palette.mode === 'dark'
+      ? theme.palette.grey[900]
+      : '#F7FAFB', // surface.050
+    borderTop: `1px solid ${theme.palette.divider}`,
   };
 
   const currentStyles = isHeader ? headerStyles : footerStyles;
