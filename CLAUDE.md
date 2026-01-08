@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Fahras is a graduation project archiving system built with Laravel 11 (API backend) and React 18 with TypeScript (frontend). The application runs in Docker containers and uses PostgreSQL, Redis, and MinIO for storage.
+Fahras is a graduation project archiving system built with Laravel 11 (API backend) and React 19 with TypeScript (frontend). The application runs in Docker containers and uses PostgreSQL, Redis, and MinIO for storage.
 
 ## Essential Commands
 
@@ -106,56 +106,76 @@ docker compose exec node npm test
 - **Key Models**: User, Project, File, Role, Permission, Milestone, Comment, Rating, Notification
 - **Custom Middleware**: `OptionalAuthSanctum` - allows routes to work with or without authentication (used for public project views)
 
-**Directory Structure**:
-- `app/Http/Controllers/` - API controllers (ProjectController, AuthController, FileController, etc.)
-- `app/Models/` - Eloquent models with relationships
+**Directory Structure** (Domain-Driven Design + Traditional Laravel):
+- `app/Domains/` - Domain-driven structure for core features
+  - `app/Domains/Projects/Controllers/` - Project-related controllers
+  - `app/Domains/Projects/Models/` - Project domain models (Project, ProjectActivity, ProjectFollower, ProjectFlag, ProjectMilestone)
+  - `app/Domains/Projects/Services/` - Project business logic services
+- `app/Http/Controllers/` - Shared/general API controllers (AuthController, FileController, RoleController, UserController, etc.)
+- `app/Models/` - Shared Eloquent models (User, File, Role, Permission, Tag, etc.)
 - `app/Http/Middleware/` - Custom middleware including `OptionalAuthSanctum`
 - `database/migrations/` - Database schema migrations
 - `database/seeders/` - Database seeders for initial data
 - `routes/api.php` - All API route definitions
 
 **Important Controllers**:
-- `ProjectController.php` - Comprehensive project management (CRUD, search, analytics, approvals)
-- `FileController.php` - File upload/download with cloud storage support
-- `MilestoneTemplateController.php` - Milestone templates for project workflows
-- `ProjectFollowController.php` - Project following, activity tracking, and flags
-- `RoleController.php` - Role-based access control (RBAC)
-- `UserController.php` - User management and profile operations
+- `app/Domains/Projects/Controllers/ProjectController.php` - Comprehensive project management (CRUD, search, analytics, approvals)
+- `app/Domains/Projects/Controllers/ProjectFollowController.php` - Project following, activity tracking, and flags
+- `app/Http/Controllers/FileController.php` - File upload/download with cloud storage support
+- `app/Http/Controllers/MilestoneTemplateController.php` - Milestone templates for project workflows
+- `app/Http/Controllers/RoleController.php` - Role-based access control (RBAC)
+- `app/Http/Controllers/UserController.php` - User management and profile operations
+- `app/Http/Controllers/AiSearchController.php` - AI-powered project search
+- `app/Http/Controllers/TagController.php` - Tag management
+- `app/Http/Controllers/SavedSearchController.php` - Saved search management
 
 ### Frontend Structure
 
-**React 18 + TypeScript** (`/web/`)
+**React 19 + TypeScript** (`/web/`)
 - **UI Framework**: Material-UI (MUI) v7 with custom theme
 - **State Management**: Zustand with persist middleware
 - **Routing**: React Router v7
 - **HTTP Client**: Axios with interceptors for auth and error handling
 - **Build Tool**: Vite
 
-**Directory Structure**:
-- `src/pages/` - Page components (ExplorePage, ProjectDetailPage, CreateProjectPage, etc.)
-- `src/components/` - Reusable UI components
-- `src/services/` - API service layer (`api.ts` with typed endpoints)
-- `src/store/` - Zustand stores (`authStore.ts`, `repositoryStore.ts`)
+**Directory Structure** (Feature-Based Architecture):
+- `src/features/` - Feature-based modules (domain-driven frontend)
+  - `src/features/auth/` - Authentication feature (LoginPage, RegisterPage, ProtectedRoute, store)
+  - `src/features/projects/` - Projects feature (ExplorePage, ProjectDetailPage, CreateProjectPage, EditProjectPage, components)
+  - `src/features/project-follow/` - Project following feature
+  - `src/features/repository/` - Repository/code viewer feature
+  - `src/features/dashboards/` - Dashboard feature
+  - `src/features/access-control/` - Access control/RBAC feature
+  - `src/features/milestones/` - Milestone templates feature
+  - `src/features/notifications/` - Notifications feature
+  - `src/features/bookmarks/` - Bookmarks feature
+- `src/pages/` - Legacy/shared page components (AdminProjectApprovalPage, AnalyticsPage, HomePage, etc.)
+- `src/components/` - Shared/reusable UI components
+- `src/lib/` - Library/service layer (`api.ts` with typed endpoints)
+- `src/store/` - Shared Zustand stores (`repositoryStore.ts`, `themeStore.ts`)
 - `src/types/` - TypeScript type definitions
 - `src/theme/` - MUI theme configuration
 - `src/utils/` - Utility functions including project routing and helpers
+- `src/router.tsx` - React Router configuration
 
 **State Management**:
-- `authStore.ts` - Authentication state (user, token, login/logout/register)
-- `repositoryStore.ts` - Repository/project state
+- `src/features/auth/store.ts` - Authentication state (user, token, login/logout/register)
+- `src/store/repositoryStore.ts` - Repository/project state
+- `src/store/themeStore.ts` - Theme/dark mode state
 - Uses Zustand's persist middleware to save state to localStorage
 
 **API Service Pattern**:
-- Single `ApiService` class in `src/services/api.ts`
+- API functions in `src/lib/api.ts`
 - Axios interceptors handle auth token injection and 401 redirects
 - All endpoints typed with TypeScript interfaces
 - Defensive error handling with fallback values
 
-**Utility Functions**:
+**Utility Functions** (`src/utils/`):
 - `projectRoutes.ts` - Centralized project URL routing (detail, edit, follow, code views)
 - `projectHelpers.ts` - Project status utilities (color coding, status labels)
 - `bookmarkCookies.ts` - Guest bookmark management with cookie persistence
 - `errorHandling.ts` - Standardized error handling utilities
+- `accessibility.ts` - Accessibility utilities (focus management, ARIA helpers)
 
 ### Key Integration Points
 
@@ -380,22 +400,49 @@ docker compose exec php chmod -R 775 storage bootstrap/cache
 
 **Core Tables**:
 - `users` - User accounts with roles
-- `roles` - Custom roles with permissions
-- `permissions` - Granular permissions with categories and scopes
+- `roles` - Custom roles with permissions (many-to-many via `role_user`)
+- `permissions` - Granular permissions with categories and scopes (many-to-many via `permission_role`)
 - `projects` - Projects with approval status, visibility, custom members, and unique slugs
 - `files` - File metadata with cloud storage paths
+- `comments` - Project comments
+- `ratings` - Project ratings
+- `bookmarks` - User project bookmarks
+- `notifications` - User notifications
+
+**Project-Related Tables**:
 - `project_milestones` - Project milestones with dependencies
 - `milestone_templates` - Reusable milestone templates
-- `project_activities` - Activity tracking log
+- `milestone_template_items` - Template milestone items
+- `project_activities` - Activity tracking log for all project changes
 - `project_followers` - Project following with notification preferences
 - `project_flags` - Issue flags with severity levels
-- `notifications` - User notifications
-- `bookmarks` - Project bookmarks
+- `project_members` - Custom project members (beyond creator)
+- `project_advisors` - Project advisors/supervisors
+- `project_ai_metadata` - AI-generated project metadata for enhanced search
+- `tags` - Tags for categorizing projects (many-to-many via `project_tag`)
+
+**Search & Discovery**:
+- `saved_searches` - User-saved search queries
+- `search_queries` - Search query history and analytics
+
+**Academic Structure**:
+- `faculty` - University faculties
+- `departments` - Academic departments
+- `programs` - Academic programs
+- `students` - Student information
+
+**Authentication & Security**:
+- `email_verifications` - Email verification tokens
+- `password_reset_tokens` - Password reset tokens
+- `personal_access_tokens` - API access tokens (Sanctum)
+- `sessions` - User sessions
 
 **Important Relationships**:
-- Users have many Roles (many-to-many)
+- Users have many Roles (many-to-many via `role_user`)
+- Roles have many Permissions (many-to-many via `permission_role`)
 - Projects belong to User (creator), Program, Department
-- Projects have many Files, Milestones, Comments, Ratings, Followers
+- Projects have many Files, Milestones, Comments, Ratings, Followers, Tags, Members
+- Projects have AI metadata for enhanced search capabilities
 - Milestones can have dependencies (self-referential)
 - Activity tracking auto-logs changes to projects
 
@@ -407,10 +454,15 @@ docker compose exec php chmod -R 775 storage bootstrap/cache
 
 ## Important Notes
 
-1. **Arabic/UTF-8 Support**: The system fully supports Arabic and Unicode characters in filenames and content
-2. **Guest Access**: Projects can be viewed by guests using `OptionalAuthSanctum` middleware
-3. **Bookmark Sync**: Guest bookmarks (stored in cookies) are synced to user account on login/register
-4. **Cloud Storage**: Supports multiple providers (MinIO, AWS S3, Google Cloud, Azure, Dropbox)
-5. **RBAC System**: Custom role system with granular permissions and scopes (not using Laravel's built-in policies)
-6. **Docker-First**: All development happens in containers; avoid running commands on host machine
-7. **Project Slugs**: Use slug-based URLs for SEO and user-friendly routing; backend supports backward compatibility with numeric IDs
+1. **Architecture**: The project uses Domain-Driven Design (DDD) for both backend (Laravel Domains) and frontend (Feature-based modules)
+2. **Arabic/UTF-8 Support**: The system fully supports Arabic and Unicode characters in filenames and content
+3. **Guest Access**: Projects can be viewed by guests using `OptionalAuthSanctum` middleware
+4. **Bookmark Sync**: Guest bookmarks (stored in cookies) are synced to user account on login/register
+5. **Cloud Storage**: Supports multiple providers (MinIO, AWS S3, Google Cloud, Azure, Dropbox)
+6. **RBAC System**: Custom role system with granular permissions and scopes (not using Laravel's built-in policies)
+7. **AI-Powered Search**: Projects have AI-generated metadata for enhanced semantic search capabilities
+8. **Saved Searches**: Users can save and reuse complex search queries
+9. **Docker-First**: All development happens in containers; avoid running commands on host machine
+10. **Project Slugs**: Use slug-based URLs for SEO and user-friendly routing; backend supports backward compatibility with numeric IDs
+11. **CORS Configuration**: API configured for cross-origin requests in `api/config/cors.php`
+12. **Modern Stack**: React 19, Material-UI v7, React Router v7, Zustand, Vite

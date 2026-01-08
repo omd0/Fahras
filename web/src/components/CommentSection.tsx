@@ -30,8 +30,6 @@ import {
   Reply as ReplyIcon,
   Chat as ChatIcon,
   Message as MessageIcon,
-  ThumbUp as ThumbUpIcon,
-  Person as PersonIcon,
 } from '@mui/icons-material';
 import { Comment } from '@/types';
 import { apiService } from '@/lib/api';
@@ -50,7 +48,6 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
   const [replyText, setReplyText] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
-  const [selectedComment, setSelectedComment] = useState<number | null>(null);
 
   const { user } = useAuthStore();
 
@@ -107,14 +104,12 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
     }
   };
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, commentId: number) => {
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, _commentId: number) => {
     setMenuAnchor(event.currentTarget);
-    setSelectedComment(commentId);
   };
 
   const handleMenuClose = () => {
     setMenuAnchor(null);
-    setSelectedComment(null);
   };
 
   const formatDate = (dateString: string) => {
@@ -129,7 +124,6 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
 
   const renderComment = (comment: Comment, isReply = false) => {
     const isOwner = user?.id === comment.user_id;
-    const hasReplies = comment.replies && comment.replies.length > 0;
 
     return (
       <Paper 
@@ -566,7 +560,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
                 <Fade in timeout={600 + index * 100} key={comment.id}>
                   <Box>
                     {renderComment(comment)}
-                    {comment.replies && comment.replies.map((reply, replyIndex) => (
+                    {comment.replies && comment.replies.map((reply) => (
                       <Box key={reply.id}>
                         <Divider variant="inset" component="li" sx={{ ml: 6 }} />
                         {renderComment(reply, true)}

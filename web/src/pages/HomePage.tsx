@@ -87,28 +87,55 @@ export const HomePage: React.FC = () => {
     <Box sx={{ flexGrow: 1, minHeight: '100vh', bgcolor: '#f8fafc' }}>
       {/* Top Navigation Bar */}
       <AppBar position="static" elevation={2} sx={{ bgcolor: '#1e3a8a' }}>
-        <Toolbar>
-          <TVTCLogo size="medium" variant="icon" color="inherit" sx={{ mr: 2 }} />
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 600 }}>
+        <Toolbar 
+          sx={{ 
+            minHeight: { xs: 56, sm: 64 },
+            px: { xs: 2, sm: 3 },
+          }}
+        >
+          <TVTCLogo 
+            size="medium" 
+            variant="icon" 
+            color="inherit" 
+            sx={{ 
+              mr: { xs: 1, sm: 2 },
+              display: { xs: 'none', sm: 'block' },
+            }} 
+          />
+          <Typography 
+            variant="h6" 
+            component="div" 
+            sx={{ 
+              flexGrow: 1, 
+              fontWeight: 600,
+              fontSize: { xs: '0.95rem', sm: '1.25rem' },
+            }}
+          >
             {t('Fahras')} - {t('Projects')} {t('Repository')}
           </Typography>
           {!isAuthenticated && (
             <>
               <Button
                 color="inherit"
-                startIcon={<LoginIcon />}
+                startIcon={<LoginIcon sx={{ display: { xs: 'none', sm: 'block' } }} />}
                 onClick={() => navigate('/login')}
-                sx={{ mr: 1 }}
+                sx={{ 
+                  mr: { xs: 0.5, sm: 1 },
+                  minWidth: { xs: 60, sm: 80 },
+                  fontSize: { xs: '0.875rem', sm: '1rem' },
+                }}
               >
                 {t('Login')}
               </Button>
               <Button
                 variant="outlined"
                 color="inherit"
-                startIcon={<RegisterIcon />}
+                startIcon={<RegisterIcon sx={{ display: { xs: 'none', sm: 'block' } }} />}
                 onClick={() => navigate('/register')}
                 sx={{ 
-                  borderColor: 'white', 
+                  borderColor: 'white',
+                  minWidth: { xs: 70, sm: 100 },
+                  fontSize: { xs: '0.875rem', sm: '1rem' },
                   '&:hover': { 
                     borderColor: 'white', 
                     backgroundColor: 'rgba(255,255,255,0.1)' 
@@ -159,7 +186,18 @@ export const HomePage: React.FC = () => {
               {t('Discover and explore innovative graduation projects from students across TVTC programs')}
             </Typography>
 
-            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Box 
+              sx={{ 
+                display: 'flex', 
+                gap: { xs: 1.5, sm: 2 }, 
+                justifyContent: 'center', 
+                flexDirection: { xs: 'column', sm: 'row' },
+                alignItems: 'stretch',
+                width: { xs: '100%', sm: 'auto' },
+                maxWidth: { xs: 400, sm: '100%' },
+                mx: 'auto',
+              }}
+            >
               <Button
                 variant="contained"
                 size="large"
@@ -168,16 +206,22 @@ export const HomePage: React.FC = () => {
                 sx={{
                   backgroundColor: 'white',
                   color: '#1e3a8a',
-                  px: 4,
-                  py: 1.5,
-                  fontSize: '1.1rem',
+                  px: { xs: 3, sm: 4 },
+                  py: { xs: 1.25, sm: 1.5 },
+                  fontSize: { xs: '1rem', sm: '1.1rem' },
                   fontWeight: 600,
                   borderRadius: 2,
+                  minHeight: 48,
                   boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
                   '&:hover': {
                     backgroundColor: '#f8fafc',
                     transform: 'translateY(-2px)',
                     boxShadow: '0 6px 16px rgba(0,0,0,0.3)',
+                  },
+                  '@media (hover: none)': {
+                    '&:hover': {
+                      transform: 'none',
+                    },
                   },
                   transition: 'all 0.3s ease',
                 }}
@@ -192,11 +236,12 @@ export const HomePage: React.FC = () => {
                 sx={{
                   borderColor: 'white',
                   color: 'white',
-                  px: 4,
-                  py: 1.5,
-                  fontSize: '1.1rem',
+                  px: { xs: 3, sm: 4 },
+                  py: { xs: 1.25, sm: 1.5 },
+                  fontSize: { xs: '1rem', sm: '1.1rem' },
                   fontWeight: 600,
                   borderRadius: 2,
+                  minHeight: 48,
                   '&:hover': {
                     borderColor: 'white',
                     backgroundColor: 'rgba(255,255,255,0.1)',

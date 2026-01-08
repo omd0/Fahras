@@ -64,10 +64,11 @@ export const EditProjectPage: React.FC = () => {
   const [newAdvisor, setNewAdvisor] = useState({ user_id: 0, role: 'MAIN' as 'MAIN' | 'CO_ADVISOR' | 'REVIEWER', customName: undefined as string | undefined });
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isDirty, setIsDirty] = useState(false);
+  const [projectId, setProjectId] = useState<number | null>(null);
 
   const { user } = useAuthStore();
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
 
   // Unsaved changes protection
   const {
@@ -88,19 +89,20 @@ export const EditProjectPage: React.FC = () => {
   }, [user, navigate]);
 
   useEffect(() => {
-    if (id) {
+    if (slug) {
       fetchProject();
     }
     fetchPrograms();
     fetchUsers();
-  }, [id]);
+  }, [slug]);
 
   const fetchProject = async () => {
     try {
       setInitialLoading(true);
-      const response = await apiService.getProject(parseInt(id!));
+      const response = await apiService.getProject(slug!);
       const project = response.project;
-      
+
+      setProjectId(project.id);
       setFormData({
         program_id: project.program_id,
         title: project.title,
@@ -232,9 +234,13 @@ export const EditProjectPage: React.FC = () => {
     setError(null);
 
     try {
-      
+      if (!projectId) {
+        setError('Project ID not found');
+        return;
+      }
+
       // Update the project first
-      await apiService.updateProject(parseInt(id!), formData);
+      await apiService.updateProject(projectId, formData);
       setIsDirty(false); // Mark form as clean after successful submission
 
       // If files are selected, upload them
@@ -246,8 +252,8 @@ export const EditProjectPage: React.FC = () => {
         for (let i = 0; i < selectedFiles.length; i++) {
           const file = selectedFiles[i];
           try {
-            
-            const uploadResponse = await apiService.uploadFile(parseInt(id!), file, true);
+
+            const uploadResponse = await apiService.uploadFile(projectId, file, true);
             
             uploadedCount++;
           } catch (uploadError: any) {
@@ -265,7 +271,7 @@ export const EditProjectPage: React.FC = () => {
         }
       }
 
-      navigate(`/dashboard/projects/${id}`);
+      navigate(projectRoutes.detail(slug!));
     } catch (error: any) {
       console.error('Project update failed:', error);
       console.error('Error response:', error.response?.data);
@@ -305,8 +311,8 @@ export const EditProjectPage: React.FC = () => {
           <IconButton
             edge="start"
             color="inherit"
-            onClick={() => navigate(`/dashboard/projects/${id}`)}
-            sx={{ 
+            onClick={() => navigate(projectRoutes.detail(slug!))}
+            sx={{
               mr: 2, 
               color: '#FFFFFF',
               '&:hover': {
@@ -1233,7 +1239,7 @@ export const EditProjectPage: React.FC = () => {
             <Box sx={{ display: 'flex', gap: 3, justifyContent: 'flex-end', maxWidth: 'lg', mx: 'auto' }}>
               <Button
                 variant="outlined"
-                onClick={() => navigate(`/dashboard/projects/${id}`)}
+                onClick={() => navigate(projectRoutes.detail(slug!))}
                 disabled={loading}
                 size="large"
                 sx={{

@@ -2,6 +2,8 @@
  * Accessibility utilities for keyboard navigation and screen reader support
  */
 
+import React from 'react';
+
 /**
  * Handle keyboard events for clickable elements
  * Supports Enter and Space keys as per WCAG guidelines
@@ -151,9 +153,9 @@ export const skipToMainContent = (): void => {
  * Returns true if contrast ratio meets WCAG AA standards (4.5:1 for normal text)
  */
 export const hasGoodContrast = (
-  foreground: string,
-  background: string,
-  minimumRatio: number = 4.5
+  _foreground: string,
+  _background: string,
+  _minimumRatio: number = 4.5
 ): boolean => {
   // This is a simplified check - in production, use a proper color contrast library
   // For now, we'll assume our theme colors are compliant

@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { File } from '@/types';
 
 // File tree node types
 export type FileTreeNodeType = 'file' | 'folder';
@@ -116,7 +115,7 @@ export const useRepositoryStore = create<RepositoryStore>((set, get) => ({
 
   removeFileNode: (path) =>
     set((state) => {
-      const { [path]: removed, ...rest } = state.fileTree;
+      const { [path]: _removed, ...rest } = state.fileTree;
       return { fileTree: rest };
     }),
 
@@ -190,7 +189,7 @@ export const useRepositoryStore = create<RepositoryStore>((set, get) => ({
 
   clearTabState: (tabName) =>
     set((state) => {
-      const { [tabName]: removed, ...rest } = state.tabState;
+      const { [tabName]: _removed, ...rest } = state.tabState;
       return { tabState: rest };
     }),
 

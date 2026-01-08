@@ -369,8 +369,8 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
             </TableRow>
           ) : (
             validProjects.map((project) => (
-              <TableRow 
-                key={project?.id || `project-${Math.random()}`} 
+              <TableRow
+                key={project?.id || `project-${Math.random()}`}
                 hover
                 sx={enhancedRowStyles}
               >

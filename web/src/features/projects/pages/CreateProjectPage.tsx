@@ -166,7 +166,7 @@ export const CreateProjectPage: React.FC = () => {
     
     fetchPrograms();
     fetchUsers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [user]);
 
   const fetchPrograms = async () => {

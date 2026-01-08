@@ -63,7 +63,7 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({ projects, showTopBadge
 
   return (
     <Grid container spacing={4}>
-      {projects.map((project, index) => (
+      {projects.map((project) => (
         <Grid size={{ xs: 12, md: 6, lg: 4 }} key={project.id}>
           <Card
             sx={{

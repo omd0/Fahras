@@ -6,7 +6,6 @@ import {
   Typography,
   Chip,
   IconButton,
-  Divider,
   LinearProgress,
 } from '@mui/material';
 import {
@@ -37,10 +36,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   showProgress = false,
   showEdit = false,
   showApprovalStatus = false,
-  currentUserId,
+  currentUserId: _currentUserId,
 }) => {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const { user: _user } = useAuthStore();
 
   const getStatusColor = (status: string) => {
     switch (status) {

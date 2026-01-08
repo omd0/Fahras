@@ -1,49 +1,17 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useMemo } from 'react';
+import { RouterProvider } from 'react-router-dom';
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { Box } from '@mui/material';
 import { ThemeProvider } from '@/providers/ThemeContext';
 import { createTvtcTheme, tvtcCSSVariables } from '@/styles/theme/tvtcTheme';
-import { ProtectedRoute } from '@/features/auth/components/ProtectedRoute';
-import { RoleProtectedRoute } from '@/features/auth/components/RoleProtectedRoute';
-import { HomePage } from '@/pages/HomePage';
-import { LoginPage } from '@/features/auth/pages/LoginPage';
-import { RegisterPage } from '@/features/auth/pages/RegisterPage';
-import { DashboardPage } from '@/features/dashboards/pages/DashboardPage';
-import { ExplorePage } from '@/features/projects/pages/ExplorePage';
-import { CreateProjectPage } from '@/features/projects/pages/CreateProjectPage';
-import { EditProjectPage } from '@/features/projects/pages/EditProjectPage';
-import { ProjectDetailPage } from '@/features/projects/pages/ProjectDetailPage';
-import { RepositoryPage } from '@/features/repository/pages/RepositoryPage';
-import { MyBookmarksPage } from '@/features/bookmarks/pages/MyBookmarksPage';
-import { AnalyticsPage } from '@/pages/AnalyticsPage';
-import { EvaluationsPage } from '@/pages/EvaluationsPage';
-import { UserManagementPage } from '@/pages/UserManagementPage';
-import { ProfilePage } from '@/pages/ProfilePage';
-import { SettingsPage } from '@/pages/SettingsPage';
-import { ApprovalsPage } from '@/pages/ApprovalsPage';
-import { AccessControlPage } from '@/features/access-control/pages/AccessControlPage';
-import { ProjectFollowPage } from '@/features/project-follow/pages/ProjectFollowPage';
-import { MilestoneTemplateConfigPage } from '@/features/milestones/pages/MilestoneTemplateConfigPage';
-import { FacultyDashboard } from '@/features/dashboards/components/FacultyDashboard';
-import AdminProjectApprovalPage from '@/pages/AdminProjectApprovalPage';
-import FacultyPendingApprovalPage from '@/pages/FacultyPendingApprovalPage';
-import StudentMyProjectsPage from '@/pages/StudentMyProjectsPage';
-import { NotificationsPage } from '@/features/notifications/pages/NotificationsPage';
-import { TestAuthPage } from '@/pages/TestAuthPage';
-import { FileUploadDemoPage } from '@/pages/FileUploadDemoPage';
-import { HeaderLogo } from '@/components/layout/HeaderLogo';
-import { Header } from '@/components/layout/Header';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { SkipNavigation } from '@/components/shared/SkipLink';
-import { CommandPalette } from '@/components/CommandPalette';
 import { LanguageProvider, useLanguage } from '@/providers/LanguageContext';
 import { useThemeStore } from '@/store/themeStore';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import { prefixer } from 'stylis';
 import rtlPlugin from 'stylis-plugin-rtl';
+import { router } from '@/router';
 
 // Apply TVTC CSS variables globally
 if (typeof document !== 'undefined') {
@@ -61,277 +29,21 @@ const createEmotionCache = (direction: 'ltr' | 'rtl') =>
 const AppContent: React.FC = () => {
   const { direction } = useLanguage();
   const { mode } = useThemeStore();
-  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
 
   const theme = useMemo(() => createTvtcTheme(direction, mode), [direction, mode]);
   const rtlCache = useMemo(() => createEmotionCache('rtl'), []);
   const ltrCache = useMemo(() => createEmotionCache('ltr'), []);
   const cache = direction === 'rtl' ? rtlCache : ltrCache;
 
-  // Global keyboard shortcut for Command Palette (Ctrl+K / Cmd+K)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        setCommandPaletteOpen(true);
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
   return (
     <CacheProvider value={cache}>
       <MuiThemeProvider theme={theme}>
         <CssBaseline />
         <ThemeProvider>
-            <SkipNavigation />
-            <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-              {/* Command Palette */}
-              <CommandPalette 
-                open={commandPaletteOpen} 
-                onClose={() => setCommandPaletteOpen(false)} 
-              />
-              
-              {/* Header with Logo, Language Switcher, and Login */}
-              <Header />
-              
-              <Box 
-                id="main-content"
-                component="main"
-                sx={{ flexGrow: 1 }}
-              >
-                <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<ExplorePage />} />
-          <Route path="/home" element={<HomePage />} />
-          <Route path="/explore" element={<ExplorePage />} />
-          <Route path="/bookmarks" element={<MyBookmarksPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          
-          {/* Protected routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
-            }
-          />
-          
-          {/* Project routes - New /pr/ prefix with slug-based routing */}
-          <Route
-            path="/pr/create"
-            element={
-              <RoleProtectedRoute restrictedRoles={['reviewer']}>
-                <CreateProjectPage />
-              </RoleProtectedRoute>
-            }
-          />
-
-          {/* Unified project detail route (works for both guest and authenticated users) */}
-          <Route
-            path="/pr/:slug"
-            element={<ProjectDetailPage />}
-          />
-
-          {/* Project edit route */}
-          <Route
-            path="/pr/:slug/edit"
-            element={
-              <RoleProtectedRoute restrictedRoles={['reviewer']}>
-                <EditProjectPage />
-              </RoleProtectedRoute>
-            }
-          />
-
-          {/* Project Follow Manager route */}
-          <Route
-            path="/pr/:slug/follow"
-            element={
-              <ProtectedRoute>
-                <ProjectFollowPage />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Repository-style routes (GitHub-like interface) */}
-          <Route
-            path="/pr/:slug/code/*"
-            element={
-              <ProtectedRoute>
-                <RepositoryPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/pr/:slug/code"
-            element={
-              <ProtectedRoute>
-                <RepositoryPage />
-              </ProtectedRoute>
-            }
-          />
-          
-          {/* Analytics route */}
-          <Route
-            path="/analytics"
-            element={
-              <ProtectedRoute>
-                <AnalyticsPage />
-              </ProtectedRoute>
-            }
-          />
-          
-          {/* Evaluations route - allowed for faculty and admin */}
-          <Route
-            path="/evaluations"
-            element={
-              <RoleProtectedRoute allowedRoles={['faculty', 'admin']}>
-                <EvaluationsPage />
-              </RoleProtectedRoute>
-            }
-          />
-          
-          {/* Advisor Projects route - faculty only */}
-          <Route
-            path="/advisor-projects"
-            element={
-              <RoleProtectedRoute allowedRoles={['faculty']}>
-                <FacultyDashboard />
-              </RoleProtectedRoute>
-            }
-          />
-          
-          {/* User Management route - admin only */}
-          <Route
-            path="/users"
-            element={
-              <RoleProtectedRoute allowedRoles={['admin']}>
-                <UserManagementPage />
-              </RoleProtectedRoute>
-            }
-          />
-          
-          {/* Profile route */}
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <ProfilePage />
-              </ProtectedRoute>
-            }
-          />
-          
-          {/* Settings route */}
-          <Route
-            path="/settings"
-            element={
-              <ProtectedRoute>
-                <SettingsPage />
-              </ProtectedRoute>
-            }
-          />
-          
-          {/* Approvals route - admin only */}
-          <Route
-            path="/approvals"
-            element={
-              <RoleProtectedRoute allowedRoles={['admin']}>
-                <ApprovalsPage />
-              </RoleProtectedRoute>
-            }
-          />
-          
-          {/* Admin Project Approval route - admin only */}
-          <Route
-            path="/admin/projects"
-            element={
-              <RoleProtectedRoute allowedRoles={['admin']}>
-                <AdminProjectApprovalPage />
-              </RoleProtectedRoute>
-            }
-          />
-          
-          {/* Access Control route - admin only */}
-          <Route
-            path="/admin/access-control"
-            element={
-              <RoleProtectedRoute allowedRoles={['admin']}>
-                <AccessControlPage />
-              </RoleProtectedRoute>
-            }
-          />
-          
-          {/* Milestone Template Configuration route - admin only */}
-          <Route
-            path="/admin/milestone-templates"
-            element={
-              <RoleProtectedRoute allowedRoles={['admin']}>
-                <MilestoneTemplateConfigPage />
-              </RoleProtectedRoute>
-            }
-          />
-          
-          {/* Faculty Pending Approval route - faculty only */}
-          <Route
-            path="/faculty/pending-approval"
-            element={
-              <RoleProtectedRoute allowedRoles={['faculty']}>
-                <ErrorBoundary>
-                  <FacultyPendingApprovalPage />
-                </ErrorBoundary>
-              </RoleProtectedRoute>
-            }
-          />
-          
-          {/* Student My Projects route - student only */}
-          <Route
-            path="/student/my-projects"
-            element={
-              <RoleProtectedRoute allowedRoles={['student']}>
-                <ErrorBoundary>
-                  <StudentMyProjectsPage />
-                </ErrorBoundary>
-              </RoleProtectedRoute>
-            }
-          />
-          
-          {/* Notifications route - all authenticated users */}
-          <Route
-            path="/notifications"
-            element={
-              <ProtectedRoute>
-                <ErrorBoundary>
-                  <NotificationsPage />
-                </ErrorBoundary>
-              </ProtectedRoute>
-            }
-          />
-          
-          {/* Test route for debugging */}
-          <Route
-            path="/test-auth"
-            element={<TestAuthPage />}
-          />
-          
-          {/* File Upload Demo route */}
-          <Route
-            path="/demo/file-upload"
-            element={<FileUploadDemoPage />}
-          />
-          
-          {/* Catch all route - redirect to home */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-              </Box>
-              
-              {/* Footer Logo */}
-              <HeaderLogo variant="footer" />
-            </Box>
-          </ThemeProvider>
+          <ErrorBoundary>
+            <RouterProvider router={router} />
+          </ErrorBoundary>
+        </ThemeProvider>
       </MuiThemeProvider>
     </CacheProvider>
   );
@@ -339,11 +51,9 @@ const AppContent: React.FC = () => {
 
 function App() {
   return (
-    <Router>
-      <LanguageProvider>
-        <AppContent />
-      </LanguageProvider>
-    </Router>
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 }
 

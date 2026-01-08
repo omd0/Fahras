@@ -29,7 +29,7 @@ export const SmartProjectGrid: React.FC<SmartProjectGridProps> = ({
   forceVirtualization,
   virtualizationThreshold = 50,
 }) => {
-  const { enabled, config } = useOptimalVirtualization(projects.length);
+  const { enabled: _enabled, config } = useOptimalVirtualization(projects.length);
   const shouldVirtualize = forceVirtualization !== undefined
     ? forceVirtualization
     : projects.length > virtualizationThreshold;

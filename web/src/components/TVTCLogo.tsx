@@ -26,7 +26,7 @@ export const TVTCLogo: React.FC<TVTCLogoProps> = ({
     }
   };
 
-  const { fontSize, iconSize } = getSizeStyles();
+  const { fontSize: _fontSize, iconSize } = getSizeStyles();
 
   const getColorStyles = () => {
     switch (color) {

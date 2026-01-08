@@ -249,25 +249,28 @@ export const ProjectExportDialog: React.FC<ProjectExportDialogProps> = ({
       const timestamp = new Date().toISOString().split('T')[0];
 
       switch (exportOptions.format) {
-        case 'json':
+        case 'json': {
           const jsonContent = generateJSONExport(exportData);
           downloadFile(jsonContent, `${sanitizedTitle}_${timestamp}.json`, 'application/json');
           break;
+        }
 
-        case 'html':
+        case 'html': {
           const htmlContent = generateHTMLExport(exportData);
           downloadFile(htmlContent, `${sanitizedTitle}_${timestamp}.html`, 'text/html');
           break;
+        }
 
         case 'pdf':
           await generatePDFExport(exportData);
           break;
 
-        case 'docx':
+        case 'docx': {
           // DOCX requires a library, for now we'll export as HTML which can be opened in Word
           const docxContent = generateHTMLExport(exportData);
           downloadFile(docxContent, `${sanitizedTitle}_${timestamp}.html`, 'application/msword');
           break;
+        }
       }
 
       setExportSuccess(true);

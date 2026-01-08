@@ -9,10 +9,10 @@ interface TVTCBrandingProps {
   size?: 'small' | 'medium' | 'large';
 }
 
-export const TVTCBranding: React.FC<TVTCBrandingProps> = ({ 
+export const TVTCBranding: React.FC<TVTCBrandingProps> = ({
   variant = 'header',
   showDescription = false,
-  size = 'medium'
+  size: _size = 'medium'
 }) => {
   const getVariantStyles = (): {
     container: SxProps<Theme>;

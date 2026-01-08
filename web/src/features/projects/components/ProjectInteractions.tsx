@@ -31,7 +31,7 @@ interface Comment {
   created_at: string;
 }
 
-interface Rating {
+interface ProjectRating {
   id: number;
   user_name: string;
   rating: number;
@@ -74,7 +74,7 @@ export const ProjectInteractions: React.FC<ProjectInteractionsProps> = ({
     },
   ]);
 
-  const [ratings] = useState<Rating[]>([
+  const [ratings] = useState<ProjectRating[]>([
     {
       id: 1,
       user_name: 'Dr. Mohammed Al-Sayed',

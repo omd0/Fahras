@@ -120,6 +120,76 @@ export const tvtcLayout = {
   },
 };
 
+// Mobile-First Responsive Design Constants
+export const tvtcMobile = {
+  // Touch target sizes (WCAG 2.1 Level AAA: 44x44 CSS pixels minimum)
+  touchTarget: {
+    minimum: 44,      // Minimum size for any interactive element
+    comfortable: 48,  // Comfortable size for primary actions
+    large: 56,        // Large size for important CTAs
+  },
+  
+  // Breakpoint values (matches MUI default breakpoints)
+  breakpoints: {
+    xs: 0,      // Mobile phones (portrait)
+    sm: 600,    // Mobile phones (landscape) & small tablets
+    md: 900,    // Tablets (portrait) & small laptops
+    lg: 1200,   // Desktop & tablets (landscape)
+    xl: 1536,   // Large desktop
+  },
+  
+  // Responsive spacing multipliers
+  spacingMultiplier: {
+    mobile: 0.75,   // Reduce spacing by 25% on mobile
+    tablet: 1,      // Normal spacing on tablets
+    desktop: 1.25,  // Increase spacing by 25% on desktop
+  },
+  
+  // Responsive font size scales
+  fontSizeScale: {
+    mobile: 0.875,   // 87.5% of base size on mobile
+    tablet: 0.9375,  // 93.75% of base size on tablet
+    desktop: 1,      // 100% of base size on desktop
+  },
+  
+  // Container max widths for different breakpoints
+  containerMaxWidth: {
+    xs: '100%',
+    sm: 540,
+    md: 720,
+    lg: 960,
+    xl: 1140,
+  },
+  
+  // Navigation heights
+  navHeight: {
+    mobile: 56,
+    tablet: 64,
+    desktop: 72,
+  },
+  
+  // Drawer widths
+  drawerWidth: {
+    mobile: '80%',    // Mobile drawer takes 80% of screen
+    tablet: 320,      // Fixed width on tablet
+    desktop: 280,     // Fixed width on desktop
+  },
+  
+  // Card spacing
+  cardSpacing: {
+    mobile: 2,    // MUI spacing units
+    tablet: 2.5,
+    desktop: 3,
+  },
+  
+  // Grid gaps
+  gridGap: {
+    mobile: 2,
+    tablet: 3,
+    desktop: 4,
+  },
+};
+
 // Dark mode color overrides
 export const tvtcColorsDark = {
   // Primary brand colors remain consistent
@@ -286,11 +356,25 @@ const createThemeOptions = (mode: 'light' | 'dark' = 'light'): ThemeOptions => {
             fontWeight: tvtcTypography.fontWeight.medium,
             padding: `${tvtcLayout.spacing.sm} ${tvtcLayout.spacing.md}`,
             fontSize: tvtcTypography.fontSize.small,
+            // Ensure minimum touch target size on mobile
+            minHeight: tvtcMobile.touchTarget.minimum,
+            minWidth: tvtcMobile.touchTarget.minimum,
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             boxShadow: tvtcLayout.boxShadow,
+            // Responsive padding
+            '@media (max-width: 600px)': {
+              padding: '10px 16px',
+              fontSize: '0.9rem',
+            },
             '&:hover': {
               transform: 'translateY(-1px)',
               boxShadow: tvtcLayout.boxShadowMedium,
+            },
+            // Remove hover transform on touch devices to prevent sticky hover states
+            '@media (hover: none)': {
+              '&:hover': {
+                transform: 'none',
+              },
             },
             '&:focus': {
               outline: `3px solid ${colors.primary}`,
@@ -438,6 +522,13 @@ const createThemeOptions = (mode: 'light' | 'dark' = 'light'): ThemeOptions => {
         styleOverrides: {
           root: {
             transition: 'all 0.2s ease-in-out',
+            // Ensure minimum touch target size
+            minWidth: tvtcMobile.touchTarget.minimum,
+            minHeight: tvtcMobile.touchTarget.minimum,
+            // Increase padding on mobile for easier tapping
+            '@media (max-width: 600px)': {
+              padding: 12,
+            },
             '&:focus': {
               outline: `3px solid ${colors.primary}`,
               outlineOffset: '2px',
@@ -565,6 +656,23 @@ export const tvtcUtils = {
     md: 900,
     lg: 1200,
     xl: 1536,
+  }),
+  
+  // Get responsive spacing (mobile-first)
+  getResponsiveSpacing: (device: 'mobile' | 'tablet' | 'desktop', baseSpacing: number) => {
+    const multiplier = tvtcMobile.spacingMultiplier[device];
+    return baseSpacing * multiplier;
+  },
+  
+  // Get minimum touch target for interactive elements
+  getTouchTarget: (size: 'minimum' | 'comfortable' | 'large' = 'minimum') => {
+    return tvtcMobile.touchTarget[size];
+  },
+  
+  // Create responsive sx prop
+  createResponsiveSx: (mobileProps: any, desktopProps?: any) => ({
+    ...mobileProps,
+    '@media (min-width: 900px)': desktopProps || {},
   }),
 };
 
