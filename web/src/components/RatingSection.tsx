@@ -19,7 +19,7 @@ import {
   Paper,
   Grid,
 } from '@mui/material';
-import { guestColors } from '@/styles/theme/guestTheme';
+import { legacyColors as guestColors } from '@/styles/theme/colorPalette';
 import { designTokens } from '@/styles/designTokens';
 import {
   Star as StarIcon,

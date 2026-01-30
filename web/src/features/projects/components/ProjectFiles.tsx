@@ -99,7 +99,7 @@ export const ProjectFiles: React.FC<ProjectFilesProps> = ({
         {/* Header with gradient background */}
         <Box 
           sx={{ 
-            background: isProfessor ? professorColors.successGradient : 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+            background: `linear-gradient(135deg, ${designTokens.colors.primary[600]} 0%, ${designTokens.colors.primary[500]} 100%)`,
             color: 'white',
             p: 3,
             position: 'relative',
@@ -169,7 +169,7 @@ export const ProjectFiles: React.FC<ProjectFilesProps> = ({
                         sx={{
                           p: 1,
                           borderRadius: 1.5,
-                          background: isProfessor ? professorColors.successGradient : 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                          background: `linear-gradient(135deg, ${designTokens.colors.primary[600]} 0%, ${designTokens.colors.primary[500]} 100%)`,
                           color: 'white',
                         }}
                       >
@@ -226,7 +226,7 @@ export const ProjectFiles: React.FC<ProjectFilesProps> = ({
                               variant="filled"
                               sx={{ 
                                 fontWeight: 600,
-                                background: isProfessor ? professorColors.successGradient : 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                                background: `linear-gradient(135deg, ${designTokens.colors.primary[600]} 0%, ${designTokens.colors.primary[500]} 100%)`,
                               }}
                             />
                           )}
@@ -242,7 +242,7 @@ export const ProjectFiles: React.FC<ProjectFilesProps> = ({
                         minWidth: 100,
                         textTransform: 'none',
                         fontWeight: 600,
-                        background: isProfessor ? professorColors.primaryGradient : 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+                        background: `linear-gradient(135deg, ${designTokens.colors.primary[600]} 0%, ${designTokens.colors.primary[500]} 100%)`,
                         borderRadius: 1.5,
                         '&:hover': {
                           background: isProfessor ? 'linear-gradient(135deg, #003d8f 0%, #00695c 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)',
@@ -274,7 +274,7 @@ export const ProjectFiles: React.FC<ProjectFilesProps> = ({
                 sx={{
                   p: 2,
                   borderRadius: '50%',
-                  background: isProfessor ? professorColors.successGradient : 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                  background: `linear-gradient(135deg, ${designTokens.colors.primary[600]} 0%, ${designTokens.colors.primary[500]} 100%)`,
                   color: 'white',
                   width: 64,
                   height: 64,

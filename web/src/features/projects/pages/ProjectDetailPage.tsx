@@ -21,8 +21,7 @@ import { CommentSection } from '@/components/CommentSection';
 import { RatingSection } from '@/components/RatingSection';
 import { StatusSelector } from '@/components/StatusSelector';
 import { ProjectExportDialog } from '@/features/projects/components/ProjectExportDialog';
-import { professorTheme } from '@/styles/theme/professorTheme';
-import { ThemeProvider } from '@mui/material/styles';
+
 import { useLanguage } from '@/providers/LanguageContext';
 import { ProjectMainInfo } from '@/features/projects/components/ProjectMainInfo';
 import { ProjectFiles } from '@/features/projects/components/ProjectFiles';
@@ -320,15 +319,6 @@ export const ProjectDetailPage: React.FC = () => {
       />
     </Box>
   );
-
-  // Wrap with professor theme if user is a professor
-  if (isProfessor) {
-    return (
-      <ThemeProvider theme={professorTheme}>
-        {content}
-      </ThemeProvider>
-    );
-  }
 
   return content;
 };

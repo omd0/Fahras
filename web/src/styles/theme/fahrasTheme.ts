@@ -917,6 +917,16 @@ export const fahrasTheme: Theme = createTheme({
 // EXPORTS
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * Factory to create a Fahras theme with a specific text direction.
+ * Used by App.tsx to support RTL (Arabic) and LTR layouts.
+ */
+export const createFahrasTheme = (direction: 'ltr' | 'rtl' = 'ltr'): Theme =>
+  createTheme({
+    ...fahrasTheme,
+    direction,
+  });
+
 /** Default export for ThemeProvider */
 export default fahrasTheme;
 

@@ -23,7 +23,7 @@ import {
   Fade,
   Slide,
 } from '@mui/material';
-import { guestColors } from '@/styles/theme/guestTheme';
+import { legacyColors as guestColors } from '@/styles/theme/colorPalette';
 import { designTokens } from '@/styles/designTokens';
 import {
   Send as SendIcon,

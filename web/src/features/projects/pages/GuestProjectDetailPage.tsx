@@ -26,7 +26,7 @@ import {
   ListItemIcon,
   alpha,
 } from '@mui/material';
-import { guestColors, guestTheme, createDecorativeElements, backgroundPatterns } from '@/styles/theme/guestTheme';
+import { legacyColors as guestColors, createDecorativeElements, backgroundPatterns } from '@/styles/theme/colorPalette';
 import {
   ArrowBack as ArrowBackIcon,
   School as SchoolIcon,

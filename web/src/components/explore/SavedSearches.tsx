@@ -32,10 +32,10 @@ import {
 } from '@mui/icons-material';
 import { SavedSearch, SearchFilters, CreateSavedSearchData } from '@/types';
 import { apiService } from '@/lib/api';
-import { guestColors } from '@/styles/theme/guestTheme';
+import { legacyColors } from '@/styles/theme/colorPalette';
 import { useLanguage } from '@/providers/LanguageContext';
 
-const COLORS = guestColors;
+const COLORS = legacyColors;
 
 interface SavedSearchesProps {
   open: boolean;
@@ -315,7 +315,7 @@ export const SavedSearches: React.FC<SavedSearchesProps> = ({
               setSaveDialogOpen(true);
             }}
             sx={{
-              background: guestColors.primaryGradient,
+              background: COLORS.primaryGradient,
               borderRadius: 2,
               px: 3,
             }}
@@ -368,7 +368,7 @@ export const SavedSearches: React.FC<SavedSearchesProps> = ({
             onClick={handleSaveCurrentSearch}
             disabled={!searchName.trim()}
             sx={{
-              background: guestColors.primaryGradient,
+              background: COLORS.primaryGradient,
             }}
           >
             {editingSearch ? t('Update') : t('Save')}

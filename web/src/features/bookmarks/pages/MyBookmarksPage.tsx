@@ -16,7 +16,7 @@ import {
   Fade,
   alpha,
 } from '@mui/material';
-import { guestColors, createDecorativeElements, backgroundPatterns } from '@/styles/theme/guestTheme';
+import { legacyColors as guestColors, createDecorativeElements, backgroundPatterns } from '@/styles/theme/colorPalette';
 import {
   Bookmark as BookmarkIcon,
   Visibility as VisibilityIcon,

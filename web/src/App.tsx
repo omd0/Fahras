@@ -3,22 +3,14 @@ import { RouterProvider } from 'react-router-dom';
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@/providers/ThemeContext';
-import { createTvtcTheme, tvtcCSSVariables } from '@/styles/theme/tvtcTheme';
+import { createFahrasTheme } from '@/styles/theme/fahrasTheme';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { LanguageProvider, useLanguage } from '@/providers/LanguageContext';
-import { useThemeStore } from '@/store/themeStore';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import { prefixer } from 'stylis';
 import rtlPlugin from 'stylis-plugin-rtl';
 import { router } from '@/router';
-
-// Apply TVTC CSS variables globally
-if (typeof document !== 'undefined') {
-  const style = document.createElement('style');
-  style.textContent = tvtcCSSVariables;
-  document.head.appendChild(style);
-}
 
 const createEmotionCache = (direction: 'ltr' | 'rtl') =>
   createCache({
@@ -28,9 +20,8 @@ const createEmotionCache = (direction: 'ltr' | 'rtl') =>
 
 const AppContent: React.FC = () => {
   const { direction } = useLanguage();
-  const { mode } = useThemeStore();
 
-  const theme = useMemo(() => createTvtcTheme(direction, mode), [direction, mode]);
+  const theme = useMemo(() => createFahrasTheme(direction), [direction]);
   const rtlCache = useMemo(() => createEmotionCache('rtl'), []);
   const ltrCache = useMemo(() => createEmotionCache('ltr'), []);
   const cache = direction === 'rtl' ? rtlCache : ltrCache;

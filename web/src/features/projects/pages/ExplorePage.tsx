@@ -19,7 +19,7 @@ import {
   InputAdornment,
   FormControl,
 } from '@mui/material';
-import { guestColors, createDecorativeElements, backgroundPatterns } from '@/styles/theme/guestTheme';
+import { legacyColors as guestColors, createDecorativeElements, backgroundPatterns } from '@/styles/theme/colorPalette';
 import {
   Search as SearchIcon,
   Clear as ClearIcon,

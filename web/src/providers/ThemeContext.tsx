@@ -12,13 +12,15 @@ const ThemeContext = createContext<ThemeContextType>({
   userRole: 'default',
 });
 
-export const useTheme = () => {
+export const useFahrasTheme = () => {
   const context = useContext(ThemeContext);
   if (!context) {
-    throw new Error('useTheme must be used within ThemeProvider');
+    throw new Error('useFahrasTheme must be used within ThemeProvider');
   }
   return context;
 };
+
+export const useTheme = useFahrasTheme;
 
 interface ThemeProviderProps {
   children: ReactNode;
@@ -28,7 +30,6 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const { user } = useAuthStore();
   const theme = getDashboardTheme(user?.roles);
   
-  // Determine user role for component-specific logic
   const getUserRole = () => {
     if (!user?.roles || user.roles.length === 0) return 'default';
     
@@ -47,4 +48,3 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };
-

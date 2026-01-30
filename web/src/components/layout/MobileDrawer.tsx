@@ -39,7 +39,7 @@ import { useAuthStore } from '@/features/auth/store';
 import { useNotifications } from '@/features/notifications/hooks/useNotifications';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { ThemeToggle } from './ThemeToggle';
-import { tvtcMobile } from '@/styles/theme/tvtcTheme';
+import { legacyLayout as tvtcMobile } from '@/styles/theme/colorPalette';
 import { designTokens } from '@/styles/designTokens';
 
 interface MobileDrawerProps {

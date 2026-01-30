@@ -23,10 +23,10 @@ import {
   Add as AddIcon,
   BookmarkBorder as BookmarkIcon,
 } from '@mui/icons-material';
-import { guestColors } from '@/styles/theme/guestTheme';
+import { legacyColors } from '@/styles/theme/colorPalette';
 import { useLanguage } from '@/providers/LanguageContext';
 
-const COLORS = guestColors;
+const COLORS = legacyColors;
 
 interface SearchFilters {
   search: string;
@@ -186,7 +186,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
               onClick={onSearch}
               disabled={searching}
               sx={{
-                background: guestColors.primaryGradient,
+                background: COLORS.primaryGradient,
                 borderRadius: 4,
                 px: 4,
                 py: 1.5,
@@ -446,7 +446,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
               onClick={onSearch}
               disabled={searching}
               sx={{
-                background: guestColors.primaryGradient,
+                background: COLORS.primaryGradient,
                 borderRadius: 3,
                 px: 4,
                 py: 1.5,
