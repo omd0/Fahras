@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { designTokens } from '@/styles/designTokens';
 import {
   Container,
   Typography,
@@ -449,67 +450,6 @@ export const UserManagementPage: React.FC = () => {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar 
-        position="static"
-        sx={{ 
-          backgroundColor: '#FFFFFF',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          color: '#000000',
-        }}
-      >
-        <Toolbar>
-          <IconButton
-            edge="start"
-            color="inherit"
-            onClick={() => navigate('/dashboard')}
-            sx={{ mr: 2 }}
-          >
-            <ArrowBackIcon />
-          </IconButton>
-          <PeopleIcon sx={{ mr: 2 }} />
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: '#000000' }}>
-            User Management
-          </Typography>
-          <IconButton
-            size="large"
-            edge="end"
-            aria-label="account of current user"
-            aria-controls="menu-appbar"
-            aria-haspopup="true"
-            onClick={handleMenuOpen}
-            sx={{ color: '#000000' }}
-          >
-            <Avatar sx={{ width: 32, height: 32 }}>
-              {user?.full_name?.charAt(0)?.toUpperCase()}
-            </Avatar>
-          </IconButton>
-          <Menu
-            id="menu-appbar"
-            anchorEl={anchorEl}
-            anchorOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            keepMounted
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
-          >
-            <MenuItem onClick={handleProfileClick}>
-              <AccountCircle sx={{ mr: 1 }} />
-              Profile
-            </MenuItem>
-            <MenuItem onClick={handleLogout}>
-              <ExitToApp sx={{ mr: 1 }} />
-              Logout
-            </MenuItem>
-          </Menu>
-        </Toolbar>
-      </AppBar>
-
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         {/* Header */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -526,7 +466,7 @@ export const UserManagementPage: React.FC = () => {
             startIcon={<AddIcon />}
             onClick={handleCreateUser}
             sx={{
-              background: `linear-gradient(135deg, ${dashboardTheme.primary} 0%, ${dashboardTheme.primary}dd 100%)`,
+              background: designTokens.colors.primary[500],
             }}
           >
             Add User

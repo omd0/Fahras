@@ -101,19 +101,19 @@ export const AdminDashboard: React.FC = () => {
       label: 'User Management',
       icon: GroupIcon,
       onClick: () => navigate('/users'),
-      gradient: `linear-gradient(135deg, ${theme.secondary} 0%, ${theme.secondary}dd 100%)`,
+
     },
     {
       label: 'Program',
       icon: TimelineIcon,
       onClick: () => navigate('/admin/milestone-templates'),
-      gradient: `linear-gradient(135deg, #f59e0b 0%, #d97706 100%)`,
+
     },
     {
       label: 'Access Control',
       icon: SecurityIcon,
       onClick: () => navigate('/admin/access-control'),
-      gradient: `linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)`,
+
     },
     {
       label: 'Settings',
@@ -218,7 +218,6 @@ export const AdminDashboard: React.FC = () => {
                 value={stats.totalProjects}
                 label="Total Projects"
                 icon={AssignmentIcon}
-                gradient={`linear-gradient(135deg, ${theme.primary} 0%, ${theme.primary}dd 100%)`}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -226,7 +225,6 @@ export const AdminDashboard: React.FC = () => {
                 value={stats.pendingApprovals}
                 label="Pending Approvals"
                 icon={PendingIcon}
-                gradient={`linear-gradient(135deg, ${theme.accent} 0%, ${theme.accent}dd 100%)`}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -234,7 +232,6 @@ export const AdminDashboard: React.FC = () => {
                 value={stats.approvedProjects}
                 label="Approved Projects"
                 icon={CheckCircleIcon}
-                gradient={`linear-gradient(135deg, ${theme.secondary} 0%, ${theme.secondary}dd 100%)`}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -242,7 +239,6 @@ export const AdminDashboard: React.FC = () => {
                 value={stats.recentActivity}
                 label="Recent Activity (7d)"
                 icon={TrendingUpIcon}
-                gradient="linear-gradient(135deg, #10b981 0%, #10b981dd 100%)"
               />
             </Grid>
           </Grid>

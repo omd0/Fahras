@@ -1,4 +1,5 @@
 import { createTheme, alpha } from '@mui/material/styles';
+import { designTokens } from '@/styles/designTokens';
 
 // Professor-specific color scheme - Clean and Professional
 export const professorColors = {
@@ -36,7 +37,9 @@ export const professorColors = {
   error: '#B71C1C',          // Dark Red/Burgundy - for errors and notifications
   info: '#4ECDC4',           // Light Blue/Turquoise - for information
   
-  // Gradient combinations with new colors
+  // ⚠️ DEPRECATED: Gradient combinations - Use solid colors from designTokens instead
+  // Kept for backward compatibility and headers only (per design.toon specifications)
+  // For cards and UI elements, use: border: 2px solid designTokens.colors.primary[500]
   primaryGradient: 'linear-gradient(135deg, #004AAD 0%, #00796B 100%)',
   secondaryGradient: 'linear-gradient(135deg, #4ECDC4 0%, #FF9800 100%)',
   backgroundGradient: 'linear-gradient(135deg, #FFFFFF 0%, #F5F5F5 100%)',

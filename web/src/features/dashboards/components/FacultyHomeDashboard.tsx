@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { designTokens } from '@/styles/designTokens';
 import { Box, Card, CardContent, Grid, Button, CircularProgress, Alert, Typography } from '@mui/material';
 import {
   Analytics as AnalyticsIcon,
@@ -111,7 +112,7 @@ export const FacultyHomeDashboard: React.FC = () => {
                 sx={{ 
                   borderRadius: 3, 
                   boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                  background: `linear-gradient(135deg, ${theme.primary} 0%, ${theme.primary}dd 100%)`,
+                  background: designTokens.colors.primary[500],
                   color: 'white',
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
@@ -139,7 +140,7 @@ export const FacultyHomeDashboard: React.FC = () => {
                 sx={{ 
                   borderRadius: 3, 
                   boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                  background: `linear-gradient(135deg, ${theme.accent} 0%, ${theme.accent}dd 100%)`,
+                  background: designTokens.colors.primary[500],
                   color: 'white',
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
@@ -167,7 +168,7 @@ export const FacultyHomeDashboard: React.FC = () => {
                 sx={{ 
                   borderRadius: 3, 
                   boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                  background: 'linear-gradient(135deg, #6b7280 0%, #6b7280dd 100%)',
+                  background: designTokens.colors.surface[50],
                   color: 'white',
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',

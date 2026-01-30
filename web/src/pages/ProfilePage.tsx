@@ -5,8 +5,6 @@ import {
   Box,
   Card,
   CardContent,
-  AppBar,
-  Toolbar,
   IconButton,
   Grid,
   Avatar,
@@ -20,19 +18,22 @@ import {
   DialogContent,
   DialogActions,
   Snackbar,
+  Divider,
 } from '@mui/material';
 import {
-  ArrowBack as ArrowBackIcon,
-  Person as PersonIcon,
   Email as EmailIcon,
   Edit as EditIcon,
   PhotoCamera as PhotoCameraIcon,
   Delete as DeleteIcon,
+  VerifiedUser as VerifiedUserIcon,
+  Warning as WarningIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { apiService } from '@/lib/api';
 import { User } from '@/types';
 import { getDashboardTheme } from '@/config/dashboardThemes';
+import { ChangePasswordForm } from '@/features/auth/components/ChangePasswordForm';
+import { LogoutAllDevicesButton } from '@/features/auth/components/LogoutAllDevicesButton';
 
 export const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
@@ -183,29 +184,6 @@ export const ProfilePage: React.FC = () => {
   if (error && !user) {
     return (
       <Box sx={{ flexGrow: 1 }}>
-        <AppBar 
-          position="static"
-          sx={{ 
-            backgroundColor: '#FFFFFF',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            color: '#000000',
-          }}
-        >
-          <Toolbar>
-            <IconButton
-              edge="start"
-              color="inherit"
-              onClick={() => navigate('/dashboard')}
-              sx={{ mr: 2 }}
-            >
-              <ArrowBackIcon />
-            </IconButton>
-            <PersonIcon sx={{ mr: 2 }} />
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: '#000000' }}>
-              Profile
-            </Typography>
-          </Toolbar>
-        </AppBar>
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
           <Alert severity="error">{error}</Alert>
         </Container>
@@ -215,33 +193,10 @@ export const ProfilePage: React.FC = () => {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar 
-        position="static"
-        sx={{ 
-          backgroundColor: '#FFFFFF',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          color: '#000000',
-        }}
-      >
-        <Toolbar>
-          <IconButton
-            edge="start"
-            color="inherit"
-            onClick={() => navigate('/dashboard')}
-            sx={{ mr: 2 }}
-          >
-            <ArrowBackIcon />
-          </IconButton>
-          <PersonIcon sx={{ mr: 2 }} />
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: '#000000' }}>
-            My Profile
-          </Typography>
-        </Toolbar>
-      </AppBar>
-
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         {/* User Profile Information */}
         <Grid container spacing={3}>
+          {/* Profile Information Section */}
           <Grid size={{ xs: 12, md: 6 }}>
             <Card sx={{ mb: 3 }}>
               <CardContent sx={{ textAlign: 'center' }}>
@@ -306,11 +261,33 @@ export const ProfilePage: React.FC = () => {
                 <Typography variant="h5" gutterBottom>
                   {user?.full_name || 'Unknown User'}
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1 }}>
                   <EmailIcon sx={{ mr: 1, color: 'text.secondary' }} />
                   <Typography variant="body2" color="text.secondary">
                     {user?.email || 'No email'}
                   </Typography>
+                </Box>
+                {/* Email verification status */}
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
+                  {user?.email_verified_at ? (
+                    <Chip
+                      icon={<VerifiedUserIcon />}
+                      label="Email Verified"
+                      color="success"
+                      size="small"
+                      variant="outlined"
+                    />
+                  ) : (
+                    <Chip
+                      icon={<WarningIcon />}
+                      label="Email Not Verified"
+                      color="warning"
+                      size="small"
+                      variant="outlined"
+                      onClick={() => navigate(`/verify-email?email=${encodeURIComponent(user?.email || '')}`)}
+                      sx={{ cursor: 'pointer' }}
+                    />
+                  )}
                 </Box>
                 <Chip
                   label={user?.status || 'unknown'}
@@ -351,6 +328,23 @@ export const ProfilePage: React.FC = () => {
                 </Box>
               </CardContent>
             </Card>
+          </Grid>
+
+          {/* Security Section */}
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', mb: 2 }}>
+              Security Settings
+            </Typography>
+
+            {/* Change Password */}
+            <Box sx={{ mb: 3 }}>
+              <ChangePasswordForm />
+            </Box>
+
+            {/* Logout All Devices */}
+            <Box sx={{ mb: 3 }}>
+              <LogoutAllDevicesButton />
+            </Box>
           </Grid>
 
         </Grid>

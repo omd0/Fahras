@@ -17,6 +17,15 @@ use Illuminate\Support\Facades\Route;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+// Email verification routes (public)
+Route::post('/email/send-verification', [AuthController::class, 'sendVerificationEmail']);
+Route::post('/email/verify', [AuthController::class, 'verifyEmail']);
+Route::get('/email/verify-magic/{token}', [AuthController::class, 'verifyMagicLink']);
+
+// Password reset routes (public)
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
 // Public data routes
 Route::get('/test', function () {
     return response()->json(['message' => 'API is working']);
@@ -45,6 +54,7 @@ Route::get('/projects', [ProjectController::class, 'index'])->middleware('auth.o
 Route::get('/projects/analytics', [ProjectController::class, 'analytics'])->middleware('auth:sanctum');
 Route::get('/projects/search/global', [ProjectController::class, 'search'])->middleware('auth:sanctum');
 Route::get('/projects/suggestions', [ProjectController::class, 'suggestions'])->middleware('auth:sanctum');
+Route::get('/projects/bookmarked', [ProjectController::class, 'getBookmarkedProjects'])->middleware('auth:sanctum');
 
 // Public project view route (accessible to guests, but will authenticate if token is provided)
 Route::get('/projects/{project}', [ProjectController::class, 'show'])->middleware('auth.optional');
@@ -57,6 +67,7 @@ Route::get('/projects/{project}/ratings', [ProjectController::class, 'getRatings
 Route::middleware('auth:sanctum')->group(function () {
     // Authentication routes
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/logout-all', [AuthController::class, 'logoutAll']);
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/refresh', [AuthController::class, 'refresh']);
     
@@ -64,6 +75,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/profile', [AuthController::class, 'updateProfile']);
     Route::post('/profile/avatar', [AuthController::class, 'uploadAvatar']);
     Route::delete('/profile/avatar', [AuthController::class, 'deleteAvatar']);
+    Route::post('/change-password', [AuthController::class, 'changePassword']);
+    
+    // Email verification routes (authenticated)
+    Route::post('/email/resend-verification', [AuthController::class, 'resendVerificationEmail']);
 
     // Advanced project features are now defined above as public routes with auth middleware
     
@@ -110,10 +125,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/projects/{project}/comments', [ProjectController::class, 'addComment']);
     Route::post('/projects/{project}/rate', [ProjectController::class, 'rateProject']);
 
-    // Bookmark routes
+    // Bookmark routes (note: GET /projects/bookmarked is defined above, before {project} wildcard route)
     Route::post('/projects/{project}/bookmark', [ProjectController::class, 'bookmarkProject']);
     Route::delete('/projects/{project}/bookmark', [ProjectController::class, 'bookmarkProject']);
-    Route::get('/projects/bookmarked', [ProjectController::class, 'getBookmarkedProjects']);
     Route::get('/projects/{project}/is-bookmarked', [ProjectController::class, 'isBookmarked']);
     Route::post('/bookmarks/sync', [ProjectController::class, 'syncGuestBookmarks']);
 

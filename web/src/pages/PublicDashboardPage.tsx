@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { designTokens } from '@/styles/designTokens';
 import {
   Container,
   Typography,
@@ -84,9 +85,9 @@ export const PublicDashboardPage: React.FC = () => {
   });
 
   return (
-    <Box sx={{ flexGrow: 1, minHeight: '100vh', background: 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%)' }}>
+    <Box sx={{ flexGrow: 1, minHeight: '100vh',  background: designTokens.colors.primary[500] }}>
       {/* Top Navigation Bar */}
-      <AppBar position="static" sx={{ background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)' }}>
+      <AppBar position="static" sx={{  background: designTokens.colors.primary[500] }}>
         <Toolbar>
           <TVTCLogo size="medium" variant="icon" color="inherit" sx={{ mr: 2 }} />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
@@ -116,7 +117,7 @@ export const PublicDashboardPage: React.FC = () => {
         {/* Hero Section */}
         <Box
           sx={{
-            background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+             background: designTokens.colors.primary[500],
             borderRadius: 4,
             p: 6,
             mb: 5,
@@ -351,7 +352,7 @@ export const PublicDashboardPage: React.FC = () => {
               mt: 6,
               p: 4,
               borderRadius: 3,
-              background: 'linear-gradient(135deg, #e0e7ff 0%, #ddd6fe 100%)',
+               background: designTokens.colors.primary[500],
               textAlign: 'center',
             }}
           >
@@ -368,7 +369,7 @@ export const PublicDashboardPage: React.FC = () => {
                 startIcon={<RegisterIcon />}
                 onClick={() => navigate('/register')}
                 sx={{
-                  background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+                   background: designTokens.colors.primary[500],
                   px: 4,
                 }}
               >

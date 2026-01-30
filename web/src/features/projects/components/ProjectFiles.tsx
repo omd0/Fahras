@@ -18,7 +18,7 @@ import {
 } from '@mui/icons-material';
 import { Project } from '@/types';
 import { apiService } from '@/lib/api';
-import { professorColors } from '@/styles/theme/professorTheme';
+import { designTokens } from '@/styles/designTokens';
 import { useLanguage } from '@/providers/LanguageContext';
 
 interface ProjectFilesProps {
@@ -79,20 +79,20 @@ export const ProjectFiles: React.FC<ProjectFilesProps> = ({
   };
 
   return (
-    <Card 
+    <Card
       elevation={0}
-      sx={{ 
+      sx={{
         mt: 3,
-        borderRadius: 3,
-        border: '1px solid',
-        borderColor: 'divider',
+        border: `2px solid ${designTokens.colors.primary[500]}`,
+        boxShadow: 'none',
+        borderRadius: designTokens.radii.card,
         overflow: 'hidden',
-        background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+        background: 'white',
         transition: 'all 0.3s ease-in-out',
         '&:hover': {
-          boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
-          transform: 'translateY(-2px)',
-        }
+          transform: 'translateY(-1px)',
+          borderColor: designTokens.colors.primary[600],
+        },
       }}
     >
       <CardContent sx={{ p: 0 }}>

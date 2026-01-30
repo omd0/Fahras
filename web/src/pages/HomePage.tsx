@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { designTokens } from '@/styles/designTokens';
 import {
   Container,
   Typography,
@@ -162,7 +163,7 @@ export const HomePage: React.FC = () => {
                       <Box
                         sx={{
                           height: 120,
-                          background: `linear-gradient(135deg, ${theme.palette.secondary.main} 0%, ${theme.palette.primary.main} 100%)`,
+                          background: designTokens.colors.primary[500],
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',

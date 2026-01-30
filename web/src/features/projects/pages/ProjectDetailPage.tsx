@@ -6,7 +6,6 @@ import {
   Alert,
   CircularProgress,
   Button,
-  Fade,
   Slide,
   Grow,
 } from '@mui/material';
@@ -25,7 +24,6 @@ import { ProjectExportDialog } from '@/features/projects/components/ProjectExpor
 import { professorTheme } from '@/styles/theme/professorTheme';
 import { ThemeProvider } from '@mui/material/styles';
 import { useLanguage } from '@/providers/LanguageContext';
-import { ProjectHeader } from '@/features/projects/components/ProjectHeader';
 import { ProjectMainInfo } from '@/features/projects/components/ProjectMainInfo';
 import { ProjectFiles } from '@/features/projects/components/ProjectFiles';
 import { ProjectSidebar } from '@/features/projects/components/ProjectSidebar';
@@ -85,6 +83,25 @@ export const ProjectDetailPage: React.FC = () => {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [slug]);
+
+  // Listen for export and delete events from Header
+  useEffect(() => {
+    const handleExportEvent = () => {
+      setExportDialogOpen(true);
+    };
+
+    const handleDeleteEvent = () => {
+      setDeleteConfirmOpen(true);
+    };
+
+    window.addEventListener('project-export', handleExportEvent);
+    window.addEventListener('project-delete', handleDeleteEvent);
+
+    return () => {
+      window.removeEventListener('project-export', handleExportEvent);
+      window.removeEventListener('project-delete', handleDeleteEvent);
+    };
+  }, []);
 
   const loadProjectFiles = async (projectId: number) => {
     setFilesLoading(true);
@@ -230,22 +247,7 @@ export const ProjectDetailPage: React.FC = () => {
 
   const content = (
     <Box sx={{ flexGrow: 1 }}>
-      <Fade in={true} timeout={400}>
-        <Box>
-          <ProjectHeader
-            project={project}
-            user={user}
-            isProfessor={isProfessor}
-            canEdit={canEdit}
-            canDelete={canDelete}
-            deleting={deleting}
-            onBackClick={handleBackClick}
-            onDelete={handleDelete}
-            onExport={() => setExportDialogOpen(true)}
-            onRefreshProject={() => fetchProject(project.id)}
-          />
-        </Box>
-      </Fade>
+      {/* ProjectHeader removed - all buttons (Edit, Follow & Track, Print, Delete, Hide) are now in the main Header */}
 
       <Slide in={true} direction="up" timeout={500} mountOnEnter>
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>

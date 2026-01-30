@@ -20,6 +20,7 @@ import {
   Grid,
 } from '@mui/material';
 import { guestColors } from '@/styles/theme/guestTheme';
+import { designTokens } from '@/styles/designTokens';
 import {
   Star as StarIcon,
   StarBorder as StarBorderIcon,
@@ -212,7 +213,7 @@ export const RatingSection: React.FC<RatingSectionProps> = ({ projectId }) => {
                 <Box sx={{ 
                   p: 2, 
                   borderRadius: 2,
-                  background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+                   background: designTokens.colors.surface[50],
                   border: '1px solid',
                   borderColor: 'primary.light',
                   textAlign: 'center',

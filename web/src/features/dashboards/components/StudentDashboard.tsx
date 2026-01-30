@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { designTokens } from '@/styles/designTokens';
 import { 
   Box, 
   Card, 
@@ -286,7 +287,7 @@ export const StudentDashboard: React.FC = () => {
     <Box
       sx={{
         minHeight: '100vh',
-        background: `linear-gradient(135deg, ${alpha(theme.primary, 0.05)} 0%, ${alpha(theme.secondary, 0.05)} 50%, ${alpha(theme.accent, 0.05)} 100%)`,
+        background: designTokens.colors.primary[500],
         position: 'relative',
         '&::before': {
           content: '""',
@@ -311,7 +312,7 @@ export const StudentDashboard: React.FC = () => {
                 mb: 4,
                 p: 4,
                 borderRadius: 4,
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: designTokens.colors.surface[50],
                 color: 'white',
                 position: 'relative',
                 overflow: 'hidden',
@@ -499,7 +500,7 @@ export const StudentDashboard: React.FC = () => {
                   <Card
                     sx={{
                       borderRadius: 4,
-                      background: `linear-gradient(135deg, ${theme.primary} 0%, ${alpha(theme.primary, 0.8)} 100%)`,
+                      background: designTokens.colors.primary[500],
                       color: 'white',
                       cursor: 'pointer',
                       transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -552,7 +553,7 @@ export const StudentDashboard: React.FC = () => {
                   <Card
                     sx={{
                       borderRadius: 4,
-                      background: `linear-gradient(135deg, ${theme.accent} 0%, ${alpha(theme.accent, 0.8)} 100%)`,
+                      background: designTokens.colors.primary[500],
                       color: 'white',
                       cursor: 'pointer',
                       transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -605,7 +606,7 @@ export const StudentDashboard: React.FC = () => {
                   <Card
                     sx={{
                       borderRadius: 4,
-                      background: `linear-gradient(135deg, ${theme.secondary} 0%, ${alpha(theme.secondary, 0.8)} 100%)`,
+                      background: designTokens.colors.primary[500],
                       color: 'white',
                       cursor: 'pointer',
                       transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -658,7 +659,7 @@ export const StudentDashboard: React.FC = () => {
                   <Card
                     sx={{
                       borderRadius: 4,
-                      background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                      background: designTokens.colors.surface[50],
                       color: 'white',
                       cursor: 'pointer',
                       transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -716,7 +717,7 @@ export const StudentDashboard: React.FC = () => {
                     sx={{ 
                       borderRadius: 4, 
                       boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
-                      background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                      background: designTokens.colors.surface[50],
                       border: `1px solid ${alpha('#6366f1', 0.15)}`,
                       height: '100%',
                       position: 'relative',
@@ -728,7 +729,7 @@ export const StudentDashboard: React.FC = () => {
                         left: 0,
                         right: 0,
                         height: '4px',
-                        background: 'linear-gradient(90deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%)',
+                        background: designTokens.colors.surface[50],
                       },
                     }}
                   >
@@ -739,7 +740,7 @@ export const StudentDashboard: React.FC = () => {
                             sx={{
                               width: 48,
                               height: 48,
-                              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%)',
+                              background: designTokens.colors.surface[50],
                               boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
                             }}
                           >
@@ -768,7 +769,7 @@ export const StudentDashboard: React.FC = () => {
                             label={t('Live')}
                       size="small"
                       sx={{
-                              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                              background: designTokens.colors.surface[50],
                         color: 'white',
                         fontWeight: 600,
                         boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
@@ -814,7 +815,7 @@ export const StudentDashboard: React.FC = () => {
                                       transform: 'translateY(-2px)',
                                       boxShadow: '0 8px 25px rgba(99, 102, 241, 0.2)',
                                       borderColor: '#6366f1',
-                                      background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.12) 50%, rgba(236, 72, 153, 0.12) 100%)',
+                                      background: designTokens.colors.surface[50],
                               },
                             }}
                             onClick={() => {
@@ -832,7 +833,7 @@ export const StudentDashboard: React.FC = () => {
                                         sx={{
                                           width: 40,
                                           height: 40,
-                                          background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%)',
+                                          background: designTokens.colors.surface[50],
                                           boxShadow: '0 2px 8px rgba(99, 102, 241, 0.25)',
                                         }}
                                       >
@@ -876,7 +877,7 @@ export const StudentDashboard: React.FC = () => {
                                                   width: 8,
                                                   height: 8,
                                                   borderRadius: '50%',
-                                                  background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                                                  background: designTokens.colors.surface[50],
                                                   boxShadow: '0 2px 4px rgba(99, 102, 241, 0.3)',
                                                 }}
                                               />
@@ -899,7 +900,7 @@ export const StudentDashboard: React.FC = () => {
                         endIcon={<OpenInNewIcon />}
                         onClick={() => navigate('/notifications')}
                         sx={{
-                              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%)',
+                              background: designTokens.colors.surface[50],
                               borderRadius: 2,
                               py: 1.5,
                           textTransform: 'none',
@@ -908,7 +909,7 @@ export const StudentDashboard: React.FC = () => {
                               '&:hover': {
                                 transform: 'translateY(-2px)',
                                 boxShadow: '0 8px 25px rgba(99, 102, 241, 0.4)',
-                                background: 'linear-gradient(135deg, #5b21b6 0%, #7c3aed 50%, #db2777 100%)',
+                                background: designTokens.colors.surface[50],
                               },
                               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                         }}
@@ -922,7 +923,7 @@ export const StudentDashboard: React.FC = () => {
                             sx={{
                               width: 80,
                               height: 80,
-                              background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 50%, rgba(236, 72, 153, 0.1) 100%)',
+                              background: designTokens.colors.surface[50],
                               mx: 'auto',
                               mb: 2,
                               border: '2px solid rgba(99, 102, 241, 0.2)',
@@ -950,7 +951,7 @@ export const StudentDashboard: React.FC = () => {
                     sx={{
                       borderRadius: 4,
                       boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
-                      background: `linear-gradient(135deg, ${alpha(theme.primary, 0.05)} 0%, ${alpha(theme.secondary, 0.05)} 100%)`,
+                      background: designTokens.colors.primary[500],
                       border: `2px solid ${alpha(theme.primary, 0.2)}`,
                 height: '100%',
                       position: 'relative',
@@ -962,7 +963,7 @@ export const StudentDashboard: React.FC = () => {
                         left: 0,
                         right: 0,
                         height: '4px',
-                        background: `linear-gradient(90deg, ${theme.primary} 0%, ${theme.secondary} 50%, ${theme.accent} 100%)`,
+                        background: designTokens.colors.primary[500],
                       },
                     }}
                   >
@@ -979,7 +980,7 @@ export const StudentDashboard: React.FC = () => {
                         sx={{
                           width: 120,
                           height: 120,
-                          background: `linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%)`,
+                          background: designTokens.colors.primary[500],
                           mx: 'auto',
                           mb: 3,
                           boxShadow: `0 8px 32px ${alpha(theme.primary, 0.3)}`,
@@ -991,7 +992,7 @@ export const StudentDashboard: React.FC = () => {
                       <Typography variant="h4" sx={{ 
                         fontWeight: 800, 
                         mb: 2, 
-                        background: `linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%)`,
+                        background: designTokens.colors.primary[500],
                         backgroundClip: 'text',
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
@@ -1016,7 +1017,7 @@ export const StudentDashboard: React.FC = () => {
                     startIcon={<AddIcon />}
                     onClick={() => navigate(projectRoutes.create())}
                     sx={{
-                            background: `linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%)`,
+                            background: designTokens.colors.primary[500],
                             px: 6,
                             py: 2,
                             fontSize: '1.1rem',
@@ -1068,7 +1069,7 @@ export const StudentDashboard: React.FC = () => {
                   p: 4,
                   borderRadius: 4,
                   boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
-                  background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                  background: designTokens.colors.surface[50],
                   border: `1px solid ${alpha(theme.primary, 0.1)}`,
                   position: 'relative',
                   overflow: 'hidden',
@@ -1079,7 +1080,7 @@ export const StudentDashboard: React.FC = () => {
                     left: 0,
                     right: 0,
                     height: '4px',
-                    background: `linear-gradient(90deg, ${theme.primary} 0%, ${theme.secondary} 50%, ${theme.accent} 100%)`,
+                    background: designTokens.colors.primary[500],
                   },
                 }}
               >
@@ -1088,7 +1089,7 @@ export const StudentDashboard: React.FC = () => {
                     sx={{
                       width: 48,
                       height: 48,
-                      background: `linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%)`,
+                      background: designTokens.colors.primary[500],
                     }}
                   >
                     <PsychologyIcon sx={{ fontSize: 24 }} />
@@ -1110,7 +1111,7 @@ export const StudentDashboard: React.FC = () => {
                     border: `2px solid ${alpha(theme.primary, 0.2)}`,
             },
             '& .MuiButton-contained': {
-                    background: `linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%)`,
+                    background: designTokens.colors.primary[500],
               '&:hover': {
                 transform: 'translateY(-2px)',
                       boxShadow: `0 8px 25px ${alpha(theme.primary, 0.3)}`,
@@ -1191,7 +1192,7 @@ export const StudentDashboard: React.FC = () => {
                   mb: 5,
                   borderRadius: 4,
                   boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
-                  background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                  background: designTokens.colors.surface[50],
                   border: `1px solid ${alpha(theme.primary, 0.1)}`,
                   position: 'relative',
                   overflow: 'hidden',
@@ -1202,7 +1203,7 @@ export const StudentDashboard: React.FC = () => {
                     left: 0,
                     right: 0,
                     height: '4px',
-                    background: `linear-gradient(90deg, ${theme.primary} 0%, ${theme.secondary} 100%)`,
+                    background: designTokens.colors.primary[500],
                   },
                 }}
               >
@@ -1213,7 +1214,7 @@ export const StudentDashboard: React.FC = () => {
                         sx={{
                           width: 56,
                           height: 56,
-                          background: `linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%)`,
+                          background: designTokens.colors.primary[500],
                         }}
                       >
                         <SchoolIcon sx={{ fontSize: 28 }} />
@@ -1230,7 +1231,7 @@ export const StudentDashboard: React.FC = () => {
                     <Chip
                       label={`${myProjects.length} Total`}
                       sx={{
-                        background: `linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%)`,
+                        background: designTokens.colors.primary[500],
                         color: 'white',
                         fontWeight: 600,
                         fontSize: '0.875rem',
@@ -1268,7 +1269,7 @@ export const StudentDashboard: React.FC = () => {
                                 left: 0,
                                 right: 0,
                                 height: '4px',
-                                background: `linear-gradient(90deg, ${theme.primary} 0%, ${theme.secondary} 100%)`,
+                                background: designTokens.colors.primary[500],
                                 opacity: 0,
                                 transition: 'opacity 0.3s ease',
                               },
@@ -1402,7 +1403,7 @@ export const StudentDashboard: React.FC = () => {
                                     borderRadius: 4,
                                     backgroundColor: alpha(theme.primary, 0.1),
                                     '& .MuiLinearProgress-bar': {
-                                      background: `linear-gradient(90deg, ${theme.primary} 0%, ${theme.secondary} 100%)`,
+                                      background: designTokens.colors.primary[500],
                                       borderRadius: 4,
                                     },
                                   }}
@@ -1436,7 +1437,7 @@ export const StudentDashboard: React.FC = () => {
                         sx={{
                           width: 120,
                           height: 120,
-                          background: `linear-gradient(135deg, ${alpha(theme.primary, 0.1)} 0%, ${alpha(theme.secondary, 0.1)} 100%)`,
+                          background: designTokens.colors.primary[500],
                           mx: 'auto',
                           mb: 3,
                         }}
@@ -1455,7 +1456,7 @@ export const StudentDashboard: React.FC = () => {
                     startIcon={<AddIcon />}
                     onClick={() => navigate(projectRoutes.create())}
                         sx={{
-                          background: `linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%)`,
+                          background: designTokens.colors.primary[500],
                           px: 6,
                           py: 2,
                           fontSize: '1.1rem',
@@ -1484,7 +1485,7 @@ export const StudentDashboard: React.FC = () => {
                 sx={{
                   borderRadius: 4,
                   boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
-                  background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                  background: designTokens.colors.surface[50],
                   border: `1px solid ${alpha(theme.primary, 0.1)}`,
                   position: 'relative',
                   overflow: 'hidden',
@@ -1495,7 +1496,7 @@ export const StudentDashboard: React.FC = () => {
                     left: 0,
                     right: 0,
                     height: '4px',
-                    background: `linear-gradient(90deg, ${theme.secondary} 0%, ${theme.accent} 100%)`,
+                    background: designTokens.colors.primary[500],
                   },
                 }}
               >
@@ -1506,7 +1507,7 @@ export const StudentDashboard: React.FC = () => {
                         sx={{
                           width: 56,
                           height: 56,
-                          background: `linear-gradient(135deg, ${theme.secondary} 0%, ${theme.accent} 100%)`,
+                          background: designTokens.colors.primary[500],
                         }}
                       >
                         <GroupIcon sx={{ fontSize: 28 }} />
@@ -1525,7 +1526,7 @@ export const StudentDashboard: React.FC = () => {
                       endIcon={<OpenInNewIcon />}
                       onClick={() => navigate('/analytics')}
                       sx={{
-                        background: `linear-gradient(135deg, ${theme.secondary} 0%, ${theme.accent} 100%)`,
+                        background: designTokens.colors.primary[500],
                         px: 4,
                         py: 1.5,
                         fontSize: '1rem',
@@ -1572,7 +1573,7 @@ export const StudentDashboard: React.FC = () => {
                                 left: 0,
                                 right: 0,
                                 height: '4px',
-                                background: `linear-gradient(90deg, ${theme.secondary} 0%, ${theme.accent} 100%)`,
+                                background: designTokens.colors.primary[500],
                                 opacity: 0,
                                 transition: 'opacity 0.3s ease',
                               },
@@ -1679,7 +1680,7 @@ export const StudentDashboard: React.FC = () => {
                         sx={{
                           width: 120,
                           height: 120,
-                          background: `linear-gradient(135deg, ${alpha(theme.secondary, 0.1)} 0%, ${alpha(theme.accent, 0.1)} 100%)`,
+                          background: designTokens.colors.primary[500],
                           mx: 'auto',
                           mb: 3,
                         }}
@@ -1725,7 +1726,7 @@ export const StudentDashboard: React.FC = () => {
                         sx={{
                           width: 120,
                           height: 120,
-                          background: `linear-gradient(135deg, ${alpha(theme.secondary, 0.1)} 0%, ${alpha(theme.accent, 0.1)} 100%)`,
+                          background: designTokens.colors.primary[500],
                           mx: 'auto',
                           mb: 3,
                         }}
@@ -1744,7 +1745,7 @@ export const StudentDashboard: React.FC = () => {
                         startIcon={<AddIcon />}
                         onClick={() => navigate(projectRoutes.create())}
                         sx={{
-                          background: `linear-gradient(135deg, ${theme.secondary} 0%, ${theme.accent} 100%)`,
+                          background: designTokens.colors.primary[500],
                           px: 6,
                           py: 2,
                           fontSize: '1.1rem',

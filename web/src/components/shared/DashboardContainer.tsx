@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Container } from '@mui/material';
 import { DashboardTheme } from '@/config/dashboardThemes';
+import { designTokens } from '@/styles/designTokens';
 
 interface DashboardContainerProps {
   theme: DashboardTheme;
@@ -11,7 +12,7 @@ export const DashboardContainer: React.FC<DashboardContainerProps> = ({ theme, c
   return (
     <Box
       sx={{
-        background: `linear-gradient(135deg, ${theme.gradientStart}15 0%, ${theme.gradientEnd}15 100%)`,
+        background: designTokens.colors.surface[50],
         minHeight: '100vh',
       }}
     >

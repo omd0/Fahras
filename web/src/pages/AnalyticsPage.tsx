@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { designTokens } from '@/styles/designTokens';
 import {
   Container,
   Typography,
@@ -328,107 +329,13 @@ export const AnalyticsPage: React.FC = () => {
       backgroundColor: ANALYTICS_COLORS.neutral[50],
       minHeight: '100vh'
     }}>
-      <AppBar 
-        position="static"
-        sx={{ 
-          background: `linear-gradient(135deg, ${ANALYTICS_COLORS.primary.main} 0%, ${ANALYTICS_COLORS.secondary.main} 100%)`,
-          boxShadow: '0 4px 20px rgba(37, 99, 235, 0.15)',
-          color: ANALYTICS_COLORS.neutral[50],
-        }}
-      >
-        <Toolbar sx={{ py: 1 }}>
-          <IconButton
-            edge="start"
-            color="inherit"
-            onClick={() => navigate('/dashboard')}
-            sx={{ 
-              mr: 2,
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.2)',
-              }
-            }}
-          >
-            <ArrowBackIcon />
-          </IconButton>
-          <TVTCLogo size="small" variant="icon" color="inherit" sx={{ mr: 2 }} />
-          <Box sx={{ display: 'flex', alignItems: 'center', mr: 2 }}>
-            <InsightsIcon sx={{ mr: 1, fontSize: 28 }} />
-            <Typography variant="h5" component="div" sx={{ 
-              flexGrow: 1, 
-              fontWeight: 600,
-              letterSpacing: '0.5px'
-            }}>
-              {t('Project Analytics')}
-            </Typography>
-          </Box>
-          <Box sx={{ flexGrow: 1 }} />
-          <IconButton
-            size="large"
-            edge="end"
-            aria-label="account of current user"
-            aria-controls="menu-appbar"
-            aria-haspopup="true"
-            onClick={handleMenuOpen}
-            sx={{ 
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.2)',
-              }
-            }}
-          >
-            <Avatar sx={{ 
-              width: 36, 
-              height: 36,
-              backgroundColor: 'rgba(255, 255, 255, 0.2)',
-              color: ANALYTICS_COLORS.neutral[50],
-              fontWeight: 600
-            }}>
-              {user?.full_name?.charAt(0)?.toUpperCase()}
-            </Avatar>
-          </IconButton>
-          <Menu
-            id="menu-appbar"
-            anchorEl={anchorEl}
-            anchorOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            keepMounted
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
-            PaperProps={{
-              sx: {
-                mt: 1,
-                minWidth: 200,
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
-                borderRadius: 2,
-              }
-            }}
-          >
-            <MenuItem onClick={handleProfileClick} sx={{ py: 1.5 }}>
-              <AccountCircle sx={{ mr: 2, color: ANALYTICS_COLORS.primary.main }} />
-              {t('Profile')}
-            </MenuItem>
-            <MenuItem onClick={handleLogout} sx={{ py: 1.5 }}>
-              <ExitToApp sx={{ mr: 2, color: ANALYTICS_COLORS.warning.main }} />
-              {t('Logout')}
-            </MenuItem>
-          </Menu>
-        </Toolbar>
-      </AppBar>
-
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         {/* Overview Cards */}
         <Fade in timeout={800}>
           <Grid container spacing={3} sx={{ mb: 5 }}>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <Card sx={{
-                background: `linear-gradient(135deg, ${ANALYTICS_COLORS.primary.main} 0%, ${ANALYTICS_COLORS.primary.light} 100%)`,
+                background: designTokens.colors.primary[500],
                 color: ANALYTICS_COLORS.neutral[50],
                 boxShadow: '0 8px 32px rgba(37, 99, 235, 0.15)',
                 borderRadius: 3,
@@ -472,7 +379,7 @@ export const AnalyticsPage: React.FC = () => {
             
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <Card sx={{
-                background: `linear-gradient(135deg, ${ANALYTICS_COLORS.success.main} 0%, ${ANALYTICS_COLORS.success.light} 100%)`,
+                background: designTokens.colors.primary[500],
                 color: ANALYTICS_COLORS.neutral[50],
                 boxShadow: '0 8px 32px rgba(5, 150, 105, 0.15)',
                 borderRadius: 3,
@@ -516,7 +423,7 @@ export const AnalyticsPage: React.FC = () => {
             
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <Card sx={{
-                background: `linear-gradient(135deg, ${ANALYTICS_COLORS.info.main} 0%, ${ANALYTICS_COLORS.info.light} 100%)`,
+                background: designTokens.colors.primary[500],
                 color: ANALYTICS_COLORS.neutral[50],
                 boxShadow: '0 8px 32px rgba(8, 145, 178, 0.15)',
                 borderRadius: 3,
@@ -560,7 +467,7 @@ export const AnalyticsPage: React.FC = () => {
             
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <Card sx={{
-                background: `linear-gradient(135deg, ${ANALYTICS_COLORS.warning.main} 0%, ${ANALYTICS_COLORS.warning.light} 100%)`,
+                background: designTokens.colors.primary[500],
                 color: ANALYTICS_COLORS.neutral[50],
                 boxShadow: '0 8px 32px rgba(217, 119, 6, 0.15)',
                 borderRadius: 3,
@@ -616,7 +523,7 @@ export const AnalyticsPage: React.FC = () => {
                 overflow: 'hidden'
               }}>
                 <Box sx={{
-                  background: `linear-gradient(135deg, ${ANALYTICS_COLORS.neutral[100]} 0%, ${ANALYTICS_COLORS.neutral[50]} 100%)`,
+                  background: designTokens.colors.primary[500],
                   p: 3,
                   borderBottom: `1px solid ${ANALYTICS_COLORS.neutral[200]}`
                 }}>
@@ -798,7 +705,7 @@ export const AnalyticsPage: React.FC = () => {
                     <Box sx={{ 
                       mb: 4, 
                       p: 4, 
-                      background: `linear-gradient(135deg, ${ANALYTICS_COLORS.primary.main}08 0%, ${ANALYTICS_COLORS.secondary.main}08 100%)`,
+                      background: designTokens.colors.primary[500],
                       borderRadius: 3, 
                       border: `2px solid ${ANALYTICS_COLORS.primary.main}20`,
                       boxShadow: '0 4px 20px rgba(37, 99, 235, 0.08)'
@@ -1029,14 +936,14 @@ export const AnalyticsPage: React.FC = () => {
             {/* Project Status Distribution */}
             <Grid size={{ xs: 12, md: 6 }}>
               <Card sx={{
-                background: `linear-gradient(135deg, ${ANALYTICS_COLORS.neutral[50]} 0%, ${ANALYTICS_COLORS.neutral[100]} 100%)`,
+                background: designTokens.colors.primary[500],
                 boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
                 borderRadius: 3,
                 border: `1px solid ${ANALYTICS_COLORS.neutral[200]}`,
                 overflow: 'hidden'
               }}>
                 <Box sx={{
-                  background: `linear-gradient(135deg, ${ANALYTICS_COLORS.primary.main} 0%, ${ANALYTICS_COLORS.primary.light} 100%)`,
+                  background: designTokens.colors.primary[500],
                   p: 2,
                   color: ANALYTICS_COLORS.neutral[50]
                 }}>
@@ -1096,14 +1003,14 @@ export const AnalyticsPage: React.FC = () => {
             {/* Projects by Department */}
             <Grid size={{ xs: 12, md: 6 }}>
               <Card sx={{
-                background: `linear-gradient(135deg, ${ANALYTICS_COLORS.neutral[50]} 0%, ${ANALYTICS_COLORS.neutral[100]} 100%)`,
+                background: designTokens.colors.primary[500],
                 boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
                 borderRadius: 3,
                 border: `1px solid ${ANALYTICS_COLORS.neutral[200]}`,
                 overflow: 'hidden'
               }}>
                 <Box sx={{
-                  background: `linear-gradient(135deg, ${ANALYTICS_COLORS.secondary.main} 0%, ${ANALYTICS_COLORS.secondary.light} 100%)`,
+                  background: designTokens.colors.primary[500],
                   p: 2,
                   color: ANALYTICS_COLORS.neutral[50]
                 }}>
@@ -1163,14 +1070,14 @@ export const AnalyticsPage: React.FC = () => {
             {/* Projects by Academic Year */}
             <Grid size={{ xs: 12, md: 6 }}>
               <Card sx={{
-                background: `linear-gradient(135deg, ${ANALYTICS_COLORS.neutral[50]} 0%, ${ANALYTICS_COLORS.neutral[100]} 100%)`,
+                background: designTokens.colors.primary[500],
                 boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
                 borderRadius: 3,
                 border: `1px solid ${ANALYTICS_COLORS.neutral[200]}`,
                 overflow: 'hidden'
               }}>
                 <Box sx={{
-                  background: `linear-gradient(135deg, ${ANALYTICS_COLORS.success.main} 0%, ${ANALYTICS_COLORS.success.light} 100%)`,
+                  background: designTokens.colors.primary[500],
                   p: 2,
                   color: ANALYTICS_COLORS.neutral[50]
                 }}>
@@ -1230,14 +1137,14 @@ export const AnalyticsPage: React.FC = () => {
             {/* Monthly Trend */}
             <Grid size={{ xs: 12, md: 6 }}>
               <Card sx={{
-                background: `linear-gradient(135deg, ${ANALYTICS_COLORS.neutral[50]} 0%, ${ANALYTICS_COLORS.neutral[100]} 100%)`,
+                background: designTokens.colors.primary[500],
                 boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
                 borderRadius: 3,
                 border: `1px solid ${ANALYTICS_COLORS.neutral[200]}`,
                 overflow: 'hidden'
               }}>
                 <Box sx={{
-                  background: `linear-gradient(135deg, ${ANALYTICS_COLORS.info.main} 0%, ${ANALYTICS_COLORS.info.light} 100%)`,
+                  background: designTokens.colors.primary[500],
                   p: 2,
                   color: ANALYTICS_COLORS.neutral[50]
                 }}>

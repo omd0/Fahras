@@ -24,6 +24,7 @@ import {
   Slide,
 } from '@mui/material';
 import { guestColors } from '@/styles/theme/guestTheme';
+import { designTokens } from '@/styles/designTokens';
 import {
   Send as SendIcon,
   MoreVert as MoreVertIcon,
@@ -148,7 +149,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
               sx={{ 
                 width: 40, 
                 height: 40,
-                background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                 background: designTokens.colors.surface[50],
                 fontWeight: 600,
                 fontSize: '1rem',
               }}
@@ -168,7 +169,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
                   variant="filled"
                   sx={{ 
                     fontSize: '0.75rem',
-                    background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
+                     background: designTokens.colors.surface[50],
                     color: 'text.secondary',
                     fontWeight: 500,
                   }}
@@ -181,7 +182,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
                     variant="filled"
                     sx={{ 
                       fontSize: '0.75rem',
-                      background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+                       background: designTokens.colors.surface[50],
                       fontWeight: 600,
                     }}
                   />
@@ -196,7 +197,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
                     p: 1.5, 
                     mb: 1.5,
                     borderRadius: 1.5,
-                    background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+                     background: designTokens.colors.surface[50],
                     border: '1px solid',
                     borderColor: 'divider',
                   }}
@@ -346,7 +347,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
                 mb: 2, 
                 p: 1.5, 
                 borderRadius: 2,
-                background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+                 background: designTokens.colors.surface[50],
                 border: '1px solid',
                 borderColor: 'primary.light',
                 position: 'relative',
@@ -358,7 +359,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
                   left: 0,
                   right: 0,
                   height: '3px',
-                  background: 'linear-gradient(90deg, #059669 0%, #10b981 100%)',
+                   background: designTokens.colors.surface[50],
                 }
               }}
             >
@@ -367,7 +368,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
                     sx={{
                       p: 1,
                       borderRadius: 1.5,
-                      background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                       background: designTokens.colors.surface[50],
                       color: 'white',
                     }}
                   >
@@ -452,7 +453,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
                 mb: 2, 
                 p: 3, 
                 borderRadius: 2,
-                background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+                 background: designTokens.colors.surface[50],
                 border: '1px solid',
                 borderColor: 'warning.light',
                 textAlign: 'center',
@@ -475,7 +476,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
                 mb: 2, 
                 p: 2, 
                 borderRadius: 2,
-                background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+                 background: designTokens.colors.surface[50],
                 border: '1px solid',
                 borderColor: 'primary.light',
                 textAlign: 'center',
@@ -509,7 +510,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
                 label="Discussion" 
                 size="small" 
                 sx={{ 
-                  background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                   background: designTokens.colors.surface[50],
                   color: 'white',
                   fontWeight: 600,
                 }}
@@ -525,7 +526,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
                 p: 6, 
                 textAlign: 'center',
                 borderRadius: 3,
-                background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+                 background: designTokens.colors.surface[50],
                 border: '2px dashed',
                 borderColor: 'divider',
               }}
@@ -534,7 +535,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
                 sx={{
                   p: 2,
                   borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                   background: designTokens.colors.surface[50],
                   color: 'white',
                   width: 64,
                   height: 64,
@@ -582,7 +583,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
                 mt: 2, 
                 p: 1.5, 
                 borderRadius: 2,
-                background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+                 background: designTokens.colors.surface[50],
                 border: '1px solid',
                 borderColor: 'warning.light',
                 position: 'relative',
@@ -594,7 +595,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
                   left: 0,
                   right: 0,
                   height: '3px',
-                  background: 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)',
+                   background: designTokens.colors.surface[50],
                 }
               }}
             >
@@ -603,7 +604,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
                   sx={{
                     p: 1,
                     borderRadius: 1.5,
-                    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                     background: designTokens.colors.surface[50],
                     color: 'white',
                   }}
                 >
@@ -679,7 +680,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
                   onClick={() => replyingTo && handleSubmitReply(replyingTo)}
                   disabled={!replyText.trim() || submitting}
                   sx={{
-                    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                     background: designTokens.colors.surface[50],
                     borderRadius: 1,
                     textTransform: 'none',
                     fontWeight: 600,
@@ -687,7 +688,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
                     py: 0.5,
                     fontSize: '0.75rem',
                     '&:hover': {
-                      background: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
+                       background: designTokens.colors.surface[50],
                       transform: 'translateY(-1px)',
                       boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)',
                     },

@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import { LoginCredentials, RegisterData, User, Project, CreateProjectData, File, Program, Comment, Rating, Department, MilestoneTemplate, MilestoneTemplateItem, ProjectMilestone, ProjectActivity, ProjectFlag, ProjectFollower, TimelineData, SavedSearch, CreateSavedSearchData, UpdateSavedSearchData } from '@/types';
+import { LoginCredentials, RegisterData, ResetPasswordData, ChangePasswordData, User, Project, CreateProjectData, File, Program, Comment, Rating, Department, MilestoneTemplate, MilestoneTemplateItem, ProjectMilestone, ProjectActivity, ProjectFlag, ProjectFollower, TimelineData, SavedSearch, CreateSavedSearchData, UpdateSavedSearchData } from '@/types';
 import { MilestoneTemplateData } from '@/types/milestones';
 
 // Use environment variable to define API base URL
@@ -68,14 +68,14 @@ class ApiService {
         if (error.response?.status === 401) {
           // Clear auth data on unauthorized
           localStorage.removeItem('auth-storage');
-          
+
           // Only redirect to login if we're not already on a public page
-          const publicPaths = ['/', '/explore', '/login', '/register'];
+          const publicPaths = ['/', '/explore', '/login', '/register', '/forgot-password', '/reset-password', '/verify-email'];
           const currentPath = window.location.pathname;
-          
-          // Check if we're on a project detail page (pattern: /projects/{id})
-          const isProjectDetailPage = /^\/projects\/\d+$/.test(currentPath);
-          
+
+          // Check if we're on a project detail page (pattern: /pr/{slug} or /projects/{id})
+          const isProjectDetailPage = /^\/pr\/[\w-]+$/.test(currentPath) || /^\/projects\/\d+$/.test(currentPath);
+
           if (!publicPaths.includes(currentPath) && !isProjectDetailPage) {
             window.location.href = '/login';
           }
@@ -116,6 +116,46 @@ class ApiService {
     const response: AxiosResponse = await this.api.post('/refresh', {}, {
       headers: { Authorization: `Bearer ${token}` }
     });
+    return response.data;
+  }
+
+  async sendVerificationEmail(email: string): Promise<{ message: string; debug_code?: string; debug_magic_link?: string }> {
+    const response: AxiosResponse = await this.api.post('/email/send-verification', { email });
+    return response.data;
+  }
+
+  async verifyEmail(email: string, code: string): Promise<{ message: string; user: User }> {
+    const response: AxiosResponse = await this.api.post('/email/verify', { email, code });
+    return response.data;
+  }
+
+  async verifyMagicLink(token: string): Promise<{ message: string; user: User; token: string; token_type: string }> {
+    const response: AxiosResponse = await this.api.get(`/email/verify-magic/${token}`);
+    return response.data;
+  }
+
+  async resendVerificationEmail(): Promise<{ message: string; debug_code?: string; debug_magic_link?: string }> {
+    const response: AxiosResponse = await this.api.post('/email/resend-verification');
+    return response.data;
+  }
+
+  async forgotPassword(email: string): Promise<{ message: string }> {
+    const response: AxiosResponse = await this.api.post('/forgot-password', { email });
+    return response.data;
+  }
+
+  async resetPassword(data: ResetPasswordData): Promise<{ message: string }> {
+    const response: AxiosResponse = await this.api.post('/reset-password', data);
+    return response.data;
+  }
+
+  async changePassword(data: ChangePasswordData): Promise<{ message: string }> {
+    const response: AxiosResponse = await this.api.post('/change-password', data);
+    return response.data;
+  }
+
+  async logoutAll(): Promise<{ message: string }> {
+    const response: AxiosResponse = await this.api.post('/logout-all');
     return response.data;
   }
 
@@ -814,4 +854,12 @@ export const authApi = {
   logout: apiService.logout.bind(apiService),
   getUser: apiService.getUser.bind(apiService),
   refreshToken: apiService.refreshToken.bind(apiService),
+  sendVerificationEmail: apiService.sendVerificationEmail.bind(apiService),
+  verifyEmail: apiService.verifyEmail.bind(apiService),
+  verifyMagicLink: apiService.verifyMagicLink.bind(apiService),
+  resendVerificationEmail: apiService.resendVerificationEmail.bind(apiService),
+  forgotPassword: apiService.forgotPassword.bind(apiService),
+  resetPassword: apiService.resetPassword.bind(apiService),
+  changePassword: apiService.changePassword.bind(apiService),
+  logoutAll: apiService.logoutAll.bind(apiService),
 };

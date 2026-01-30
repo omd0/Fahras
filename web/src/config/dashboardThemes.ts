@@ -1,7 +1,16 @@
 /**
  * Dashboard Theme Configuration
  * Defines unique themes and styles for each user role
+ *
+ * ⚠️ NOTE: gradientStart, gradientEnd, and appBarGradient are DEPRECATED
+ * Per design.toon specifications:
+ * - Use solid colors from designTokens instead
+ * - For cards: border: 2px solid designTokens.colors.primary[500]
+ * - For headers: background: designTokens.colors.secondary[700]
+ * - Gradients kept only for backward compatibility and specific headers
  */
+
+import { designTokens } from '@/styles/designTokens';
 
 export interface DashboardTheme {
   primary: string;
@@ -12,9 +21,13 @@ export interface DashboardTheme {
   textPrimary: string;
   textSecondary: string;
   borderColor: string;
+  /** @deprecated Use designTokens.colors instead */
   gradientStart: string;
+  /** @deprecated Use designTokens.colors instead */
   gradientEnd: string;
+  /** @deprecated Use designTokens.colors.secondary[700] instead */
   appBarBackground: string;
+  /** @deprecated Use designTokens.colors.secondary[700] instead */
   appBarGradient: string;
 }
 

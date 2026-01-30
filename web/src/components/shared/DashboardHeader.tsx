@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Typography, IconButton, Tooltip } from '@mui/material';
 import { DashboardTheme } from '@/config/dashboardThemes';
+import { designTokens } from '@/styles/designTokens';
 
 interface ActionIcon {
   icon: React.ReactNode;
@@ -28,12 +29,12 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   return (
     <Box
       sx={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        borderRadius: 3,
+        background: designTokens.colors.secondary[700],
+        borderRadius: designTokens.radii.card,
         p: 4,
         mb: 4,
         color: 'white',
-        boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+        boxShadow: 'none',
         position: 'relative',
       }}
     >
@@ -65,7 +66,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           ))}
         </Box>
       )}
-      
+
       <Typography variant="h3" sx={{ fontWeight: 700, mb: 1, color: 'white !important' }}>
         {icon} {greeting}
       </Typography>

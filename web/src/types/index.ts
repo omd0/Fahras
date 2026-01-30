@@ -160,6 +160,19 @@ export interface RegisterData {
   role?: 'student' | 'faculty' | 'admin' | 'reviewer';
 }
 
+export interface ResetPasswordData {
+  email: string;
+  token: string;
+  password: string;
+  password_confirmation: string;
+}
+
+export interface ChangePasswordData {
+  current_password: string;
+  new_password: string;
+  new_password_confirmation: string;  // Laravel's 'confirmed' rule expects field_confirmation
+}
+
 export interface CreateProjectData {
   program_id: number;
   title: string;

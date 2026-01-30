@@ -19,6 +19,7 @@ import { useLanguage } from '@/providers/LanguageContext';
 import { DashboardContainer } from '@/components/shared/DashboardContainer';
 import { DashboardHeader } from '@/components/shared/DashboardHeader';
 import { StatsCard } from '@/components/shared/StatsCard';
+import { designTokens } from '@/styles/designTokens';
 import { ProjectCard } from '@/components/shared/ProjectCard';
 import { ProjectSearch } from '@/features/projects/components/ProjectSearch';
 
@@ -153,7 +154,6 @@ export const ReviewerDashboard: React.FC = () => {
                 value={stats.totalProjects}
                 label="Total Projects"
                 icon={AssignmentIcon}
-                gradient={`linear-gradient(135deg, ${theme.primary} 0%, ${theme.primary}dd 100%)`}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -161,7 +161,6 @@ export const ReviewerDashboard: React.FC = () => {
                 value={stats.reviewed}
                 label="Under Review"
                 icon={RateReviewIcon}
-                gradient={`linear-gradient(135deg, ${theme.accent} 0%, ${theme.accent}dd 100%)`}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -169,7 +168,6 @@ export const ReviewerDashboard: React.FC = () => {
                 value={stats.approvedProjects}
                 label="Approved"
                 icon={CheckCircleIcon}
-                gradient={`linear-gradient(135deg, ${theme.secondary} 0%, ${theme.secondary}dd 100%)`}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -177,7 +175,6 @@ export const ReviewerDashboard: React.FC = () => {
                 value={stats.thisWeek}
                 label="This Week"
                 icon={TrendingUpIcon}
-                gradient="linear-gradient(135deg, #10b981 0%, #10b981dd 100%)"
               />
             </Grid>
           </Grid>
@@ -263,7 +260,7 @@ export const ReviewerDashboard: React.FC = () => {
               mb: 4,
               borderRadius: 3,
               boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-              background: `linear-gradient(135deg, ${theme.secondary}10 0%, ${theme.accent}10 100%)`,
+              background: designTokens.colors.surface[50],
               border: `2px solid ${theme.secondary}40`,
             }}>
               <CardContent>

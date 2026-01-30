@@ -14,7 +14,7 @@ import {
 } from '@mui/icons-material';
 import { Project, User } from '@/types';
 import { getStatusColor, getStatusLabel } from '@/utils/projectHelpers';
-import { professorColors } from '@/styles/theme/professorTheme';
+import { designTokens } from '@/styles/designTokens';
 import { useLanguage } from '@/providers/LanguageContext';
 
 interface ProjectMainInfoProps {
@@ -34,69 +34,29 @@ export const ProjectMainInfo: React.FC<ProjectMainInfoProps> = ({
 }) => {
   const { t } = useLanguage();
 
-  const professorCardStyle = isProfessor ? {
-    background: professorColors.backgroundGradient,
-    border: `1px solid ${professorColors.border}`,
-    borderRadius: '16px',
-    boxShadow: '0 4px 16px rgba(0, 74, 173, 0.15)',
-  } : {};
-
-  const professorHeaderStyle = isProfessor ? {
-    background: professorColors.primaryGradient,
-    color: '#FFFFFF',
-    position: 'relative' as const,
-    overflow: 'hidden' as const,
-    '&::after': {
-      content: '""',
-      position: 'absolute',
-      top: 0,
-      right: 0,
-      width: '120px',
-      height: '120px',
-      background: `radial-gradient(circle, rgba(78, 205, 196, 0.2) 0%, transparent 70%)`,
-      borderRadius: '50%',
-      transform: 'translate(30px, -30px)',
-    },
-  } : {};
-
   return (
     <Card
       elevation={0}
       sx={{
-        borderRadius: 3,
-        border: '1px solid',
-        borderColor: isProfessor ? professorColors.border : 'divider',
+        border: `2px solid ${designTokens.colors.primary[500]}`,
+        boxShadow: 'none',
+        borderRadius: designTokens.radii.card,
         overflow: 'hidden',
-        background: isProfessor ? professorColors.backgroundGradient : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+        background: 'white',
         transition: 'all 0.3s ease-in-out',
         '&:hover': {
-          boxShadow: isProfessor ? '0 8px 32px rgba(0, 74, 173, 0.2)' : '0 8px 32px rgba(0,0,0,0.08)',
-          transform: 'translateY(-2px)',
+          transform: 'translateY(-1px)',
+          borderColor: designTokens.colors.primary[600],
         },
-        ...professorCardStyle
       }}
     >
       <CardContent sx={{ p: 0 }}>
-        {/* Header with gradient background */}
+        {/* Header with solid background */}
         <Box
           sx={{
-            background: isProfessor ? professorColors.primaryGradient : 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+            background: designTokens.colors.secondary[700],
             color: 'white',
             p: 3,
-            position: 'relative',
-            overflow: 'hidden',
-            '&::before': {
-              content: '""',
-              position: 'absolute',
-              top: 0,
-              right: 0,
-              width: '100px',
-              height: '100px',
-              background: 'rgba(255,255,255,0.1)',
-              borderRadius: '50%',
-              transform: 'translate(30px, -30px)',
-            },
-            ...professorHeaderStyle
           }}
         >
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
@@ -151,20 +111,9 @@ export const ProjectMainInfo: React.FC<ProjectMainInfoProps> = ({
               p: 3,
               mb: 3,
               borderRadius: 2,
-              background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+              background: designTokens.colors.surface[50],
               border: '1px solid',
               borderColor: 'divider',
-              position: 'relative',
-              overflow: 'hidden',
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                height: '4px',
-                background: 'linear-gradient(90deg, #1e3a8a 0%, #3b82f6 50%, #059669 100%)',
-              }
             }}
           >
             <Typography variant="h6" fontWeight="600" sx={{ mb: 2, color: 'text.primary' }}>
@@ -183,20 +132,9 @@ export const ProjectMainInfo: React.FC<ProjectMainInfoProps> = ({
                 mb: 3,
                 p: 3,
                 borderRadius: 2,
-                background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+                background: designTokens.colors.accent[50],
                 border: '1px solid',
                 borderColor: 'warning.light',
-                position: 'relative',
-                overflow: 'hidden',
-                '&::before': {
-                  content: '""',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: '4px',
-                  background: 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)',
-                }
               }}
             >
               <Typography variant="h6" fontWeight="600" sx={{ mb: 2, color: 'text.primary' }}>
@@ -221,20 +159,9 @@ export const ProjectMainInfo: React.FC<ProjectMainInfoProps> = ({
                 mb: 3,
                 p: 3,
                 borderRadius: 2,
-                background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+                background: designTokens.colors.primary[50],
                 border: '1px solid',
                 borderColor: 'primary.light',
-                position: 'relative',
-                overflow: 'hidden',
-                '&::before': {
-                  content: '""',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: '4px',
-                  background: 'linear-gradient(90deg, #059669 0%, #10b981 100%)',
-                }
               }}
             >
               <Typography variant="h6" fontWeight="600" sx={{ mb: 2, color: 'text.primary' }}>
@@ -250,7 +177,6 @@ export const ProjectMainInfo: React.FC<ProjectMainInfoProps> = ({
                     variant="filled"
                     sx={{
                       fontWeight: 600,
-                      background: isProfessor ? professorColors.primaryGradient : 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
                     }}
                   />
                 ))}
@@ -264,20 +190,9 @@ export const ProjectMainInfo: React.FC<ProjectMainInfoProps> = ({
             sx={{
               p: 3,
               borderRadius: 2,
-              background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+              background: designTokens.colors.surface[50],
               border: '1px solid',
               borderColor: 'divider',
-              position: 'relative',
-              overflow: 'hidden',
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                height: '4px',
-                background: 'linear-gradient(90deg, #1e3a8a 0%, #3b82f6 50%, #059669 100%)',
-              }
             }}
           >
             <Typography variant="h6" fontWeight="600" sx={{ mb: 3, color: 'text.primary' }}>

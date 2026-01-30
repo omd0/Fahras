@@ -1,45 +1,40 @@
 import React from 'react';
 import {
-  Card,
-  CardContent,
   Box,
   Typography,
   Chip,
   IconButton,
-  LinearProgress,
+  Rating,
+  Stack,
+  alpha,
 } from '@mui/material';
 import {
   School as SchoolIcon,
   Visibility as VisibilityIcon,
   Edit as EditIcon,
-  CalendarToday as CalendarIcon,
-  Person as PersonIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { Project } from '@/types';
-import { DashboardTheme } from '@/config/dashboardThemes';
 import { useAuthStore } from '@/features/auth/store';
 import { getProjectDetailUrl } from '@/utils/projectRoutes';
+import { BasePortalCard } from './BasePortalCard';
+import { designTokens } from '@/styles/designTokens';
 
 interface ProjectCardProps {
   project: Project;
-  theme: DashboardTheme;
   showProgress?: boolean;
   showEdit?: boolean;
   showApprovalStatus?: boolean;
-  currentUserId?: number;
+  showRating?: boolean;
 }
 
 export const ProjectCard: React.FC<ProjectCardProps> = ({
   project,
-  theme,
-  showProgress = false,
   showEdit = false,
-  showApprovalStatus = false,
-  currentUserId: _currentUserId,
+  showRating = false,
 }) => {
   const navigate = useNavigate();
-  const { user: _user } = useAuthStore();
+  const { user } = useAuthStore();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -53,170 +48,198 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     }
   };
 
-  const getProjectProgress = (status: string) => {
-    const statusProgress: Record<string, number> = {
-      'draft': 20,
-      'submitted': 40,
-      'under_review': 60,
-      'approved': 80,
-      'completed': 100,
-    };
-    return statusProgress[status] || 0;
-  };
-
-  // Get the project detail URL using the utility function
-  const getProjectRoute = () => {
-    return getProjectDetailUrl(project);
-  };
+  const canEdit = user && (user.id === project.creator_id || user.roles?.some(r => r.name === 'admin'));
 
   return (
-    <Card
-      component="article"
-      role="article"
-      aria-label={`Project: ${project.title}`}
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          navigate(getProjectRoute());
-        }
-      }}
-      sx={{
-        border: `2px solid #18B3A8`, // Portal Hub teal outline
-        borderRadius: '14px', // Portal Hub card radius
-        cursor: 'pointer',
-        height: '100%',
-        boxShadow: 'none', // Portal Hub: no shadow
-        transition: 'all 0.2s ease-out',
-        '&:hover': {
-          borderColor: '#008A3E', // Deepen on hover
-          transform: 'translateY(-1px)', // Subtle lift
-        },
-        '&:active': {
-          transform: 'translateY(0)',
-          transition: 'all 0.1s ease-out',
-        },
-        '&:focus': {
-          outline: `3px solid #008A3E`,
-          outlineOffset: '2px',
-        },
-        '&:focus:not(:focus-visible)': {
-          outline: 'none',
-        },
-        '&:focus-visible': {
-          outline: `3px solid #008A3E`,
-          outlineOffset: '2px',
-        },
-      }}
-      onClick={() => navigate(getProjectRoute())}
+    <BasePortalCard
+      onClick={() => navigate(getProjectDetailUrl(project))}
+      ariaLabel={`Project: ${project.title}`}
     >
-      <CardContent>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-            <SchoolIcon sx={{ color: theme.primary, mr: 1 }} aria-hidden="true" />
-            <Typography variant="h6" component="h2" sx={{ fontWeight: 600, flex: 1 }}>
-              {project.title}
-            </Typography>
-          </Box>
+      {/* Icon Badge */}
+      <Box
+        sx={{
+          width: { xs: designTokens.iconBadge.medium.width, sm: designTokens.iconBadge.large.width },
+          height: { xs: designTokens.iconBadge.medium.height, sm: designTokens.iconBadge.large.height },
+          borderRadius: designTokens.radii.circle,
+          backgroundColor: alpha(designTokens.colors.secondary[50], 0.8),
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          mb: 2,
+        }}
+      >
+        <SchoolIcon
+          sx={{
+            fontSize: { xs: designTokens.iconBadge.medium.iconSize, sm: designTokens.iconBadge.large.iconSize },
+            color: designTokens.colors.primary[500],
+          }}
+          aria-hidden="true"
+        />
+      </Box>
+
+      {/* Title */}
+      <Typography
+        variant="h6"
+        component="h2"
+        sx={{
+          fontWeight: designTokens.typography.cardTitle.fontWeight,
+          fontSize: designTokens.typography.cardTitle.fontSize,
+          lineHeight: designTokens.typography.cardTitle.lineHeight,
+          color: designTokens.colors.text.primary,
+          mb: 1,
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+        }}
+      >
+        {project.title}
+      </Typography>
+
+      {/* Metadata Chips (Status + Academic Year) */}
+      <Stack
+        direction="row"
+        spacing={1}
+        justifyContent="center"
+        alignItems="center"
+        sx={{ mb: 1.5, flexWrap: 'wrap', gap: 0.5 }}
+      >
+        <Chip
+          label={project.status.replace('_', ' ')}
+          color={getStatusColor(project.status) as any}
+          size="small"
+          sx={{
+            textTransform: 'capitalize',
+            fontSize: '0.7rem',
+            height: 24,
+          }}
+          aria-label={`Project status: ${project.status.replace('_', ' ')}`}
+        />
+        {project.academic_year && (
           <Chip
-            label={project.status.replace('_', ' ')}
-            color={getStatusColor(project.status) as any}
+            label={project.academic_year}
+            variant="outlined"
             size="small"
-            sx={{ textTransform: 'capitalize' }}
-            aria-label={`Project status: ${project.status.replace('_', ' ')}`}
+            sx={{
+              fontSize: '0.7rem',
+              height: 24,
+              borderColor: alpha(designTokens.colors.border[200], 0.8),
+              color: designTokens.colors.text.secondary,
+            }}
+            aria-label={`Academic year: ${project.academic_year}`}
           />
-        </Box>
-
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2, minHeight: 40 }}>
-          {project.abstract.substring(0, 120)}...
-        </Typography>
-
-        {/* Project Progress */}
-        {showProgress && (
-          <Box sx={{ mb: 2 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-              <Typography variant="caption" color="text.secondary">
-                Progress
-              </Typography>
-              <Typography variant="caption" sx={{ fontWeight: 600, color: theme.primary }}>
-                {getProjectProgress(project.status)}%
-              </Typography>
-            </Box>
-            <LinearProgress 
-              variant="determinate" 
-              value={getProjectProgress(project.status)}
-              aria-label={`Project progress: ${getProjectProgress(project.status)} percent complete`}
-              aria-valuenow={getProjectProgress(project.status)}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              sx={{
-                height: 6,
-                borderRadius: 3,
-                backgroundColor: `${theme.primary}20`,
-                '& .MuiLinearProgress-bar': {
-                  backgroundColor: theme.primary,
-                  borderRadius: 3,
-                }
-              }}
-            />
-          </Box>
         )}
+      </Stack>
 
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <CalendarIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-            <Typography variant="caption" color="text.secondary">
-              {project.academic_year} • {project.semester}
-            </Typography>
-          </Box>
-          {showApprovalStatus && project.admin_approval_status && (
-            <Chip
-              label={project.admin_approval_status}
-              color={project.admin_approval_status === 'approved' ? 'success' : 
-                     project.admin_approval_status === 'pending' ? 'warning' : 'error'}
-              size="small"
-              variant="outlined"
-              sx={{ fontSize: '0.7rem' }}
-            />
-          )}
-        </Box>
+      {/* Abstract/Description */}
+      <Typography
+        variant="body2"
+        sx={{
+          fontSize: designTokens.typography.cardDescription.fontSize,
+          lineHeight: designTokens.typography.cardDescription.lineHeight,
+          color: designTokens.colors.text.secondary,
+          mb: 2,
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+        }}
+      >
+        {project.abstract}
+      </Typography>
 
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <PersonIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-            <Typography variant="caption" color="text.secondary">
-              {project.creator?.full_name || 'Unknown'}
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', gap: 0.5 }}>
-            {showEdit && (
-              <IconButton 
-                size="small" 
-                onClick={(e) => { 
-                  e.stopPropagation(); 
-                  navigate(`/projects/${project.id}/edit`); 
-                }}
-                sx={{ color: theme.primary }}
-                aria-label={`Edit project ${project.title}`}
-              >
-                <EditIcon fontSize="small" />
-              </IconButton>
-            )}
-            <IconButton 
-              size="small" 
-              onClick={(e) => { 
-                e.stopPropagation(); 
-                navigate(getProjectRoute()); 
+      {/* Rating (optional) */}
+      {showRating && project.average_rating && (
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="center"
+          spacing={0.5}
+          sx={{ mb: 2 }}
+        >
+          <Rating
+            value={project.average_rating}
+            readOnly
+            size="small"
+            precision={0.5}
+            sx={{
+              color: designTokens.colors.primary[500],
+              '& .MuiRating-icon': {
+                fontSize: { xs: '18px', sm: '20px' },
+              },
+            }}
+            aria-label={`Rating: ${project.average_rating} stars`}
+          />
+          {project.rating_count !== undefined && (
+            <Typography
+              variant="caption"
+              sx={{
+                color: designTokens.colors.text.muted,
+                fontSize: '12px',
               }}
-              sx={{ color: theme.primary }}
-              aria-label={`View project ${project.title}`}
             >
-              <VisibilityIcon fontSize="small" />
-            </IconButton>
-          </Box>
-        </Box>
-      </CardContent>
-    </Card>
+              ({project.rating_count})
+            </Typography>
+          )}
+        </Stack>
+      )}
+
+      {/* Creator Info */}
+      <Typography
+        variant="caption"
+        sx={{
+          color: designTokens.colors.text.muted,
+          fontSize: '12px',
+          mb: 2,
+        }}
+      >
+        By {project.creator?.full_name || 'Unknown'}
+      </Typography>
+
+      {/* Action Buttons */}
+      <Stack
+        direction="row"
+        spacing={1}
+        justifyContent="center"
+        sx={{ mt: 'auto', pt: 1 }}
+      >
+        {showEdit && canEdit && (
+          <IconButton
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/projects/${project.id}/edit`);
+            }}
+            sx={{
+              color: designTokens.colors.primary[500],
+              '&:hover': {
+                backgroundColor: alpha(designTokens.colors.primary[50], 0.5),
+              },
+            }}
+            aria-label={`Edit project ${project.title}`}
+          >
+            <EditIcon fontSize="small" />
+          </IconButton>
+        )}
+        <IconButton
+          size="small"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(getProjectDetailUrl(project));
+          }}
+          sx={{
+            color: designTokens.colors.primary[500],
+            '&:hover': {
+              backgroundColor: alpha(designTokens.colors.primary[50], 0.5),
+            },
+          }}
+          aria-label={`View project ${project.title}`}
+        >
+          <VisibilityIcon fontSize="small" />
+        </IconButton>
+      </Stack>
+    </BasePortalCard>
   );
 };
-

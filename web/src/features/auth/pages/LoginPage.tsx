@@ -249,8 +249,7 @@ export const LoginPage: React.FC = () => {
                     }
                   }}
                   onClick={() => {
-                    // TODO: Implement forgot password functionality
-                    alert(t('Forgot password functionality will be implemented soon!'));
+                    navigate('/forgot-password');
                   }}
                 >
                   {t('Forgot Password?')}

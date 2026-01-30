@@ -22,6 +22,7 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/features/auth/store';
 import { RegisterData } from '@/types';
 import { useLanguage } from '@/providers/LanguageContext';
+import { authApi } from '@/lib/api';
 
 export const RegisterPage: React.FC = () => {
   const [formData, setFormData] = useState<RegisterData>({
@@ -100,8 +101,19 @@ export const RegisterPage: React.FC = () => {
 
     try {
       await register(formData);
-      // Registration successful - navigate to dashboard
-      navigate("/dashboard", { replace: true });
+      // Registration successful - send verification email and redirect
+      try {
+        await authApi.sendVerificationEmail(formData.email);
+      } catch (err) {
+        console.error('Failed to send verification email:', err);
+        // Continue anyway - user can resend from verification page
+      }
+
+      // Redirect to email verification page
+      navigate(`/verify-email?email=${encodeURIComponent(formData.email)}`, {
+        state: { email: formData.email },
+        replace: true,
+      });
     } catch (error) {
       // Error is handled by the store and displayed to user
       // Don't navigate away - let user see the error and try again

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { designTokens } from '@/styles/designTokens';
 import { 
   Box, 
   Card, 
@@ -12,12 +13,6 @@ import { getErrorMessage } from '@/utils/errorHandling';
 import {
   Typography,
   Container,
-  AppBar,
-  Toolbar,
-  IconButton,
-  Avatar,
-  Menu,
-  MenuItem,
   Paper,
   Fade,
   Slide,
@@ -38,12 +33,7 @@ import {
   InputAdornment,
 } from '@mui/material';
 import {
-  Analytics as AnalyticsIcon,
   School as SchoolIcon,
-  Archive as ArchiveIcon,
-  AccountCircle,
-  ExitToApp,
-  ArrowBack as ArrowBackIcon,
   TrendingUp as TrendingUpIcon,
   Assessment as AssessmentIcon,
   BarChart as BarChartIcon,
@@ -142,12 +132,9 @@ export const FacultyDashboard: React.FC = () => {
   });
   
   // Enhanced state for filtering and UI
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('created_at');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [showFilters, setShowFilters] = useState(false);
 
   const { user } = useAuthStore();
   const navigate = useNavigate();
@@ -201,23 +188,6 @@ export const FacultyDashboard: React.FC = () => {
   };
 
   // Enhanced functionality methods
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleProfileClick = () => {
-    setAnchorEl(null);
-    navigate('/profile');
-  };
-
-  const handleLogout = () => {
-    navigate('/login');
-  };
-
   const handleProjectClick = (project: Project | number) => {
     if (typeof project === 'number') {
       navigate(`/pr/${project}`); // Fallback for numeric ID
@@ -283,112 +253,13 @@ export const FacultyDashboard: React.FC = () => {
   }
 
   return (
-    <Box sx={{ 
-      flexGrow: 1, 
-      backgroundColor: '#ffffff',
-      minHeight: '100vh'
-    }}>
-      <AppBar 
-        position="static"
-        sx={{ 
-          background: `linear-gradient(135deg, ${ANALYTICS_COLORS.primary.main} 0%, ${ANALYTICS_COLORS.secondary.main} 100%)`,
-          boxShadow: '0 4px 20px rgba(37, 99, 235, 0.15)',
-          color: ANALYTICS_COLORS.neutral[50],
-        }}
-      >
-        <Toolbar sx={{ py: 1 }}>
-          <IconButton
-            edge="start"
-            color="inherit"
-            onClick={() => navigate('/dashboard')}
-            sx={{ 
-              mr: 2,
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.2)',
-              }
-            }}
-          >
-            <ArrowBackIcon />
-          </IconButton>
-          <TVTCLogo size="small" variant="icon" color="inherit" sx={{ mr: 2 }} />
-          <Box sx={{ display: 'flex', alignItems: 'center', mr: 2 }}>
-            <SchoolIcon sx={{ mr: 1, fontSize: 28 }} />
-            <Typography variant="h5" component="div" sx={{ 
-              flexGrow: 1, 
-              fontWeight: 600,
-              letterSpacing: '0.5px'
-            }}            >
-              {t('Advisor Projects')}
-            </Typography>
-          </Box>
-          <Box sx={{ flexGrow: 1 }} />
-          <IconButton
-            size="large"
-            edge="end"
-            aria-label="account of current user"
-            aria-controls="menu-appbar"
-            aria-haspopup="true"
-            onClick={handleMenuOpen}
-            sx={{ 
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.2)',
-              }
-            }}
-          >
-            <Avatar sx={{ 
-              width: 36, 
-              height: 36,
-              backgroundColor: 'rgba(255, 255, 255, 0.2)',
-              color: ANALYTICS_COLORS.neutral[50],
-              fontWeight: 600
-            }}>
-              {user?.full_name?.charAt(0)?.toUpperCase()}
-            </Avatar>
-          </IconButton>
-          <Menu
-            id="menu-appbar"
-            anchorEl={anchorEl}
-            anchorOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            keepMounted
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
-            PaperProps={{
-              sx: {
-                mt: 1,
-                minWidth: 200,
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
-                borderRadius: 2,
-              }
-            }}
-          >
-            <MenuItem onClick={handleProfileClick} sx={{ py: 1.5 }}>
-              <AccountCircle sx={{ mr: 2, color: ANALYTICS_COLORS.primary.main }} />
-              {t('Profile')}
-            </MenuItem>
-            <MenuItem onClick={handleLogout} sx={{ py: 1.5 }}>
-              <ExitToApp sx={{ mr: 2, color: ANALYTICS_COLORS.warning.main }} />
-              {t('Logout')}
-            </MenuItem>
-          </Menu>
-        </Toolbar>
-      </AppBar>
-
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         {/* Overview Cards */}
         <Fade in timeout={800}>
           <Grid container spacing={3} sx={{ mb: 5 }}>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <Card sx={{
-                background: `linear-gradient(135deg, ${ANALYTICS_COLORS.primary.main} 0%, ${ANALYTICS_COLORS.primary.light} 100%)`,
+                background: designTokens.colors.primary[500],
                 color: ANALYTICS_COLORS.neutral[50],
                 boxShadow: '0 8px 32px rgba(37, 99, 235, 0.15)',
                 borderRadius: 3,
@@ -432,7 +303,7 @@ export const FacultyDashboard: React.FC = () => {
             
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <Card sx={{
-                background: `linear-gradient(135deg, ${ANALYTICS_COLORS.success.main} 0%, ${ANALYTICS_COLORS.success.light} 100%)`,
+                background: designTokens.colors.primary[500],
                 color: ANALYTICS_COLORS.neutral[50],
                 boxShadow: '0 8px 32px rgba(5, 150, 105, 0.15)',
                   borderRadius: 3, 
@@ -476,7 +347,7 @@ export const FacultyDashboard: React.FC = () => {
             
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <Card sx={{
-                background: `linear-gradient(135deg, ${ANALYTICS_COLORS.info.main} 0%, ${ANALYTICS_COLORS.info.light} 100%)`,
+                background: designTokens.colors.primary[500],
                 color: ANALYTICS_COLORS.neutral[50],
                 boxShadow: '0 8px 32px rgba(8, 145, 178, 0.15)',
                   borderRadius: 3, 
@@ -520,7 +391,7 @@ export const FacultyDashboard: React.FC = () => {
             
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <Card sx={{
-                background: `linear-gradient(135deg, ${ANALYTICS_COLORS.warning.main} 0%, ${ANALYTICS_COLORS.warning.light} 100%)`,
+                background: designTokens.colors.primary[500],
                 color: ANALYTICS_COLORS.neutral[50],
                 boxShadow: '0 8px 32px rgba(217, 119, 6, 0.15)',
                   borderRadius: 3, 
@@ -877,9 +748,9 @@ export const FacultyDashboard: React.FC = () => {
                           startIcon={<AssignmentIcon />}
                           onClick={() => navigate(projectRoutes.create())}
                           sx={{
-                            background: `linear-gradient(135deg, ${ANALYTICS_COLORS.primary.main} 0%, ${ANALYTICS_COLORS.primary.light} 100%)`,
+                            background: designTokens.colors.primary[500],
                             '&:hover': {
-                              background: `linear-gradient(135deg, ${ANALYTICS_COLORS.primary.dark} 0%, ${ANALYTICS_COLORS.primary.main} 100%)`,
+                              background: designTokens.colors.primary[500],
                             }
                           }}
                         >
@@ -895,6 +766,5 @@ export const FacultyDashboard: React.FC = () => {
         </Grid>
         </Slide>
       </Container>
-    </Box>
   );
 };

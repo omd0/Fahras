@@ -12,6 +12,8 @@ export { DashboardContainer } from './DashboardContainer';
 export { DashboardHeader } from './DashboardHeader';
 export { StatsCard } from './StatsCard';
 export { ProjectCard } from './ProjectCard';
+export { BasePortalCard } from './BasePortalCard';
+export type { BasePortalCardProps } from './BasePortalCard';
 export { QuickActions } from './QuickActions';
 export type { QuickAction } from './QuickActions';
 export { ConfirmDialog } from './ConfirmDialog';

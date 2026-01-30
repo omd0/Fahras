@@ -94,15 +94,6 @@ export const TestAuthPage: React.FC = () => {
 
   return (
     <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-      <AppBar position="static" color="primary">
-        <Toolbar>
-          <SecurityIcon sx={{ mr: 2 }} />
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Authentication Test Page
-          </Typography>
-        </Toolbar>
-      </AppBar>
-
       <Container maxWidth="md" sx={{ py: 3 }}>
         <Paper sx={{ p: 3, mb: 3 }}>
           <Typography variant="h5" gutterBottom>

@@ -31,6 +31,8 @@ import { useNavigate } from 'react-router-dom';
 import { TVTCLogo } from '@/components/TVTCLogo';
 import { useAuthStore } from '@/features/auth/store';
 import { getDashboardTheme } from '@/config/dashboardThemes';
+import { ChangePasswordForm } from '@/features/auth/components/ChangePasswordForm';
+import { LogoutAllDevicesButton } from '@/features/auth/components/LogoutAllDevicesButton';
 
 export const SettingsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -39,31 +41,6 @@ export const SettingsPage: React.FC = () => {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar 
-        position="static"
-        sx={{ 
-          backgroundColor: '#FFFFFF',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          color: '#000000',
-        }}
-      >
-        <Toolbar>
-          <IconButton
-            edge="start"
-            color="inherit"
-            onClick={() => navigate('/dashboard')}
-            sx={{ mr: 2 }}
-          >
-            <ArrowBackIcon />
-          </IconButton>
-          <TVTCLogo size="small" variant="icon" color="inherit" sx={{ mr: 1 }} />
-          <SettingsIcon sx={{ mr: 2 }} />
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: '#000000' }}>
-            Settings
-          </Typography>
-        </Toolbar>
-      </AppBar>
-
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Typography variant="h4" gutterBottom>
           Application Settings
@@ -128,14 +105,26 @@ export const SettingsPage: React.FC = () => {
                 <ListItemIcon>
                   <SecurityIcon color="primary" />
                 </ListItemIcon>
-                <ListItemText 
-                  primary="Security & Privacy" 
+                <ListItemText
+                  primary="Security & Privacy"
                   secondary="Manage security settings and privacy controls"
                 />
               </ListItem>
             </List>
           </CardContent>
         </Card>
+
+        {/* Security Settings */}
+        <Box sx={{ mt: 4 }}>
+          <Typography variant="h5" gutterBottom sx={{ mb: 3, fontWeight: 'bold' }}>
+            Security
+          </Typography>
+
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <ChangePasswordForm />
+            <LogoutAllDevicesButton />
+          </Box>
+        </Box>
       </Container>
     </Box>
   );

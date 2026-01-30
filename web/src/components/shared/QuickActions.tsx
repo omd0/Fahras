@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, Box, Typography, Button } from '@mui/material';
 import { SvgIconComponent } from '@mui/icons-material';
 import { DashboardTheme } from '@/config/dashboardThemes';
+import { designTokens } from '@/styles/designTokens';
 
 export interface QuickAction {
   label: string;
@@ -18,7 +19,19 @@ interface QuickActionsProps {
 
 export const QuickActions: React.FC<QuickActionsProps> = ({ theme, actions }) => {
   return (
-    <Card sx={{ mb: 4, borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+    <Card
+      sx={{
+        mb: 4,
+        border: `2px solid ${designTokens.colors.primary[500]}`,
+        boxShadow: 'none',
+        borderRadius: designTokens.radii.card,
+        transition: 'all 0.3s ease',
+        '&:hover': {
+          transform: 'translateY(-1px)',
+          borderColor: designTokens.colors.primary[600],
+        },
+      }}
+    >
       <CardContent>
         <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
           Quick Actions
@@ -37,16 +50,18 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ theme, actions }) =>
                     ? {
                         borderColor: theme.primary,
                         color: theme.primary,
+                        borderRadius: designTokens.radii.pill,
                         '&:hover': {
                           borderColor: theme.primary,
                           background: `${theme.primary}10`,
                         },
                       }
                     : {
-                        background: action.gradient || theme.appBarGradient,
+                        background: designTokens.colors.primary[500],
+                        borderRadius: designTokens.radii.pill,
                         '&:hover': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 6px 16px rgba(0,0,0,0.15)',
+                          background: designTokens.colors.primary[600],
+                          transform: 'translateY(-1px)',
                         },
                         transition: 'all 0.3s ease',
                       }

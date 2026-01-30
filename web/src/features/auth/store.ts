@@ -19,6 +19,10 @@ interface AuthActions {
   refreshToken: () => Promise<void>;
   clearError: () => void;
   setLoading: (loading: boolean) => void;
+  // Manual setters for external auth flows (e.g., magic link verification)
+  setUser: (user: User | null) => void;
+  setToken: (token: string | null) => void;
+  setAuthenticated: (isAuthenticated: boolean) => void;
 }
 
 type AuthStore = AuthState & AuthActions;
@@ -153,6 +157,11 @@ export const useAuthStore = create<AuthStore>()(
 
       clearError: () => set({ error: null }),
       setLoading: (loading: boolean) => set({ isLoading: loading }),
+
+      // Manual setters for external auth flows (e.g., magic link verification, OTP verification)
+      setUser: (user: User | null) => set({ user }),
+      setToken: (token: string | null) => set({ token }),
+      setAuthenticated: (isAuthenticated: boolean) => set({ isAuthenticated }),
     }),
     {
       name: 'auth-storage',

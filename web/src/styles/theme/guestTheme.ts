@@ -1,5 +1,6 @@
 import { createTheme, alpha } from '@mui/material/styles';
 import { tvtcColors } from './tvtcTheme';
+import { designTokens } from '@/styles/designTokens';
 
 // TVTC-branded color scheme for guest-facing pages
 export const guestColors = {
@@ -41,7 +42,9 @@ export const guestColors = {
   warning: tvtcColors.warning,        // TVTC Warning orange
   error: tvtcColors.error,          // TVTC Error red
   
-  // Gradient combinations with TVTC color scheme
+  // ⚠️ DEPRECATED: Gradient combinations - Use solid colors from designTokens instead
+  // Kept for backward compatibility and headers only (per design.toon specifications)
+  // For cards and UI elements, use: border: 2px solid designTokens.colors.primary[500]
   primaryGradient: `linear-gradient(135deg, ${tvtcColors.primary} 0%, ${tvtcColors.textPrimary} 100%)`,      // TVTC Green to Primary Text
   secondaryGradient: `linear-gradient(135deg, ${tvtcColors.secondary} 0%, ${tvtcColors.primary} 100%)`,   // TVTC Blue to Green
   accentGradient: `linear-gradient(135deg, ${tvtcColors.primary} 0%, ${tvtcColors.textSecondary} 100%)`,     // TVTC Green to Secondary Text

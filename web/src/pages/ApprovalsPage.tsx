@@ -133,36 +133,6 @@ export const ApprovalsPage: React.FC = () => {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar 
-        position="static"
-        sx={{ 
-          backgroundColor: '#FFFFFF',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          color: '#000000',
-        }}
-      >
-        <Toolbar>
-          <IconButton
-            edge="start"
-            color="inherit"
-            onClick={() => navigate('/dashboard')}
-            sx={{ mr: 2 }}
-          >
-            <ArrowBackIcon />
-          </IconButton>
-          <TVTCLogo size="small" variant="icon" color="inherit" sx={{ mr: 1 }} />
-          <ApprovalIcon sx={{ mr: 2 }} />
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: '#000000' }}>
-            Project Approvals
-          </Typography>
-          <Chip 
-            label={`${projects.length} Pending`} 
-            color="warning" 
-            variant="filled"
-          />
-        </Toolbar>
-      </AppBar>
-
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         {error && (
           <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>

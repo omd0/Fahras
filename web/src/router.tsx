@@ -5,6 +5,9 @@ import { RoleProtectedRoute } from '@/features/auth/components/RoleProtectedRout
 import { HomePage } from '@/pages/HomePage';
 import { LoginPage } from '@/features/auth/pages/LoginPage';
 import { RegisterPage } from '@/features/auth/pages/RegisterPage';
+import { ForgotPasswordPage } from '@/features/auth/pages/ForgotPasswordPage';
+import { ResetPasswordPage } from '@/features/auth/pages/ResetPasswordPage';
+import { EmailVerificationPage } from '@/features/auth/pages/EmailVerificationPage';
 import { DashboardPage } from '@/features/dashboards/pages/DashboardPage';
 import { ExplorePage } from '@/features/projects/pages/ExplorePage';
 import { CreateProjectPage } from '@/features/projects/pages/CreateProjectPage';
@@ -41,6 +44,9 @@ export const router = createBrowserRouter([
       { path: 'bookmarks', element: <MyBookmarksPage /> },
       { path: 'login', element: <LoginPage /> },
       { path: 'register', element: <RegisterPage /> },
+      { path: 'forgot-password', element: <ForgotPasswordPage /> },
+      { path: 'reset-password', element: <ResetPasswordPage /> },
+      { path: 'verify-email', element: <EmailVerificationPage /> },
 
       // Protected routes
       {

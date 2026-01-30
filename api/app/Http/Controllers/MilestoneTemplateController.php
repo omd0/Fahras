@@ -18,7 +18,7 @@ class MilestoneTemplateController extends Controller
 {
     protected $templateService;
 
-    public function __construct(MilestoneTemplateService $templateService): JsonResponse
+    public function __construct(MilestoneTemplateService $templateService)
     {
         $this->templateService = $templateService;
     }

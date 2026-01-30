@@ -12,25 +12,30 @@ import {
   Fade,
   Grid,
   Skeleton,
+  IconButton,
+  TextField,
+  Select,
+  MenuItem,
+  InputAdornment,
+  FormControl,
 } from '@mui/material';
-import { guestColors, guestTheme, createDecorativeElements, backgroundPatterns } from '@/styles/theme/guestTheme';
-import { getStatusColor, getStatusLabel } from '@/utils/projectHelpers';
+import { guestColors, createDecorativeElements, backgroundPatterns } from '@/styles/theme/guestTheme';
 import {
   Search as SearchIcon,
   Clear as ClearIcon,
   EmojiEvents as EmojiEventsIcon,
   Rocket as RocketIcon,
   FilterList as FilterIcon,
+  Bookmark as BookmarkIcon,
 } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
 import { Project } from '@/types';
 import { apiService } from '@/lib/api';
-import { useTheme } from '@/providers/ThemeContext';
 import { useLanguage } from '@/providers/LanguageContext';
-import { AdvancedFilters } from '@/components/explore/AdvancedFilters';
 import { SavedSearches } from '@/components/explore/SavedSearches';
 import { SmartProjectGrid } from '@/components/explore/SmartProjectGrid';
 import { ProjectGridSkeleton } from '@/components/skeletons';
+import { useAuthStore } from '@/features/auth/store';
+import { getGuestBookmarks } from '@/utils/bookmarkCookies';
 
 interface SearchFilters {
   search: string;
@@ -55,6 +60,7 @@ export const ExplorePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [showSavedSearches, setShowSavedSearches] = useState(false);
+  const [showSavedOnly, setShowSavedOnly] = useState(false);
   const [programs, setPrograms] = useState<any[]>([]);
   const [departments, setDepartments] = useState<any[]>([]);
 
@@ -68,9 +74,8 @@ export const ExplorePage: React.FC = () => {
     sort_order: 'desc',
   });
 
-  const { theme } = useTheme();
   const { t } = useLanguage();
-  const navigate = useNavigate();
+  const { isAuthenticated } = useAuthStore();
 
   useEffect(() => {
     fetchData();
@@ -190,6 +195,7 @@ export const ExplorePage: React.FC = () => {
     });
     setFilteredProjects(projects);
     setShowFilters(false);
+    setShowSavedOnly(false);
   };
 
   const handleInputChange = (field: keyof SearchFilters, value: string) => {
@@ -204,7 +210,7 @@ export const ExplorePage: React.FC = () => {
     // For now we'll rely on useEffect or manual trigger, but let's manual trigger:
     // Actually we need to search using these filters.
     // Let's refactor handleSearch to take optional filters?
-    // Or just set filters and let user click search? 
+    // Or just set filters and let user click search?
     // Usually loading a saved search should trigger search.
     // Let's try to trigger it manually:
     const params: any = {};
@@ -229,6 +235,46 @@ export const ExplorePage: React.FC = () => {
       .finally(() => {
         setLoading(false);
       });
+  };
+
+  const handleToggleSavedFilter = async () => {
+    const newShowSavedOnly = !showSavedOnly;
+    setShowSavedOnly(newShowSavedOnly);
+
+    if (newShowSavedOnly) {
+      // Filter to show only bookmarked projects
+      try {
+        setSearching(true);
+        setError(null);
+
+        if (isAuthenticated) {
+          // Authenticated user: fetch bookmarks from API
+          const response = await apiService.getBookmarkedProjects();
+          const bookmarkedProjects = response.data || [];
+          setFilteredProjects(bookmarkedProjects);
+        } else {
+          // Guest user: filter using cookie bookmarks
+          const guestBookmarkIds = getGuestBookmarks();
+          if (guestBookmarkIds.length > 0) {
+            const bookmarkedProjects = projects.filter((project: Project) =>
+              guestBookmarkIds.includes(project.id)
+            );
+            setFilteredProjects(bookmarkedProjects);
+          } else {
+            setFilteredProjects([]);
+          }
+        }
+      } catch (error: any) {
+        console.error('Failed to fetch bookmarked projects:', error);
+        setError(error.response?.data?.message || 'Failed to fetch bookmarked projects');
+        setFilteredProjects([]);
+      } finally {
+        setSearching(false);
+      }
+    } else {
+      // Show all projects again
+      setFilteredProjects(projects);
+    }
   };
 
   if (loading) {
@@ -419,64 +465,304 @@ export const ExplorePage: React.FC = () => {
           </Paper>
         </Fade>
 
-        {/* Search and Filter Section */}
+        {/* Browse/Explore Section with Category Scroller */}
         <Fade in timeout={1400}>
           <Paper
             elevation={0}
             sx={{
               mb: 6,
-              p: 5,
-              ...backgroundPatterns.card,
-              position: 'relative',
-              '&::before': decorativeElements.smallCircle,
-              '&::after': {
-                content: '""',
-                position: 'absolute',
-                top: '20%',
-                right: '5%',
-                width: '60px',
-                height: '60px',
-                background: 'rgba(174, 223, 247, 0.08)',
-                borderRadius: '50%',
-                pointerEvents: 'none',
-              },
+              borderRadius: 4,
+              boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+              background: 'white',
+              overflow: 'hidden',
             }}
           >
-            <Stack direction="row" alignItems="center" spacing={3} sx={{ mb: 4 }}>
-              <Avatar
+            {/* Row 1 - Category Scroller */}
+            <Box
+              sx={{
+                position: 'relative',
+                background: 'white',
+                borderBottom: `1px solid ${alpha('#000', 0.08)}`,
+                py: 2,
+              }}
+            >
+              <Stack
+                direction="row"
+                alignItems="center"
+                spacing={2}
                 sx={{
-                  width: 56,
-                  height: 56,
-                  background: guestColors.primaryGradient,
-                  boxShadow: '0 4px 16px rgba(81, 45, 168, 0.25)',
+                  px: 2,
+                  overflowX: 'auto',
+                  '&::-webkit-scrollbar': {
+                    height: 4,
+                  },
+                  '&::-webkit-scrollbar-thumb': {
+                    background: alpha(COLORS.deepPurple, 0.3),
+                    borderRadius: 2,
+                  },
                 }}
               >
-                <SearchIcon sx={{ fontSize: 28, color: COLORS.white }} />
-              </Avatar>
-              <Box>
-                <Typography variant="h4" sx={{ fontWeight: 700, color: COLORS.textPrimary, mb: 1 }}>
-                  {t('Smart Project Discovery')}
-                </Typography>
-                <Typography variant="h6" sx={{ color: COLORS.textSecondary, fontWeight: 400 }}>
-                  {t('Find projects that match your interests and expertise')}
-                </Typography>
+                {/* Left scroll button */}
+                <IconButton
+                  size="small"
+                  sx={{
+                    flexShrink: 0,
+                    background: 'white',
+                    border: `1px solid ${alpha('#000', 0.12)}`,
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
+                    '&:hover': {
+                      background: alpha(COLORS.deepPurple, 0.05),
+                    },
+                  }}
+                >
+                  <FilterIcon sx={{ transform: 'rotate(180deg)', fontSize: 20 }} />
+                </IconButton>
+
+                {/* Category Items */}
+                {[
+                  { label: t('Displays'), active: false },
+                  { label: t('Wearables'), active: false },
+                  { label: t('All categories'), active: false },
+                  { label: t('Audio and sound'), active: true },
+                  { label: t('Internet of things'), active: false },
+                  { label: t('Installations'), active: false },
+                  { label: t('Home automation'), active: false },
+                  { label: t('Flying things'), active: false },
+                  { label: t('Lab tools'), active: false },
+                ].map((category, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      minWidth: 100,
+                      cursor: 'pointer',
+                      pb: 1,
+                      borderBottom: category.active
+                        ? `3px solid ${COLORS.deepPurple}`
+                        : '3px solid transparent',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        borderBottomColor: category.active
+                          ? COLORS.deepPurple
+                          : alpha(COLORS.deepPurple, 0.3),
+                      },
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        color: category.active
+                          ? COLORS.deepPurple
+                          : COLORS.textSecondary,
+                        mb: 0.5,
+                        '& svg': { fontSize: 28 },
+                      }}
+                    >
+                      <SearchIcon />
+                    </Box>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontWeight: category.active ? 700 : 500,
+                        color: category.active
+                          ? COLORS.deepPurple
+                          : COLORS.textSecondary,
+                        textAlign: 'center',
+                        fontSize: '0.75rem',
+                      }}
+                    >
+                      {category.label}
+                    </Typography>
+                  </Box>
+                ))}
+
+                {/* Right scroll button */}
+                <IconButton
+                  size="small"
+                  sx={{
+                    flexShrink: 0,
+                    background: 'white',
+                    border: `1px solid ${alpha('#000', 0.12)}`,
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
+                    '&:hover': {
+                      background: alpha(COLORS.deepPurple, 0.05),
+                    },
+                  }}
+                >
+                  <FilterIcon sx={{ fontSize: 20 }} />
+                </IconButton>
+              </Stack>
+            </Box>
+
+            {/* Row 2 - Search & Filters */}
+            <Box sx={{ p: 3, background: 'white' }}>
+              <Grid container spacing={2} alignItems="center">
+                {/* Search Input */}
+                <Grid size={{ xs: 12, md: 5 }}>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    value={filters.search}
+                    onChange={(e) => handleInputChange('search', e.target.value)}
+                    placeholder={t('What do you want to make?')}
+                    variant="outlined"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <SearchIcon sx={{ color: COLORS.textSecondary, fontSize: 20 }} />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Grid>
+
+                {/* Dropdown Filters */}
+                <Grid size={{ xs: 12, md: 4 }}>
+                  <Stack direction="row" spacing={2}>
+                    <FormControl fullWidth size="small">
+                      <Select
+                        value={filters.program_id}
+                        onChange={(e) => handleInputChange('program_id', e.target.value)}
+                        displayEmpty
+                      >
+                        <MenuItem value="">{t('Any type')}</MenuItem>
+                        {programs.map((program: any) => (
+                          <MenuItem key={program.id} value={program.id}>
+                            {program.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                    <FormControl fullWidth size="small">
+                      <Select
+                        value={filters.department_id}
+                        onChange={(e) => handleInputChange('department_id', e.target.value)}
+                        displayEmpty
+                      >
+                        <MenuItem value="">{t('Any difficulty')}</MenuItem>
+                        {departments.map((dept: any) => (
+                          <MenuItem key={dept.id} value={dept.id}>
+                            {dept.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Stack>
+                </Grid>
+
+                {/* Results Count & Sort */}
+                <Grid size={{ xs: 12, md: 3 }}>
+                  <Stack direction="row" alignItems="center" justifyContent="flex-end" spacing={2}>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                      {filteredProjects.length} {t('projects')}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: '1.2rem' }}>
+                      •
+                    </Typography>
+                    <Stack direction="row" alignItems="center" spacing={0.5} sx={{ cursor: 'pointer' }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: 0.25,
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            width: 0,
+                            height: 0,
+                            borderLeft: '4px solid transparent',
+                            borderRight: '4px solid transparent',
+                            borderBottom: `5px solid ${COLORS.deepPurple}`,
+                          }}
+                        />
+                        <Box
+                          sx={{
+                            width: 0,
+                            height: 0,
+                            borderLeft: '4px solid transparent',
+                            borderRight: '4px solid transparent',
+                            borderTop: `5px solid ${alpha('#000', 0.3)}`,
+                          }}
+                        />
+                      </Box>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontWeight: 600,
+                          color: COLORS.textPrimary,
+                        }}
+                      >
+                        {t('Trending')}
+                      </Typography>
+                    </Stack>
+                  </Stack>
+                </Grid>
+              </Grid>
+
+              {/* Search Button Row */}
+              <Box sx={{ mt: 3, display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+                <Button
+                  variant="outlined"
+                  onClick={() => setShowFilters(!showFilters)}
+                  startIcon={<FilterIcon />}
+                  sx={{
+                    borderColor: alpha(COLORS.deepPurple, 0.3),
+                    color: COLORS.deepPurple,
+                    '&:hover': {
+                      borderColor: COLORS.deepPurple,
+                      background: alpha(COLORS.deepPurple, 0.05),
+                    },
+                  }}
+                >
+                  {t('Filters')}
+                </Button>
+                <Button
+                  variant={showSavedOnly ? 'contained' : 'outlined'}
+                  onClick={handleToggleSavedFilter}
+                  startIcon={<BookmarkIcon />}
+                  disabled={searching}
+                  sx={{
+                    ...(showSavedOnly ? {
+                      background: guestColors.primaryGradient,
+                      color: COLORS.white,
+                      '&:hover': {
+                        background: guestColors.primaryGradient,
+                        transform: 'translateY(-2px)',
+                        boxShadow: `0 8px 25px ${alpha(COLORS.deepPurple, 0.3)}`,
+                      },
+                    } : {
+                      borderColor: alpha(COLORS.deepPurple, 0.3),
+                      color: COLORS.deepPurple,
+                      '&:hover': {
+                        borderColor: COLORS.deepPurple,
+                        background: alpha(COLORS.deepPurple, 0.05),
+                      },
+                    }),
+                  }}
+                >
+                  {t('Saved')}
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={handleSearch}
+                  disabled={searching}
+                  sx={{
+                    background: guestColors.primaryGradient,
+                    color: COLORS.white,
+                    '&:hover': {
+                      transform: 'translateY(-2px)',
+                      boxShadow: `0 8px 25px ${alpha(COLORS.deepPurple, 0.3)}`,
+                    },
+                  }}
+                >
+                  {t('Search')}
+                </Button>
               </Box>
-            </Stack>
+            </Box>
 
-            <AdvancedFilters
-              filters={filters}
-              showFilters={showFilters}
-              searching={searching}
-              programs={programs}
-              departments={departments}
-              onFilterChange={handleInputChange}
-              onSearch={handleSearch}
-              onClearSearch={handleClearSearch}
-              onToggleFilters={() => setShowFilters(!showFilters)}
-              onOpenSavedSearches={() => setShowSavedSearches(true)}
-            />
-
-            <SavedSearches 
+            <SavedSearches
               open={showSavedSearches}
               onClose={() => setShowSavedSearches(false)}
               currentFilters={filters}
