@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Typography, Button, Stack, useTheme, Container } from '@mui/material';
 import { ArrowForward as ArrowForwardIcon } from '@mui/icons-material';
+import { colorPalette } from '@/styles/theme/colorPalette';
 
 interface SectionBandProps {
   title: string;
@@ -41,8 +42,8 @@ export const SectionBand: React.FC<SectionBandProps> = ({
 
   // Gradient backgrounds
   const gradients = {
-    primary: 'linear-gradient(to right, #1F6F8B, #3B7D98)', // secondary colors
-    secondary: 'linear-gradient(to right, #008A3E, #18B3A8)', // primary colors
+    primary: `linear-gradient(to right, ${colorPalette.secondary.dark}, ${colorPalette.secondary.main})`,
+    secondary: `linear-gradient(to right, ${colorPalette.primary.main}, ${colorPalette.teal.light})`,
   };
 
   return (

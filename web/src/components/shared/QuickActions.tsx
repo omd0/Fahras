@@ -1,7 +1,6 @@
 import React from 'react';
 import { Card, CardContent, Box, Typography, Button } from '@mui/material';
 import { SvgIconComponent } from '@mui/icons-material';
-import { DashboardTheme } from '@/config/dashboardThemes';
 import { designTokens } from '@/styles/designTokens';
 
 export interface QuickAction {
@@ -13,11 +12,10 @@ export interface QuickAction {
 }
 
 interface QuickActionsProps {
-  theme: DashboardTheme;
   actions: QuickAction[];
 }
 
-export const QuickActions: React.FC<QuickActionsProps> = ({ theme, actions }) => {
+export const QuickActions: React.FC<QuickActionsProps> = ({ actions }) => {
   return (
     <Card
       sx={{
@@ -48,12 +46,12 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ theme, actions }) =>
                 sx={
                   action.variant === 'outlined'
                     ? {
-                        borderColor: theme.primary,
-                        color: theme.primary,
+                        borderColor: designTokens.colors.primary[500],
+                        color: designTokens.colors.primary[500],
                         borderRadius: designTokens.radii.pill,
                         '&:hover': {
-                          borderColor: theme.primary,
-                          background: `${theme.primary}10`,
+                          borderColor: designTokens.colors.primary[600],
+                          background: `${designTokens.colors.primary[500]}10`,
                         },
                       }
                     : {

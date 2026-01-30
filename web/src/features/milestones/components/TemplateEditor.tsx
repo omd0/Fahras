@@ -34,7 +34,9 @@ import {
   TableHead,
   TableRow,
   CircularProgress,
+  useTheme,
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import {
   Close as CloseIcon,
   Save as SaveIcon,
@@ -64,6 +66,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
   onClose,
   onSave,
 }) => {
+  const theme = useTheme();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [programId, setProgramId] = useState<number | ''>('');
@@ -487,14 +490,14 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
           <Box
             sx={{
               position: 'relative',
-              bgcolor: '#F5F5F5',
+              bgcolor: theme.palette.grey[100],
               borderRadius: 2,
               p: 3,
               mb: 2,
               overflowX: 'auto',
               overflowY: 'visible',
               backgroundImage: `
-                radial-gradient(circle, #BDBDBD 1px, transparent 1px)
+                radial-gradient(circle, ${theme.palette.grey[400]} 1px, transparent 1px)
               `,
               backgroundSize: '20px 20px',
               backgroundPosition: '0 0',
@@ -502,14 +505,14 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
                 height: 8,
               },
               '&::-webkit-scrollbar-track': {
-                background: '#E0E0E0',
+                background: theme.palette.grey[300],
                 borderRadius: 4,
               },
               '&::-webkit-scrollbar-thumb': {
-                background: '#BDBDBD',
+                background: theme.palette.grey[400],
                 borderRadius: 4,
                 '&:hover': {
-                  background: '#9E9E9E',
+                  background: theme.palette.grey[500],
                 },
               },
             }}
@@ -553,11 +556,11 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
                         maxWidth: 240,
                         borderRadius: 2,
                         border: editingItem === index 
-                          ? '2px solid #1976D2' 
+                          ? `2px solid ${theme.palette.info.main}` 
                           : dragOverIndex === index
-                          ? '2px dashed #1976D2'
-                          : '1px solid #BDBDBD',
-                        bgcolor: draggedIndex === index ? '#E3F2FD' : '#FFFFFF',
+                          ? `2px dashed ${theme.palette.info.main}`
+                          : `1px solid ${theme.palette.grey[400]}`,
+                        bgcolor: draggedIndex === index ? alpha(theme.palette.info.main, 0.08) : theme.palette.background.paper,
                         position: 'relative',
                         transition: draggedIndex === index ? 'none' : 'all 0.2s ease-in-out',
                         boxShadow: editingItem === index 
@@ -586,7 +589,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
                             position: 'absolute',
                             top: 8,
                             left: 8,
-                            color: '#BDBDBD',
+                            color: theme.palette.grey[400],
                             cursor: 'grab',
                             '&:active': {
                               cursor: 'grabbing',
@@ -597,7 +600,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
                             transition: 'opacity 0.2s ease-in-out',
                             '&:hover': {
                               opacity: 1,
-                              color: '#757575',
+                              color: theme.palette.text.secondary,
                             },
                           }}
                         >
@@ -649,7 +652,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
                           variant="subtitle1"
                           sx={{
                             fontWeight: 600,
-                            color: '#212121',
+                            color: theme.palette.text.primary,
                             mb: 1,
                             pr: 4,
                             pl: 3,
@@ -668,7 +671,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
                         <Typography
                           variant="body2"
                           sx={{
-                            color: '#757575',
+                            color: theme.palette.text.secondary,
                             fontWeight: 500,
                             mt: 1,
                           }}
@@ -679,10 +682,10 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
                         {/* Permissions and Actions Info */}
                         {(item.allowed_roles && item.allowed_roles.length > 0) || 
                          (item.allowed_actions && item.allowed_actions.length > 0) ? (
-                          <Box sx={{ mt: 1.5, pt: 1, borderTop: '1px solid #E0E0E0' }}>
+                          <Box sx={{ mt: 1.5, pt: 1, borderTop: `1px solid ${theme.palette.grey[300]}` }}>
                             {item.allowed_roles && item.allowed_roles.length > 0 && (
                               <Box sx={{ mb: 0.5 }}>
-                                <Typography variant="caption" sx={{ color: '#757575', fontWeight: 600, display: 'block', mb: 0.5 }}>
+                                <Typography variant="caption" sx={{ color: theme.palette.text.secondary, fontWeight: 600, display: 'block', mb: 0.5 }}>
                                   Roles:
                                 </Typography>
                                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
@@ -694,8 +697,8 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
                                       sx={{
                                         height: 18,
                                         fontSize: '0.6rem',
-                                        bgcolor: '#E3F2FD',
-                                        color: '#1976D2',
+                                        bgcolor: alpha(theme.palette.info.main, 0.08),
+                                        color: theme.palette.info.main,
                                       }}
                                     />
                                   ))}
@@ -704,11 +707,11 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
                             )}
                             {item.allowed_actions && item.allowed_actions.length > 0 && (
                               <Box>
-                                <Typography variant="caption" sx={{ color: '#757575', fontWeight: 600, display: 'block', mb: 0.5 }}>
+                                <Typography variant="caption" sx={{ color: theme.palette.text.secondary, fontWeight: 600, display: 'block', mb: 0.5 }}>
                                   Actions:
                                 </Typography>
                                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                  {item.allowed_actions.slice(0, 3).map((action) => (
+                                   {item.allowed_actions.slice(0, 3).map((action) => (
                                     <Chip
                                       key={action}
                                       label={action.charAt(0).toUpperCase() + action.slice(1)}
@@ -716,8 +719,8 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
                                       sx={{
                                         height: 18,
                                         fontSize: '0.6rem',
-                                        bgcolor: '#F3E5F5',
-                                        color: '#7B1FA2',
+                                        bgcolor: alpha(theme.palette.secondary.main, 0.1),
+                                        color: theme.palette.secondary.dark,
                                       }}
                                     />
                                   ))}
@@ -728,8 +731,8 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
                                       sx={{
                                         height: 18,
                                         fontSize: '0.6rem',
-                                        bgcolor: '#F3E5F5',
-                                        color: '#7B1FA2',
+                                        bgcolor: alpha(theme.palette.secondary.main, 0.1),
+                                        color: theme.palette.secondary.dark,
                                       }}
                                     />
                                   )}
@@ -763,7 +766,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
                         sx={{
                           display: 'flex',
                           alignItems: 'center',
-                          color: '#BDBDBD',
+                          color: theme.palette.grey[400],
                           flexShrink: 0,
                         }}
                       >
@@ -781,7 +784,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
                     sx={{
                       display: 'flex',
                       alignItems: 'center',
-                      color: '#BDBDBD',
+                      color: theme.palette.grey[400],
                       flexShrink: 0,
                     }}
                   >
@@ -796,12 +799,12 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
                       maxWidth: 240,
                       height: 100,
                       borderRadius: 2,
-                      border: '2px dashed #BDBDBD',
-                      color: '#757575',
+                      border: `2px dashed ${theme.palette.grey[400]}`,
+                      color: theme.palette.text.secondary,
                       '&:hover': {
-                        border: '2px dashed #1976D2',
-                        bgcolor: 'rgba(25, 118, 210, 0.04)',
-                        color: '#1976D2',
+                        border: `2px dashed ${theme.palette.info.main}`,
+                        bgcolor: alpha(theme.palette.info.main, 0.04),
+                        color: theme.palette.info.main,
                       },
                     }}
                   >

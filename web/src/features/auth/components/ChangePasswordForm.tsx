@@ -139,13 +139,13 @@ export const ChangePasswordForm: React.FC = () => {
             mb: 2,
             '& .MuiOutlinedInput-root': {
               '& fieldset': {
-                borderColor: '#e0e0e0',
+                borderColor: 'divider',
               },
               '&:hover fieldset': {
-                borderColor: '#007BFF',
+                borderColor: 'info.main',
               },
               '&.Mui-focused fieldset': {
-                borderColor: '#007BFF',
+                borderColor: 'info.main',
               },
             },
           }}
@@ -175,13 +175,13 @@ export const ChangePasswordForm: React.FC = () => {
             mb: 2,
             '& .MuiOutlinedInput-root': {
               '& fieldset': {
-                borderColor: '#e0e0e0',
+                borderColor: 'divider',
               },
               '&:hover fieldset': {
-                borderColor: '#007BFF',
+                borderColor: 'info.main',
               },
               '&.Mui-focused fieldset': {
-                borderColor: '#007BFF',
+                borderColor: 'info.main',
               },
             },
           }}
@@ -212,13 +212,13 @@ export const ChangePasswordForm: React.FC = () => {
             mb: 3,
             '& .MuiOutlinedInput-root': {
               '& fieldset': {
-                borderColor: '#e0e0e0',
+                borderColor: 'divider',
               },
               '&:hover fieldset': {
-                borderColor: '#007BFF',
+                borderColor: 'info.main',
               },
               '&.Mui-focused fieldset': {
-                borderColor: '#007BFF',
+                borderColor: 'info.main',
               },
             },
           }}
@@ -231,8 +231,8 @@ export const ChangePasswordForm: React.FC = () => {
           disabled={loading}
           sx={{
             py: 1.5,
-            backgroundColor: '#007BFF',
-            '&:hover': { backgroundColor: '#0056b3' },
+            backgroundColor: 'info.main',
+            '&:hover': { backgroundColor: 'info.dark' },
           }}
         >
           {loading ? <CircularProgress size={24} /> : 'Change Password'}

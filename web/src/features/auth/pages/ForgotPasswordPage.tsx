@@ -10,7 +10,9 @@ import {
   Alert,
   CircularProgress,
   Link,
+  InputAdornment,
 } from '@mui/material';
+import { Email as EmailIcon } from '@mui/icons-material';
 import { authApi } from '@/lib/api';
 
 export const ForgotPasswordPage: React.FC = () => {
@@ -42,7 +44,7 @@ export const ForgotPasswordPage: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await authApi.forgotPassword(email);
+      await authApi.forgotPassword(email);
       setSuccess(true);
     } catch (err: any) {
       setError(
@@ -56,21 +58,34 @@ export const ForgotPasswordPage: React.FC = () => {
 
   if (success) {
     return (
-      <Container maxWidth="sm">
-        <Box
-          sx={{
-            minHeight: '100vh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Paper elevation={3} sx={{ p: 4, textAlign: 'center', width: '100%' }}>
+      <Box
+        sx={{
+          minHeight: '100vh',
+          bgcolor: 'background.default',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          py: 4,
+        }}
+      >
+        <Container maxWidth="sm">
+          <Paper
+            elevation={3}
+            sx={{
+              p: 4,
+              textAlign: 'center',
+              width: '100%',
+              borderRadius: 3,
+              bgcolor: 'background.paper',
+              border: '1px solid',
+              borderColor: 'divider',
+            }}
+          >
             <Typography
               variant="h4"
               component="h1"
               gutterBottom
-              sx={{ fontWeight: 'bold', color: '#4caf50' }}
+              sx={{ fontWeight: 'bold', color: 'success.main' }}
             >
               Check Your Email
             </Typography>
@@ -87,37 +102,44 @@ export const ForgotPasswordPage: React.FC = () => {
               fullWidth
               variant="contained"
               onClick={() => navigate('/login')}
-              sx={{
-                py: 1.5,
-                backgroundColor: '#007BFF',
-                '&:hover': { backgroundColor: '#0056b3' },
-              }}
+              sx={{ py: 1.5 }}
             >
               Back to Login
             </Button>
           </Paper>
-        </Box>
-      </Container>
+        </Container>
+      </Box>
     );
   }
 
   return (
-    <Container maxWidth="sm">
-      <Box
-        sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          py: 4,
-        }}
-      >
-        <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        bgcolor: 'background.default',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        py: 4,
+      }}
+    >
+      <Container maxWidth="sm">
+        <Paper
+          elevation={3}
+          sx={{
+            p: 4,
+            width: '100%',
+            borderRadius: 3,
+            bgcolor: 'background.paper',
+            border: '1px solid',
+            borderColor: 'divider',
+          }}
+        >
           <Typography
             variant="h4"
             component="h1"
             gutterBottom
-            sx={{ textAlign: 'center', fontWeight: 'bold', mb: 1 }}
+            sx={{ textAlign: 'center', fontWeight: 'bold', mb: 1, color: 'text.primary' }}
           >
             Forgot Password
           </Typography>
@@ -148,19 +170,13 @@ export const ForgotPasswordPage: React.FC = () => {
               }}
               error={!!error && !email}
               disabled={loading}
-              sx={{
-                mb: 3,
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    borderColor: '#e0e0e0',
-                  },
-                  '&:hover fieldset': {
-                    borderColor: '#007BFF',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#007BFF',
-                  },
-                },
+              sx={{ mb: 3 }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <EmailIcon sx={{ color: 'text.secondary' }} />
+                  </InputAdornment>
+                ),
               }}
             />
 
@@ -170,14 +186,9 @@ export const ForgotPasswordPage: React.FC = () => {
               variant="contained"
               size="large"
               disabled={loading}
-              sx={{
-                mb: 2,
-                py: 1.5,
-                backgroundColor: '#007BFF',
-                '&:hover': { backgroundColor: '#0056b3' },
-              }}
+              sx={{ mb: 2, py: 1.5 }}
             >
-              {loading ? <CircularProgress size={24} /> : 'Send Reset Link'}
+              {loading ? <CircularProgress size={24} color="inherit" /> : 'Send Reset Link'}
             </Button>
 
             <Box sx={{ textAlign: 'center' }}>
@@ -188,8 +199,9 @@ export const ForgotPasswordPage: React.FC = () => {
                   type="button"
                   onClick={() => navigate('/login')}
                   sx={{
-                    color: '#007BFF',
+                    color: 'primary.main',
                     textDecoration: 'none',
+                    fontWeight: 600,
                     '&:hover': { textDecoration: 'underline' },
                   }}
                 >
@@ -199,7 +211,7 @@ export const ForgotPasswordPage: React.FC = () => {
             </Box>
           </form>
         </Paper>
-      </Box>
-    </Container>
+      </Container>
+    </Box>
   );
 };

@@ -52,7 +52,7 @@ export const AccessControlPage: React.FC = () => {
   ];
 
   return (
-    <DashboardContainer theme={theme}>
+    <DashboardContainer>
       <Breadcrumb items={breadcrumbItems} />
       <Box sx={{ mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>

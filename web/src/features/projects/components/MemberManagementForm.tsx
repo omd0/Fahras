@@ -15,6 +15,7 @@ import {
   Paper,
   Stack,
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import {
   Add as AddIcon,
   Delete as DeleteIcon,
@@ -65,68 +66,49 @@ export const MemberManagementForm: React.FC<MemberManagementFormProps> = ({
     <Grid size={{ xs: 12 }}>
       <Paper
         elevation={0}
-        sx={{
+        sx={(theme) => ({
           p: 5,
-          background: 'linear-gradient(135deg, #ffffff 0%, #fff7ed 100%)',
+          bgcolor: 'background.paper',
           borderRadius: 4,
-          boxShadow: '0 8px 32px rgba(251, 146, 60, 0.12)',
-          border: '2px solid #fb923c',
+          boxShadow: `0 8px 32px ${alpha(theme.palette.warning.main, 0.12)}`,
+          border: `2px solid ${theme.palette.warning.main}`,
           mb: 3,
           position: 'relative',
           zIndex: 3,
+          transition: 'all 0.3s ease-in-out',
           '&:hover': {
-            boxShadow: '0 12px 40px rgba(251, 146, 60, 0.18)',
+            boxShadow: `0 12px 40px ${alpha(theme.palette.warning.main, 0.18)}`,
             transform: 'translateY(-2px)',
-            transition: 'all 0.3s ease-in-out',
           }
-        }}
+        })}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
-          <Box sx={{
+          <Box sx={(theme) => ({
             p: 2,
             borderRadius: 3,
-            background: 'linear-gradient(135deg, #fb923c 0%, #ea580c 100%)',
+            bgcolor: 'warning.main',
             mr: 3,
-            boxShadow: '0 4px 16px rgba(251, 146, 60, 0.3)'
-          }}>
-            <PersonIcon sx={{ color: '#FFFFFF', fontSize: '1.8rem' }} />
+            boxShadow: `0 4px 16px ${alpha(theme.palette.warning.main, 0.3)}`
+          })}>
+            <PersonIcon sx={{ color: 'warning.contrastText', fontSize: '1.8rem' }} />
           </Box>
           <Typography variant="h6" component="h2" sx={{
-            color: '#fb923c',
+            color: 'warning.main',
             fontWeight: 700,
             fontSize: '1.3rem',
-            textShadow: '0 2px 4px rgba(251, 146, 60, 0.1)'
           }}>
             Project Team
           </Typography>
         </Box>
 
         <Grid container spacing={4}>
-          {/* Members */}
           <Grid size={{ xs: 12, md: 6 }}>
-            <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 700, color: '#fb923c', mb: 2 }}>
+            <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 700, color: 'warning.main', mb: 2 }}>
               Project Members
             </Typography>
             <Box sx={{ display: 'flex', gap: 2, mb: 3, flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'flex-end' } }}>
               <Autocomplete
-                sx={{
-                  flexGrow: 1,
-                  '& .MuiOutlinedInput-root': {
-                    backgroundColor: '#FFFFFF',
-                    borderRadius: 2,
-                    '& fieldset': {
-                      borderColor: '#fed7aa',
-                      borderWidth: 2,
-                    },
-                    '&:hover fieldset': {
-                      borderColor: '#fb923c',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#fb923c',
-                      boxShadow: '0 0 0 3px rgba(251, 146, 60, 0.1)',
-                    },
-                  },
-                }}
+                sx={{ flexGrow: 1 }}
                 freeSolo
                 options={users}
                 getOptionLabel={(option) => {
@@ -152,43 +134,16 @@ export const MemberManagementForm: React.FC<MemberManagementFormProps> = ({
                   <TextField
                     {...params}
                     label="Select or Type Member Name"
-                    sx={{
-                      '& .MuiInputLabel-root': {
-                        color: '#fb923c',
-                        fontWeight: 600,
-                      },
-                      '& .MuiInputLabel-root.Mui-focused': {
-                        color: '#fb923c',
-                      },
-                    }}
                   />
                 )}
               />
               <FormControl sx={{ minWidth: 140 }}>
-                <InputLabel id="member-role-label" sx={{ color: '#fb923c', fontWeight: 600 }}>Role</InputLabel>
+                <InputLabel id="member-role-label">Role</InputLabel>
                 <Select
                   labelId="member-role-label"
                   value={newMember.role}
                   label="Role"
                   onChange={(e) => onNewMemberChange({ ...newMember, role: e.target.value as 'LEAD' | 'MEMBER' })}
-                  sx={{
-                    backgroundColor: '#FFFFFF',
-                    borderRadius: 2,
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '& fieldset': {
-                        borderColor: '#fed7aa',
-                        borderWidth: 2,
-                      },
-                      '&:hover fieldset': {
-                        borderColor: '#fb923c',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#fb923c',
-                        boxShadow: '0 0 0 3px rgba(251, 146, 60, 0.1)',
-                      },
-                    },
-                  }}
                 >
                   <MenuItem value="LEAD">Lead</MenuItem>
                   <MenuItem value="MEMBER">Member</MenuItem>
@@ -196,26 +151,11 @@ export const MemberManagementForm: React.FC<MemberManagementFormProps> = ({
               </FormControl>
               <Button
                 variant="outlined"
+                color="warning"
                 onClick={onAddMember}
                 disabled={newMember.user_id === 0 && !newMember.customName}
                 startIcon={<AddIcon />}
-                sx={{
-                  minWidth: 100,
-                  borderRadius: 2,
-                  borderColor: '#fb923c',
-                  color: '#fb923c',
-                  fontWeight: 600,
-                  '&:hover': {
-                    borderColor: '#ea580c',
-                    backgroundColor: '#fed7aa',
-                    transform: 'translateY(-1px)',
-                    boxShadow: '0 4px 12px rgba(251, 146, 60, 0.2)',
-                  },
-                  '&:disabled': {
-                    borderColor: '#d1d5db',
-                    color: '#9ca3af',
-                  },
-                }}
+                sx={{ minWidth: 100, fontWeight: 600 }}
               >
                 Add
               </Button>
@@ -232,7 +172,7 @@ export const MemberManagementForm: React.FC<MemberManagementFormProps> = ({
                     border: '1px solid',
                     borderColor: 'divider',
                     borderRadius: 1,
-                    backgroundColor: 'background.paper'
+                    bgcolor: 'background.paper',
                   }}>
                     <Typography variant="body2" sx={{ flexGrow: 1 }}>
                       {displayName} <Chip label={member.role} size="small" color="primary" variant="outlined" sx={{ ml: 1 }} />
@@ -250,31 +190,13 @@ export const MemberManagementForm: React.FC<MemberManagementFormProps> = ({
             </Stack>
           </Grid>
 
-          {/* Advisors */}
           <Grid size={{ xs: 12, md: 6 }}>
-            <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 700, color: '#fb923c', mb: 2 }}>
+            <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 700, color: 'warning.main', mb: 2 }}>
               Project Advisors (Optional)
             </Typography>
             <Box sx={{ display: 'flex', gap: 2, mb: 3, flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'flex-end' } }}>
               <Autocomplete
-                sx={{
-                  flexGrow: 1,
-                  '& .MuiOutlinedInput-root': {
-                    backgroundColor: '#FFFFFF',
-                    borderRadius: 2,
-                    '& fieldset': {
-                      borderColor: '#fed7aa',
-                      borderWidth: 2,
-                    },
-                    '&:hover fieldset': {
-                      borderColor: '#fb923c',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#fb923c',
-                      boxShadow: '0 0 0 3px rgba(251, 146, 60, 0.1)',
-                    },
-                  },
-                }}
+                sx={{ flexGrow: 1 }}
                 freeSolo
                 options={users}
                 getOptionLabel={(option) => {
@@ -300,43 +222,16 @@ export const MemberManagementForm: React.FC<MemberManagementFormProps> = ({
                   <TextField
                     {...params}
                     label="Select or Type Advisor Name"
-                    sx={{
-                      '& .MuiInputLabel-root': {
-                        color: '#fb923c',
-                        fontWeight: 600,
-                      },
-                      '& .MuiInputLabel-root.Mui-focused': {
-                        color: '#fb923c',
-                      },
-                    }}
                   />
                 )}
               />
               <FormControl sx={{ minWidth: 140 }}>
-                <InputLabel id="advisor-role-label" sx={{ color: '#fb923c', fontWeight: 600 }}>Role</InputLabel>
+                <InputLabel id="advisor-role-label">Role</InputLabel>
                 <Select
                   labelId="advisor-role-label"
                   value={newAdvisor.role}
                   label="Role"
                   onChange={(e) => onNewAdvisorChange({ ...newAdvisor, role: e.target.value as 'MAIN' | 'CO_ADVISOR' | 'REVIEWER' })}
-                  sx={{
-                    backgroundColor: '#FFFFFF',
-                    borderRadius: 2,
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '& fieldset': {
-                        borderColor: '#fed7aa',
-                        borderWidth: 2,
-                      },
-                      '&:hover fieldset': {
-                        borderColor: '#fb923c',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#fb923c',
-                        boxShadow: '0 0 0 3px rgba(251, 146, 60, 0.1)',
-                      },
-                    },
-                  }}
                 >
                   <MenuItem value="MAIN">Main Advisor</MenuItem>
                   <MenuItem value="CO_ADVISOR">Co-Advisor</MenuItem>
@@ -345,26 +240,11 @@ export const MemberManagementForm: React.FC<MemberManagementFormProps> = ({
               </FormControl>
               <Button
                 variant="outlined"
+                color="warning"
                 onClick={onAddAdvisor}
                 disabled={newAdvisor.user_id === 0 && !newAdvisor.customName}
                 startIcon={<AddIcon />}
-                sx={{
-                  minWidth: 100,
-                  borderRadius: 2,
-                  borderColor: '#fb923c',
-                  color: '#fb923c',
-                  fontWeight: 600,
-                  '&:hover': {
-                    borderColor: '#ea580c',
-                    backgroundColor: '#fed7aa',
-                    transform: 'translateY(-1px)',
-                    boxShadow: '0 4px 12px rgba(251, 146, 60, 0.2)',
-                  },
-                  '&:disabled': {
-                    borderColor: '#d1d5db',
-                    color: '#9ca3af',
-                  },
-                }}
+                sx={{ minWidth: 100, fontWeight: 600 }}
               >
                 Add
               </Button>
@@ -381,7 +261,7 @@ export const MemberManagementForm: React.FC<MemberManagementFormProps> = ({
                     border: '1px solid',
                     borderColor: 'divider',
                     borderRadius: 1,
-                    backgroundColor: 'background.paper'
+                    bgcolor: 'background.paper',
                   }}>
                     <Typography variant="body2" sx={{ flexGrow: 1 }}>
                       {displayName} <Chip label={advisor.role} size="small" color="secondary" variant="outlined" sx={{ ml: 1 }} />

@@ -1,14 +1,12 @@
 import React from 'react';
 import { Box, Container } from '@mui/material';
-import { DashboardTheme } from '@/config/dashboardThemes';
 import { designTokens } from '@/styles/designTokens';
 
 interface DashboardContainerProps {
-  theme: DashboardTheme;
   children: React.ReactNode;
 }
 
-export const DashboardContainer: React.FC<DashboardContainerProps> = ({ theme, children }) => {
+export const DashboardContainer: React.FC<DashboardContainerProps> = ({ children }) => {
   return (
     <Box
       sx={{

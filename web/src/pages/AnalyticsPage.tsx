@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { designTokens } from '@/styles/designTokens';
+import { colorPalette } from '@/styles/theme/colorPalette';
 import {
   Container,
   Typography,
@@ -78,61 +79,61 @@ interface TopRatedProject extends Project {
   program?: Program;
 }
 
-// Harmonious color palette for analytics
+// Analytics color palette — mapped from unified colorPalette tokens
 const ANALYTICS_COLORS = {
   primary: {
-    main: '#2563eb',
-    light: '#3b82f6',
-    dark: '#1d4ed8',
-    contrast: '#ffffff',
+    main: colorPalette.info.main,
+    light: colorPalette.info.light,
+    dark: colorPalette.info.dark,
+    contrast: colorPalette.common.white,
   },
   secondary: {
-    main: '#7c3aed',
-    light: '#8b5cf6',
-    dark: '#6d28d9',
-    contrast: '#ffffff',
+    main: colorPalette.secondary.main,
+    light: colorPalette.secondary.light,
+    dark: colorPalette.secondary.dark,
+    contrast: colorPalette.common.white,
   },
   success: {
-    main: '#059669',
-    light: '#10b981',
-    dark: '#047857',
-    contrast: '#ffffff',
+    main: colorPalette.success.main,
+    light: colorPalette.success.light,
+    dark: colorPalette.success.dark,
+    contrast: colorPalette.common.white,
   },
   warning: {
-    main: '#d97706',
-    light: '#f59e0b',
-    dark: '#b45309',
-    contrast: '#ffffff',
+    main: colorPalette.warning.main,
+    light: colorPalette.warning.light,
+    dark: colorPalette.warning.dark,
+    contrast: colorPalette.common.white,
   },
   info: {
-    main: '#0891b2',
-    light: '#06b6d4',
-    dark: '#0e7490',
-    contrast: '#ffffff',
+    main: colorPalette.teal.main,
+    light: colorPalette.teal.light,
+    dark: colorPalette.teal.dark,
+    contrast: colorPalette.common.white,
   },
   neutral: {
-    50: '#f8fafc',
-    100: '#f1f5f9',
-    200: '#e2e8f0',
-    300: '#cbd5e1',
-    400: '#94a3b8',
-    500: '#64748b',
-    600: '#475569',
-    700: '#334155',
-    800: '#1e293b',
-    900: '#0f172a',
+    50: colorPalette.neutral[50],
+    100: colorPalette.neutral[100],
+    200: colorPalette.neutral[200],
+    300: colorPalette.neutral[300],
+    400: colorPalette.neutral[400],
+    500: colorPalette.neutral[500],
+    600: colorPalette.neutral[600],
+    700: colorPalette.neutral[700],
+    800: colorPalette.neutral[800],
+    900: colorPalette.neutral[900],
   }
 };
 
 const CHART_COLORS = [
-  ANALYTICS_COLORS.primary.main,
-  ANALYTICS_COLORS.secondary.main,
-  ANALYTICS_COLORS.success.main,
-  ANALYTICS_COLORS.warning.main,
-  ANALYTICS_COLORS.info.main,
-  '#8b5cf6',
-  '#f59e0b',
-  '#ef4444',
+  colorPalette.info.main,
+  colorPalette.secondary.main,
+  colorPalette.success.main,
+  colorPalette.warning.main,
+  colorPalette.teal.main,
+  colorPalette.accent.main,
+  colorPalette.accent.light,
+  colorPalette.error.main,
 ];
 
 export const AnalyticsPage: React.FC = () => {

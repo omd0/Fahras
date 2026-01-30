@@ -5,6 +5,7 @@ import {
   Typography,
   Avatar,
   Chip,
+  useTheme,
 } from '@mui/material';
 import {
   Create as CreateIcon,
@@ -35,21 +36,23 @@ const activityIcons: Record<string, React.ReactNode> = {
   milestone_updated: <EditIcon />,
 };
 
-const activityColors: Record<string, string> = {
-  project_created: '#4caf50',
-  project_updated: '#2196f3',
-  status_change: '#ff9800',
-  file_upload: '#9c27b0',
-  file_delete: '#f44336',
-  comment_added: '#00bcd4',
-  milestone_started: '#2196f3',
-  milestone_completed: '#4caf50',
-  milestone_updated: '#ff9800',
-};
-
 export const ActivityItem: React.FC<ActivityItemProps> = ({ activity }: ActivityItemProps) => {
+  const theme = useTheme();
+
+  const activityColors: Record<string, string> = {
+    project_created: theme.palette.success.main,
+    project_updated: theme.palette.info.main,
+    status_change: theme.palette.warning.main,
+    file_upload: theme.palette.secondary.main,
+    file_delete: theme.palette.error.main,
+    comment_added: theme.palette.info.light,
+    milestone_started: theme.palette.info.main,
+    milestone_completed: theme.palette.success.main,
+    milestone_updated: theme.palette.warning.main,
+  };
+
   const icon = activityIcons[activity.activity_type] || <CreateIcon />;
-  const color = activityColors[activity.activity_type] || '#9e9e9e';
+  const color = activityColors[activity.activity_type] || theme.palette.grey[500];
   const userInitials = activity.user?.full_name
     ? activity.user.full_name
         .split(' ')

@@ -28,7 +28,6 @@ export const EmailVerificationPage: React.FC = () => {
   const [resendCooldown, setResendCooldown] = useState(0);
   const [verifyingMagicLink, setVerifyingMagicLink] = useState(false);
 
-  // If user is already authenticated and verified, redirect to dashboard
   useEffect(() => {
     if (isAuthenticated && user?.email_verified_at) {
       navigate('/dashboard', { replace: true });
@@ -36,7 +35,6 @@ export const EmailVerificationPage: React.FC = () => {
   }, [isAuthenticated, user?.email_verified_at, navigate]);
 
   useEffect(() => {
-    // Get email from URL params or location state
     const emailParam = searchParams.get('email');
     const tokenParam = searchParams.get('token');
     const stateEmail = (location.state as any)?.email;
@@ -47,14 +45,12 @@ export const EmailVerificationPage: React.FC = () => {
       setEmail(stateEmail);
     }
 
-    // If token is present, verify via magic link
     if (tokenParam) {
       handleMagicLinkVerification(tokenParam);
     }
   }, [searchParams, location]);
 
   useEffect(() => {
-    // Cooldown timer
     if (resendCooldown > 0) {
       const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
       return () => clearTimeout(timer);
@@ -69,15 +65,12 @@ export const EmailVerificationPage: React.FC = () => {
       const response = await authApi.verifyMagicLink(token);
       setSuccess(response.message);
 
-      // Update auth store - set token first, then authenticate, then user
       setToken(response.token);
       setAuthenticated(true);
       setUser(response.user);
 
-      // Force a small delay to ensure Zustand persist middleware saves the state
       await new Promise(resolve => setTimeout(resolve, 200));
 
-      // Hard redirect to ensure fresh state is loaded
       window.location.href = '/dashboard';
     } catch (err: any) {
       setError(
@@ -106,18 +99,14 @@ export const EmailVerificationPage: React.FC = () => {
       const response = await authApi.verifyEmail(email, otp);
       setSuccess(response.message);
 
-      // Update auth store with verified user and token
-      // Set token first, then authenticate, then user
       if (response.token) {
         setToken(response.token);
       }
       setAuthenticated(true);
       setUser(response.user);
 
-      // Force a small delay to ensure Zustand persist middleware saves the state
       await new Promise(resolve => setTimeout(resolve, 200));
 
-      // Hard redirect to ensure fresh state is loaded
       window.location.href = '/dashboard';
     } catch (err: any) {
       setError(
@@ -141,8 +130,8 @@ export const EmailVerificationPage: React.FC = () => {
     try {
       const response = await authApi.sendVerificationEmail(email);
       setSuccess(response.message);
-      setResendCooldown(60); // 60 second cooldown
-      setOtp(''); // Clear current OTP
+      setResendCooldown(60);
+      setOtp('');
     } catch (err: any) {
       setError(
         err.response?.data?.message || 'Failed to resend code. Please try again.'
@@ -154,18 +143,31 @@ export const EmailVerificationPage: React.FC = () => {
 
   if (verifyingMagicLink) {
     return (
-      <Container maxWidth="sm">
-        <Box
-          sx={{
-            minHeight: '100vh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Paper elevation={3} sx={{ p: 4, textAlign: 'center', width: '100%' }}>
+      <Box
+        sx={{
+          minHeight: '100vh',
+          bgcolor: 'background.default',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          py: 4,
+        }}
+      >
+        <Container maxWidth="sm">
+          <Paper
+            elevation={3}
+            sx={{
+              p: 4,
+              textAlign: 'center',
+              width: '100%',
+              borderRadius: 3,
+              bgcolor: 'background.paper',
+              border: '1px solid',
+              borderColor: 'divider',
+            }}
+          >
             <CircularProgress size={60} sx={{ mb: 2 }} />
-            <Typography variant="h5" gutterBottom>
+            <Typography variant="h5" gutterBottom sx={{ color: 'text.primary' }}>
               Verifying your email...
             </Typography>
             <Typography color="text.secondary">
@@ -184,28 +186,39 @@ export const EmailVerificationPage: React.FC = () => {
               </Alert>
             )}
           </Paper>
-        </Box>
-      </Container>
+        </Container>
+      </Box>
     );
   }
 
   return (
-    <Container maxWidth="sm">
-      <Box
-        sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          py: 4,
-        }}
-      >
-        <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        bgcolor: 'background.default',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        py: 4,
+      }}
+    >
+      <Container maxWidth="sm">
+        <Paper
+          elevation={3}
+          sx={{
+            p: 4,
+            width: '100%',
+            borderRadius: 3,
+            bgcolor: 'background.paper',
+            border: '1px solid',
+            borderColor: 'divider',
+          }}
+        >
           <Typography
             variant="h4"
             component="h1"
             gutterBottom
-            sx={{ textAlign: 'center', fontWeight: 'bold', mb: 1 }}
+            sx={{ textAlign: 'center', fontWeight: 'bold', mb: 1, color: 'text.primary' }}
           >
             Verify Your Email
           </Typography>
@@ -248,14 +261,9 @@ export const EmailVerificationPage: React.FC = () => {
             size="large"
             onClick={handleVerify}
             disabled={loading || otp.length !== 6}
-            sx={{
-              mb: 2,
-              py: 1.5,
-              backgroundColor: '#007BFF',
-              '&:hover': { backgroundColor: '#0056b3' },
-            }}
+            sx={{ mb: 2, py: 1.5 }}
           >
-            {loading ? <CircularProgress size={24} /> : 'Verify Email'}
+            {loading ? <CircularProgress size={24} color="inherit" /> : 'Verify Email'}
           </Button>
 
           <Box sx={{ textAlign: 'center' }}>
@@ -266,7 +274,7 @@ export const EmailVerificationPage: React.FC = () => {
             <Button
               onClick={handleResend}
               disabled={resendLoading || resendCooldown > 0}
-              sx={{ color: '#007BFF' }}
+              sx={{ color: 'primary.main' }}
             >
               {resendLoading ? (
                 <CircularProgress size={20} />
@@ -283,14 +291,14 @@ export const EmailVerificationPage: React.FC = () => {
               Already verified?{' '}
               <Button
                 onClick={() => navigate('/login')}
-                sx={{ color: '#007BFF', textTransform: 'none', p: 0, minWidth: 0 }}
+                sx={{ color: 'primary.main', textTransform: 'none', p: 0, minWidth: 0 }}
               >
                 Login
               </Button>
             </Typography>
           </Box>
         </Paper>
-      </Box>
-    </Container>
+      </Container>
+    </Box>
   );
 };

@@ -1,4 +1,5 @@
 import React from 'react';
+import { colorPalette } from '@/styles/theme/colorPalette';
 import {
   Box,
   Card,
@@ -42,7 +43,7 @@ export const ProjectFilters: React.FC<ProjectFiltersProps> = ({
       mb: 4,
       borderRadius: 3,
       boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
-      background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+      background: `linear-gradient(135deg, ${colorPalette.common.white} 0%, ${colorPalette.surface.elevated} 100%)`,
       border: `1px solid ${dashboardTheme.primary}20`,
     }}>
       <CardContent sx={{ p: 3 }}>

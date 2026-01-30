@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Typography, useTheme, Divider } from '@mui/material';
+import { Box, Typography, useTheme, Divider, Link } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 import { getTVTCDisplayName } from '@/config/organization';
 
 interface HeaderLogoProps {
@@ -21,7 +22,7 @@ export const HeaderLogo: React.FC<HeaderLogoProps> = ({ variant = 'header' }) =>
   const footerStyles = {
     bgcolor: theme.palette.mode === 'dark'
       ? theme.palette.grey[900]
-      : '#F7FAFB', // surface.050
+      : theme.palette.grey[50],
     borderTop: `1px solid ${theme.palette.divider}`,
   };
 
@@ -135,10 +136,57 @@ export const HeaderLogo: React.FC<HeaderLogoProps> = ({ variant = 'header' }) =>
           >
             Technical College of Telecommunications and Information in Riyadh
           </Typography>
-        </Box>
-      </Box>
-    </Box>
-  );
+         </Box>
+       </Box>
+
+       {/* Footer Links - only show in footer variant */}
+       {!isHeader && (
+         <Box
+           sx={{
+             display: 'flex',
+             gap: { xs: 1.5, sm: 2, md: 3 },
+             justifyContent: 'center',
+             flexWrap: 'wrap',
+             width: '100%',
+             mt: 2,
+             pt: 2,
+             borderTop: `1px solid ${theme.palette.divider}`,
+           }}
+         >
+           <Link
+             component={RouterLink}
+             to="/terms"
+             sx={{
+               color: theme.palette.primary.main,
+               textDecoration: 'none',
+               fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
+               fontWeight: 500,
+               '&:hover': {
+                 textDecoration: 'underline',
+               },
+             }}
+           >
+             Terms of Service
+           </Link>
+           <Link
+             component={RouterLink}
+             to="/privacy"
+             sx={{
+               color: theme.palette.primary.main,
+               textDecoration: 'none',
+               fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' },
+               fontWeight: 500,
+               '&:hover': {
+                 textDecoration: 'underline',
+               },
+             }}
+           >
+             Privacy Policy
+           </Link>
+         </Box>
+       )}
+     </Box>
+   );
 };
 
 export default HeaderLogo;

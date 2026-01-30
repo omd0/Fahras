@@ -109,17 +109,17 @@ export const OTPInput: React.FC<OTPInputProps> = ({
             width: '56px',
             '& .MuiOutlinedInput-root': {
               '& fieldset': {
-                borderColor: error ? 'error.main' : '#e0e0e0',
+                borderColor: error ? 'error.main' : 'divider',
                 borderWidth: '2px',
               },
               '&:hover fieldset': {
-                borderColor: error ? 'error.main' : '#007BFF',
+                borderColor: error ? 'error.main' : 'info.main',
               },
               '&.Mui-focused fieldset': {
-                borderColor: error ? 'error.main' : '#007BFF',
+                borderColor: error ? 'error.main' : 'info.main',
               },
               '&.Mui-disabled': {
-                backgroundColor: '#f5f5f5',
+                backgroundColor: 'action.hover',
               },
             },
           }}

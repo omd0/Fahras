@@ -19,7 +19,7 @@ import { Project } from '@/types';
 import { apiService } from '@/lib/api';
 import { getRoleInfo } from '@/config/dashboardThemes';
 import { useAuthStore } from '@/features/auth/store';
-import { useTheme } from '@/providers/ThemeContext';
+import { useTheme } from '@mui/material';
 import { useLanguage } from '@/providers/LanguageContext';
 import { DashboardContainer } from '@/components/shared/DashboardContainer';
 import { DashboardHeader } from '@/components/shared/DashboardHeader';
@@ -46,7 +46,7 @@ export const AdminDashboard: React.FC = () => {
 
   const { user } = useAuthStore();
   const navigate = useNavigate();
-  const { theme } = useTheme();
+  const theme = useTheme();
   const { t } = useLanguage();
   const roleInfo = getRoleInfo('admin', user?.full_name, t);
 
@@ -124,9 +124,8 @@ export const AdminDashboard: React.FC = () => {
   ];
 
   return (
-    <DashboardContainer theme={theme}>
+    <DashboardContainer>
       <DashboardHeader
-        theme={theme}
         icon={roleInfo.icon}
         greeting={roleInfo.greeting}
         userName={user?.full_name || ''}
@@ -183,7 +182,7 @@ export const AdminDashboard: React.FC = () => {
                     key={index}
                     sx={{
                       border: '1px solid',
-                      borderColor: theme.borderColor,
+                      borderColor: theme.palette.divider,
                       borderRadius: 2,
                     }}
                   >
@@ -243,13 +242,13 @@ export const AdminDashboard: React.FC = () => {
             </Grid>
           </Grid>
 
-          <QuickActions theme={theme} actions={quickActions} />
+          <QuickActions actions={quickActions} />
 
           <Card sx={{ borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
             <CardContent>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                 <Typography variant="h6" sx={{ fontWeight: 600 }}>Recent Projects</Typography>
-                <Button variant="text" onClick={() => navigate('/admin/projects')} sx={{ color: theme.primary }}>
+                <Button variant="text" onClick={() => navigate('/admin/projects')} sx={{ color: theme.palette.primary.main }}>
                   View All
                 </Button>
               </Box>
@@ -259,14 +258,14 @@ export const AdminDashboard: React.FC = () => {
                   <Card
                     key={project.id}
                     sx={{
-                      border: `1px solid ${theme.borderColor}`,
+                      border: `1px solid ${theme.palette.divider}`,
                       borderRadius: 2,
                       cursor: 'pointer',
                       transition: 'all 0.3s ease',
                       '&:hover': {
                         boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
                         transform: 'translateY(-2px)',
-                        borderColor: theme.primary,
+                        borderColor: theme.palette.primary.main,
                       },
                     }}
                     onClick={() => navigate(getProjectDetailUrl(project))}
@@ -275,7 +274,7 @@ export const AdminDashboard: React.FC = () => {
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
                         <Box sx={{ flex: 1 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                            <SchoolIcon sx={{ color: theme.primary, mr: 1 }} />
+                            <SchoolIcon sx={{ color: theme.palette.primary.main, mr: 1 }} />
                             <Typography variant="h6" sx={{ fontWeight: 600 }}>{project.title}</Typography>
                           </Box>
                           <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
@@ -296,7 +295,7 @@ export const AdminDashboard: React.FC = () => {
                             </Typography>
                           </Box>
                         </Box>
-                        <IconButton size="small" sx={{ color: theme.primary }}>
+                        <IconButton size="small" sx={{ color: theme.palette.primary.main }}>
                           <VisibilityIcon />
                         </IconButton>
                       </Box>

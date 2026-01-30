@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { designTokens } from '@/styles/designTokens';
+import { colorPalette } from '@/styles/theme/colorPalette';
 import { 
   Box, 
   Card, 
@@ -25,7 +26,7 @@ import {
   Tooltip,
   Badge,
   Container,
-  useTheme as useMuiTheme,
+  useTheme,
   alpha,
   Skeleton,
 } from '@mui/material';
@@ -67,7 +68,7 @@ import { apiService } from '@/lib/api';
 import { getRoleInfo } from '@/config/dashboardThemes';
 import { useAuthStore } from '@/features/auth/store';
 import { useLanguage } from '@/providers/LanguageContext';
-import { useTheme } from '@/providers/ThemeContext';
+
 import { DashboardContainer } from '@/components/shared/DashboardContainer';
 import { DashboardHeader } from '@/components/shared/DashboardHeader';
 import { StatsCard } from '@/components/shared/StatsCard';
@@ -110,7 +111,7 @@ export const StudentDashboard: React.FC = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
-  const { theme } = useTheme();
+  const theme = useTheme();
   const { t } = useLanguage();
   const roleInfo = getRoleInfo('student', user?.full_name, t);
   const myProjectsRef = useRef<HTMLDivElement>(null);
@@ -196,13 +197,13 @@ export const StudentDashboard: React.FC = () => {
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'comment':
-        return <CommentIcon sx={{ color: '#3b82f6' }} />;
+        return <CommentIcon sx={{ color: 'info.main' }} />;
       case 'rating':
-        return <StarIcon sx={{ color: '#f59e0b' }} />;
+        return <StarIcon sx={{ color: 'warning.main' }} />;
       case 'project_status':
-        return <AssignmentIcon sx={{ color: '#059669' }} />;
+        return <AssignmentIcon sx={{ color: 'success.main' }} />;
       default:
-        return <InfoIcon sx={{ color: '#6b7280' }} />;
+        return <InfoIcon sx={{ color: 'text.secondary' }} />;
     }
   };
 
@@ -281,7 +282,7 @@ export const StudentDashboard: React.FC = () => {
     (p.members || []).some(member => member.id === user?.id)
   );
 
-  const muiTheme = useMuiTheme();
+
 
   return (
     <Box
@@ -296,9 +297,9 @@ export const StudentDashboard: React.FC = () => {
           left: 0,
           right: 0,
           bottom: 0,
-          background: `radial-gradient(circle at 20% 80%, ${alpha(theme.primary, 0.1)} 0%, transparent 50%), 
-                      radial-gradient(circle at 80% 20%, ${alpha(theme.secondary, 0.1)} 0%, transparent 50%),
-                      radial-gradient(circle at 40% 40%, ${alpha(theme.accent, 0.1)} 0%, transparent 50%)`,
+          background: `radial-gradient(circle at 20% 80%, ${alpha(theme.palette.primary.main, 0.1)} 0%, transparent 50%), 
+                      radial-gradient(circle at 80% 20%, ${alpha(theme.palette.secondary.main, 0.1)} 0%, transparent 50%),
+                      radial-gradient(circle at 40% 40%, ${alpha(theme.palette.secondary.main, 0.1)} 0%, transparent 50%)`,
           pointerEvents: 'none',
         },
       }}
@@ -467,9 +468,9 @@ export const StudentDashboard: React.FC = () => {
                 </Box>
               </Stack>
               <ProjectGridSkeleton 
-                theme={theme} 
+                
                 count={3} 
-                showProgress={true}
+                
               />
             </Box>
           </Paper>
@@ -485,7 +486,7 @@ export const StudentDashboard: React.FC = () => {
                 </Box>
               </Stack>
               <ProjectGridSkeleton 
-                theme={theme} 
+                
                 count={6} 
               />
             </Box>
@@ -508,7 +509,7 @@ export const StudentDashboard: React.FC = () => {
                       overflow: 'hidden',
                       '&:hover': {
                         transform: 'translateY(-8px) scale(1.02)',
-                        boxShadow: `0 20px 40px ${alpha(theme.primary, 0.3)}`,
+                        boxShadow: `0 20px 40px ${alpha(theme.palette.primary.main, 0.3)}`,
                       },
                       '&::before': {
                         content: '""',
@@ -561,7 +562,7 @@ export const StudentDashboard: React.FC = () => {
                       overflow: 'hidden',
                       '&:hover': {
                         transform: 'translateY(-8px) scale(1.02)',
-                        boxShadow: `0 20px 40px ${alpha(theme.accent, 0.3)}`,
+                        boxShadow: `0 20px 40px ${alpha(theme.palette.secondary.main, 0.3)}`,
                       },
                       '&::before': {
                         content: '""',
@@ -614,7 +615,7 @@ export const StudentDashboard: React.FC = () => {
                       overflow: 'hidden',
                       '&:hover': {
                         transform: 'translateY(-8px) scale(1.02)',
-                        boxShadow: `0 20px 40px ${alpha(theme.secondary, 0.3)}`,
+                        boxShadow: `0 20px 40px ${alpha(theme.palette.secondary.main, 0.3)}`,
                       },
                       '&::before': {
                         content: '""',
@@ -718,7 +719,7 @@ export const StudentDashboard: React.FC = () => {
                       borderRadius: 4, 
                       boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
                       background: designTokens.colors.surface[50],
-                      border: `1px solid ${alpha('#6366f1', 0.15)}`,
+                      border: `1px solid ${alpha(colorPalette.secondary.main, 0.15)}`,
                       height: '100%',
                       position: 'relative',
                       overflow: 'hidden',
@@ -744,7 +745,7 @@ export const StudentDashboard: React.FC = () => {
                               boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
                             }}
                           >
-                            <NotificationsIcon sx={{ fontSize: 24, color: '#FF4500' }} />
+                            <NotificationsIcon sx={{ fontSize: 24, color: colorPalette.warning.main }} />
                           </Avatar>
                           <Box>
                             <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary' }}>
@@ -784,7 +785,7 @@ export const StudentDashboard: React.FC = () => {
                       <CircularProgress 
                         size={40} 
                         sx={{ 
-                          color: '#6366f1',
+                          color: colorPalette.secondary.main,
                           '& .MuiCircularProgress-circle': {
                             strokeLinecap: 'round',
                           },
@@ -805,7 +806,7 @@ export const StudentDashboard: React.FC = () => {
                             sx={{
                                     mb: 2,
                                     borderRadius: 3,
-                                    border: `1px solid ${alpha('#6366f1', 0.12)}`,
+                                    border: `1px solid ${alpha(colorPalette.secondary.main, 0.12)}`,
                                     background: notification.is_read 
                                       ? 'transparent' 
                                       : 'linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.08) 50%, rgba(236, 72, 153, 0.08) 100%)',
@@ -814,7 +815,7 @@ export const StudentDashboard: React.FC = () => {
                               '&:hover': {
                                       transform: 'translateY(-2px)',
                                       boxShadow: '0 8px 25px rgba(99, 102, 241, 0.2)',
-                                      borderColor: '#6366f1',
+                                      borderColor: colorPalette.secondary.main,
                                       background: designTokens.colors.surface[50],
                               },
                             }}
@@ -929,7 +930,7 @@ export const StudentDashboard: React.FC = () => {
                               border: '2px solid rgba(99, 102, 241, 0.2)',
                             }}
                           >
-                            <NotificationsIcon sx={{ fontSize: 40, color: '#FF4500' }} />
+                            <NotificationsIcon sx={{ fontSize: 40, color: colorPalette.warning.main }} />
                           </Avatar>
                           <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 600, mb: 1 }}>
                         {t('No recent activity')}
@@ -952,7 +953,7 @@ export const StudentDashboard: React.FC = () => {
                       borderRadius: 4,
                       boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
                       background: designTokens.colors.primary[500],
-                      border: `2px solid ${alpha(theme.primary, 0.2)}`,
+                      border: `2px solid ${alpha(theme.palette.primary.main, 0.2)}`,
                 height: '100%',
                       position: 'relative',
                       overflow: 'hidden',
@@ -983,7 +984,7 @@ export const StudentDashboard: React.FC = () => {
                           background: designTokens.colors.primary[500],
                           mx: 'auto',
                           mb: 3,
-                          boxShadow: `0 8px 32px ${alpha(theme.primary, 0.3)}`,
+                          boxShadow: `0 8px 32px ${alpha(theme.palette.primary.main, 0.3)}`,
                         }}
                       >
                         <RocketIcon sx={{ fontSize: 60 }} />
@@ -1026,7 +1027,7 @@ export const StudentDashboard: React.FC = () => {
                             textTransform: 'none',
                       '&:hover': {
                               transform: 'translateY(-3px)',
-                              boxShadow: `0 12px 40px ${alpha(theme.primary, 0.4)}`,
+                              boxShadow: `0 12px 40px ${alpha(theme.palette.primary.main, 0.4)}`,
                       },
                             transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                     }}
@@ -1037,19 +1038,19 @@ export const StudentDashboard: React.FC = () => {
                       
                       <Stack direction="row" spacing={4} justifyContent="center" sx={{ mt: 2 }}>
                         <Stack direction="row" alignItems="center" spacing={1}>
-                          <AutoAwesomeIcon sx={{ color: theme.primary, fontSize: 20 }} />
+                          <AutoAwesomeIcon sx={{ color: theme.palette.primary.main, fontSize: 20 }} />
                           <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
                             {t('Innovation Ready')}
                           </Typography>
                         </Stack>
                         <Stack direction="row" alignItems="center" spacing={1}>
-                          <GroupIcon sx={{ color: theme.secondary, fontSize: 20 }} />
+                          <GroupIcon sx={{ color: theme.palette.secondary.main, fontSize: 20 }} />
                           <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
                             {t('Community Driven')}
                           </Typography>
                         </Stack>
                         <Stack direction="row" alignItems="center" spacing={1}>
-                          <EmojiEventsIcon sx={{ color: theme.accent, fontSize: 20 }} />
+                          <EmojiEventsIcon sx={{ color: theme.palette.secondary.main, fontSize: 20 }} />
                           <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
                             {t('Excellence Focused')}
                           </Typography>
@@ -1070,7 +1071,7 @@ export const StudentDashboard: React.FC = () => {
                   borderRadius: 4,
                   boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
                   background: designTokens.colors.surface[50],
-                  border: `1px solid ${alpha(theme.primary, 0.1)}`,
+                  border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
                   position: 'relative',
                   overflow: 'hidden',
                   '&::before': {
@@ -1108,13 +1109,13 @@ export const StudentDashboard: React.FC = () => {
             '& .MuiPaper-root': {
               borderRadius: 3,
               boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                    border: `2px solid ${alpha(theme.primary, 0.2)}`,
+                    border: `2px solid ${alpha(theme.palette.primary.main, 0.2)}`,
             },
             '& .MuiButton-contained': {
                     background: designTokens.colors.primary[500],
               '&:hover': {
                 transform: 'translateY(-2px)',
-                      boxShadow: `0 8px 25px ${alpha(theme.primary, 0.3)}`,
+                      boxShadow: `0 8px 25px ${alpha(theme.palette.primary.main, 0.3)}`,
               },
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             },
@@ -1123,7 +1124,6 @@ export const StudentDashboard: React.FC = () => {
               onSearch={handleSearch}
               onClear={handleClearSearch}
               loading={isSearching}
-              theme={theme}
               variant="compact"
               showAdvancedFilters={true}
               roleSpecificFilters={{
@@ -1143,10 +1143,10 @@ export const StudentDashboard: React.FC = () => {
                 sx={{ 
                   mb: 2,
                   borderRadius: 2,
-                  background: `${theme.primary}10`,
-                  border: `1px solid ${theme.primary}40`,
+                  background: `${theme.palette.primary.main}10`,
+                  border: `1px solid ${theme.palette.primary.main}40`,
                   '& .MuiAlert-icon': {
-                    color: theme.primary,
+                    color: theme.palette.primary.main,
                   }
                 }}
               >
@@ -1164,7 +1164,7 @@ export const StudentDashboard: React.FC = () => {
                     onClick={handleClearSearch}
                     disabled={isSearching}
                     sx={{
-                      background: theme.appBarGradient,
+                      background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
                       color: 'white',
                       fontWeight: 600,
                       px: 3,
@@ -1193,7 +1193,7 @@ export const StudentDashboard: React.FC = () => {
                   borderRadius: 4,
                   boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
                   background: designTokens.colors.surface[50],
-                  border: `1px solid ${alpha(theme.primary, 0.1)}`,
+                  border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
                   position: 'relative',
                   overflow: 'hidden',
                   '&::before': {
@@ -1252,15 +1252,15 @@ export const StudentDashboard: React.FC = () => {
                             sx={{
                               borderRadius: 4,
                               boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                              border: `1px solid ${alpha(theme.primary, 0.1)}`,
+                              border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
                               cursor: 'pointer',
                               transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                               position: 'relative',
                               overflow: 'hidden',
                               '&:hover': {
                                 transform: 'translateY(-8px) scale(1.02)',
-                                boxShadow: `0 20px 40px ${alpha(theme.primary, 0.2)}`,
-                                borderColor: theme.primary,
+                                boxShadow: `0 20px 40px ${alpha(theme.palette.primary.main, 0.2)}`,
+                                borderColor: theme.palette.primary.main,
                               },
                               '&::before': {
                                 content: '""',
@@ -1302,10 +1302,10 @@ export const StudentDashboard: React.FC = () => {
                                     size="small"
                                     sx={{
                                       background: project.status === 'completed' 
-                                        ? `linear-gradient(135deg, ${theme.secondary} 0%, ${alpha(theme.secondary, 0.8)} 100%)`
+                                        ? `linear-gradient(135deg, ${theme.palette.secondary.main} 0%, ${alpha(theme.palette.secondary.main, 0.8)} 100%)`
                                         : project.status === 'under_review'
-                                        ? `linear-gradient(135deg, ${theme.accent} 0%, ${alpha(theme.accent, 0.8)} 100%)`
-                                        : `linear-gradient(135deg, ${theme.primary} 0%, ${alpha(theme.primary, 0.8)} 100%)`,
+                                        ? `linear-gradient(135deg, ${theme.palette.secondary.main} 0%, ${alpha(theme.palette.secondary.main, 0.8)} 100%)`
+                                        : `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${alpha(theme.palette.primary.main, 0.8)} 100%)`,
                                       color: 'white',
                                       fontWeight: 600,
                                       textTransform: 'capitalize',
@@ -1321,9 +1321,9 @@ export const StudentDashboard: React.FC = () => {
                                         navigate(getProjectEditUrl(project));
                                       }}
                                       sx={{
-                                        color: theme.primary,
+                                        color: theme.palette.primary.main,
                                         '&:hover': {
-                                          backgroundColor: alpha(theme.primary, 0.1),
+                                          backgroundColor: alpha(theme.palette.primary.main, 0.1),
                                         },
                                       }}
                                     >
@@ -1338,9 +1338,9 @@ export const StudentDashboard: React.FC = () => {
                                         navigate(`/dashboard/projects/${project.id}`);
                                       }}
                                       sx={{
-                                        color: theme.secondary,
+                                        color: theme.palette.secondary.main,
                                         '&:hover': {
-                                          backgroundColor: alpha(theme.secondary, 0.1),
+                                          backgroundColor: alpha(theme.palette.secondary.main, 0.1),
                                         },
                                       }}
                                     >
@@ -1373,7 +1373,7 @@ export const StudentDashboard: React.FC = () => {
                                   <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
                                     {t('Progress')}
                                   </Typography>
-                                  <Typography variant="caption" sx={{ fontWeight: 700, color: theme.primary }}>
+                                  <Typography variant="caption" sx={{ fontWeight: 700, color: theme.palette.primary.main }}>
                                     {(() => {
                                       const statusProgress: Record<string, number> = {
                                         'draft': 20,
@@ -1401,7 +1401,7 @@ export const StudentDashboard: React.FC = () => {
                                   sx={{
                                     height: 8,
                                     borderRadius: 4,
-                                    backgroundColor: alpha(theme.primary, 0.1),
+                                    backgroundColor: alpha(theme.palette.primary.main, 0.1),
                                     '& .MuiLinearProgress-bar': {
                                       background: designTokens.colors.primary[500],
                                       borderRadius: 4,
@@ -1465,7 +1465,7 @@ export const StudentDashboard: React.FC = () => {
                           textTransform: 'none',
                           '&:hover': {
                             transform: 'translateY(-2px)',
-                            boxShadow: `0 8px 25px ${alpha(theme.primary, 0.3)}`,
+                            boxShadow: `0 8px 25px ${alpha(theme.palette.primary.main, 0.3)}`,
                           },
                           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                         }}
@@ -1486,7 +1486,7 @@ export const StudentDashboard: React.FC = () => {
                   borderRadius: 4,
                   boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
                   background: designTokens.colors.surface[50],
-                  border: `1px solid ${alpha(theme.primary, 0.1)}`,
+                  border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
                   position: 'relative',
                   overflow: 'hidden',
                   '&::before': {
@@ -1535,7 +1535,7 @@ export const StudentDashboard: React.FC = () => {
                         textTransform: 'none',
                         '&:hover': {
                           transform: 'translateY(-2px)',
-                          boxShadow: `0 8px 25px ${alpha(theme.secondary, 0.3)}`,
+                          boxShadow: `0 8px 25px ${alpha(theme.palette.secondary.main, 0.3)}`,
                         },
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                       }}
@@ -1556,15 +1556,15 @@ export const StudentDashboard: React.FC = () => {
                             sx={{
                               borderRadius: 4,
                               boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                              border: `1px solid ${alpha(theme.secondary, 0.1)}`,
+                              border: `1px solid ${alpha(theme.palette.secondary.main, 0.1)}`,
                               cursor: 'pointer',
                               transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                               position: 'relative',
                               overflow: 'hidden',
                               '&:hover': {
                                 transform: 'translateY(-8px) scale(1.02)',
-                                boxShadow: `0 20px 40px ${alpha(theme.secondary, 0.2)}`,
-                                borderColor: theme.secondary,
+                                boxShadow: `0 20px 40px ${alpha(theme.palette.secondary.main, 0.2)}`,
+                                borderColor: theme.palette.secondary.main,
                               },
                               '&::before': {
                                 content: '""',
@@ -1606,10 +1606,10 @@ export const StudentDashboard: React.FC = () => {
                                     size="small"
                                     sx={{
                                       background: project.status === 'completed' 
-                                        ? `linear-gradient(135deg, ${theme.secondary} 0%, ${alpha(theme.secondary, 0.8)} 100%)`
+                                        ? `linear-gradient(135deg, ${theme.palette.secondary.main} 0%, ${alpha(theme.palette.secondary.main, 0.8)} 100%)`
                                         : project.status === 'under_review'
-                                        ? `linear-gradient(135deg, ${theme.accent} 0%, ${alpha(theme.accent, 0.8)} 100%)`
-                                        : `linear-gradient(135deg, ${theme.primary} 0%, ${alpha(theme.primary, 0.8)} 100%)`,
+                                        ? `linear-gradient(135deg, ${theme.palette.secondary.main} 0%, ${alpha(theme.palette.secondary.main, 0.8)} 100%)`
+                                        : `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${alpha(theme.palette.primary.main, 0.8)} 100%)`,
                                       color: 'white',
                                       fontWeight: 600,
                                       textTransform: 'capitalize',
@@ -1624,9 +1624,9 @@ export const StudentDashboard: React.FC = () => {
                                       navigate(`/dashboard/projects/${project.id}`);
                                     }}
                                     sx={{
-                                      color: theme.secondary,
+                                      color: theme.palette.secondary.main,
                                       '&:hover': {
-                                        backgroundColor: alpha(theme.secondary, 0.1),
+                                        backgroundColor: alpha(theme.palette.secondary.main, 0.1),
                                       },
                                     }}
                                   >
@@ -1699,8 +1699,8 @@ export const StudentDashboard: React.FC = () => {
                         startIcon={<RefreshIcon />}
                         onClick={handleClearSearch}
                         sx={{
-                          borderColor: theme.secondary,
-                          color: theme.secondary,
+                          borderColor: theme.palette.secondary.main,
+                          color: theme.palette.secondary.main,
                           px: 6,
                           py: 2,
                           fontSize: '1.1rem',
@@ -1708,8 +1708,8 @@ export const StudentDashboard: React.FC = () => {
                           borderRadius: 3,
                           textTransform: 'none',
                           '&:hover': {
-                            borderColor: theme.secondary,
-                            backgroundColor: alpha(theme.secondary, 0.05),
+                            borderColor: theme.palette.secondary.main,
+                            backgroundColor: alpha(theme.palette.secondary.main, 0.05),
                             transform: 'translateY(-2px)',
                           },
                           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -1754,7 +1754,7 @@ export const StudentDashboard: React.FC = () => {
                           textTransform: 'none',
                           '&:hover': {
                             transform: 'translateY(-2px)',
-                            boxShadow: `0 8px 25px ${alpha(theme.secondary, 0.3)}`,
+                            boxShadow: `0 8px 25px ${alpha(theme.palette.secondary.main, 0.3)}`,
                           },
                           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                         }}

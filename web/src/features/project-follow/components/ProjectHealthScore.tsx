@@ -9,6 +9,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  useTheme,
 } from '@mui/material';
 import {
   CheckCircle as CheckCircleIcon,
@@ -31,10 +32,12 @@ interface ProjectHealthScoreProps {
 }
 
 export const ProjectHealthScore: React.FC<ProjectHealthScoreProps> = ({ score }) => {
+  const theme = useTheme();
+
   const getScoreColor = (value: number): string => {
-    if (value >= 80) return '#4caf50'; // Green
-    if (value >= 60) return '#ff9800'; // Orange
-    return '#f44336'; // Red
+    if (value >= 80) return theme.palette.success.main;
+    if (value >= 60) return theme.palette.warning.main;
+    return theme.palette.error.main;
   };
 
   const getScoreLabel = (value: number): string => {
@@ -45,9 +48,9 @@ export const ProjectHealthScore: React.FC<ProjectHealthScoreProps> = ({ score })
   };
 
   const getScoreIcon = (value: number) => {
-    if (value >= 80) return <CheckCircleIcon sx={{ color: '#4caf50' }} />;
-    if (value >= 60) return <WarningIcon sx={{ color: '#ff9800' }} />;
-    return <ErrorIcon sx={{ color: '#f44336' }} />;
+    if (value >= 80) return <CheckCircleIcon sx={{ color: theme.palette.success.main }} />;
+    if (value >= 60) return <WarningIcon sx={{ color: theme.palette.warning.main }} />;
+    return <ErrorIcon sx={{ color: theme.palette.error.main }} />;
   };
 
   const categories = [
@@ -71,7 +74,7 @@ export const ProjectHealthScore: React.FC<ProjectHealthScoreProps> = ({ score })
               width: 120,
               height: 120,
               borderRadius: '50%',
-              background: `conic-gradient(${getScoreColor(score.overall)} 0deg ${(score.overall / 100) * 360}deg, #e0e0e0 ${(score.overall / 100) * 360}deg 360deg)`,
+              background: `conic-gradient(${getScoreColor(score.overall)} 0deg ${(score.overall / 100) * 360}deg, ${theme.palette.grey[300]} ${(score.overall / 100) * 360}deg 360deg)`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -128,8 +131,8 @@ export const ProjectHealthScore: React.FC<ProjectHealthScoreProps> = ({ score })
                 sx={{
                   height: 8,
                   borderRadius: 4,
-                  backgroundColor: '#e0e0e0',
-                  '& .MuiLinearProgress-bar': {
+              backgroundColor: theme.palette.grey[300],
+              '& .MuiLinearProgress-bar': {
                     backgroundColor: getScoreColor(category.value),
                     borderRadius: 4,
                   },

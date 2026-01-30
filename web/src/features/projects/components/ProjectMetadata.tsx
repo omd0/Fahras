@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { colorPalette } from '@/styles/theme/colorPalette';
 import {
   Card,
   CardContent,
@@ -246,7 +247,7 @@ export const ProjectMetadata: React.FC<ProjectMetadataProps> = ({
               sx={{ 
                 p: 3, 
                 borderRadius: 2,
-                background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+                background: `linear-gradient(135deg, ${colorPalette.surface.elevated} 0%, ${colorPalette.neutral[200]} 100%)`,
                 border: '1px solid',
                 borderColor: 'divider',
                 position: 'relative',
@@ -258,7 +259,7 @@ export const ProjectMetadata: React.FC<ProjectMetadataProps> = ({
                   left: 0,
                   right: 0,
                   height: '4px',
-                  background: 'linear-gradient(90deg, #1e3a8a 0%, #3b82f6 50%, #059669 100%)',
+                  background: `linear-gradient(90deg, ${colorPalette.secondary.dark} 0%, ${colorPalette.info.light} 50%, ${colorPalette.success.main} 100%)`,
                 }
               }}
             >

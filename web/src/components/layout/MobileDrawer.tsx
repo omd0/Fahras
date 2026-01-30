@@ -326,7 +326,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({ open, onClose }) => 
                       minHeight: tvtcMobile.touchTarget.comfortable,
                       bgcolor: item.primary ? 'primary.main' : 'transparent',
                       color: item.primary ? 'primary.contrastText' : 'text.primary',
-                      border: item.primary ? 0 : `1px solid #D7E3E8`,
+                      border: item.primary ? 0 : (theme) => `1px solid ${theme.palette.divider}`,
                       '&:hover': {
                         bgcolor: item.primary
                           ? 'primary.dark'
@@ -369,7 +369,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({ open, onClose }) => 
                   px: 3,
                   borderRadius: 9999,
                   minHeight: tvtcMobile.touchTarget.comfortable,
-                  border: `1px solid ${alpha('#C62828', 0.3)}`,
+                  border: (theme) => `1px solid ${alpha(theme.palette.error.main, 0.3)}`,
                   color: 'error.main',
                   '&:hover': {
                     bgcolor: (theme) => alpha(theme.palette.error.main, 0.08),

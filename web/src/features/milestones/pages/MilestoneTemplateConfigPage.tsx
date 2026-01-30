@@ -159,7 +159,7 @@ export const MilestoneTemplateConfigPage: React.FC = () => {
   };
 
   return (
-    <DashboardContainer theme={theme}>
+    <DashboardContainer>
       <Box sx={{ mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>

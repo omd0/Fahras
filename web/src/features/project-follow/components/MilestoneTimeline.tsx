@@ -42,14 +42,6 @@ interface MilestoneTimelineProps {
   onRefresh?: () => void;
 }
 
-const statusColors = {
-  completed: '#4caf50',
-  in_progress: '#2196f3',
-  not_started: '#9e9e9e',
-  blocked: '#ff9800',
-  overdue: '#f44336',
-};
-
 const statusIcons = {
   completed: CheckCircleIcon,
   in_progress: PlayCircleIcon,
@@ -72,6 +64,14 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const statusColors: Record<string, string> = {
+    completed: theme.palette.success.main,
+    in_progress: theme.palette.info.main,
+    not_started: theme.palette.grey[500],
+    blocked: theme.palette.warning.main,
+    overdue: theme.palette.error.main,
+  };
   const [milestones, setMilestones] = useState<ProjectMilestone[]>(initialMilestones);
   const [selectedMilestone, setSelectedMilestone] = useState<ProjectMilestone | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);

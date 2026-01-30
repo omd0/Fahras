@@ -12,6 +12,7 @@ import {
   CircularProgress,
   Button,
   Chip,
+  useTheme,
 } from '@mui/material';
 import {
   Timeline as TimelineIcon,
@@ -39,6 +40,7 @@ export const ProgramTemplateSelector: React.FC<ProgramTemplateSelectorProps> = (
   programs = [],
   onApplyTemplate,
 }) => {
+  const theme = useTheme();
   const [templates, setTemplates] = useState<MilestoneTemplate[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -199,14 +201,14 @@ export const ProgramTemplateSelector: React.FC<ProgramTemplateSelectorProps> = (
                     <Box
                       sx={{
                         position: 'relative',
-                        bgcolor: '#F5F5F5',
+                        bgcolor: theme.palette.grey[100],
                         borderRadius: 2,
                         p: 3,
                         mb: 2,
                         overflowX: 'auto',
                         overflowY: 'visible',
                         backgroundImage: `
-                          radial-gradient(circle, #BDBDBD 1px, transparent 1px)
+                          radial-gradient(circle, ${theme.palette.grey[400]} 1px, transparent 1px)
                         `,
                         backgroundSize: '20px 20px',
                         backgroundPosition: '0 0',
@@ -214,14 +216,14 @@ export const ProgramTemplateSelector: React.FC<ProgramTemplateSelectorProps> = (
                           height: 8,
                         },
                         '&::-webkit-scrollbar-track': {
-                          background: '#E0E0E0',
+                          background: theme.palette.grey[300],
                           borderRadius: 4,
                         },
                         '&::-webkit-scrollbar-thumb': {
-                          background: '#BDBDBD',
+                          background: theme.palette.grey[400],
                           borderRadius: 4,
                           '&:hover': {
-                            background: '#9E9E9E',
+                            background: theme.palette.grey[500],
                           },
                         },
                       }}
@@ -243,8 +245,8 @@ export const ProgramTemplateSelector: React.FC<ProgramTemplateSelectorProps> = (
                                 minWidth: 200,
                                 maxWidth: 240,
                                 borderRadius: 2,
-                                border: '1px solid #BDBDBD',
-                                bgcolor: '#FFFFFF',
+                                border: `1px solid ${theme.palette.grey[400]}`,
+                                bgcolor: theme.palette.background.paper,
                                 position: 'relative',
                                 transition: 'all 0.2s ease-in-out',
                                 boxShadow: '0px 2px 8px rgba(0,0,0,0.1)',
@@ -297,7 +299,7 @@ export const ProgramTemplateSelector: React.FC<ProgramTemplateSelectorProps> = (
                                   variant="subtitle1"
                                   sx={{
                                     fontWeight: 600,
-                                    color: '#212121',
+                                    color: theme.palette.text.primary,
                                     mb: 1,
                                     pr: item.is_required ? 4 : 0,
                                     pl: 3,
@@ -316,7 +318,7 @@ export const ProgramTemplateSelector: React.FC<ProgramTemplateSelectorProps> = (
                                 <Typography
                                   variant="body2"
                                   sx={{
-                                    color: '#757575',
+                                    color: theme.palette.text.secondary,
                                     fontWeight: 500,
                                     mt: 1,
                                   }}
@@ -329,7 +331,7 @@ export const ProgramTemplateSelector: React.FC<ProgramTemplateSelectorProps> = (
                                   <Typography
                                     variant="caption"
                                     sx={{
-                                      color: '#9E9E9E',
+                                      color: theme.palette.grey[500],
                                       mt: 1,
                                       display: '-webkit-box',
                                       WebkitLineClamp: 2,
@@ -350,7 +352,7 @@ export const ProgramTemplateSelector: React.FC<ProgramTemplateSelectorProps> = (
                                 sx={{
                                   display: 'flex',
                                   alignItems: 'center',
-                                  color: '#BDBDBD',
+                                  color: theme.palette.grey[400],
                                   flexShrink: 0,
                                 }}
                               >

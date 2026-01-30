@@ -11,7 +11,7 @@ import { Project } from '@/types';
 import { apiService } from '@/lib/api';
 import { getRoleInfo } from '@/config/dashboardThemes';
 import { useAuthStore } from '@/features/auth/store';
-import { useTheme } from '@/providers/ThemeContext';
+import { useTheme } from '@mui/material';
 import { useLanguage } from '@/providers/LanguageContext';
 import { DashboardContainer } from '@/components/shared/DashboardContainer';
 import { DashboardHeader } from '@/components/shared/DashboardHeader';
@@ -37,7 +37,7 @@ export const FacultyHomeDashboard: React.FC = () => {
 
   const { user } = useAuthStore();
   const navigate = useNavigate();
-  const { theme } = useTheme();
+  const theme = useTheme();
   const { t } = useLanguage();
   const roleInfo = getRoleInfo('faculty', user?.full_name, t);
   const userIsFaculty = (user?.roles || []).some(role => role.name === 'faculty');
@@ -88,9 +88,8 @@ export const FacultyHomeDashboard: React.FC = () => {
   };
 
   return (
-    <DashboardContainer theme={theme}>
+    <DashboardContainer>
       <DashboardHeader
-        theme={theme}
         icon={roleInfo.icon}
         greeting={roleInfo.greeting}
         userName={user?.full_name || ''}
@@ -101,7 +100,7 @@ export const FacultyHomeDashboard: React.FC = () => {
 
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-          <CircularProgress sx={{ color: theme.primary }} />
+          <CircularProgress sx={{ color: theme.palette.primary.main }} />
         </Box>
       ) : (
         <>
@@ -208,7 +207,7 @@ export const FacultyHomeDashboard: React.FC = () => {
                   .slice(0, 6)
                   .map((project) => (
                     <Grid size={{ xs: 12, md: 6 }} key={project.id}>
-                      <ProjectCard project={project} theme={theme} />
+                      <ProjectCard project={project} />
                     </Grid>
                   ))}
               </Grid>
@@ -229,7 +228,7 @@ export const FacultyHomeDashboard: React.FC = () => {
             <CardContent>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                 <Typography variant="h6" sx={{ fontWeight: 600 }}>{t('All Projects')}</Typography>
-                <Button variant="text" onClick={() => navigate('/analytics')} sx={{ color: theme.primary }}>
+                <Button variant="text" onClick={() => navigate('/analytics')} sx={{ color: theme.palette.primary.main }}>
                   {t('View All')}
                 </Button>
               </Box>
@@ -237,7 +236,7 @@ export const FacultyHomeDashboard: React.FC = () => {
               <Grid container spacing={3}>
                 {(projects || []).slice(0, 6).map((project) => (
                   <Grid size={{ xs: 12, md: 6 }} key={project.id}>
-                    <ProjectCard project={project} theme={theme} />
+                    <ProjectCard project={project} />
                   </Grid>
                 ))}
               </Grid>

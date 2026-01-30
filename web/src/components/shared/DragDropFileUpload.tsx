@@ -23,6 +23,7 @@ import {
   Error as ErrorIcon,
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
+import { colorPalette } from '@/styles/theme/colorPalette';
 
 export interface FileWithProgress {
   file: File;
@@ -49,7 +50,7 @@ interface DragDropFileUploadProps {
 const dropZoneVariants = {
   idle: { scale: 1 },
   hover: { scale: 1.01 },
-  dragging: { scale: 1.02, borderColor: '#1976d2' },
+  dragging: { scale: 1.02, borderColor: colorPalette.info.main },
 };
 
 const fileItemVariants = {

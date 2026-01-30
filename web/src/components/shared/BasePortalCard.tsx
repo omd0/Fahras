@@ -66,13 +66,13 @@ export const BasePortalCard: React.FC<BasePortalCardProps> = ({
         ...(variant === 'outlined' && {
           boxShadow: designTokens.shadows.none,
           border: `2px solid ${designTokens.colors.primary[500]}`,
-          backgroundColor: '#FFFFFF',
+          backgroundColor: 'background.paper',
         }),
 
         ...(variant === 'filled' && {
           boxShadow: designTokens.shadows.elevation1,
           border: `1px solid ${alpha(designTokens.colors.border[200], 0.5)}`,
-          backgroundColor: '#FFFFFF',
+          backgroundColor: 'background.paper',
         }),
 
         // Transitions

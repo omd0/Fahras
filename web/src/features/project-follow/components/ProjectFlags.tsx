@@ -13,6 +13,7 @@ import {
   Select,
   MenuItem,
   IconButton,
+  useTheme,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -28,11 +29,14 @@ interface ProjectFlagsProps {
   canResolve?: boolean;
 }
 
-const severityColors = {
-  low: '#4caf50',
-  medium: '#ff9800',
-  high: '#f44336',
-  critical: '#d32f2f',
+const useSeverityColors = () => {
+  const theme = useTheme();
+  return {
+    low: theme.palette.success.main,
+    medium: theme.palette.warning.main,
+    high: theme.palette.error.main,
+    critical: theme.palette.error.dark,
+  };
 };
 
 const flagTypeLabels: Record<ProjectFlag['flag_type'], string> = {
@@ -217,6 +221,7 @@ interface FlagCardProps {
 }
 
 const FlagCard: React.FC<FlagCardProps> = ({ flag, onResolve }) => {
+  const severityColors = useSeverityColors();
   return (
     <Box
       sx={{

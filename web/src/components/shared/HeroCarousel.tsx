@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from '@mui/icons-material';
 import { useLanguage } from '@/providers/LanguageContext';
+import { colorPalette } from '@/styles/theme/colorPalette';
 
 export interface HeroSlide {
   id: string;
@@ -85,7 +86,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
         width: '100%',
         height,
         overflow: 'hidden',
-        backgroundColor: '#f5f5f5',
+        backgroundColor: colorPalette.surface.elevated,
       }}
     >
       {/* Background Image with Overlay */}
@@ -173,7 +174,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
               variant="contained"
               onClick={currentSlide.ctaAction}
               sx={{
-                backgroundColor: '#18B3A8', // primary.500 teal
+                backgroundColor: colorPalette.teal.light,
                 color: 'white',
                 borderRadius: 9999,
                 px: 4,
@@ -181,7 +182,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
                 fontWeight: 600,
                 fontSize: '16px',
                 '&:hover': {
-                  backgroundColor: '#008A3E', // primary.600
+                  backgroundColor: colorPalette.primary.main,
                   transform: 'translateY(-2px)',
                   boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)',
                 },

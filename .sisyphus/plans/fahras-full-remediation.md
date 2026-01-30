@@ -224,7 +224,7 @@ Parallel Speedup: ~60% faster than sequential
 
 ---
 
-- [ ] 1. Pre-flight Verification
+- [x] 1. Pre-flight Verification
 
   **What to do**:
   - Verify Docker services are all running: `docker compose ps`
@@ -305,7 +305,7 @@ Parallel Speedup: ~60% faster than sequential
 
 ---
 
-- [ ] 2. Setup Vitest Test Infrastructure
+- [x] 2. Setup Vitest Test Infrastructure
 
   **What to do**:
   - Install Vitest and dependencies inside Docker node container:
@@ -387,7 +387,7 @@ Parallel Speedup: ~60% faster than sequential
 
 ---
 
-- [ ] 3. Design New TVTC-Inspired Color Palette
+- [x] 3. Design New TVTC-Inspired Color Palette
 
   **What to do**:
   - Study the existing TVTC brand colors: primary green `#008A3E`, teal `#18B3A8`, institutional blue `#3B7D98`, gold accent `#F3B200`
@@ -470,7 +470,7 @@ Parallel Speedup: ~60% faster than sequential
 
 ---
 
-- [ ] 4. Create Unified MUI Theme
+- [x] 4. Create Unified MUI Theme
 
   **What to do**:
   - Create `web/src/styles/theme/fahrasTheme.ts` — new unified MUI theme that:
@@ -559,7 +559,7 @@ Parallel Speedup: ~60% faster than sequential
 
 ---
 
-- [ ] 5. Integrate New Theme & Clean Up Old Theme Files
+- [x] 5. Integrate New Theme & Clean Up Old Theme Files
 
   **What to do**:
   - **Update `web/src/App.tsx`**:
@@ -665,7 +665,7 @@ Parallel Speedup: ~60% faster than sequential
 
 ---
 
-- [ ] 6. Create Terms of Service & Privacy Policy Placeholder Pages
+- [x] 6. Create Terms of Service & Privacy Policy Placeholder Pages
 
   **What to do**:
   - Create `web/src/pages/TermsOfServicePage.tsx` — placeholder ToS page with:
@@ -741,7 +741,7 @@ Parallel Speedup: ~60% faster than sequential
 
 ---
 
-- [ ] 7. Fix & Migrate Homepage / Explore Pages
+- [x] 7. Fix & Migrate Homepage / Explore Pages
 
   **What to do**:
   - Replace ALL hardcoded hex colors in ExplorePage and related components with theme tokens
@@ -832,7 +832,7 @@ Parallel Speedup: ~60% faster than sequential
 
 ---
 
-- [ ] 8. Fix & Migrate Login Page
+- [x] 8. Fix & Migrate Login Page
 
   **What to do**:
   - Replace ALL hardcoded hex colors (especially `#007BFF`) with theme tokens
@@ -907,7 +907,7 @@ Parallel Speedup: ~60% faster than sequential
 
 ---
 
-- [ ] 9. Fix & Migrate Register Page
+- [x] 9. Fix & Migrate Register Page
 
   **What to do**:
   - Replace ALL hardcoded hex colors with theme tokens
@@ -980,7 +980,7 @@ Parallel Speedup: ~60% faster than sequential
 
 ---
 
-- [ ] 10. Fix & Migrate Project Detail Page
+- [x] 10. Fix & Migrate Project Detail Page
 
   **What to do**:
   - Replace ALL hardcoded hex colors with theme tokens
@@ -1054,7 +1054,7 @@ Parallel Speedup: ~60% faster than sequential
 
 ---
 
-- [ ] 11. Migrate Auth Feature Remaining Pages
+- [x] 11. Migrate Auth Feature Remaining Pages
 
   **What to do**:
   - Replace ALL hardcoded hex colors with theme tokens in:
@@ -1112,7 +1112,7 @@ Parallel Speedup: ~60% faster than sequential
 
 ---
 
-- [ ] 12. Migrate Project Form Pages
+- [x] 12. Migrate Project Form Pages
 
   **What to do**:
   - Replace ALL hardcoded hex colors (~80+ purple gradient instances, ~60+ orange instances) in:
@@ -1169,7 +1169,7 @@ Parallel Speedup: ~60% faster than sequential
 
 ---
 
-- [ ] 13. Migrate Dashboard Pages
+- [x] 13. Migrate Dashboard Pages
 
   **What to do**:
   - Replace ALL hardcoded hex colors and custom DashboardTheme references in:
@@ -1228,7 +1228,7 @@ Parallel Speedup: ~60% faster than sequential
 
 ---
 
-- [ ] 14. Migrate Follow / Milestone / Repository Pages
+- [x] 14. Migrate Follow / Milestone / Repository Pages
 
   **What to do**:
   - Replace ALL hardcoded hex colors with theme tokens in:
@@ -1285,7 +1285,7 @@ Parallel Speedup: ~60% faster than sequential
 
 ---
 
-- [ ] 15. Migrate Admin Pages
+- [x] 15. Migrate Admin Pages
 
   **What to do**:
   - Replace ALL hardcoded hex colors with theme tokens in:
@@ -1336,7 +1336,7 @@ Parallel Speedup: ~60% faster than sequential
 
 ---
 
-- [ ] 16. Migrate Shared Components
+- [x] 16. Migrate Shared Components
 
   **What to do**:
   - Replace ALL hardcoded hex colors with theme tokens in shared components:

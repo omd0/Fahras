@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useAuthStore } from '@/features/auth/store';
 import { AdminDashboard } from '@/features/dashboards/components/AdminDashboard';
-import { FacultyDashboard } from '@/features/dashboards/components/FacultyDashboard';
 import { FacultyHomeDashboard } from '@/features/dashboards/components/FacultyHomeDashboard';
 import { StudentDashboard } from '@/features/dashboards/components/StudentDashboard';
 import { ReviewerDashboard } from '@/features/dashboards/components/ReviewerDashboard';
@@ -9,15 +8,10 @@ import {
   Box,
   useTheme,
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { useLanguage } from '@/providers/LanguageContext';
-import { getDashboardTheme } from '@/config/dashboardThemes';
 
 export const DashboardPage: React.FC = () => {
   const theme = useTheme();
   const { user } = useAuthStore();
-  const navigate = useNavigate();
-  const { t } = useLanguage();
 
   // Determine which dashboard to show based on user role
   const getUserRole = () => {
@@ -33,9 +27,6 @@ export const DashboardPage: React.FC = () => {
   };
 
   const userRole = getUserRole();
-
-  // Get theme based on user role
-  const dashboardTheme = getDashboardTheme(user?.roles);
 
   // Render role-specific dashboard
   const renderDashboard = () => {

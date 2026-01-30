@@ -12,7 +12,7 @@ import {
   InputAdornment,
   IconButton,
 } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { Visibility, VisibilityOff, Lock as LockIcon } from '@mui/icons-material';
 import { authApi } from '@/lib/api';
 
 export const ResetPasswordPage: React.FC = () => {
@@ -113,21 +113,34 @@ export const ResetPasswordPage: React.FC = () => {
 
   if (success) {
     return (
-      <Container maxWidth="sm">
-        <Box
-          sx={{
-            minHeight: '100vh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Paper elevation={3} sx={{ p: 4, textAlign: 'center', width: '100%' }}>
+      <Box
+        sx={{
+          minHeight: '100vh',
+          bgcolor: 'background.default',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          py: 4,
+        }}
+      >
+        <Container maxWidth="sm">
+          <Paper
+            elevation={3}
+            sx={{
+              p: 4,
+              textAlign: 'center',
+              width: '100%',
+              borderRadius: 3,
+              bgcolor: 'background.paper',
+              border: '1px solid',
+              borderColor: 'divider',
+            }}
+          >
             <Typography
               variant="h4"
               component="h1"
               gutterBottom
-              sx={{ fontWeight: 'bold', color: '#4caf50' }}
+              sx={{ fontWeight: 'bold', color: 'success.main' }}
             >
               Password Reset Successful
             </Typography>
@@ -141,28 +154,39 @@ export const ResetPasswordPage: React.FC = () => {
               Redirecting to login...
             </Typography>
           </Paper>
-        </Box>
-      </Container>
+        </Container>
+      </Box>
     );
   }
 
   return (
-    <Container maxWidth="sm">
-      <Box
-        sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          py: 4,
-        }}
-      >
-        <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        bgcolor: 'background.default',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        py: 4,
+      }}
+    >
+      <Container maxWidth="sm">
+        <Paper
+          elevation={3}
+          sx={{
+            p: 4,
+            width: '100%',
+            borderRadius: 3,
+            bgcolor: 'background.paper',
+            border: '1px solid',
+            borderColor: 'divider',
+          }}
+        >
           <Typography
             variant="h4"
             component="h1"
             gutterBottom
-            sx={{ textAlign: 'center', fontWeight: 'bold', mb: 1 }}
+            sx={{ textAlign: 'center', fontWeight: 'bold', mb: 1, color: 'text.primary' }}
           >
             Reset Password
           </Typography>
@@ -191,31 +215,24 @@ export const ResetPasswordPage: React.FC = () => {
               disabled={loading || !email || !token}
               error={!!error && !formData.password}
               InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LockIcon sx={{ color: 'text.secondary' }} />
+                  </InputAdornment>
+                ),
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
                       onClick={() => setShowPassword(!showPassword)}
                       edge="end"
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                   </InputAdornment>
                 ),
               }}
-              sx={{
-                mb: 2,
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    borderColor: '#e0e0e0',
-                  },
-                  '&:hover fieldset': {
-                    borderColor: '#007BFF',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#007BFF',
-                  },
-                },
-              }}
+              sx={{ mb: 2 }}
             />
 
             <TextField
@@ -229,6 +246,11 @@ export const ResetPasswordPage: React.FC = () => {
               disabled={loading || !email || !token}
               error={!!error && !formData.password_confirmation}
               InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LockIcon sx={{ color: 'text.secondary' }} />
+                  </InputAdornment>
+                ),
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
@@ -236,26 +258,14 @@ export const ResetPasswordPage: React.FC = () => {
                         setShowConfirmPassword(!showConfirmPassword)
                       }
                       edge="end"
+                      aria-label={showConfirmPassword ? 'Hide password confirmation' : 'Show password confirmation'}
                     >
                       {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                   </InputAdornment>
                 ),
               }}
-              sx={{
-                mb: 3,
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    borderColor: '#e0e0e0',
-                  },
-                  '&:hover fieldset': {
-                    borderColor: '#007BFF',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#007BFF',
-                  },
-                },
-              }}
+              sx={{ mb: 3 }}
             />
 
             <Button
@@ -264,17 +274,13 @@ export const ResetPasswordPage: React.FC = () => {
               variant="contained"
               size="large"
               disabled={loading || !email || !token}
-              sx={{
-                py: 1.5,
-                backgroundColor: '#007BFF',
-                '&:hover': { backgroundColor: '#0056b3' },
-              }}
+              sx={{ py: 1.5 }}
             >
-              {loading ? <CircularProgress size={24} /> : 'Reset Password'}
+              {loading ? <CircularProgress size={24} color="inherit" /> : 'Reset Password'}
             </Button>
           </form>
         </Paper>
-      </Box>
-    </Container>
+      </Container>
+    </Box>
   );
 };

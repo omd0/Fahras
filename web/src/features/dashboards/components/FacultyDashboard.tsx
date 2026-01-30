@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { designTokens } from '@/styles/designTokens';
+import { colorPalette } from '@/styles/theme/colorPalette';
 import { 
   Box, 
   Card, 
@@ -27,6 +28,7 @@ import {
   FormControl,
   InputLabel,
   Select,
+  MenuItem,
   FormControlLabel,
   Switch,
   TextField,
@@ -61,56 +63,44 @@ import { apiService } from '@/lib/api';
 import { getRoleInfo } from '@/config/dashboardThemes';
 import { useAuthStore } from '@/features/auth/store';
 import { useLanguage } from '@/providers/LanguageContext';
-import { useTheme } from '@/providers/ThemeContext';
 import { DashboardContainer } from '@/components/shared/DashboardContainer';
 import { DashboardHeader } from '@/components/shared/DashboardHeader';
 import { ProjectCard } from '@/components/shared/ProjectCard';
 import { TVTCLogo } from '@/components/TVTCLogo';
 
-// Harmonious color palette matching Analytics page
+// Harmonious color palette derived from design system tokens
 const ANALYTICS_COLORS = {
   primary: {
-    main: '#2563eb',
-    light: '#3b82f6',
-    dark: '#1d4ed8',
-    contrast: '#ffffff',
+    main: colorPalette.info.main,
+    light: colorPalette.info.light,
+    dark: colorPalette.info.dark,
+    contrast: colorPalette.common.white,
   },
   secondary: {
-    main: '#7c3aed',
-    light: '#8b5cf6',
-    dark: '#6d28d9',
-    contrast: '#ffffff',
+    main: colorPalette.secondary.main,
+    light: colorPalette.secondary.light,
+    dark: colorPalette.secondary.dark,
+    contrast: colorPalette.common.white,
   },
   success: {
-    main: '#059669',
-    light: '#10b981',
-    dark: '#047857',
-    contrast: '#ffffff',
+    main: colorPalette.success.main,
+    light: colorPalette.success.light,
+    dark: colorPalette.success.dark,
+    contrast: colorPalette.common.white,
   },
   warning: {
-    main: '#d97706',
-    light: '#f59e0b',
-    dark: '#b45309',
-    contrast: '#ffffff',
+    main: colorPalette.warning.main,
+    light: colorPalette.warning.light,
+    dark: colorPalette.warning.dark,
+    contrast: colorPalette.common.white,
   },
   info: {
-    main: '#0891b2',
-    light: '#06b6d4',
-    dark: '#0e7490',
-    contrast: '#ffffff',
+    main: colorPalette.teal.main,
+    light: colorPalette.teal.light,
+    dark: colorPalette.teal.dark,
+    contrast: colorPalette.common.white,
   },
-  neutral: {
-    50: '#f8fafc',
-    100: '#f1f5f9',
-    200: '#e2e8f0',
-    300: '#cbd5e1',
-    400: '#94a3b8',
-    500: '#64748b',
-    600: '#475569',
-    700: '#334155',
-    800: '#1e293b',
-    900: '#0f172a',
-  }
+  neutral: colorPalette.neutral,
 };
 
 interface FacultyStats {
@@ -138,7 +128,6 @@ export const FacultyDashboard: React.FC = () => {
 
   const { user } = useAuthStore();
   const navigate = useNavigate();
-  const { theme } = useTheme();
   const { t } = useLanguage();
   const roleInfo = getRoleInfo('faculty', user?.full_name, t);
   const userIsFaculty = (user?.roles || []).some(role => role.name === 'faculty');
@@ -440,14 +429,14 @@ export const FacultyDashboard: React.FC = () => {
           <Grid container spacing={3} sx={{ mb: 5 }}>
             <Grid size={{ xs: 12 }}>
               <Card sx={{ 
-                backgroundColor: '#ffffff',
+                backgroundColor: colorPalette.common.white,
                 boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
                 borderRadius: 3,
                 border: `1px solid ${ANALYTICS_COLORS.neutral[200]}`,
                 overflow: 'hidden'
               }}>
                 <Box sx={{
-                  background: '#ffffff',
+                  background: colorPalette.common.white,
                   p: 3,
                   borderBottom: `1px solid ${ANALYTICS_COLORS.neutral[200]}`
                 }}>
@@ -648,7 +637,7 @@ export const FacultyDashboard: React.FC = () => {
                   </Box>
                   
                   {filteredProjects.length > 0 ? (
-                    <Paper sx={{ maxHeight: 600, overflow: 'auto', backgroundColor: '#ffffff' }}>
+                    <Paper sx={{ maxHeight: 600, overflow: 'auto', backgroundColor: 'background.paper' }}>
                       <List>
                         {filteredProjects.map((project, index) => (
                           <React.Fragment key={project.id}>
@@ -734,7 +723,7 @@ export const FacultyDashboard: React.FC = () => {
                       </List>
                     </Paper>
                   ) : (
-                    <Paper sx={{ p: 3, textAlign: 'center', backgroundColor: '#ffffff' }}>
+                    <Paper sx={{ p: 3, textAlign: 'center', backgroundColor: 'background.paper' }}>
                       <SchoolIcon sx={{ fontSize: 64, color: 'text.secondary', opacity: 0.3, mb: 2 }} />
                       <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
                         {stats.advisingProjects === 0 

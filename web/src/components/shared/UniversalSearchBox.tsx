@@ -15,6 +15,7 @@ import {
   Collapse,
   Grid,
   CircularProgress,
+  useTheme,
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -56,12 +57,13 @@ export const UniversalSearchBox: React.FC<UniversalSearchBoxProps> = ({
   onSearch,
   onClear,
   loading = false,
-  theme,
+  theme: _themeProp,
   variant = 'full',
   showAdvancedFilters = true,
   roleSpecificFilters = {},
   placeholder = "Search projects...",
 }) => {
+  const muiTheme = useTheme();
   const [filters, setFilters] = useState<SearchFilters>({
     search: '',
     status: '',
@@ -159,8 +161,8 @@ export const UniversalSearchBox: React.FC<UniversalSearchBoxProps> = ({
       sx={{ 
         p: isCompact ? 2 : 3, 
         borderRadius: 2,
-        background: theme?.cardBackground || 'white',
-        border: `1px solid ${theme?.borderColor || '#e0e0e0'}`,
+        background: muiTheme.palette.background.paper,
+        border: `1px solid ${muiTheme.palette.divider}`,
       }}
     >
       {/* Main Search Bar */}
@@ -192,7 +194,7 @@ export const UniversalSearchBox: React.FC<UniversalSearchBoxProps> = ({
           sx={{
             '& .MuiOutlinedInput-root': {
               borderRadius: 2,
-              backgroundColor: theme?.inputBackground || 'white',
+              backgroundColor: muiTheme.palette.background.paper,
             },
           }}
         />
@@ -204,9 +206,9 @@ export const UniversalSearchBox: React.FC<UniversalSearchBoxProps> = ({
           startIcon={loading ? <CircularProgress size={16} /> : <SearchIcon />}
           sx={{
             minWidth: isCompact ? 100 : 120,
-            background: theme?.primaryGradient || theme?.primary,
+            background: muiTheme.palette.primary.main,
             '&:hover': {
-              background: theme?.primaryHover || theme?.primary,
+              background: muiTheme.palette.primary.dark,
             },
           }}
         >
@@ -220,11 +222,11 @@ export const UniversalSearchBox: React.FC<UniversalSearchBoxProps> = ({
           startIcon={<ClearIcon />}
           sx={{
             minWidth: isCompact ? 80 : 100,
-            borderColor: theme?.secondary,
-            color: theme?.secondary,
+            borderColor: muiTheme.palette.secondary.main,
+            color: muiTheme.palette.secondary.main,
             '&:hover': {
-              borderColor: theme?.secondary,
-              backgroundColor: `${theme?.secondary}10`,
+              borderColor: muiTheme.palette.secondary.main,
+              backgroundColor: `${muiTheme.palette.secondary.main}10`,
             },
           }}
         >
@@ -238,10 +240,10 @@ export const UniversalSearchBox: React.FC<UniversalSearchBoxProps> = ({
             aria-expanded={showFilters}
             aria-controls="advanced-filters"
             sx={{
-              backgroundColor: showFilters ? theme?.primary : 'transparent',
-              color: showFilters ? 'white' : theme?.primary,
+              backgroundColor: showFilters ? muiTheme.palette.primary.main : 'transparent',
+              color: showFilters ? 'white' : muiTheme.palette.primary.main,
               '&:hover': {
-                backgroundColor: showFilters ? theme?.primaryHover : `${theme?.primary}10`,
+                backgroundColor: showFilters ? muiTheme.palette.primary.dark : `${muiTheme.palette.primary.main}10`,
               },
             }}
           >
@@ -258,7 +260,7 @@ export const UniversalSearchBox: React.FC<UniversalSearchBoxProps> = ({
             id="advanced-filters"
             role="region"
             aria-label="Advanced search filters"
-            sx={{ pt: 2, borderTop: `1px solid ${theme?.borderColor || '#e0e0e0'}` }}
+            sx={{ pt: 2, borderTop: `1px solid ${muiTheme.palette.divider}` }}
           >
             <Grid container spacing={2}>
               <Grid size={{ xs: 12, sm: 6, md: 3 }}>

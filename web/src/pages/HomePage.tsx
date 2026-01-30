@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { designTokens } from '@/styles/designTokens';
 import {
   Container,
   Typography,
@@ -16,12 +15,10 @@ import {
 } from '@mui/material';
 import {
   School as SchoolIcon,
-  Add as AddIcon,
   ArrowForward as ArrowForwardIcon,
   Person as PersonIcon,
   CalendarToday as CalendarIcon,
   Business as BusinessIcon,
-  Explore as ExploreIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/features/auth/store';
@@ -39,7 +36,6 @@ export const HomePage: React.FC = () => {
   const [recentProjects, setRecentProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Hero carousel slides
   const heroSlides: HeroSlide[] = [
     {
       id: '1',
@@ -68,7 +64,6 @@ export const HomePage: React.FC = () => {
   ];
 
   useEffect(() => {
-    // Redirect logged-in students to their dashboard
     if (isAuthenticated && user?.roles?.some(role => role.name === 'student')) {
       navigate('/dashboard');
     }
@@ -91,10 +86,8 @@ export const HomePage: React.FC = () => {
       setRecentProjects(projectsData);
     } catch (error: any) {
       console.error('Failed to fetch recent projects:', error);
-      // If we get a 401 on HomePage, just clear auth and continue showing the page
       if (error.response?.status === 401) {
         localStorage.removeItem('auth-storage');
-        // Don't redirect, just show the page without auth
       }
       setRecentProjects([]);
     } finally {
@@ -106,17 +99,14 @@ export const HomePage: React.FC = () => {
     if (isAuthenticated) {
       navigate('/projects/create');
     } else {
-      // Store the intended destination for redirect after login
       navigate('/login', { state: { from: '/projects/create' } });
     }
   };
 
   return (
     <Box sx={{ flexGrow: 1, minHeight: '100vh', bgcolor: theme.palette.background.default }}>
-      {/* Hero Carousel - Replaces old AppBar + Hero Section */}
       <HeroCarousel slides={heroSlides} autoplayInterval={6000} />
 
-      {/* Section Band - Recent Projects Introduction */}
       <SectionBand
         title={t('Featured Projects') || 'Featured Projects'}
         subtitle={t('Explore the latest graduation projects from our talented students') || 'Discover innovative work'}
@@ -125,13 +115,12 @@ export const HomePage: React.FC = () => {
         icon={<SchoolIcon sx={{ fontSize: 32 }} />}
       />
 
-      {/* Recent Projects Section */}
       <Container maxWidth="lg" sx={{ py: 8 }}>
         <Box sx={{ mb: 6 }}>
           <Typography variant="h5" sx={{ fontWeight: 700, color: theme.palette.text.primary, mb: 1 }}>
             {t('Newest Submissions')}
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
             {t('Check out what students have been working on')}
           </Typography>
         </Box>
@@ -148,9 +137,6 @@ export const HomePage: React.FC = () => {
                   <Card
                     sx={{
                       height: '100%',
-                      borderRadius: '14px',
-                      border: `2px solid ${theme.palette.primary.main}`,
-                      boxShadow: 'none',
                       transition: 'all 0.2s ease-out',
                       '&:hover': {
                         borderColor: theme.palette.secondary.main,
@@ -159,35 +145,32 @@ export const HomePage: React.FC = () => {
                     }}
                   >
                     <CardActionArea onClick={() => navigate(`/projects/${project.id}`)}>
-                      {/* Project Header */}
                       <Box
                         sx={{
                           height: 120,
-                          background: designTokens.colors.primary[500],
+                          bgcolor: theme.palette.primary.main,
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           position: 'relative',
                         }}
                       >
-                        <SchoolIcon sx={{ fontSize: 60, color: 'white', opacity: 0.9 }} />
+                        <SchoolIcon sx={{ fontSize: 60, color: theme.palette.primary.contrastText, opacity: 0.9 }} />
                         <Chip
                           label={project.status.replace('_', ' ')}
                           size="small"
+                          color="default"
                           sx={{
                             position: 'absolute',
-                            top: 12,
-                            right: 12,
-                            bgcolor: 'rgba(255,255,255,0.95)',
+                            top: theme.spacing(3),
+                            right: theme.spacing(3),
                             fontWeight: 600,
                             textTransform: 'capitalize',
-                            borderRadius: '9999px',
                           }}
                         />
                       </Box>
 
-                      <CardContent sx={{ p: 3 }}>
-                        {/* Title */}
+                      <CardContent>
                         <Typography 
                           variant="h6" 
                           sx={{ 
@@ -200,23 +183,25 @@ export const HomePage: React.FC = () => {
                             WebkitLineClamp: 2,
                             WebkitBoxOrient: 'vertical',
                             lineHeight: 1.4,
+                            color: theme.palette.text.primary,
                           }}
                         >
                           {project.title}
                         </Typography>
 
-                        {/* Abstract */}
                         <Typography 
                           variant="body2" 
-                          color="text.secondary" 
                           sx={{ 
+                            color: theme.palette.text.secondary,
                             mb: 2,
                             minHeight: 60,
+                            maxWidth: 480,
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             display: '-webkit-box',
                             WebkitLineClamp: 3,
                             WebkitBoxOrient: 'vertical',
+                            lineHeight: 1.5,
                           }}
                         >
                           {project.abstract}
@@ -224,29 +209,26 @@ export const HomePage: React.FC = () => {
 
                         <Divider sx={{ my: 2 }} />
 
-                        {/* Author */}
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
-                          <PersonIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
-                          <Typography variant="body2" color="text.secondary">
+                          <PersonIcon sx={{ fontSize: 18, color: theme.palette.text.secondary }} />
+                          <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
                             {project.creator?.full_name || t('Unknown Author')}
                           </Typography>
                         </Box>
 
-                        {/* Department */}
                         {project.program?.department && (
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
-                            <BusinessIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
-                            <Typography variant="body2" color="text.secondary">
+                            <BusinessIcon sx={{ fontSize: 18, color: theme.palette.text.secondary }} />
+                            <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
                               {project.program.department.name}
                             </Typography>
                           </Box>
                         )}
 
-                        {/* Academic Year & Semester */}
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <CalendarIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
-                          <Typography variant="body2" color="text.secondary">
-                            {project.academic_year} • {project.semester}
+                          <CalendarIcon sx={{ fontSize: 18, color: theme.palette.text.secondary }} />
+                          <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
+                            {project.academic_year} {'\u00B7'} {project.semester}
                           </Typography>
                         </Box>
                       </CardContent>
@@ -256,27 +238,13 @@ export const HomePage: React.FC = () => {
               ))}
             </Grid>
 
-            {/* Show More Button */}
             <Box sx={{ textAlign: 'center', mt: 6 }}>
               <Button
                 variant="contained"
                 size="large"
+                color="primary"
                 endIcon={<ArrowForwardIcon />}
                 onClick={() => navigate('/explore')}
-                sx={{
-                  px: 5,
-                  py: 1.5,
-                  fontSize: '1rem',
-                  fontWeight: 600,
-                  borderRadius: '9999px',
-                  backgroundColor: theme.palette.primary.main,
-                  color: 'white',
-                  '&:hover': {
-                    backgroundColor: theme.palette.secondary.main,
-                    transform: 'translateY(-2px)',
-                  },
-                  transition: 'all 0.2s ease-out',
-                }}
               >
                 {t('Show More Projects')}
               </Button>
@@ -284,18 +252,17 @@ export const HomePage: React.FC = () => {
           </>
         ) : (
           <Box sx={{ textAlign: 'center', py: 8 }}>
-            <SchoolIcon sx={{ fontSize: 80, color: 'text.secondary', opacity: 0.3, mb: 2 }} />
-            <Typography variant="h6" color="text.secondary" gutterBottom>
+            <SchoolIcon sx={{ fontSize: 80, color: theme.palette.text.disabled, mb: 2 }} />
+            <Typography variant="h6" sx={{ color: theme.palette.text.secondary }} gutterBottom>
               {t('No projects available yet')}
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
               {t("Be the first to submit a project!")}
             </Typography>
           </Box>
         )}
       </Container>
 
-      {/* CTA Section - Using SectionBand for visual consistency */}
       <SectionBand
         title={t('Ready to Share Your Work?') || 'Ready to Share Your Work?'}
         subtitle={t("Join TVTC's growing community of innovators. Submit your graduation project and showcase your achievements.") || 'Showcase your innovations'}
@@ -308,4 +275,3 @@ export const HomePage: React.FC = () => {
     </Box>
   );
 };
-

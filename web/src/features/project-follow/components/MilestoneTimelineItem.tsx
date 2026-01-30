@@ -9,6 +9,7 @@ import {
   IconButton,
   Tooltip,
   Button,
+  useTheme,
 } from '@mui/material';
 import {
   CheckCircle as CheckCircleIcon,
@@ -73,6 +74,7 @@ export const MilestoneTimelineItem: React.FC<MilestoneTimelineItemProps> = ({
     }
   };
 
+  const theme = useTheme();
   const isOverdue = status === 'overdue' || (milestone.due_date && new Date(milestone.due_date) < new Date() && milestone.status !== 'completed');
 
   return (
@@ -156,7 +158,7 @@ export const MilestoneTimelineItem: React.FC<MilestoneTimelineItemProps> = ({
               variant="body2"
               sx={{
                 fontWeight: 500,
-                color: isOverdue ? '#f44336' : 'text.primary',
+                color: isOverdue ? theme.palette.error.main : 'text.primary',
               }}
             >
               {formatDate(milestone.due_date)}
@@ -164,7 +166,7 @@ export const MilestoneTimelineItem: React.FC<MilestoneTimelineItemProps> = ({
             <Typography
               variant="caption"
               sx={{
-                color: isOverdue ? '#f44336' : 'text.secondary',
+                color: isOverdue ? theme.palette.error.main : 'text.secondary',
                 fontWeight: isOverdue ? 600 : 400,
               }}
             >
@@ -188,7 +190,7 @@ export const MilestoneTimelineItem: React.FC<MilestoneTimelineItemProps> = ({
             sx={{
               height: 8,
               borderRadius: 4,
-              backgroundColor: '#e0e0e0',
+              backgroundColor: theme.palette.grey[300],
               '& .MuiLinearProgress-bar': {
                 backgroundColor: statusColor,
                 borderRadius: 4,
@@ -219,9 +221,9 @@ export const MilestoneTimelineItem: React.FC<MilestoneTimelineItemProps> = ({
                 sx={{
                   flex: 1,
                   textTransform: 'none',
-                  backgroundColor: '#2196f3',
+                  backgroundColor: theme.palette.info.main,
                   '&:hover': {
-                    backgroundColor: '#1976d2',
+                    backgroundColor: theme.palette.info.dark,
                   },
                 }}
               >
@@ -240,9 +242,9 @@ export const MilestoneTimelineItem: React.FC<MilestoneTimelineItemProps> = ({
                 sx={{
                   flex: 1,
                   textTransform: 'none',
-                  backgroundColor: '#4caf50',
+                  backgroundColor: theme.palette.success.main,
                   '&:hover': {
-                    backgroundColor: '#388e3c',
+                    backgroundColor: theme.palette.success.dark,
                   },
                 }}
               >

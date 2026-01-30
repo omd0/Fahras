@@ -7,12 +7,10 @@ import {
   CircularProgress,
   Button,
   Slide,
-  Grow,
 } from '@mui/material';
 import {
   ArrowBack as ArrowBackIcon,
 } from '@mui/icons-material';
-import { PageTransition } from '@/components/layout/PageTransition';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/features/auth/store';
 import { Project } from '@/types';
@@ -27,6 +25,7 @@ import { ProjectMainInfo } from '@/features/projects/components/ProjectMainInfo'
 import { ProjectFiles } from '@/features/projects/components/ProjectFiles';
 import { ProjectSidebar } from '@/features/projects/components/ProjectSidebar';
 import { ConfirmDialog } from '@/components/shared';
+import { Breadcrumb } from '@/components/shared/Breadcrumb';
 
 export const ProjectDetailPage: React.FC = () => {
   const [project, setProject] = useState<Project | null>(null);
@@ -250,20 +249,28 @@ export const ProjectDetailPage: React.FC = () => {
 
       <Slide in={true} direction="up" timeout={500} mountOnEnter>
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-        <Grid container spacing={3}>
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb
+          items={[
+            { label: t('Projects'), path: '/explore' },
+            { label: project.title },
+          ]}
+        />
+
+        <Grid container spacing={4}>
           <Grid size={{ xs: 12, md: 8 }}>
             <ProjectMainInfo
               project={project}
               user={user}
-              isProfessor={isProfessor}
-              canEdit={canEdit}
+              isProfessor={!!isProfessor}
+              canEdit={!!canEdit}
               onStatusClick={() => setStatusDialogOpen(true)}
             />
 
             <Box sx={{ mt: 3 }}>
               <ProjectFiles
                 project={project}
-                isProfessor={isProfessor}
+                isProfessor={!!isProfessor}
                 filesLoading={filesLoading}
               />
             </Box>
@@ -277,7 +284,7 @@ export const ProjectDetailPage: React.FC = () => {
           </Grid>
         </Grid>
 
-        <Grid container spacing={3} sx={{ mt: 1 }}>
+        <Grid container spacing={4} sx={{ mt: 2 }}>
           <Grid size={{ xs: 12 }}>
             <RatingSection projectId={project.id} />
           </Grid>

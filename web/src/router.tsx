@@ -3,6 +3,8 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from '@/features/auth/components/ProtectedRoute';
 import { RoleProtectedRoute } from '@/features/auth/components/RoleProtectedRoute';
 import { HomePage } from '@/pages/HomePage';
+import { TermsOfServicePage } from '@/pages/TermsOfServicePage';
+import { PrivacyPolicyPage } from '@/pages/PrivacyPolicyPage';
 import { LoginPage } from '@/features/auth/pages/LoginPage';
 import { RegisterPage } from '@/features/auth/pages/RegisterPage';
 import { ForgotPasswordPage } from '@/features/auth/pages/ForgotPasswordPage';
@@ -37,16 +39,18 @@ export const router = createBrowserRouter([
     path: '/',
     element: <AppLayout />,
     children: [
-      // Public routes
-      { index: true, element: <ExplorePage /> },
-      { path: 'home', element: <HomePage /> },
-      { path: 'explore', element: <ExplorePage /> },
-      { path: 'bookmarks', element: <MyBookmarksPage /> },
-      { path: 'login', element: <LoginPage /> },
-      { path: 'register', element: <RegisterPage /> },
-      { path: 'forgot-password', element: <ForgotPasswordPage /> },
-      { path: 'reset-password', element: <ResetPasswordPage /> },
-      { path: 'verify-email', element: <EmailVerificationPage /> },
+       // Public routes
+       { index: true, element: <ExplorePage /> },
+       { path: 'home', element: <HomePage /> },
+       { path: 'explore', element: <ExplorePage /> },
+       { path: 'bookmarks', element: <MyBookmarksPage /> },
+       { path: 'login', element: <LoginPage /> },
+       { path: 'register', element: <RegisterPage /> },
+       { path: 'forgot-password', element: <ForgotPasswordPage /> },
+       { path: 'reset-password', element: <ResetPasswordPage /> },
+       { path: 'verify-email', element: <EmailVerificationPage /> },
+       { path: 'terms', element: <TermsOfServicePage /> },
+       { path: 'privacy', element: <PrivacyPolicyPage /> },
 
       // Protected routes
       {

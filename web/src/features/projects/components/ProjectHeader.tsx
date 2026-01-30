@@ -31,7 +31,7 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({
   // Professor-specific styling with new color scheme
   const appBarStyle = {
     background: designTokens.colors.secondary[700],
-    color: '#FFFFFF',
+    color: designTokens.colors.surface[50],
     boxShadow: 'none',
   };
 
@@ -49,7 +49,7 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({
         >
           <ArrowBackIcon />
         </IconButton>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: '#FFFFFF' }}>
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: 'common.white' }}>
           {project.title}
         </Typography>
 

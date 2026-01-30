@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { colorPalette } from '@/styles/theme/colorPalette';
 import {
   Container,
   Typography,
@@ -467,7 +468,7 @@ const StudentMyProjectsPage: React.FC = () => {
           mb: 4, 
           borderRadius: 3, 
           boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
-          background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+          background: `linear-gradient(135deg, ${colorPalette.common.white} 0%, ${colorPalette.surface.elevated} 100%)`,
           border: `1px solid ${dashboardTheme.primary}20`,
         }}>
           <CardContent sx={{ p: 3 }}>
@@ -560,14 +561,14 @@ const StudentMyProjectsPage: React.FC = () => {
         <Card sx={{ 
           borderRadius: 3, 
           boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
-          background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+          background: `linear-gradient(135deg, ${colorPalette.common.white} 0%, ${colorPalette.surface.elevated} 100%)`,
           border: `1px solid ${dashboardTheme.primary}20`,
           overflow: 'hidden',
         }}>
           <Box sx={{ 
             borderBottom: 1, 
             borderColor: 'divider',
-            background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
+            background: `linear-gradient(135deg, ${colorPalette.surface.elevated} 0%, ${colorPalette.common.white} 100%)`,
           }}>
             <Tabs 
               value={tabValue} 

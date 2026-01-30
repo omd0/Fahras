@@ -30,15 +30,15 @@ export const BookmarkButton: React.FC<BookmarkButtonProps> = ({
         onClick={handleClick}
         disabled={loading}
         sx={{
-          color: isBookmarked ? '#1976d2' : (sx?.color || 'inherit'),
+          color: isBookmarked ? 'info.main' : (sx?.color || 'inherit'),
           ...sx,
         }}
       >
         <BookmarkIcon 
           fontSize={size} 
           sx={{
-            fill: isBookmarked ? '#1976d2' : 'none',
-            stroke: isBookmarked ? '#1976d2' : 'currentColor',
+            fill: isBookmarked ? 'currentColor' : 'none',
+            stroke: isBookmarked ? 'currentColor' : 'currentColor',
             strokeWidth: isBookmarked ? 0 : 1.5,
           }}
         />

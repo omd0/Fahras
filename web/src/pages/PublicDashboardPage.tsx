@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { designTokens } from '@/styles/designTokens';
+import { colorPalette } from '@/styles/theme/colorPalette';
 import {
   Container,
   Typography,
@@ -174,7 +175,7 @@ export const PublicDashboardPage: React.FC = () => {
         <Grid container spacing={3} sx={{ mb: 5 }}>
           <Grid size={{ xs: 12, sm: 4 }}>
             <Card sx={{ borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.08)', textAlign: 'center', p: 2 }}>
-              <Typography variant="h3" sx={{ fontWeight: 700, color: '#1e3a8a' }}>
+              <Typography variant="h3" sx={{ fontWeight: 700, color: 'info.dark' }}>
                 {projects.length}
               </Typography>
               <Typography variant="body1" color="text.secondary">
@@ -184,7 +185,7 @@ export const PublicDashboardPage: React.FC = () => {
           </Grid>
           <Grid size={{ xs: 12, sm: 4 }}>
             <Card sx={{ borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.08)', textAlign: 'center', p: 2 }}>
-              <Typography variant="h3" sx={{ fontWeight: 700, color: '#059669' }}>
+              <Typography variant="h3" sx={{ fontWeight: 700, color: 'success.main' }}>
                 {filteredProjects.filter(p => p.status === 'completed').length}
               </Typography>
               <Typography variant="body1" color="text.secondary">
@@ -194,7 +195,7 @@ export const PublicDashboardPage: React.FC = () => {
           </Grid>
           <Grid size={{ xs: 12, sm: 4 }}>
             <Card sx={{ borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.08)', textAlign: 'center', p: 2 }}>
-              <Typography variant="h3" sx={{ fontWeight: 700, color: '#8b5cf6' }}>
+              <Typography variant="h3" sx={{ fontWeight: 700, color: 'secondary.main' }}>
                 {new Set((projects || []).map(p => p.program_id)).size}
               </Typography>
               <Typography variant="body1" color="text.secondary">
@@ -224,7 +225,7 @@ export const PublicDashboardPage: React.FC = () => {
 
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-            <CircularProgress size={60} sx={{ color: '#1e3a8a' }} />
+            <CircularProgress size={60} sx={{ color: 'info.dark' }} />
           </Box>
         ) : filteredProjects.length === 0 ? (
           <Card sx={{ borderRadius: 3, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
@@ -243,7 +244,7 @@ export const PublicDashboardPage: React.FC = () => {
                 <Button
                   variant="outlined"
                   onClick={() => setSearchTerm('')}
-                  sx={{ borderColor: '#1e3a8a', color: '#1e3a8a' }}
+                  sx={{ borderColor: 'info.dark', color: 'info.dark' }}
                 >
                   Clear Search
                 </Button>
@@ -262,19 +263,19 @@ export const PublicDashboardPage: React.FC = () => {
                     cursor: 'pointer',
                     borderRadius: 3,
                     boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                    border: '1px solid #e5e7eb',
+                    border: `1px solid ${colorPalette.border.default}`,
                     transition: 'all 0.3s ease',
                     '&:hover': {
                       boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
                       transform: 'translateY(-4px)',
-                      borderColor: '#1e3a8a',
+                      borderColor: colorPalette.info.dark,
                     },
                   }}
                   onClick={() => navigate(`/projects/${project.id}`)}
                 >
                   <CardContent sx={{ flexGrow: 1, p: 3 }}>
                     <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>
-                      <SchoolIcon sx={{ color: '#1e3a8a', mr: 1, mt: 0.5, fontSize: 28 }} />
+                      <SchoolIcon sx={{ color: 'info.dark', mr: 1, mt: 0.5, fontSize: 28 }} />
                       <Typography variant="h6" component="h2" sx={{ flexGrow: 1, fontWeight: 600 }}>
                         {project.title}
                       </Typography>
@@ -294,8 +295,8 @@ export const PublicDashboardPage: React.FC = () => {
                             size="small"
                             variant="outlined"
                             sx={{ 
-                              borderColor: '#1e3a8a',
-                              color: '#1e3a8a',
+                              borderColor: 'info.dark',
+                              color: 'info.dark',
                               fontSize: '0.75rem',
                             }}
                           />
@@ -333,7 +334,7 @@ export const PublicDashboardPage: React.FC = () => {
                           e.stopPropagation(); 
                           navigate(`/projects/${project.id}`); 
                         }}
-                        sx={{ color: '#1e3a8a' }}
+                        sx={{ color: 'info.dark' }}
                       >
                         <VisibilityIcon />
                       </IconButton>
@@ -381,8 +382,8 @@ export const PublicDashboardPage: React.FC = () => {
                 startIcon={<LoginIcon />}
                 onClick={() => navigate('/login')}
                 sx={{
-                  borderColor: '#1e3a8a',
-                  color: '#1e3a8a',
+                  borderColor: 'info.dark',
+                  color: 'info.dark',
                 }}
               >
                 Login

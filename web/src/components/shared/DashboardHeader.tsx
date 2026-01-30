@@ -1,6 +1,5 @@
 import React from 'react';
 import { Box, Typography, IconButton, Tooltip } from '@mui/material';
-import { DashboardTheme } from '@/config/dashboardThemes';
 import { designTokens } from '@/styles/designTokens';
 
 interface ActionIcon {
@@ -10,7 +9,6 @@ interface ActionIcon {
 }
 
 interface DashboardHeaderProps {
-  theme: DashboardTheme;
   icon: string;
   greeting: string;
   userName: string;
@@ -19,7 +17,6 @@ interface DashboardHeaderProps {
 }
 
 export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
-  theme,
   icon,
   greeting,
   userName,

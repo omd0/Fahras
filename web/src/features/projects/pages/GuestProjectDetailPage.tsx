@@ -18,15 +18,14 @@ import {
   Rating,
   Paper,
   Fade,
-  Slide,
-  Badge,
   List,
   ListItem,
   ListItemText,
   ListItemIcon,
-  alpha,
+  Tooltip,
 } from '@mui/material';
-import { legacyColors as guestColors, createDecorativeElements, backgroundPatterns } from '@/styles/theme/colorPalette';
+import { colorPalette } from '@/styles/theme/colorPalette';
+import { designTokens } from '@/styles/designTokens';
 import {
   ArrowBack as ArrowBackIcon,
   School as SchoolIcon,
@@ -36,17 +35,12 @@ import {
   Login as LoginIcon,
   AppRegistration as RegisterIcon,
   Visibility as VisibilityIcon,
-  Download as DownloadIcon,
-  Star as StarIcon,
-  Comment as CommentIcon,
-  Share as ShareIcon,
-  Bookmark as BookmarkIcon,
   TrendingUp as TrendingIcon,
   FileDownload as FileDownloadIcon,
-  Description as DescriptionIcon,
   Group as GroupIcon,
   SupervisorAccount as SupervisorAccountIcon,
-  Assessment as AssessmentIcon,
+  Label as LabelIcon,
+  CloudDownload as CloudDownloadIcon,
 } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Project } from '@/types';
@@ -55,10 +49,7 @@ import { TVTCLogo } from '@/components/TVTCLogo';
 import { CommentSection } from '@/components/CommentSection';
 import { RatingSection } from '@/components/RatingSection';
 import { BookmarkButton } from '@/features/bookmarks/components/BookmarkButton';
-
-// Use the new guest theme colors
-const colors = guestColors;
-const decorativeElements = createDecorativeElements();
+import { Breadcrumb } from '@/components/shared/Breadcrumb';
 
 export const GuestProjectDetailPage: React.FC = () => {
   const [project, setProject] = useState<Project | null>(null);
@@ -74,7 +65,6 @@ export const GuestProjectDetailPage: React.FC = () => {
     }
   }, [id]);
 
-  // Scroll to top when project details page loads or project ID changes
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [id]);
@@ -94,41 +84,61 @@ export const GuestProjectDetailPage: React.FC = () => {
     }
   };
 
-
+  const handleDownloadFile = async (file: any) => {
+    try {
+      const blob = await apiService.downloadFile(file.id);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = file.original_filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Error downloading file:', err);
+      window.open(file.public_url || file.storage_url, '_blank');
+    }
+  };
 
   const averageRating = project?.average_rating || 0;
   const ratingCount = project?.rating_count || 0;
 
+  const guestCardSx = {
+    mb: 4,
+    borderRadius: designTokens.radii.card,
+    border: `1px solid ${colorPalette.border.default}`,
+    boxShadow: designTokens.shadows.elevation1,
+    background: colorPalette.surface.paper,
+    overflow: 'hidden' as const,
+    transition: designTokens.transitions.hover,
+    '&:hover': {
+      boxShadow: designTokens.shadows.elevation2,
+    },
+  };
+
   if (loading) {
     return (
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
         minHeight: '100vh',
-        ...backgroundPatterns.hero,
-        position: 'relative',
-        '&::before': decorativeElements.largeCircle,
-        '&::after': decorativeElements.mediumCircle,
+        background: colorPalette.surface.background,
       }}>
-        <CircularProgress size={60} sx={{ color: colors.deepPurple }} />
+        <CircularProgress size={60} sx={{ color: colorPalette.primary.main }} />
       </Box>
     );
   }
 
   if (error || !project) {
     return (
-      <Box sx={{ 
-        minHeight: '100vh',
-        ...backgroundPatterns.content,
-        position: 'relative',
-        '&::before': decorativeElements.geometricBackground,
-      }}>
-        <AppBar 
-          position="static" 
-          sx={{ 
-            background: guestColors.primaryGradient,
-            boxShadow: '0 4px 20px rgba(44, 62, 80, 0.3)',
+      <Box sx={{ minHeight: '100vh', background: colorPalette.surface.background }}>
+        <AppBar
+          position="static"
+          sx={{
+            background: `linear-gradient(135deg, ${colorPalette.primary.dark} 0%, ${colorPalette.primary.main} 100%)`,
+            boxShadow: designTokens.shadows.elevation2,
           }}
         >
           <Toolbar>
@@ -136,6 +146,7 @@ export const GuestProjectDetailPage: React.FC = () => {
               edge="start"
               color="inherit"
               onClick={() => navigate('/explore')}
+              aria-label="Back to explore"
               sx={{ mr: 2 }}
             >
               <ArrowBackIcon />
@@ -146,7 +157,7 @@ export const GuestProjectDetailPage: React.FC = () => {
             </Typography>
           </Toolbar>
         </AppBar>
-        
+
         <Container maxWidth="lg" sx={{ py: 8 }}>
           <Alert severity="error" sx={{ borderRadius: 3 }}>
             {error || 'Project not found'}
@@ -155,7 +166,12 @@ export const GuestProjectDetailPage: React.FC = () => {
             variant="contained"
             startIcon={<ArrowBackIcon />}
             onClick={() => navigate('/explore')}
-            sx={{ mt: 3, background: guestColors.primaryGradient }}
+            sx={{
+              mt: 3,
+              background: colorPalette.primary.main,
+              color: colorPalette.common.white,
+              '&:hover': { background: colorPalette.primary.dark },
+            }}
           >
             Back to Explore
           </Button>
@@ -165,32 +181,15 @@ export const GuestProjectDetailPage: React.FC = () => {
   }
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       minHeight: '100vh',
-      ...backgroundPatterns.content,
-      position: 'relative',
-      '&::before': decorativeElements.geometricBackground,
-      '&::after': {
-        content: '""',
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: `
-          radial-gradient(circle at 20% 20%, rgba(81, 45, 168, 0.06) 0%, transparent 50%),
-          radial-gradient(circle at 80% 80%, rgba(174, 223, 247, 0.05) 0%, transparent 50%),
-          radial-gradient(circle at 50% 50%, rgba(28, 40, 51, 0.04) 0%, transparent 50%)
-        `,
-        pointerEvents: 'none',
-      },
+      background: `linear-gradient(135deg, ${colorPalette.common.white} 0%, ${colorPalette.surface.elevated} 50%, ${colorPalette.common.white} 100%)`,
     }}>
-      {/* Modern Navigation Bar */}
-      <AppBar 
-        position="static" 
-        sx={{ 
-          background: guestColors.primaryGradient,
-          boxShadow: '0 4px 20px rgba(44, 62, 80, 0.3)',
+      <AppBar
+        position="static"
+        sx={{
+          background: `linear-gradient(135deg, ${colorPalette.primary.dark} 0%, ${colorPalette.primary.main} 100%)`,
+          boxShadow: designTokens.shadows.elevation2,
         }}
       >
         <Toolbar>
@@ -198,12 +197,13 @@ export const GuestProjectDetailPage: React.FC = () => {
             edge="start"
             color="inherit"
             onClick={() => navigate('/explore')}
+            aria-label="Back to explore"
             sx={{ mr: 2 }}
           >
             <ArrowBackIcon />
           </IconButton>
           <TVTCLogo size="medium" variant="icon" color="inherit" sx={{ mr: 2 }} />
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 600 }}>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 600, color: colorPalette.common.white }}>
             Project Details
           </Typography>
           <Button
@@ -219,13 +219,13 @@ export const GuestProjectDetailPage: React.FC = () => {
             color="inherit"
             startIcon={<RegisterIcon />}
             onClick={() => navigate('/register')}
-            sx={{ 
-              borderColor: colors.white, 
+            sx={{
+              borderColor: colorPalette.common.white,
               fontWeight: 500,
-              '&:hover': { 
-                borderColor: colors.white, 
-                backgroundColor: 'rgba(255,255,255,0.1)' 
-              } 
+              '&:hover': {
+                borderColor: colorPalette.common.white,
+                backgroundColor: 'rgba(255,255,255,0.1)',
+              },
             }}
           >
             Register
@@ -234,376 +234,318 @@ export const GuestProjectDetailPage: React.FC = () => {
       </AppBar>
 
       <Container maxWidth="lg" sx={{ py: 6 }}>
+        <Breadcrumb
+          items={[
+            { label: 'Explore', path: '/explore' },
+            { label: project.title },
+          ]}
+          showHome={false}
+        />
+
         <Fade in timeout={800}>
           <Grid container spacing={4}>
-            {/* Main Content */}
             <Grid size={{ xs: 12, lg: 8 }}>
-              {/* Project Header */}
-              <Card sx={{ 
-                ...backgroundPatterns.card,
-                mb: 4,
-                position: 'relative',
-                borderRadius: '12px',
-                boxShadow: '0 4px 16px rgba(30, 58, 138, 0.1), 0 2px 8px rgba(55, 65, 81, 0.06)',
-                border: '1px solid rgba(55, 65, 81, 0.15)',
-                '&::before': decorativeElements.smallCircle,
-                '&::after': decorativeElements.smallTriangle,
-              }}>
-                <CardContent sx={{ p: 4 }}>
+              <Card sx={guestCardSx}>
+                <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
                   <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 3 }}>
-                    <Box sx={{ 
-                      width: 80, 
-                      height: 80, 
+                    <Box sx={{
+                      width: 72,
+                      height: 72,
                       borderRadius: 3,
-                      background: guestColors.primaryGradient,
+                      background: `linear-gradient(135deg, ${colorPalette.primary.dark} 0%, ${colorPalette.primary.main} 100%)`,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       mr: 3,
                       flexShrink: 0,
-                      boxShadow: '0 8px 32px rgba(30, 58, 138, 0.25)',
+                      boxShadow: `0 8px 24px ${colorPalette.shadow.medium}`,
                     }}>
-                      <SchoolIcon sx={{ fontSize: 40, color: colors.white }} />
+                      <SchoolIcon sx={{ fontSize: 36, color: colorPalette.common.white }} />
                     </Box>
                     <Box sx={{ flexGrow: 1 }}>
                       <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1 }}>
-                        <Typography variant="h4" sx={{ fontWeight: 700, color: colors.textPrimary, flex: 1 }}>
+                        <Typography variant="h4" sx={{ fontWeight: 700, color: colorPalette.text.primary, flex: 1, fontSize: { xs: '1.4rem', sm: '1.8rem' } }}>
                           {project.title}
                         </Typography>
                         <Box sx={{ ml: 2 }}>
                           <BookmarkButton projectId={project.id} size="medium" />
                         </Box>
                       </Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <VisibilityIcon sx={{ fontSize: 16, color: colors.textSecondary, mr: 0.5 }} />
-                          <Typography variant="body2" color="text.secondary">
-                            {project.views || 0} views
-                          </Typography>
-                        </Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                        <VisibilityIcon sx={{ fontSize: 16, color: colorPalette.text.secondary, mr: 0.5 }} />
+                        <Typography variant="body2" sx={{ color: colorPalette.text.secondary }}>
+                          {project.views || 0} views
+                        </Typography>
                       </Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <Rating
-                            value={averageRating}
-                            readOnly
-                            size="small"
-                            sx={{ mr: 1 }}
-                          />
-                          <Typography variant="body2" color="text.secondary">
-                            {averageRating.toFixed(1)} ({ratingCount} ratings)
-                          </Typography>
-                        </Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Rating value={averageRating} readOnly size="small" />
+                        <Typography variant="body2" sx={{ color: colorPalette.text.secondary }}>
+                          {averageRating.toFixed(1)} ({ratingCount} ratings)
+                        </Typography>
                       </Box>
                     </Box>
                   </Box>
 
-                  {/* Project Abstract */}
-                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: colors.textPrimary }}>
-                    Abstract
-                  </Typography>
-                  <Typography variant="body1" sx={{ 
-                    lineHeight: 1.7, 
-                    color: colors.textPrimary,
-                    mb: 3,
-                    whiteSpace: 'pre-wrap',
-                  }}>
-                    {project.abstract}
-                  </Typography>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 3,
+                      mb: 3,
+                      borderRadius: 2,
+                      background: colorPalette.surface.elevated,
+                      border: `1px solid ${colorPalette.border.default}`,
+                    }}
+                  >
+                    <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, color: colorPalette.text.primary, fontSize: '1.1rem' }}>
+                      Abstract
+                    </Typography>
+                    <Typography variant="body1" sx={{
+                      lineHeight: 1.8,
+                      color: colorPalette.text.primary,
+                      whiteSpace: 'pre-wrap',
+                      fontSize: '0.95rem',
+                    }}>
+                      {project.abstract}
+                    </Typography>
+                  </Paper>
 
-                  {/* Keywords */}
                   {project.keywords && project.keywords.length > 0 && (
-                    <Box sx={{ mb: 3 }}>
-                      <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: colors.textPrimary }}>
-                        Keywords
-                      </Typography>
+                    <Paper
+                      elevation={0}
+                      sx={{
+                        p: 3,
+                        mb: 3,
+                        borderRadius: 2,
+                        background: colorPalette.primary.lighter,
+                        border: `1px solid ${colorPalette.primary.light}`,
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                        <LabelIcon sx={{ fontSize: 20, color: colorPalette.primary.dark }} />
+                        <Typography variant="h6" sx={{ fontWeight: 700, color: colorPalette.text.primary, fontSize: '1.1rem' }}>
+                          Keywords
+                        </Typography>
+                      </Box>
                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                        {project.keywords.map((keyword, index) => (
+                        {(project.keywords || []).map((keyword: string, index: number) => (
                           <Chip
                             key={index}
                             label={keyword}
                             variant="outlined"
-                            sx={{ 
-                              borderColor: colors.almostBlack,
-                              color: colors.almostBlack,
+                            sx={{
+                              borderColor: colorPalette.primary.main,
+                              color: colorPalette.primary.dark,
+                              backgroundColor: colorPalette.common.white,
+                              fontWeight: 600,
                               '&:hover': {
-                                backgroundColor: colors.almostBlack,
-                                color: colors.white,
+                                backgroundColor: colorPalette.primary.main,
+                                color: colorPalette.common.white,
                               },
+                              transition: designTokens.transitions.micro,
                             }}
                           />
                         ))}
                       </Box>
-                    </Box>
+                    </Paper>
                   )}
 
                   <Divider sx={{ my: 3 }} />
 
-                  {/* Project Details */}
                   <Grid container spacing={3}>
                     <Grid size={{ xs: 12, sm: 6 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                        <PersonIcon sx={{ color: colors.almostBlack, mr: 1 }} />
-                        <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                          {project.creator?.full_name || 'Unknown'}
-                        </Typography>
+                        <PersonIcon sx={{ color: colorPalette.primary.main, mr: 1 }} />
+                        <Box>
+                          <Typography variant="subtitle2" fontWeight="700" sx={{ color: colorPalette.text.secondary, textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.08em' }}>
+                            Creator
+                          </Typography>
+                          <Typography variant="body1" sx={{ fontWeight: 600, color: colorPalette.text.primary }}>
+                            {project.creator?.full_name || 'Unknown'}
+                          </Typography>
+                        </Box>
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                        <SchoolIcon sx={{ color: colors.almostBlack, mr: 1 }} />
-                        <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                          {project.program?.name || 'TVTC Program'}
-                        </Typography>
+                        <SchoolIcon sx={{ color: colorPalette.primary.main, mr: 1 }} />
+                        <Box>
+                          <Typography variant="subtitle2" fontWeight="700" sx={{ color: colorPalette.text.secondary, textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.08em' }}>
+                            Program
+                          </Typography>
+                          <Typography variant="body1" sx={{ fontWeight: 600, color: colorPalette.text.primary }}>
+                            {project.program?.name || 'TVTC Program'}
+                          </Typography>
+                        </Box>
                       </Box>
                     </Grid>
                     <Grid size={{ xs: 12, sm: 6 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                        <CalendarIcon sx={{ color: colors.deepPurple, mr: 1 }} />
-                        <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                          {project.academic_year} • {project.semester}
-                        </Typography>
+                        <CalendarIcon sx={{ color: colorPalette.primary.main, mr: 1 }} />
+                        <Box>
+                          <Typography variant="subtitle2" fontWeight="700" sx={{ color: colorPalette.text.secondary, textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.08em' }}>
+                            Academic Year
+                          </Typography>
+                          <Typography variant="body1" sx={{ fontWeight: 600, color: colorPalette.text.primary }}>
+                            {project.academic_year} &bull; {project.semester}
+                          </Typography>
+                        </Box>
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                        <BusinessIcon sx={{ color: colors.deepPurple, mr: 1 }} />
-                        <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                          {project.department?.name || 'Department'}
-                        </Typography>
+                        <BusinessIcon sx={{ color: colorPalette.primary.main, mr: 1 }} />
+                        <Box>
+                          <Typography variant="subtitle2" fontWeight="700" sx={{ color: colorPalette.text.secondary, textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.08em' }}>
+                            Department
+                          </Typography>
+                          <Typography variant="body1" sx={{ fontWeight: 600, color: colorPalette.text.primary }}>
+                            {project.department?.name || 'Department'}
+                          </Typography>
+                        </Box>
                       </Box>
                     </Grid>
                   </Grid>
                 </CardContent>
               </Card>
 
-              {/* Project Files Section */}
-              <Card sx={{ 
-                ...backgroundPatterns.card,
-                mb: 4,
-                position: 'relative',
-                borderRadius: '12px',
-                boxShadow: '0 4px 16px rgba(30, 58, 138, 0.1), 0 2px 8px rgba(55, 65, 81, 0.06)',
-                border: '1px solid rgba(55, 65, 81, 0.15)',
-                '&::before': decorativeElements.smallCircle,
-                '&::after': decorativeElements.mediumTriangle,
-              }}>
-                <CardContent sx={{ p: 4 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                    <FileDownloadIcon sx={{ color: colors.almostBlack, mr: 1, fontSize: 24 }} />
-                    <Typography variant="h5" sx={{ fontWeight: 600, color: colors.textPrimary }}>
-                      Project Files ({project.files?.length || 0})
-                    </Typography>
-                  </Box>
-                  
-                  {project.files && project.files.length > 0 ? (
-                    <List sx={{ p: 0 }}>
-                      {project.files.map((file, index) => (
-                        <Paper
-                          key={file.id}
-                          sx={{
-                            p: 3,
-                            mb: 2,
-                            borderRadius: 3,
-                            background: colors.lightGray,
-                            border: `1px solid ${colors.almostBlack}20`,
-                            transition: 'all 0.2s ease-in-out',
-                            '&:hover': {
-                              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                              transform: 'translateY(-1px)',
-                            }
-                          }}
-                        >
-                          <ListItem sx={{ p: 0 }}>
-                            <ListItemIcon>
-                              <Box
-                                sx={{
-                                  p: 1,
-                                  borderRadius: 1.5,
-                                  background: guestColors.primaryGradient,
-                                  color: colors.white,
-                                }}
-                              >
-                                <FileDownloadIcon sx={{ fontSize: 20 }} />
-                              </Box>
-                            </ListItemIcon>
-                            <ListItemText
-                              primary={
-                                <Typography variant="subtitle1" sx={{ fontWeight: 600, color: colors.textPrimary }}>
-                                  {file.original_filename}
-                                </Typography>
-                              }
-                              secondary={
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1, flexWrap: 'wrap' }}>
-                                  <Chip 
-                                    label={`${(file.size_bytes / 1024).toFixed(1)} KB`} 
-                                    size="small" 
-                                    variant="filled"
-                                    sx={{ 
-                                      background: `linear-gradient(135deg, ${colors.lightGray} 0%, #e2e8f0 100%)`,
-                                      color: colors.textSecondary,
-                                      fontWeight: 500,
-                                    }}
-                                  />
-                                  <Chip 
-                                    label={new Date(file.uploaded_at).toLocaleDateString('en-US', { 
-                                      year: 'numeric', 
-                                      month: 'short', 
-                                      day: 'numeric' 
-                                    })} 
-                                    size="small" 
-                                    variant="filled"
-                                    sx={{ 
-                                      background: `linear-gradient(135deg, ${colors.lightGray} 0%, #e2e8f0 100%)`,
-                                      color: colors.textSecondary,
-                                      fontWeight: 500,
-                                    }}
-                                  />
-                                  <Chip 
-                                    label={file.mime_type} 
-                                    size="small" 
-                                    variant="filled"
-                                    sx={{ 
-                                      background: `linear-gradient(135deg, ${colors.lightGray} 0%, #e2e8f0 100%)`,
-                                      color: colors.textSecondary,
-                                      fontWeight: 500,
-                                    }}
-                                  />
-                                  {file.is_public && (
-                                    <Chip 
-                                      label="Public" 
-                                      size="small" 
-                                      color="success" 
-                                      variant="filled"
-                                      sx={{ 
-                                        fontWeight: 600,
-                                        background: `linear-gradient(135deg, ${colors.success} 0%, #10b981 100%)`,
-                                      }}
-                                    />
-                                  )}
-                                </Box>
-                              }
-                            />
-                            <Button
-                              variant="contained"
-                              size="small"
-                              startIcon={<FileDownloadIcon />}
-                              onClick={async () => {
-                                try {
-                                  const blob = await apiService.downloadFile(file.id);
-                                  const url = window.URL.createObjectURL(blob);
-                                  const link = document.createElement('a');
-                                  link.href = url;
-                                  link.download = file.original_filename;
-                                  document.body.appendChild(link);
-                                  link.click();
-                                  document.body.removeChild(link);
-                                  window.URL.revokeObjectURL(url);
-                                } catch (error) {
-                                  console.error('Error downloading file:', error);
-                                  window.open(file.public_url || file.storage_url, '_blank');
-                                }
-                              }}
-                              sx={{ 
-                                minWidth: 100,
-                                textTransform: 'none',
-                                fontWeight: 600,
-                                background: colors.softYellow,
-                                color: colors.white,
-                                borderRadius: '8px',
-                                '&:hover': {
-                                  background: colors.softOrange,
-                                  transform: 'translateY(-1px)',
-                                  boxShadow: '0 4px 12px rgba(241, 196, 15, 0.3)',
-                                },
-                                transition: 'all 0.2s ease-in-out',
-                              }}
-                            >
-                              Download
-                            </Button>
-                          </ListItem>
-                        </Paper>
-                      ))}
-                    </List>
-                  ) : (
-                    <Box sx={{ textAlign: 'center', py: 4 }}>
-                      <FileDownloadIcon sx={{ fontSize: 48, color: colors.textSecondary, opacity: 0.3, mb: 2 }} />
-                      <Typography variant="body1" color="text.secondary">
-                        No files uploaded yet
+              <Card sx={guestCardSx}>
+                <CardContent sx={{ p: 0 }}>
+                  <Box sx={{
+                    background: `linear-gradient(135deg, ${colorPalette.primary.dark} 0%, ${colorPalette.primary.main} 100%)`,
+                    color: colorPalette.common.white,
+                    p: 3,
+                  }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <CloudDownloadIcon sx={{ fontSize: 28, color: colorPalette.common.white }} />
+                      <Typography variant="h6" sx={{ fontWeight: 700, color: colorPalette.common.white }}>
+                        Project Files ({project.files?.length || 0})
                       </Typography>
                     </Box>
-                  )}
+                  </Box>
+                  <Box sx={{ p: 3 }}>
+                    {project.files && project.files.length > 0 ? (
+                      <List sx={{ p: 0 }}>
+                        {(project.files || []).map((file: any) => (
+                          <Paper
+                            key={file.id}
+                            elevation={0}
+                            sx={{
+                              p: 2,
+                              mb: 2,
+                              borderRadius: 2,
+                              background: colorPalette.surface.elevated,
+                              border: `1px solid ${colorPalette.border.default}`,
+                              cursor: 'pointer',
+                              transition: designTokens.transitions.hover,
+                              '&:hover': {
+                                boxShadow: designTokens.shadows.elevation2,
+                                transform: 'translateY(-2px)',
+                                borderColor: colorPalette.primary.main,
+                              },
+                            }}
+                            onClick={() => handleDownloadFile(file)}
+                            role="button"
+                            tabIndex={0}
+                            aria-label={`Download ${file.original_filename}`}
+                            onKeyDown={(e: React.KeyboardEvent) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                handleDownloadFile(file);
+                              }
+                            }}
+                          >
+                            <ListItem sx={{ p: 0 }}>
+                              <ListItemIcon>
+                                <Box sx={{
+                                  p: 1,
+                                  borderRadius: 1.5,
+                                  background: `linear-gradient(135deg, ${colorPalette.primary.dark} 0%, ${colorPalette.primary.main} 100%)`,
+                                  color: colorPalette.common.white,
+                                }}>
+                                  <FileDownloadIcon sx={{ fontSize: 20 }} />
+                                </Box>
+                              </ListItemIcon>
+                              <ListItemText
+                                primary={
+                                  <Typography variant="subtitle1" sx={{ fontWeight: 600, color: colorPalette.text.primary }}>
+                                    {file.original_filename}
+                                  </Typography>
+                                }
+                                secondary={
+                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, flexWrap: 'wrap' }}>
+                                    <Chip label={`${(file.size_bytes / 1024).toFixed(1)} KB`} size="small" variant="filled" sx={{ background: colorPalette.surface.sunken, color: colorPalette.text.secondary, fontWeight: 500 }} />
+                                    <Chip label={new Date(file.uploaded_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })} size="small" variant="filled" sx={{ background: colorPalette.surface.sunken, color: colorPalette.text.secondary, fontWeight: 500 }} />
+                                    <Chip label={file.mime_type} size="small" variant="filled" sx={{ background: colorPalette.surface.sunken, color: colorPalette.text.secondary, fontWeight: 500 }} />
+                                    {file.is_public && (
+                                      <Chip label="Public" size="small" color="success" variant="filled" sx={{ fontWeight: 600 }} />
+                                    )}
+                                  </Box>
+                                }
+                              />
+                              <Tooltip title={`Download ${file.original_filename}`}>
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  startIcon={<FileDownloadIcon />}
+                                  onClick={(e: React.MouseEvent) => {
+                                    e.stopPropagation();
+                                    handleDownloadFile(file);
+                                  }}
+                                  aria-label={`Download ${file.original_filename}`}
+                                  sx={{
+                                    minWidth: 120,
+                                    textTransform: 'none',
+                                    fontWeight: 600,
+                                    background: colorPalette.primary.main,
+                                    color: colorPalette.common.white,
+                                    borderRadius: '8px',
+                                    '&:hover': {
+                                      background: colorPalette.primary.dark,
+                                      transform: 'translateY(-1px)',
+                                      boxShadow: `0 4px 12px ${colorPalette.shadow.medium}`,
+                                    },
+                                    transition: designTokens.transitions.hover,
+                                  }}
+                                >
+                                  Download
+                                </Button>
+                              </Tooltip>
+                            </ListItem>
+                          </Paper>
+                        ))}
+                      </List>
+                    ) : (
+                      <Box sx={{ textAlign: 'center', py: 4 }}>
+                        <FileDownloadIcon sx={{ fontSize: 48, color: colorPalette.text.disabled, mb: 2, display: 'block', mx: 'auto' }} />
+                        <Typography variant="body1" sx={{ color: colorPalette.text.secondary }}>
+                          No files uploaded yet
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
                 </CardContent>
               </Card>
 
-              {/* Team Members & Project Advisors Section */}
-              <Card sx={{ 
-                ...backgroundPatterns.card,
-                mb: 4,
-                position: 'relative',
-                borderRadius: '12px',
-                boxShadow: '0 4px 16px rgba(30, 58, 138, 0.1), 0 2px 8px rgba(55, 65, 81, 0.06)',
-                border: '1px solid rgba(55, 65, 81, 0.15)',
-                '&::before': decorativeElements.smallCircle,
-                '&::after': decorativeElements.smallTriangle,
-              }}>
-                <CardContent sx={{ p: 4 }}>
+              <Card sx={guestCardSx}>
+                <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
                   <Grid container spacing={4}>
-                    {/* Team Members */}
                     <Grid size={{ xs: 12, md: 6 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                        <GroupIcon sx={{ color: colors.almostBlack, mr: 1, fontSize: 24 }} />
-                        <Typography variant="h5" sx={{ fontWeight: 600, color: colors.textPrimary }}>
+                        <GroupIcon sx={{ color: colorPalette.primary.main, mr: 1, fontSize: 24 }} />
+                        <Typography variant="h6" sx={{ fontWeight: 700, color: colorPalette.text.primary, fontSize: '1.1rem' }}>
                           Team Members ({project.members?.length || 0})
                         </Typography>
                       </Box>
-                      
+
                       {project.members && project.members.length > 0 ? (
                         <List sx={{ p: 0 }}>
-                          {project.members.map((member) => (
-                            <Paper
-                              key={member.id}
-                              sx={{
-                                p: 3,
-                                mb: 2,
-                                borderRadius: 3,
-                                background: colors.lightGray,
-                                border: `1px solid ${colors.almostBlack}20`,
-                                transition: 'all 0.2s ease-in-out',
-                                '&:hover': {
-                                  boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                                  transform: 'translateY(-1px)',
-                                }
-                              }}
-                            >
+                          {(project.members || []).map((member: any) => (
+                            <Paper key={member.id} elevation={0} sx={{ p: 2, mb: 1.5, borderRadius: 2, background: colorPalette.surface.elevated, border: `1px solid ${colorPalette.border.default}`, transition: designTokens.transitions.hover, '&:hover': { boxShadow: designTokens.shadows.elevation2, transform: 'translateY(-1px)' } }}>
                               <ListItem sx={{ p: 0 }}>
                                 <ListItemIcon>
-                                  <Avatar 
-                                    sx={{ 
-                                      width: 40, 
-                                      height: 40,
-                                      background: `linear-gradient(135deg, ${colors.almostBlack} 0%, ${colors.deepPurple} 100%)`,
-                                      fontWeight: 600,
-                                      fontSize: '1rem',
-                                    }}
-                                  >
+                                  <Avatar sx={{ width: 40, height: 40, background: `linear-gradient(135deg, ${colorPalette.primary.dark} 0%, ${colorPalette.teal.main} 100%)`, fontWeight: 600, fontSize: '1rem' }}>
                                     {member.full_name.charAt(0).toUpperCase()}
                                   </Avatar>
                                 </ListItemIcon>
                                 <ListItemText
-                                  primary={
-                                    <Typography variant="subtitle1" fontWeight="600" color={colors.textPrimary}>
-                                      {member.full_name}
-                                    </Typography>
-                                  }
-                                  secondary={
-                                    <Chip
-                                      label={member.pivot.role_in_project}
-                                      size="small"
-                                      color="primary"
-                                      variant="filled"
-                                      sx={{ 
-                                        fontWeight: 600,
-                                        background: `linear-gradient(135deg, ${colors.almostBlack} 0%, ${colors.deepPurple} 100%)`,
-                                      }}
-                                    />
-                                  }
+                                  primary={<Typography variant="subtitle1" fontWeight="600" sx={{ color: colorPalette.text.primary }}>{member.full_name}</Typography>}
+                                  secondary={<Chip label={member.pivot.role_in_project} size="small" color="primary" variant="filled" sx={{ fontWeight: 600, mt: 0.5 }} />}
                                 />
                               </ListItem>
                             </Paper>
@@ -611,73 +553,33 @@ export const GuestProjectDetailPage: React.FC = () => {
                         </List>
                       ) : (
                         <Box sx={{ textAlign: 'center', py: 4 }}>
-                          <GroupIcon sx={{ fontSize: 48, color: colors.textSecondary, opacity: 0.3, mb: 2 }} />
-                          <Typography variant="body1" color="text.secondary">
-                            No team members assigned
-                          </Typography>
+                          <GroupIcon sx={{ fontSize: 48, color: colorPalette.text.disabled, mb: 2, display: 'block', mx: 'auto' }} />
+                          <Typography variant="body1" sx={{ color: colorPalette.text.secondary }}>No team members assigned</Typography>
                         </Box>
                       )}
                     </Grid>
 
-                    {/* Project Advisors */}
                     <Grid size={{ xs: 12, md: 6 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                        <SupervisorAccountIcon sx={{ color: colors.deepPurple, mr: 1, fontSize: 24 }} />
-                        <Typography variant="h5" sx={{ fontWeight: 600, color: colors.textPrimary }}>
+                        <SupervisorAccountIcon sx={{ color: colorPalette.warning.main, mr: 1, fontSize: 24 }} />
+                        <Typography variant="h6" sx={{ fontWeight: 700, color: colorPalette.text.primary, fontSize: '1.1rem' }}>
                           Project Advisor ({project.advisors?.length || 0})
                         </Typography>
                       </Box>
-                      
+
                       {project.advisors && project.advisors.length > 0 ? (
                         <List sx={{ p: 0 }}>
-                          {project.advisors.map((advisor) => (
-                            <Paper
-                              key={advisor.id}
-                              sx={{
-                                p: 3,
-                                mb: 2,
-                                borderRadius: 3,
-                                background: colors.lightGray,
-                                border: `1px solid ${colors.deepPurple}20`,
-                                transition: 'all 0.2s ease-in-out',
-                                '&:hover': {
-                                  boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                                  transform: 'translateY(-1px)',
-                                }
-                              }}
-                            >
+                          {(project.advisors || []).map((advisor: any) => (
+                            <Paper key={advisor.id} elevation={0} sx={{ p: 2, mb: 1.5, borderRadius: 2, background: colorPalette.surface.elevated, border: `1px solid ${colorPalette.border.default}`, transition: designTokens.transitions.hover, '&:hover': { boxShadow: designTokens.shadows.elevation2, transform: 'translateY(-1px)' } }}>
                               <ListItem sx={{ p: 0 }}>
                                 <ListItemIcon>
-                                  <Avatar 
-                                    sx={{ 
-                                      width: 40, 
-                                      height: 40,
-                                      background: `linear-gradient(135deg, ${colors.deepPurple} 0%, ${colors.mediumSlateGray} 100%)`,
-                                      fontWeight: 600,
-                                      fontSize: '1rem',
-                                    }}
-                                  >
+                                  <Avatar sx={{ width: 40, height: 40, background: `linear-gradient(135deg, ${colorPalette.warning.dark} 0%, ${colorPalette.warning.main} 100%)`, fontWeight: 600, fontSize: '1rem' }}>
                                     {advisor.full_name.charAt(0).toUpperCase()}
                                   </Avatar>
                                 </ListItemIcon>
                                 <ListItemText
-                                  primary={
-                                    <Typography variant="subtitle1" fontWeight="600" color={colors.textPrimary}>
-                                      {advisor.full_name}
-                                    </Typography>
-                                  }
-                                  secondary={
-                                    <Chip
-                                      label={advisor.pivot.advisor_role}
-                                      size="small"
-                                      color="warning"
-                                      variant="filled"
-                                      sx={{ 
-                                        fontWeight: 600,
-                                        background: `linear-gradient(135deg, ${colors.deepPurple} 0%, ${colors.mediumSlateGray} 100%)`,
-                                      }}
-                                    />
-                                  }
+                                  primary={<Typography variant="subtitle1" fontWeight="600" sx={{ color: colorPalette.text.primary }}>{advisor.full_name}</Typography>}
+                                  secondary={<Chip label={advisor.pivot.advisor_role} size="small" color="warning" variant="filled" sx={{ fontWeight: 600, mt: 0.5 }} />}
                                 />
                               </ListItem>
                             </Paper>
@@ -685,10 +587,8 @@ export const GuestProjectDetailPage: React.FC = () => {
                         </List>
                       ) : (
                         <Box sx={{ textAlign: 'center', py: 4 }}>
-                          <SupervisorAccountIcon sx={{ fontSize: 48, color: colors.textSecondary, opacity: 0.3, mb: 2 }} />
-                          <Typography variant="body1" color="text.secondary">
-                            No project advisor assigned
-                          </Typography>
+                          <SupervisorAccountIcon sx={{ fontSize: 48, color: colorPalette.text.disabled, mb: 2, display: 'block', mx: 'auto' }} />
+                          <Typography variant="body1" sx={{ color: colorPalette.text.secondary }}>No project advisor assigned</Typography>
                         </Box>
                       )}
                     </Grid>
@@ -696,9 +596,8 @@ export const GuestProjectDetailPage: React.FC = () => {
                 </CardContent>
               </Card>
 
-              {/* Comments and Ratings Sections */}
               {project && (
-                <Grid container spacing={3}>
+                <Grid container spacing={4}>
                   <Grid size={{ xs: 12 }}>
                     <RatingSection projectId={project.id} />
                   </Grid>
@@ -709,25 +608,18 @@ export const GuestProjectDetailPage: React.FC = () => {
               )}
             </Grid>
 
-            {/* Sidebar */}
             <Grid size={{ xs: 12, lg: 4 }}>
-              {/* Call to Action */}
-              <Card sx={{ 
-                ...backgroundPatterns.hero,
-                mb: 4,
-                color: colors.textPrimary,
-                borderRadius: '12px',
-                boxShadow: '0 8px 32px rgba(30, 58, 138, 0.2), 0 4px 16px rgba(55, 65, 81, 0.12)',
-                position: 'relative',
-                '&::before': decorativeElements.largeCircle,
-                '&::after': decorativeElements.mediumCircle,
+              <Card sx={{
+                ...guestCardSx,
+                background: `linear-gradient(135deg, ${colorPalette.surface.elevated} 0%, ${colorPalette.surface.paper} 100%)`,
+                boxShadow: designTokens.shadows.elevation2,
               }}>
                 <CardContent sx={{ p: 4, textAlign: 'center' }}>
-                  <TrendingIcon sx={{ fontSize: 48, mb: 2, opacity: 0.9 }} />
-                  <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
+                  <TrendingIcon sx={{ fontSize: 48, mb: 2, color: colorPalette.primary.main }} />
+                  <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: colorPalette.text.primary }}>
                     Impressed by this project?
                   </Typography>
-                  <Typography variant="body1" sx={{ mb: 3, opacity: 0.9 }}>
+                  <Typography variant="body1" sx={{ mb: 3, color: colorPalette.text.secondary }}>
                     Join our community and showcase your own innovative work
                   </Typography>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -737,14 +629,14 @@ export const GuestProjectDetailPage: React.FC = () => {
                       startIcon={<RegisterIcon />}
                       onClick={() => navigate('/register')}
                       sx={{
-                        background: colors.deepPurple,
-                        color: colors.white,
+                        background: colorPalette.primary.main,
+                        color: colorPalette.common.white,
                         fontWeight: 600,
-                        borderRadius: '12px',
+                        borderRadius: designTokens.radii.card,
                         '&:hover': {
-                          background: colors.lightSkyBlue,
+                          background: colorPalette.primary.dark,
                           transform: 'translateY(-2px)',
-                          boxShadow: '0 6px 20px rgba(233, 30, 99, 0.3)',
+                          boxShadow: `0 6px 20px ${colorPalette.shadow.medium}`,
                         },
                       }}
                     >
@@ -756,13 +648,14 @@ export const GuestProjectDetailPage: React.FC = () => {
                       startIcon={<LoginIcon />}
                       onClick={() => navigate('/login')}
                       sx={{
-                        borderColor: colors.almostBlack,
-                        color: colors.almostBlack,
+                        borderColor: colorPalette.text.primary,
+                        color: colorPalette.text.primary,
                         fontWeight: 600,
-                        borderRadius: '12px',
+                        borderRadius: designTokens.radii.card,
                         '&:hover': {
-                          borderColor: colors.almostBlack,
-                          backgroundColor: alpha(colors.almostBlack, 0.1),
+                          borderColor: colorPalette.primary.main,
+                          color: colorPalette.primary.main,
+                          backgroundColor: colorPalette.primary.lighter,
                           transform: 'translateY(-2px)',
                         },
                       }}
@@ -773,58 +666,34 @@ export const GuestProjectDetailPage: React.FC = () => {
                 </CardContent>
               </Card>
 
-
-              {/* Project Information - Read Only (Status Hidden) */}
-              <Card sx={{ 
-                ...backgroundPatterns.card,
-                position: 'relative',
-                borderRadius: '12px',
-                boxShadow: '0 4px 16px rgba(30, 58, 138, 0.1), 0 2px 8px rgba(55, 65, 81, 0.06)',
-                border: '1px solid rgba(55, 65, 81, 0.15)',
-                '&::before': decorativeElements.smallCircle,
-                '&::after': decorativeElements.mediumTriangle,
-              }}>
-                <CardContent sx={{ p: 4 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 3, color: colors.textPrimary }}>
-                    Project Information
-                  </Typography>
-                  
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
-                      Academic Year:
-                    </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      {project.academic_year}
+              <Card sx={guestCardSx}>
+                <CardContent sx={{ p: 0 }}>
+                  <Box sx={{
+                    background: `linear-gradient(135deg, ${colorPalette.secondary.dark} 0%, ${colorPalette.secondary.main} 100%)`,
+                    color: colorPalette.common.white,
+                    p: 2.5,
+                  }}>
+                    <Typography variant="h6" sx={{ fontWeight: 700, color: colorPalette.common.white }}>
+                      Project Information
                     </Typography>
                   </Box>
-                  
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
-                      Semester:
-                    </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600, textTransform: 'capitalize' }}>
-                      {project.semester}
-                    </Typography>
+                  <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                    {[
+                      { label: 'Academic Year', value: project.academic_year },
+                      { label: 'Semester', value: project.semester },
+                      { label: 'Program', value: project.program?.name || 'TVTC Program' },
+                      { label: 'Department', value: project.department?.name || 'Department' },
+                    ].map((item) => (
+                      <Box key={item.label}>
+                        <Typography variant="subtitle2" fontWeight="700" sx={{ mb: 0.5, color: colorPalette.text.secondary, textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.08em' }}>
+                          {item.label}
+                        </Typography>
+                        <Typography variant="body1" sx={{ fontWeight: 600, color: colorPalette.text.primary, textTransform: item.label === 'Semester' ? 'capitalize' : 'none' }}>
+                          {item.value}
+                        </Typography>
+                      </Box>
+                    ))}
                   </Box>
-                  
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
-                      Program:
-                    </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      {project.program?.name || 'TVTC Program'}
-                    </Typography>
-                  </Box>
-                  
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
-                      Department:
-                    </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      {project.department?.name || 'Department'}
-                    </Typography>
-                  </Box>
-                  
                 </CardContent>
               </Card>
             </Grid>

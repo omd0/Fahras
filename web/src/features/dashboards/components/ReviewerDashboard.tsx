@@ -14,7 +14,7 @@ import { Project } from '@/types';
 import { apiService } from '@/lib/api';
 import { getRoleInfo } from '@/config/dashboardThemes';
 import { useAuthStore } from '@/features/auth/store';
-import { useTheme } from '@/providers/ThemeContext';
+import { useTheme } from '@mui/material';
 import { useLanguage } from '@/providers/LanguageContext';
 import { DashboardContainer } from '@/components/shared/DashboardContainer';
 import { DashboardHeader } from '@/components/shared/DashboardHeader';
@@ -45,7 +45,7 @@ export const ReviewerDashboard: React.FC = () => {
 
   const { user } = useAuthStore();
   const navigate = useNavigate();
-  const { theme } = useTheme();
+  const theme = useTheme();
   const { t } = useLanguage();
   const roleInfo = getRoleInfo('reviewer', user?.full_name, t);
 
@@ -131,9 +131,8 @@ export const ReviewerDashboard: React.FC = () => {
   const displayProjects = filteredProjects.slice(0, 6);
 
   return (
-    <DashboardContainer theme={theme}>
+    <DashboardContainer>
       <DashboardHeader
-        theme={theme}
         icon={roleInfo.icon}
         greeting={roleInfo.greeting}
         userName={user?.full_name || ''}
@@ -144,7 +143,7 @@ export const ReviewerDashboard: React.FC = () => {
 
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-          <CircularProgress sx={{ color: theme.primary }} />
+          <CircularProgress sx={{ color: theme.palette.primary.main }} />
         </Box>
       ) : (
         <>
@@ -184,10 +183,10 @@ export const ReviewerDashboard: React.FC = () => {
             '& .MuiPaper-root': {
               borderRadius: 3,
               boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-              border: `2px solid ${theme.primary}20`,
+              border: `2px solid ${theme.palette.primary.main}20`,
             },
             '& .MuiButton-contained': {
-              background: theme.appBarGradient,
+              background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
               '&:hover': {
                 transform: 'translateY(-2px)',
                 boxShadow: '0 6px 16px rgba(0,0,0,0.15)',
@@ -195,7 +194,7 @@ export const ReviewerDashboard: React.FC = () => {
               transition: 'all 0.3s ease',
             },
             '& .MuiChip-colorPrimary': {
-              background: theme.primary,
+              background: theme.palette.primary.main,
               color: 'white',
             },
           }}>
@@ -214,10 +213,10 @@ export const ReviewerDashboard: React.FC = () => {
                 sx={{ 
                   mb: 2,
                   borderRadius: 2,
-                  background: `${theme.primary}10`,
-                  border: `1px solid ${theme.primary}40`,
+                  background: `${theme.palette.primary.main}10`,
+                  border: `1px solid ${theme.palette.primary.main}40`,
                   '& .MuiAlert-icon': {
-                    color: theme.primary,
+                    color: theme.palette.primary.main,
                   }
                 }}
               >
@@ -235,7 +234,7 @@ export const ReviewerDashboard: React.FC = () => {
                     onClick={handleClearSearch}
                     disabled={isSearching}
                     sx={{
-                      background: theme.appBarGradient,
+                      background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
                       color: 'white',
                       fontWeight: 600,
                       px: 3,
@@ -261,11 +260,11 @@ export const ReviewerDashboard: React.FC = () => {
               borderRadius: 3,
               boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
               background: designTokens.colors.surface[50],
-              border: `2px solid ${theme.secondary}40`,
+              border: `2px solid ${theme.palette.secondary.main}40`,
             }}>
               <CardContent>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 600, color: theme.secondary }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600, color: theme.palette.secondary.main }}>
                     ⚠️ Projects Needing Review
                   </Typography>
                   <Chip label={`${needsReview.length} pending`} color="warning" size="small" />
@@ -278,7 +277,7 @@ export const ReviewerDashboard: React.FC = () => {
                   startIcon={<RateReviewIcon />}
                   onClick={() => navigate('/analytics')}
                   sx={{
-                    background: theme.appBarGradient,
+                    background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
                     '&:hover': {
                       transform: 'translateY(-2px)',
                       boxShadow: '0 6px 16px rgba(0,0,0,0.15)',
@@ -299,7 +298,7 @@ export const ReviewerDashboard: React.FC = () => {
                 <Typography variant="h6" sx={{ fontWeight: 600 }}>
                   {filteredProjects.length !== projects.length ? 'Search Results' : 'Recent Projects'}
                 </Typography>
-                <Button variant="text" onClick={() => navigate('/analytics')} sx={{ color: theme.primary }}>
+                <Button variant="text" onClick={() => navigate('/analytics')} sx={{ color: theme.palette.primary.main }}>
                   View All
                 </Button>
               </Box>
@@ -307,7 +306,7 @@ export const ReviewerDashboard: React.FC = () => {
               <Grid container spacing={3}>
                 {(displayProjects || []).map((project) => (
                   <Grid size={{ xs: 12, md: 6 }} key={project.id}>
-                    <ProjectCard project={project} theme={theme} />
+                    <ProjectCard project={project} />
                   </Grid>
                 ))}
               </Grid>

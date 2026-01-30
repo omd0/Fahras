@@ -190,7 +190,7 @@ export const ProjectFollowPage: React.FC = () => {
 
   if (loading) {
     return (
-      <DashboardContainer theme={theme}>
+      <DashboardContainer>
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
           <CircularProgress />
         </Box>
@@ -200,7 +200,7 @@ export const ProjectFollowPage: React.FC = () => {
 
   if (error || !project) {
     return (
-      <DashboardContainer theme={theme}>
+      <DashboardContainer>
         <Alert severity="error" sx={{ mb: 2 }}>
           {error || 'Project not found'}
         </Alert>
@@ -223,7 +223,7 @@ export const ProjectFollowPage: React.FC = () => {
   ];
 
   return (
-    <DashboardContainer theme={theme}>
+    <DashboardContainer>
       <Breadcrumb items={breadcrumbItems} />
       <Box sx={{ mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, flexWrap: 'wrap', gap: 2 }}>

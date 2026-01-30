@@ -12,12 +12,15 @@ import {
   ListItemIcon,
   Button,
   CircularProgress,
+  Tooltip,
 } from '@mui/material';
 import {
   FileDownload as FileDownloadIcon,
+  CloudDownload as CloudDownloadIcon,
 } from '@mui/icons-material';
 import { Project } from '@/types';
 import { apiService } from '@/lib/api';
+import { colorPalette } from '@/styles/theme/colorPalette';
 import { designTokens } from '@/styles/designTokens';
 import { useLanguage } from '@/providers/LanguageContext';
 
@@ -83,24 +86,23 @@ export const ProjectFiles: React.FC<ProjectFilesProps> = ({
       elevation={0}
       sx={{
         mt: 3,
-        border: `2px solid ${designTokens.colors.primary[500]}`,
-        boxShadow: 'none',
+        border: `1px solid ${colorPalette.border.default}`,
+        boxShadow: designTokens.shadows.elevation1,
         borderRadius: designTokens.radii.card,
         overflow: 'hidden',
-        background: 'white',
-        transition: 'all 0.3s ease-in-out',
+        background: colorPalette.surface.paper,
+        transition: designTokens.transitions.hover,
         '&:hover': {
-          transform: 'translateY(-1px)',
-          borderColor: designTokens.colors.primary[600],
+          boxShadow: designTokens.shadows.elevation2,
+          borderColor: colorPalette.primary.main,
         },
       }}
     >
       <CardContent sx={{ p: 0 }}>
-        {/* Header with gradient background */}
         <Box 
           sx={{ 
-            background: `linear-gradient(135deg, ${designTokens.colors.primary[600]} 0%, ${designTokens.colors.primary[500]} 100%)`,
-            color: 'white',
+            background: `linear-gradient(135deg, ${colorPalette.primary.dark} 0%, ${colorPalette.primary.main} 100%)`,
+            color: colorPalette.common.white,
             p: 3,
             position: 'relative',
             overflow: 'hidden',
@@ -126,14 +128,14 @@ export const ProjectFiles: React.FC<ProjectFilesProps> = ({
                 backdropFilter: 'blur(10px)',
               }}
             >
-              <FileDownloadIcon sx={{ fontSize: 28, color: 'white' }} />
+              <CloudDownloadIcon sx={{ fontSize: 28, color: colorPalette.common.white }} />
             </Box>
             <Box>
-              <Typography variant="h5" fontWeight="700" sx={{ mb: 0.5 }}>
+              <Typography variant="h5" fontWeight="700" sx={{ mb: 0.5, color: colorPalette.common.white }}>
                 {t('Project Files')}
               </Typography>
-              <Typography variant="body2" sx={{ opacity: 0.9, color: 'white' }}>
-                {project.files?.length || 0} {project.files?.length !== 1 ? t('files') : t('file')} {t('available')}
+              <Typography variant="body2" sx={{ opacity: 0.9, color: colorPalette.common.white }}>
+                {project.files?.length || 0} {(project.files?.length || 0) !== 1 ? t('files') : t('file')} {t('available')}
               </Typography>
             </Box>
           </Box>
@@ -146,20 +148,35 @@ export const ProjectFiles: React.FC<ProjectFilesProps> = ({
             </Box>
           ) : project.files && project.files.length > 0 ? (
             <List sx={{ p: 0 }}>
-              {(project.files || []).map((file) => (
+              {(project.files || []).map((file: any) => (
                 <Paper 
                   key={file.id}
                   elevation={0}
                   sx={{ 
                     mb: 2,
                     borderRadius: 2,
-                    border: '1px solid',
-                    borderColor: 'divider',
+                    border: `1px solid ${colorPalette.border.default}`,
                     overflow: 'hidden',
-                    transition: 'all 0.2s ease-in-out',
+                    cursor: 'pointer',
+                    transition: designTokens.transitions.hover,
                     '&:hover': {
-                      boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                      transform: 'translateY(-1px)',
+                      boxShadow: designTokens.shadows.elevation2,
+                      transform: 'translateY(-2px)',
+                      borderColor: colorPalette.primary.main,
+                      '& .download-btn': {
+                        background: colorPalette.primary.dark,
+                        transform: 'scale(1.05)',
+                      },
+                    }
+                  }}
+                  onClick={() => handleDownload(file)}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${t('Download')} ${file.original_filename}`}
+                  onKeyDown={(e: React.KeyboardEvent) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleDownload(file);
                     }
                   }}
                 >
@@ -169,8 +186,8 @@ export const ProjectFiles: React.FC<ProjectFilesProps> = ({
                         sx={{
                           p: 1,
                           borderRadius: 1.5,
-                          background: `linear-gradient(135deg, ${designTokens.colors.primary[600]} 0%, ${designTokens.colors.primary[500]} 100%)`,
-                          color: 'white',
+                          background: `linear-gradient(135deg, ${colorPalette.primary.dark} 0%, ${colorPalette.primary.main} 100%)`,
+                          color: colorPalette.common.white,
                         }}
                       >
                         <FileDownloadIcon sx={{ fontSize: 20 }} />
@@ -178,19 +195,19 @@ export const ProjectFiles: React.FC<ProjectFilesProps> = ({
                     </ListItemIcon>
                     <ListItemText
                       primary={
-                        <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 600, color: colorPalette.text.primary }}>
                           {file.original_filename}
                         </Typography>
                       }
                       secondary={
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1, flexWrap: 'wrap' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, flexWrap: 'wrap' }}>
                           <Chip 
                             label={`${(file.size_bytes / 1024).toFixed(1)} ${t('KB')}`} 
                             size="small" 
                             variant="filled"
                             sx={{ 
-                              background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
-                              color: 'text.secondary',
+                              background: colorPalette.surface.sunken,
+                              color: colorPalette.text.secondary,
                               fontWeight: 500,
                             }}
                           />
@@ -203,8 +220,8 @@ export const ProjectFiles: React.FC<ProjectFilesProps> = ({
                             size="small" 
                             variant="filled"
                             sx={{ 
-                              background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
-                              color: 'text.secondary',
+                              background: colorPalette.surface.sunken,
+                              color: colorPalette.text.secondary,
                               fontWeight: 500,
                             }}
                           />
@@ -213,8 +230,8 @@ export const ProjectFiles: React.FC<ProjectFilesProps> = ({
                             size="small" 
                             variant="filled"
                             sx={{ 
-                              background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
-                              color: 'text.secondary',
+                              background: colorPalette.surface.sunken,
+                              color: colorPalette.text.secondary,
                               fontWeight: 500,
                             }}
                           />
@@ -226,34 +243,42 @@ export const ProjectFiles: React.FC<ProjectFilesProps> = ({
                               variant="filled"
                               sx={{ 
                                 fontWeight: 600,
-                                background: `linear-gradient(135deg, ${designTokens.colors.primary[600]} 0%, ${designTokens.colors.primary[500]} 100%)`,
                               }}
                             />
                           )}
                         </Box>
                       }
                     />
-                    <Button
-                      variant="contained"
-                      size="small"
-                      startIcon={<FileDownloadIcon />}
-                      onClick={() => handleDownload(file)}
-                      sx={{ 
-                        minWidth: 100,
-                        textTransform: 'none',
-                        fontWeight: 600,
-                        background: `linear-gradient(135deg, ${designTokens.colors.primary[600]} 0%, ${designTokens.colors.primary[500]} 100%)`,
-                        borderRadius: 1.5,
-                        '&:hover': {
-                          background: isProfessor ? 'linear-gradient(135deg, #003d8f 0%, #00695c 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)',
-                          transform: 'translateY(-1px)',
-                          boxShadow: isProfessor ? '0 4px 12px rgba(0, 74, 173, 0.3)' : '0 4px 12px rgba(30, 58, 138, 0.3)',
-                        },
-                        transition: 'all 0.2s ease-in-out',
-                      }}
-                    >
-                      {t('Download')}
-                    </Button>
+                    <Tooltip title={`${t('Download')} ${file.original_filename}`}>
+                      <Button
+                        className="download-btn"
+                        variant="contained"
+                        size="small"
+                        startIcon={<FileDownloadIcon />}
+                        onClick={(e: React.MouseEvent) => {
+                          e.stopPropagation();
+                          handleDownload(file);
+                        }}
+                        aria-label={`${t('Download')} ${file.original_filename}`}
+                        sx={{ 
+                          minWidth: 120,
+                          textTransform: 'none',
+                          fontWeight: 600,
+                          background: colorPalette.primary.main,
+                          color: colorPalette.common.white,
+                          borderRadius: 1.5,
+                          boxShadow: `0 2px 8px ${colorPalette.shadow.light}`,
+                          '&:hover': {
+                            background: colorPalette.primary.dark,
+                            transform: 'translateY(-1px)',
+                            boxShadow: `0 4px 12px ${colorPalette.shadow.medium}`,
+                          },
+                          transition: designTokens.transitions.hover,
+                        }}
+                      >
+                        {t('Download')}
+                      </Button>
+                    </Tooltip>
                   </ListItem>
                 </Paper>
               ))}
@@ -265,17 +290,16 @@ export const ProjectFiles: React.FC<ProjectFilesProps> = ({
                 p: 6, 
                 textAlign: 'center',
                 borderRadius: 3,
-                background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-                border: '2px dashed',
-                borderColor: 'divider',
+                background: `linear-gradient(135deg, ${colorPalette.surface.elevated} 0%, ${colorPalette.surface.sunken} 100%)`,
+                border: `2px dashed ${colorPalette.border.default}`,
               }}
             >
               <Box
                 sx={{
                   p: 2,
                   borderRadius: '50%',
-                  background: `linear-gradient(135deg, ${designTokens.colors.primary[600]} 0%, ${designTokens.colors.primary[500]} 100%)`,
-                  color: 'white',
+                  background: `linear-gradient(135deg, ${colorPalette.primary.dark} 0%, ${colorPalette.primary.main} 100%)`,
+                  color: colorPalette.common.white,
                   width: 64,
                   height: 64,
                   display: 'flex',
@@ -287,10 +311,10 @@ export const ProjectFiles: React.FC<ProjectFilesProps> = ({
               >
                 <FileDownloadIcon sx={{ fontSize: 32 }} />
               </Box>
-              <Typography variant="h6" fontWeight="600" color="text.primary" sx={{ mb: 1 }}>
+              <Typography variant="h6" fontWeight="600" sx={{ mb: 1, color: colorPalette.text.primary }}>
                 {t('No files uploaded yet')}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" sx={{ color: colorPalette.text.secondary }}>
                 {t('Files uploaded during project creation will appear here')}
               </Typography>
             </Paper>

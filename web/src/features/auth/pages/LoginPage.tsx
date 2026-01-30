@@ -11,12 +11,16 @@ import {
   InputAdornment,
   Divider,
   Link,
+  IconButton,
+  Checkbox,
+  FormControlLabel,
 } from '@mui/material';
 import {
   Email as EmailIcon,
   Lock as LockIcon,
   Login as LoginIcon,
   Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon,
 } from '@mui/icons-material';
 import { TVTCLogo } from '@/components/TVTCLogo';
 import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
@@ -30,6 +34,8 @@ export const LoginPage: React.FC = () => {
     password: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const { login, isLoading, error } = useAuthStore();
   const navigate = useNavigate();
@@ -87,26 +93,31 @@ export const LoginPage: React.FC = () => {
     navigate('/explore', { replace: true });
   };
 
+  const handleTogglePassword = () => {
+    setShowPassword(prev => !prev);
+  };
+
   return (
     <Box
       sx={{
         minHeight: '100vh',
-        backgroundColor: '#F8F9FA', // Very Light Cool Gray background
+        bgcolor: 'background.default',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        py: 4,
+        py: 8,
       }}
     >
       <Container component="main" maxWidth="sm">
-        <Paper 
-          elevation={3} 
-          sx={{ 
-            padding: 4, 
+        <Paper
+          elevation={2}
+          sx={{
+            p: { xs: 6, sm: 8 },
             width: '100%',
-            borderRadius: 3,
-            backgroundColor: '#FFFFFF', // Pure White form box
-            border: '1px solid rgba(0, 0, 0, 0.05)',
+            borderRadius: 3.5,
+            bgcolor: 'background.paper',
+            border: 1,
+            borderColor: 'divider',
           }}
         >
           <Box
@@ -117,47 +128,47 @@ export const LoginPage: React.FC = () => {
             }}
           >
             {/* Header with Logo and Title */}
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 6 }}>
               <TVTCLogo size="large" variant="full" color="primary" sx={{ mr: 2 }} />
-              <Typography 
-                component="h1" 
-                variant="h4" 
-                sx={{ 
-                  fontWeight: 'bold',
-                  color: '#343A40', // Dark Gray/Navy for headings
+              <Typography
+                component="h1"
+                variant="h4"
+                sx={{
+                  fontWeight: 700,
+                  color: 'text.primary',
                 }}
               >
                 {t('Fahras')}
               </Typography>
             </Box>
-            
-            <Typography 
-              component="h2" 
-              variant="h5" 
+
+            <Typography
+              component="h2"
+              variant="h5"
               gutterBottom
-              sx={{ 
-                color: '#343A40', // Dark Gray/Navy for headings
+              sx={{
+                color: 'text.primary',
                 fontWeight: 600,
-                mb: 3
+                mb: 2,
               }}
             >
               {t('Welcome Back')}
             </Typography>
 
-            <Typography 
-              variant="body2" 
-              sx={{ 
-                color: '#666',
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
                 textAlign: 'center',
-                mb: 3,
-                maxWidth: '300px'
+                mb: 6,
+                maxWidth: '320px',
               }}
             >
               {t('Sign in to access your projects and continue your academic journey')}
             </Typography>
 
             {error && (
-              <Alert severity="error" sx={{ width: '100%', mb: 2, borderRadius: 2 }}>
+              <Alert severity="error" sx={{ width: '100%', mb: 4 }}>
                 {error}
               </Alert>
             )}
@@ -176,25 +187,10 @@ export const LoginPage: React.FC = () => {
                 onChange={handleChange('email')}
                 error={!!errors.email}
                 helperText={errors.email}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 2,
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#CED4DA', // Light Gray for hover
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#007BFF', // Academic Blue for focus
-                      borderWidth: 2,
-                    },
-                    '&.Mui-error .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#DC3545', // Light Red for errors
-                    },
-                  }
-                }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <EmailIcon sx={{ color: '#666' }} />
+                      <EmailIcon sx={{ color: 'text.secondary' }} />
                     </InputAdornment>
                   ),
                 }}
@@ -205,48 +201,70 @@ export const LoginPage: React.FC = () => {
                 fullWidth
                 name="password"
                 label={t('Password')}
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 id="password"
                 autoComplete="current-password"
                 value={credentials.password}
                 onChange={handleChange('password')}
                 error={!!errors.password}
                 helperText={errors.password}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 2,
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#CED4DA', // Light Gray for hover
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#007BFF', // Academic Blue for focus
-                      borderWidth: 2,
-                    },
-                    '&.Mui-error .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#DC3545', // Light Red for errors
-                    },
-                  }
-                }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <LockIcon sx={{ color: '#666' }} />
+                      <LockIcon sx={{ color: 'text.secondary' }} />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label={showPassword ? t('Hide password') : t('Show password')}
+                        onClick={handleTogglePassword}
+                        edge="end"
+                        size="small"
+                      >
+                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                      </IconButton>
                     </InputAdornment>
                   ),
                 }}
               />
-              
-              {/* Forgot Password Link */}
-              <Box sx={{ textAlign: 'right', mb: 2 }}>
+
+              {/* Remember Me & Forgot Password Row */}
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  mt: 2,
+                  mb: 4,
+                }}
+              >
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      size="small"
+                      color="primary"
+                    />
+                  }
+                  label={
+                    <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                      {t('Remember me')}
+                    </Typography>
+                  }
+                />
                 <Link
                   component="button"
+                  type="button"
                   variant="body2"
                   sx={{
-                    color: '#007BFF', // Academic Blue for links
+                    color: 'primary.dark',
                     textDecoration: 'none',
+                    fontWeight: 600,
                     '&:hover': {
                       textDecoration: 'underline',
-                    }
+                    },
                   }}
                   onClick={() => {
                     navigate('/forgot-password');
@@ -261,17 +279,12 @@ export const LoginPage: React.FC = () => {
                 type="submit"
                 fullWidth
                 variant="contained"
-                sx={{ 
-                  mt: 2, 
-                  mb: 3,
-                  py: 1.5,
-                  borderRadius: 2,
-                  backgroundColor: '#007BFF', // Academic Blue/Dark
-                  '&:hover': {
-                    backgroundColor: '#0056B3', // Darker blue for hover
-                  },
+                color="primary"
+                sx={{
+                  mb: 6,
+                  py: 3,
                   fontWeight: 600,
-                  fontSize: '1.1rem',
+                  fontSize: '1.05rem',
                 }}
                 disabled={isLoading}
                 startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <LoginIcon />}
@@ -280,9 +293,9 @@ export const LoginPage: React.FC = () => {
               </Button>
 
               {/* Divider */}
-              <Box sx={{ display: 'flex', alignItems: 'center', my: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', my: 6 }}>
                 <Divider sx={{ flex: 1 }} />
-                <Typography variant="body2" sx={{ mx: 2, color: '#666' }}>
+                <Typography variant="body2" sx={{ mx: 4, color: 'text.secondary', fontWeight: 500 }}>
                   {t('or')}
                 </Typography>
                 <Divider sx={{ flex: 1 }} />
@@ -292,17 +305,11 @@ export const LoginPage: React.FC = () => {
               <Button
                 fullWidth
                 variant="outlined"
+                color="primary"
                 onClick={handleGuestContinue}
                 sx={{
-                  mb: 3,
-                  py: 1.5,
-                  borderRadius: 2,
-                  borderColor: '#007BFF', // Academic Blue/Dark
-                  color: '#007BFF', // Academic Blue/Dark
-                  '&:hover': {
-                    borderColor: '#0056B3',
-                    backgroundColor: 'rgba(0, 123, 255, 0.04)',
-                  },
+                  mb: 6,
+                  py: 3,
                   fontWeight: 600,
                 }}
                 startIcon={<VisibilityIcon />}
@@ -312,23 +319,54 @@ export const LoginPage: React.FC = () => {
 
               {/* Sign Up Link */}
               <Box textAlign="center">
-                <Typography variant="body2" sx={{ color: '#666' }}>
+                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
                   {t("Don't have an account?")}{' '}
                   <Link
                     component={RouterLink}
                     to="/register"
                     sx={{
-                      color: '#007BFF', // Academic Blue for links
+                      color: 'primary.dark',
                       textDecoration: 'none',
                       fontWeight: 600,
                       '&:hover': {
                         textDecoration: 'underline',
-                      }
+                      },
                     }}
                   >
                     {t('Create Account')}
                   </Link>
                 </Typography>
+              </Box>
+
+              {/* Footer Links */}
+              <Divider sx={{ my: 4 }} />
+              <Box sx={{ display: 'flex', gap: 4, justifyContent: 'center', flexWrap: 'wrap' }}>
+                <Link
+                  component={RouterLink}
+                  to="/terms"
+                  variant="body2"
+                  sx={{
+                    fontWeight: 500,
+                    '&:hover': {
+                      textDecoration: 'underline',
+                    },
+                  }}
+                >
+                  {t('Terms of Service')}
+                </Link>
+                <Link
+                  component={RouterLink}
+                  to="/privacy"
+                  variant="body2"
+                  sx={{
+                    fontWeight: 500,
+                    '&:hover': {
+                      textDecoration: 'underline',
+                    },
+                  }}
+                >
+                  {t('Privacy Policy')}
+                </Link>
               </Box>
             </Box>
           </Box>

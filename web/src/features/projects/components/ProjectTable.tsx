@@ -1,4 +1,5 @@
 import React from 'react';
+import { colorPalette } from '@/styles/theme/colorPalette';
 import {
   Table,
   TableBody,
@@ -269,7 +270,7 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
   sx = {},
 }) => {
   const { t } = useLanguage();
-  const { primary = '#512DA8', accent = '#AEDFF7' } = themeColors;
+  const { primary = colorPalette.secondary.dark, accent = colorPalette.info.lighter } = themeColors;
 
   // Filter out null/undefined projects
   const validProjects = (projects || []).filter(project => project != null);
@@ -282,7 +283,7 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
   } : {};
 
   const enhancedHeaderStyles = enhanced ? {
-    background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
+    background: `linear-gradient(135deg, ${colorPalette.surface.elevated} 0%, ${colorPalette.common.white} 100%)`,
   } : {};
 
   const enhancedCellStyles = enhanced ? {

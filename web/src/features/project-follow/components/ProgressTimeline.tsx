@@ -6,6 +6,7 @@ import {
   Typography,
   Avatar,
   Divider,
+  useTheme,
 } from '@mui/material';
 import {
   Create as CreateIcon,
@@ -26,6 +27,7 @@ export const ProgressTimeline: React.FC<ProgressTimelineProps> = ({
   milestones,
   statusChanges,
 }) => {
+  const theme = useTheme();
   // Combine and sort all events chronologically
   const allEvents = [
     ...activities.map((a: ProjectActivity) => ({ type: 'activity', data: a, date: a.created_at })),
@@ -83,9 +85,9 @@ export const ProgressTimeline: React.FC<ProgressTimelineProps> = ({
             {allEvents.slice(0, 20).map((event, index) => {
               const color = getEventColor(event);
               const colorMap: Record<string, string> = {
-                success: '#4caf50',
-                primary: '#2196f3',
-                grey: '#9e9e9e',
+                success: theme.palette.success.main,
+                primary: theme.palette.info.main,
+                grey: theme.palette.grey[500],
               };
               const eventColor = colorMap[color] || colorMap.grey;
 

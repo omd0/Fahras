@@ -13,6 +13,7 @@ import {
   Stack,
   alpha,
   Typography,
+  useTheme,
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -23,10 +24,7 @@ import {
   Add as AddIcon,
   BookmarkBorder as BookmarkIcon,
 } from '@mui/icons-material';
-import { legacyColors } from '@/styles/theme/colorPalette';
 import { useLanguage } from '@/providers/LanguageContext';
-
-const COLORS = legacyColors;
 
 interface SearchFilters {
   search: string;
@@ -67,6 +65,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
   onToggleFilters,
   onOpenSavedSearches,
 }) => {
+  const theme = useTheme();
   const { t, language } = useLanguage();
   const [showMoreFilters, setShowMoreFilters] = useState(false);
 
@@ -101,36 +100,17 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
             onChange={(e) => onFilterChange('search', e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && onSearch()}
             InputProps={{
-              startAdornment: <SearchIcon sx={{ mr: 2, color: COLORS.almostBlack, fontSize: 24 }} />,
+              startAdornment: <SearchIcon sx={{ mr: 2, color: theme.palette.text.secondary, fontSize: 24 }} />,
               endAdornment: filters.search && (
                 <IconButton 
                   size="small" 
                   onClick={() => onFilterChange('search', '')}
-                  sx={{ color: COLORS.textSecondary }}
+                  aria-label={t('Clear search')}
+                  sx={{ color: theme.palette.text.secondary }}
                 >
                   <ClearIcon />
                 </IconButton>
               ),
-            }}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                borderRadius: 4,
-                backgroundColor: COLORS.white,
-                fontSize: '1.1rem',
-                py: 1,
-                '&:hover': {
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: COLORS.almostBlack,
-                    borderWidth: 2,
-                  },
-                },
-                '&.Mui-focused': {
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: COLORS.almostBlack,
-                    borderWidth: 2,
-                  },
-                },
-              },
             }}
           />
         </Grid>
@@ -140,20 +120,6 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
               variant="outlined"
               startIcon={<FilterIcon />}
               onClick={onToggleFilters}
-              sx={{
-                borderColor: COLORS.almostBlack,
-                color: COLORS.almostBlack,
-                borderRadius: 4,
-                px: 4,
-                py: 1.5,
-                fontWeight: 600,
-                fontSize: '1rem',
-                '&:hover': {
-                  borderColor: COLORS.almostBlack,
-                  backgroundColor: alpha(COLORS.almostBlack, 0.08),
-                  transform: 'translateY(-2px)',
-                },
-              }}
             >
               {t('Filters')}
               {showFilters ? <ExpandLessIcon /> : <ExpandMoreIcon />}
@@ -163,41 +129,15 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
                 variant="outlined"
                 onClick={onOpenSavedSearches}
                 startIcon={<BookmarkIcon />}
-                sx={{
-                  borderColor: COLORS.almostBlack,
-                  color: COLORS.almostBlack,
-                  borderRadius: 4,
-                  px: 3,
-                  py: 1.5,
-                  fontWeight: 600,
-                  fontSize: '1rem',
-                  '&:hover': {
-                    borderColor: COLORS.almostBlack,
-                    backgroundColor: alpha(COLORS.almostBlack, 0.08),
-                    transform: 'translateY(-2px)',
-                  },
-                }}
               >
                 {t('Saved')}
               </Button>
             )}
             <Button
               variant="contained"
+              color="primary"
               onClick={onSearch}
               disabled={searching}
-              sx={{
-                background: COLORS.primaryGradient,
-                borderRadius: 4,
-                px: 4,
-                py: 1.5,
-                fontWeight: 600,
-                fontSize: '1rem',
-                textTransform: 'none',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: `0 8px 25px ${alpha(COLORS.almostBlack, 0.3)}`,
-                },
-              }}
             >
               {t('Search')}
             </Button>
@@ -205,38 +145,24 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
         </Grid>
       </Grid>
 
-      {/* Advanced Filters - Reorganized */}
       <Collapse in={showFilters}>
         <Box sx={{ 
           p: 4, 
-          backgroundColor: alpha(COLORS.almostBlack, 0.06), 
-          borderRadius: 4,
-          border: `1px solid ${alpha(COLORS.almostBlack, 0.15)}`,
+          bgcolor: alpha(theme.palette.text.primary, 0.04), 
+          borderRadius: `${Number(theme.shape.borderRadius) * 1.4}px`,
+          border: `1px solid ${theme.palette.divider}`,
         }}>
-          {/* Most-used filters (always visible) */}
-          <Typography variant="subtitle2" sx={{ mb: 2, color: COLORS.textSecondary, fontWeight: 600 }}>
+          <Typography variant="subtitle2" sx={{ mb: 2, color: theme.palette.text.secondary, fontWeight: 600 }}>
             {t('Primary Filters')}
           </Typography>
           <Grid container spacing={3} sx={{ mb: 3 }}>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <FormControl fullWidth>
-                <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>
-                  {t('Program')}
-                </InputLabel>
+                <InputLabel>{t('Program')}</InputLabel>
                 <Select
                   value={filters.program_id}
                   onChange={(e) => onFilterChange('program_id', e.target.value)}
                   label={t('Program')}
-                  sx={{ 
-                    borderRadius: 3,
-                    backgroundColor: COLORS.white,
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: alpha(COLORS.almostBlack, 0.2),
-                    },
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: COLORS.almostBlack,
-                    },
-                  }}
                 >
                   <MenuItem value="">{t('All Programs')}</MenuItem>
                   {(programs || []).map((program) => (
@@ -250,23 +176,11 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
 
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <FormControl fullWidth>
-                <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>
-                  {t('Department')}
-                </InputLabel>
+                <InputLabel>{t('Department')}</InputLabel>
                 <Select
                   value={filters.department_id}
                   onChange={(e) => onFilterChange('department_id', e.target.value)}
                   label={t('Department')}
-                  sx={{ 
-                    borderRadius: 3,
-                    backgroundColor: COLORS.white,
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: alpha(COLORS.almostBlack, 0.2),
-                    },
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: COLORS.almostBlack,
-                    },
-                  }}
                 >
                   <MenuItem value="">{t('All Departments')}</MenuItem>
                   {(departments || []).map((dept) => (
@@ -280,23 +194,11 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
 
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <FormControl fullWidth>
-                <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>
-                  {t('Academic Year')}
-                </InputLabel>
+                <InputLabel>{t('Academic Year')}</InputLabel>
                 <Select
                   value={filters.academic_year}
                   onChange={(e) => onFilterChange('academic_year', e.target.value)}
                   label={t('Academic Year')}
-                  sx={{ 
-                    borderRadius: 3,
-                    backgroundColor: COLORS.white,
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: alpha(COLORS.almostBlack, 0.2),
-                    },
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: COLORS.almostBlack,
-                    },
-                  }}
                 >
                   <MenuItem value="">{t('All Years')}</MenuItem>
                   {academicYearOptions.map((year) => (
@@ -310,23 +212,11 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
 
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <FormControl fullWidth>
-                <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>
-                  {t('Sort By')}
-                </InputLabel>
+                <InputLabel>{t('Sort By')}</InputLabel>
                 <Select
                   value={filters.sort_by}
                   onChange={(e) => onFilterChange('sort_by', e.target.value)}
                   label={t('Sort By')}
-                  sx={{ 
-                    borderRadius: 3,
-                    backgroundColor: COLORS.white,
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: alpha(COLORS.almostBlack, 0.2),
-                    },
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: COLORS.almostBlack,
-                    },
-                  }}
                 >
                   {sortOptions.map((option) => (
                     <MenuItem key={option.value} value={option.value}>
@@ -338,49 +228,32 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
             </Grid>
           </Grid>
 
-          {/* "More Filters" button */}
           <Button
             variant="text"
             size="small"
             onClick={() => setShowMoreFilters(!showMoreFilters)}
             startIcon={showMoreFilters ? <ExpandLessIcon /> : <AddIcon />}
             sx={{
-              color: COLORS.almostBlack,
+              color: theme.palette.text.primary,
               fontWeight: 600,
               mb: showMoreFilters ? 2 : 0,
-              '&:hover': {
-                backgroundColor: alpha(COLORS.almostBlack, 0.05),
-              },
             }}
           >
             {showMoreFilters ? t('Hide Advanced Filters') : t('More Filters')}
           </Button>
 
-          {/* Rare filters (collapsed under "More") */}
           <Collapse in={showMoreFilters}>
-            <Typography variant="subtitle2" sx={{ mb: 2, mt: 2, color: COLORS.textSecondary, fontWeight: 600 }}>
+            <Typography variant="subtitle2" sx={{ mb: 2, mt: 2, color: theme.palette.text.secondary, fontWeight: 600 }}>
               {t('Advanced Filters')}
             </Typography>
             <Grid container spacing={3}>
               <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <FormControl fullWidth>
-                  <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>
-                    {t('Semester')}
-                  </InputLabel>
+                  <InputLabel>{t('Semester')}</InputLabel>
                   <Select
                     value={filters.semester}
                     onChange={(e) => onFilterChange('semester', e.target.value)}
                     label={t('Semester')}
-                    sx={{ 
-                      borderRadius: 3,
-                      backgroundColor: COLORS.white,
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: alpha(COLORS.almostBlack, 0.2),
-                      },
-                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: COLORS.almostBlack,
-                      },
-                    }}
                   >
                     <MenuItem value="">{t('All Semesters')}</MenuItem>
                     {semesterOptions.map((semester) => (
@@ -394,23 +267,11 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
 
               <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <FormControl fullWidth>
-                  <InputLabel sx={{ color: COLORS.textPrimary, fontWeight: 600 }}>
-                    {t('Sort Order')}
-                  </InputLabel>
+                  <InputLabel>{t('Sort Order')}</InputLabel>
                   <Select
                     value={filters.sort_order}
                     onChange={(e) => onFilterChange('sort_order', e.target.value)}
                     label={t('Sort Order')}
-                    sx={{ 
-                      borderRadius: 3,
-                      backgroundColor: COLORS.white,
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: alpha(COLORS.almostBlack, 0.2),
-                      },
-                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: COLORS.almostBlack,
-                      },
-                    }}
                   >
                     <MenuItem value="desc">{t('Newest First')}</MenuItem>
                     <MenuItem value="asc">{t('Oldest First')}</MenuItem>
@@ -425,38 +286,14 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
               variant="outlined"
               onClick={onClearSearch}
               startIcon={<ClearIcon />}
-              sx={{
-                borderColor: COLORS.textSecondary,
-                color: COLORS.textSecondary,
-                borderRadius: 3,
-                px: 4,
-                py: 1.5,
-                fontWeight: 600,
-                '&:hover': {
-                  borderColor: COLORS.textSecondary,
-                  backgroundColor: alpha(COLORS.textSecondary, 0.05),
-                  transform: 'translateY(-2px)',
-                },
-              }}
             >
               {t('Clear All')}
             </Button>
             <Button
               variant="contained"
+              color="primary"
               onClick={onSearch}
               disabled={searching}
-              sx={{
-                background: COLORS.primaryGradient,
-                borderRadius: 3,
-                px: 4,
-                py: 1.5,
-                fontWeight: 600,
-                textTransform: 'none',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: `0 8px 25px ${alpha(COLORS.almostBlack, 0.3)}`,
-                },
-              }}
             >
               {t('Apply Filters')}
             </Button>

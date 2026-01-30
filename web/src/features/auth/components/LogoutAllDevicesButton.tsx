@@ -110,7 +110,7 @@ export const LogoutAllDevicesButton: React.FC = () => {
           <Button
             onClick={handleClose}
             disabled={loading}
-            sx={{ color: '#666' }}
+            sx={{ color: 'text.secondary' }}
           >
             Cancel
           </Button>

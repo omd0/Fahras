@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { colorPalette } from '@/styles/theme/colorPalette';
 import {
   Box,
   Drawer,
@@ -70,7 +71,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, on
   };
 
   const getNotificationColor = (type: string) => {
-    return '#87CEEB'; // Sky blue for all notification types
+    return colorPalette.secondary.light; // Sky blue for all notification types
   };
 
   const formatDate = (dateString: string) => {

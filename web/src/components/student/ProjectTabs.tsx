@@ -1,4 +1,5 @@
 import React from 'react';
+import { colorPalette } from '@/styles/theme/colorPalette';
 import {
   Box,
   Tabs,
@@ -241,7 +242,7 @@ export const ProjectTabs: React.FC<ProjectTabsProps> = ({
       <Box sx={{
         borderBottom: 1,
         borderColor: 'divider',
-        background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
+        background: `linear-gradient(135deg, ${colorPalette.surface.elevated} 0%, ${colorPalette.common.white} 100%)`,
       }}>
         <Tabs
           value={tabValue}
@@ -287,7 +288,7 @@ export const ProjectTabs: React.FC<ProjectTabsProps> = ({
           }}
         >
           <Table>
-            <TableHead sx={{ background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)' }}>
+            <TableHead sx={{ background: `linear-gradient(135deg, ${colorPalette.surface.elevated} 0%, ${colorPalette.common.white} 100%)` }}>
               <TableRow>
                 <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Project Title</TableCell>
                 <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Status</TableCell>
@@ -331,7 +332,7 @@ export const ProjectTabs: React.FC<ProjectTabsProps> = ({
           }}
         >
           <Table>
-            <TableHead sx={{ background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)' }}>
+            <TableHead sx={{ background: `linear-gradient(135deg, ${colorPalette.surface.elevated} 0%, ${colorPalette.common.white} 100%)` }}>
               <TableRow>
                 <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Project Title</TableCell>
                 <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Status</TableCell>
@@ -357,7 +358,7 @@ export const ProjectTabs: React.FC<ProjectTabsProps> = ({
           }}
         >
           <Table>
-            <TableHead sx={{ background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)' }}>
+            <TableHead sx={{ background: `linear-gradient(135deg, ${colorPalette.surface.elevated} 0%, ${colorPalette.common.white} 100%)` }}>
               <TableRow>
                 <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Project Title</TableCell>
                 <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Academic Year</TableCell>
@@ -382,7 +383,7 @@ export const ProjectTabs: React.FC<ProjectTabsProps> = ({
           }}
         >
           <Table>
-            <TableHead sx={{ background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)' }}>
+            <TableHead sx={{ background: `linear-gradient(135deg, ${colorPalette.surface.elevated} 0%, ${colorPalette.common.white} 100%)` }}>
               <TableRow>
                 <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Project Title</TableCell>
                 <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Academic Year</TableCell>
@@ -407,7 +408,7 @@ export const ProjectTabs: React.FC<ProjectTabsProps> = ({
           }}
         >
           <Table>
-            <TableHead sx={{ background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)' }}>
+            <TableHead sx={{ background: `linear-gradient(135deg, ${colorPalette.surface.elevated} 0%, ${colorPalette.common.white} 100%)` }}>
               <TableRow>
                 <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Project Title</TableCell>
                 <TableCell sx={{ fontWeight: 700, color: 'text.primary', borderBottom: `2px solid ${dashboardTheme.primary}30` }}>Academic Year</TableCell>

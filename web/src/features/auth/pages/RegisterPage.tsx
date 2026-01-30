@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   Container,
   Paper,
@@ -9,13 +9,21 @@ import {
   Alert,
   CircularProgress,
   InputAdornment,
+  IconButton,
   Link,
+  Divider,
+  LinearProgress,
 } from '@mui/material';
+import { useTheme, alpha } from '@mui/material/styles';
 import {
   Person as PersonIcon,
   Email as EmailIcon,
   Lock as LockIcon,
   PersonAdd as PersonAddIcon,
+  Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon,
+  CheckCircle as CheckCircleIcon,
+  Cancel as CancelIcon,
 } from '@mui/icons-material';
 import { TVTCLogo } from '@/components/TVTCLogo';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
@@ -24,7 +32,56 @@ import { RegisterData } from '@/types';
 import { useLanguage } from '@/providers/LanguageContext';
 import { authApi } from '@/lib/api';
 
+interface PasswordRequirement {
+  key: string;
+  label: string;
+  test: (pw: string) => boolean;
+}
+
+const PASSWORD_REQUIREMENTS: PasswordRequirement[] = [
+  { key: 'length', label: 'At least 8 characters', test: (pw) => pw.length >= 8 },
+  { key: 'uppercase', label: 'One uppercase letter', test: (pw) => /[A-Z]/.test(pw) },
+  { key: 'lowercase', label: 'One lowercase letter', test: (pw) => /[a-z]/.test(pw) },
+  { key: 'number', label: 'One number', test: (pw) => /\d/.test(pw) },
+];
+
+function getPasswordStrength(password: string): { score: number; label: string } {
+  if (!password) return { score: 0, label: '' };
+  const passed = PASSWORD_REQUIREMENTS.filter((r) => r.test(password)).length;
+  if (passed <= 1) return { score: 25, label: 'Weak' };
+  if (passed === 2) return { score: 50, label: 'Fair' };
+  if (passed === 3) return { score: 75, label: 'Good' };
+  return { score: 100, label: 'Strong' };
+}
+
+function useFieldSx() {
+  const theme = useTheme();
+  return useMemo(
+    () => ({
+      '& .MuiOutlinedInput-root': {
+        borderRadius: 2,
+        '&:hover .MuiOutlinedInput-notchedOutline': {
+          borderColor: theme.palette.divider,
+        },
+        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+          borderColor: theme.palette.primary.main,
+          borderWidth: 2,
+        },
+        '&.Mui-error .MuiOutlinedInput-notchedOutline': {
+          borderColor: theme.palette.error.main,
+        },
+      },
+      '& .MuiInputLabel-root': {
+        fontSize: '0.95rem',
+      },
+    }),
+    [theme],
+  );
+}
+
 export const RegisterPage: React.FC = () => {
+  const theme = useTheme();
+
   const [formData, setFormData] = useState<RegisterData>({
     full_name: '',
     email: '',
@@ -32,99 +89,130 @@ export const RegisterPage: React.FC = () => {
     password_confirmation: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const { register, isLoading, error } = useAuthStore();
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const fieldSx = useFieldSx();
 
-  const handleChange = (field: keyof RegisterData) => (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | any
-  ) => {
-    const value = event.target.value;
-    setFormData(prev => ({
-      ...prev,
-      [field]: value,
-    }));
-    // Clear field error when user starts typing
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
-    }
+  const passwordStrength = useMemo(
+    () => getPasswordStrength(formData.password),
+    [formData.password],
+  );
+
+  const strengthColor = useMemo(() => {
+    if (passwordStrength.score <= 25) return theme.palette.error.main;
+    if (passwordStrength.score <= 50) return theme.palette.warning.main;
+    if (passwordStrength.score <= 75) return theme.palette.info.main;
+    return theme.palette.success.main;
+  }, [passwordStrength.score, theme]);
+
+  const validateField = useCallback(
+    (field: keyof RegisterData, value: string): string => {
+      switch (field) {
+        case 'full_name':
+          if (!value.trim()) return t('Full name is required');
+          return '';
+        case 'email': {
+          if (!value) return t('Email is required');
+          if (!/\S+@\S+\.\S+/.test(value)) return t('Email is invalid');
+          const allowedDomains = ['cti.edu.sa', 'tvtc.edu.sa'];
+          const parts = value.split('@');
+          if (parts.length !== 2) return t('Email is invalid');
+          const domain = parts[1].toLowerCase().trim();
+          if (!allowedDomains.includes(domain)) return t('Invalid email domain.');
+          return '';
+        }
+        case 'password':
+          if (!value) return t('Password is required');
+          if (value.length < 8) return t('Password must be at least 8 characters');
+          return '';
+        case 'password_confirmation':
+          if (!value) return t('Password confirmation is required');
+          if (value !== formData.password) return t('Passwords do not match');
+          return '';
+        default:
+          return '';
+      }
+    },
+    [formData.password, t],
+  );
+
+  const handleChange =
+    (field: keyof RegisterData) =>
+    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const value = event.target.value;
+      setFormData((prev) => ({ ...prev, [field]: value }));
+
+      if (touched[field]) {
+        const fieldError = validateField(field, value);
+        setErrors((prev) => ({ ...prev, [field]: fieldError }));
+      }
+
+      if (field === 'password' && touched.password_confirmation && formData.password_confirmation) {
+        const confirmError =
+          value !== formData.password_confirmation ? t('Passwords do not match') : '';
+        setErrors((prev) => ({ ...prev, password_confirmation: confirmError }));
+      }
+    };
+
+  const handleBlur = (field: keyof RegisterData) => () => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    const fieldError = validateField(field, formData[field] ?? '');
+    setErrors((prev) => ({ ...prev, [field]: fieldError }));
   };
 
   const validateForm = (): boolean => {
+    const fields: (keyof RegisterData)[] = [
+      'full_name',
+      'email',
+      'password',
+      'password_confirmation',
+    ];
     const newErrors: Record<string, string> = {};
+    const allTouched: Record<string, boolean> = {};
 
-    if (!formData.full_name.trim()) {
-      newErrors.full_name = t('Full name is required');
-    }
+    fields.forEach((field) => {
+      allTouched[field] = true;
+      const err = validateField(field, formData[field] ?? '');
+      if (err) newErrors[field] = err;
+    });
 
-    if (!formData.email) {
-      newErrors.email = t('Email is required');
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = t('Email is invalid');
-    } else {
-      // Validate email domain (case-insensitive)
-      const allowedDomains = ['cti.edu.sa', 'tvtc.edu.sa'];
-      const emailParts = formData.email.split('@');
-      if (emailParts.length !== 2) {
-        newErrors.email = t('Email is invalid');
-      } else {
-        const emailDomain = emailParts[1].toLowerCase().trim();
-        if (!allowedDomains.includes(emailDomain)) {
-          newErrors.email = t('Invalid email domain.');
-        }
-      }
-    }
-
-    if (!formData.password) {
-      newErrors.password = t('Password is required');
-    } else if (formData.password.length < 8) {
-      newErrors.password = t('Password must be at least 8 characters');
-    }
-
-    if (!formData.password_confirmation) {
-      newErrors.password_confirmation = t('Password confirmation is required');
-    } else if (formData.password !== formData.password_confirmation) {
-      newErrors.password_confirmation = t('Passwords do not match');
-    }
-
+    setTouched(allTouched);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
       await register(formData);
-      // Registration successful - send verification email and redirect
       try {
         await authApi.sendVerificationEmail(formData.email);
-      } catch (err) {
-        console.error('Failed to send verification email:', err);
-        // Continue anyway - user can resend from verification page
+      } catch {
+        // Continue — user can resend from verification page
       }
-
-      // Redirect to email verification page
       navigate(`/verify-email?email=${encodeURIComponent(formData.email)}`, {
         state: { email: formData.email },
         replace: true,
       });
-    } catch (error) {
-      // Error is handled by the store and displayed to user
-      // Don't navigate away - let user see the error and try again
+    } catch {
+      // Error is handled by the store
     }
   };
+
+  const iconColor = theme.palette.text.secondary;
 
   return (
     <Box
       sx={{
         minHeight: '100vh',
-        backgroundColor: '#F8F9FA', // Very Light Cool Gray background
+        bgcolor: theme.palette.background.default,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -132,14 +220,14 @@ export const RegisterPage: React.FC = () => {
       }}
     >
       <Container component="main" maxWidth="sm">
-        <Paper 
-          elevation={3} 
-          sx={{ 
-            padding: 4, 
+        <Paper
+          elevation={3}
+          sx={{
+            p: { xs: 3, sm: 4 },
             width: '100%',
             borderRadius: 3,
-            backgroundColor: '#FFFFFF', // Pure White form box
-            border: '1px solid rgba(0, 0, 0, 0.05)',
+            bgcolor: theme.palette.background.paper,
+            border: `1px solid ${theme.palette.divider}`,
           }}
         >
           <Box
@@ -149,53 +237,57 @@ export const RegisterPage: React.FC = () => {
               alignItems: 'center',
             }}
           >
-            {/* Header with Logo and Title */}
+            {/* Header */}
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
               <TVTCLogo size="large" variant="full" color="primary" sx={{ mr: 2 }} />
-              <Typography 
-                component="h1" 
-                variant="h4" 
-                sx={{ 
+              <Typography
+                component="h1"
+                variant="h4"
+                sx={{
                   fontWeight: 'bold',
-                  color: '#343A40', // Dark Gray/Navy for headings
+                  color: theme.palette.text.primary,
                 }}
               >
                 {t('Fahras')}
               </Typography>
             </Box>
-            
-            <Typography 
-              component="h2" 
-              variant="h5" 
+
+            <Typography
+              component="h2"
+              variant="h5"
               gutterBottom
-              sx={{ 
-                color: '#343A40', // Dark Gray/Navy for headings
+              sx={{
+                color: theme.palette.text.primary,
                 fontWeight: 600,
-                mb: 3
+                mb: 1,
               }}
             >
               {t('Create Account')}
             </Typography>
 
-            <Typography 
-              variant="body2" 
-              sx={{ 
-                color: '#666',
+            <Typography
+              variant="body1"
+              sx={{
+                color: theme.palette.text.secondary,
                 textAlign: 'center',
                 mb: 3,
-                maxWidth: '300px'
+                maxWidth: 340,
+                lineHeight: 1.6,
               }}
             >
               {t('Join Fahras to start your academic project journey')}
             </Typography>
 
+            {/* Server Error */}
             {error && (
               <Alert severity="error" sx={{ width: '100%', mb: 2, borderRadius: 2 }}>
                 {error}
               </Alert>
             )}
 
-            <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
+            {/* Form */}
+            <Box component="form" onSubmit={handleSubmit} noValidate sx={{ width: '100%' }}>
+              {/* Full Name */}
               <TextField
                 margin="normal"
                 required
@@ -207,31 +299,22 @@ export const RegisterPage: React.FC = () => {
                 autoFocus
                 value={formData.full_name}
                 onChange={handleChange('full_name')}
-                error={!!errors.full_name}
-                helperText={errors.full_name}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 2,
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#CED4DA', // Light Gray for hover
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#007BFF', // Academic Blue for focus
-                      borderWidth: 2,
-                    },
-                    '&.Mui-error .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#DC3545', // Light Red for errors
-                    },
-                  }
-                }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <PersonIcon sx={{ color: '#666' }} />
-                    </InputAdornment>
-                  ),
+                onBlur={handleBlur('full_name')}
+                error={!!errors.full_name && touched.full_name}
+                helperText={touched.full_name ? errors.full_name : ''}
+                sx={fieldSx}
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <PersonIcon sx={{ color: iconColor }} />
+                      </InputAdornment>
+                    ),
+                  },
                 }}
               />
+
+              {/* Email */}
               <TextField
                 margin="normal"
                 required
@@ -242,142 +325,304 @@ export const RegisterPage: React.FC = () => {
                 autoComplete="email"
                 value={formData.email}
                 onChange={handleChange('email')}
-                error={!!errors.email}
-                helperText={errors.email}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 2,
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#CED4DA', // Light Gray for hover
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#007BFF', // Academic Blue for focus
-                      borderWidth: 2,
-                    },
-                    '&.Mui-error .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#DC3545', // Light Red for errors
-                    },
-                  }
-                }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <EmailIcon sx={{ color: '#666' }} />
-                    </InputAdornment>
-                  ),
+                onBlur={handleBlur('email')}
+                error={!!errors.email && touched.email}
+                helperText={touched.email ? errors.email : t('Use your @cti.edu.sa or @tvtc.edu.sa email')}
+                sx={fieldSx}
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <EmailIcon sx={{ color: iconColor }} />
+                      </InputAdornment>
+                    ),
+                  },
                 }}
               />
+
+              {/* Password */}
               <TextField
                 margin="normal"
                 required
                 fullWidth
                 name="password"
                 label={t('Password')}
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 id="password"
                 autoComplete="new-password"
                 value={formData.password}
                 onChange={handleChange('password')}
-                error={!!errors.password}
-                helperText={errors.password}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 2,
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#CED4DA', // Light Gray for hover
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#007BFF', // Academic Blue for focus
-                      borderWidth: 2,
-                    },
-                    '&.Mui-error .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#DC3545', // Light Red for errors
-                    },
-                  }
-                }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <LockIcon sx={{ color: '#666' }} />
-                    </InputAdornment>
-                  ),
+                onBlur={handleBlur('password')}
+                error={!!errors.password && touched.password}
+                helperText={touched.password ? errors.password : ''}
+                sx={fieldSx}
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <LockIcon sx={{ color: iconColor }} />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label={showPassword ? t('Hide password') : t('Show password')}
+                          onClick={() => setShowPassword((s) => !s)}
+                          edge="end"
+                          size="small"
+                          tabIndex={-1}
+                        >
+                          {showPassword ? (
+                            <VisibilityOffIcon sx={{ color: iconColor }} />
+                          ) : (
+                            <VisibilityIcon sx={{ color: iconColor }} />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
                 }}
               />
+
+              {/* Password Strength & Requirements */}
+              {formData.password.length > 0 && (
+                <Box sx={{ mt: 1, mb: 0.5, px: 0.5 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                    <LinearProgress
+                      variant="determinate"
+                      value={passwordStrength.score}
+                      sx={{
+                        flex: 1,
+                        height: 6,
+                        borderRadius: 3,
+                        bgcolor: alpha(theme.palette.text.disabled, 0.2),
+                        '& .MuiLinearProgress-bar': {
+                          borderRadius: 3,
+                          bgcolor: strengthColor,
+                          transition: 'transform 0.3s ease, background-color 0.3s ease',
+                        },
+                      }}
+                    />
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: strengthColor,
+                        fontWeight: 600,
+                        minWidth: 44,
+                        textAlign: 'right',
+                      }}
+                    >
+                      {t(passwordStrength.label)}
+                    </Typography>
+                  </Box>
+
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {PASSWORD_REQUIREMENTS.map((req) => {
+                      const met = req.test(formData.password);
+                      return (
+                        <Box
+                          key={req.key}
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 0.5,
+                            width: { xs: '100%', sm: 'calc(50% - 4px)' },
+                          }}
+                        >
+                          {met ? (
+                            <CheckCircleIcon
+                              sx={{ fontSize: 16, color: theme.palette.success.main }}
+                            />
+                          ) : (
+                            <CancelIcon
+                              sx={{ fontSize: 16, color: theme.palette.text.disabled }}
+                            />
+                          )}
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              color: met
+                                ? theme.palette.success.main
+                                : theme.palette.text.secondary,
+                              lineHeight: 1.4,
+                            }}
+                          >
+                            {t(req.label)}
+                          </Typography>
+                        </Box>
+                      );
+                    })}
+                  </Box>
+                </Box>
+              )}
+
+              {/* Confirm Password */}
               <TextField
                 margin="normal"
                 required
                 fullWidth
                 name="password_confirmation"
                 label={t('Confirm Password')}
-                type="password"
+                type={showConfirmPassword ? 'text' : 'password'}
                 id="password_confirmation"
                 autoComplete="new-password"
                 value={formData.password_confirmation}
                 onChange={handleChange('password_confirmation')}
-                error={!!errors.password_confirmation}
-                helperText={errors.password_confirmation}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 2,
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#CED4DA', // Light Gray for hover
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#007BFF', // Academic Blue for focus
-                      borderWidth: 2,
-                    },
-                    '&.Mui-error .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#DC3545', // Light Red for errors
-                    },
-                  }
-                }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <LockIcon sx={{ color: '#666' }} />
-                    </InputAdornment>
-                  ),
+                onBlur={handleBlur('password_confirmation')}
+                error={!!errors.password_confirmation && touched.password_confirmation}
+                helperText={touched.password_confirmation ? errors.password_confirmation : ''}
+                sx={fieldSx}
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <LockIcon sx={{ color: iconColor }} />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label={
+                            showConfirmPassword ? t('Hide password') : t('Show password')
+                          }
+                          onClick={() => setShowConfirmPassword((s) => !s)}
+                          edge="end"
+                          size="small"
+                          tabIndex={-1}
+                        >
+                          {showConfirmPassword ? (
+                            <VisibilityOffIcon sx={{ color: iconColor }} />
+                          ) : (
+                            <VisibilityIcon sx={{ color: iconColor }} />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
                 }}
               />
+
+              {/* Terms & Privacy */}
+              <Typography
+                variant="body2"
+                sx={{
+                  color: theme.palette.text.secondary,
+                  textAlign: 'center',
+                  mt: 2,
+                  mb: 2,
+                  lineHeight: 1.6,
+                }}
+              >
+                {t('By registering, you agree to our')}{' '}
+                <Link
+                  component={RouterLink}
+                  to="/terms"
+                  sx={{
+                    color: theme.palette.primary.dark,
+                    textDecoration: 'none',
+                    fontWeight: 600,
+                    '&:hover': { textDecoration: 'underline' },
+                  }}
+                >
+                  {t('Terms of Service')}
+                </Link>{' '}
+                {t('and')}{' '}
+                <Link
+                  component={RouterLink}
+                  to="/privacy"
+                  sx={{
+                    color: theme.palette.primary.dark,
+                    textDecoration: 'none',
+                    fontWeight: 600,
+                    '&:hover': { textDecoration: 'underline' },
+                  }}
+                >
+                  {t('Privacy Policy')}
+                </Link>
+              </Typography>
+
+              {/* Submit */}
               <Button
                 type="submit"
                 fullWidth
                 variant="contained"
-                sx={{ 
-                  mt: 3, 
+                color="primary"
+                sx={{
+                  mt: 1,
                   mb: 2,
                   py: 1.5,
                   borderRadius: 2,
-                  backgroundColor: '#007BFF', // Academic Blue/Dark
-                  '&:hover': {
-                    backgroundColor: '#0056B3', // Darker blue for hover
-                  },
                   fontWeight: 600,
-                  fontSize: '1.1rem',
+                  fontSize: '1rem',
+                  textTransform: 'none',
                 }}
                 disabled={isLoading}
-                startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <PersonAddIcon />}
+                startIcon={
+                  isLoading ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : (
+                    <PersonAddIcon />
+                  )
+                }
               >
                 {isLoading ? t('Creating Account...') : t('Create Account')}
               </Button>
-              <Box textAlign="center">
-                <Typography variant="body2" sx={{ color: '#666' }}>
+
+              {/* Divider */}
+              <Divider sx={{ my: 2 }}>
+                <Typography variant="body2" sx={{ color: theme.palette.text.secondary, px: 1 }}>
+                  {t('or')}
+                </Typography>
+              </Divider>
+
+              {/* Sign In Link */}
+              <Box textAlign="center" sx={{ mb: 2 }}>
+                <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
                   {t('Already have an account?')}{' '}
                   <Link
                     component={RouterLink}
                     to="/login"
                     sx={{
-                      color: '#007BFF', // Academic Blue for links
+                      color: theme.palette.primary.dark,
                       textDecoration: 'none',
                       fontWeight: 600,
-                      '&:hover': {
-                        textDecoration: 'underline',
-                      }
+                      '&:hover': { textDecoration: 'underline' },
                     }}
                   >
                     {t('Sign In')}
                   </Link>
                 </Typography>
+              </Box>
+
+              {/* Footer Links */}
+              <Divider sx={{ mb: 2 }} />
+              <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
+                <Link
+                  component={RouterLink}
+                  to="/terms"
+                  sx={{
+                    color: theme.palette.primary.dark,
+                    textDecoration: 'none',
+                    fontSize: '0.875rem',
+                    fontWeight: 500,
+                    '&:hover': { textDecoration: 'underline' },
+                  }}
+                >
+                  {t('Terms of Service')}
+                </Link>
+                <Link
+                  component={RouterLink}
+                  to="/privacy"
+                  sx={{
+                    color: theme.palette.primary.dark,
+                    textDecoration: 'none',
+                    fontSize: '0.875rem',
+                    fontWeight: 500,
+                    '&:hover': { textDecoration: 'underline' },
+                  }}
+                >
+                  {t('Privacy Policy')}
+                </Link>
               </Box>
             </Box>
           </Box>
