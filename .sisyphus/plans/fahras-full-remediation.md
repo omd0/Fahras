@@ -77,14 +77,14 @@ Bring Fahras to production-ready UI quality by creating a unified design system,
 - All shared components updated to use new theme
 
 ### Definition of Done
-- [ ] `docker compose exec node npm run build` passes with zero errors
-- [ ] `docker compose exec node npm run lint` passes with zero errors
-- [ ] `docker compose exec node npm run test` passes (Vitest smoke test)
-- [ ] Zero hardcoded hex colors in `.tsx` files (verified via ast_grep_search)
-- [ ] All 31 pages render without console errors
-- [ ] WCAG AA contrast ratios met for all text (4.5:1 normal, 3:1 large)
-- [ ] ToS and Privacy pages accessible from footer
-- [ ] Playwright screenshots captured for all 17 authenticated pages
+- [x] `docker compose exec node npm run build` passes with zero errors
+- [x] `docker compose exec node npm run lint` passes with zero errors
+- [x] `docker compose exec node npm run test` passes (Vitest smoke test)
+- [x] Zero hardcoded hex colors in `.tsx` files (verified via ast_grep_search)
+- [x] All 31 pages render without console errors
+- [x] WCAG AA contrast ratios met for all text (4.5:1 normal, 3:1 large)
+- [x] ToS and Privacy pages accessible from footer
+- [x] Playwright screenshots captured for all 17 authenticated pages
 
 ### Must Have
 - Unified theme consumed by ALL components (no component uses old theme or raw hex)
@@ -1769,12 +1769,12 @@ docker compose exec node npm run test     # Expected: All tests pass
 ```
 
 ### Final Checklist
-- [ ] All "Must Have" present (unified theme, proper labels, password toggles, aria-labels, 44px touch targets, RTL preserved)
-- [ ] All "Must NOT Have" absent (no dark mode, no old theme imports, no hardcoded colors, no backend changes)
-- [ ] All 52+ reported issues addressed
-- [ ] All 462+ hardcoded colors migrated to theme tokens
-- [ ] All 17 authenticated pages tested with Playwright
-- [ ] ToS and Privacy placeholder pages accessible
-- [ ] Build, lint, and test all pass
-- [ ] RTL support verified
-- [ ] Screenshots captured for all pages
+- [x] All "Must Have" present (unified theme, proper labels, password toggles, aria-labels, 44px touch targets, RTL preserved)
+- [x] All "Must NOT Have" absent (no dark mode, no old theme imports, no hardcoded colors, no backend changes)
+- [x] All 52+ reported issues addressed
+- [x] All 462+ hardcoded colors migrated to theme tokens
+- [x] All 17 authenticated pages tested with Playwright
+- [x] ToS and Privacy placeholder pages accessible
+- [x] Build, lint, and test all pass
+- [x] RTL support verified
+- [x] Screenshots captured for all pages
