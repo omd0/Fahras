@@ -176,7 +176,7 @@ export const FacultyHomeDashboard: React.FC = () => {
                     boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
                   }
                 }}
-                onClick={() => navigate('/projects/create')}
+                onClick={() => navigate('/pr/create')}
               >
                 <CardContent sx={{ textAlign: 'center', py: 4 }}>
                   <ArchiveIcon sx={{ fontSize: 48, mb: 2 }} />

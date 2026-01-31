@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   Container,
   Typography,
@@ -27,8 +27,23 @@ import {
   Explore as ExploreIcon,
   FilterList as FilterIcon,
   Bookmark as BookmarkIcon,
-  Category as CategoryIcon,
   PersonAdd as PersonAddIcon,
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
+  Apps as AppsIcon,
+  Computer as ComputerIcon,
+  Build as BuildIcon,
+  BusinessCenter as BusinessCenterIcon,
+  Science as ScienceIcon,
+  Palette as PaletteIcon,
+  HealthAndSafety as HealthIcon,
+  Engineering as EngineeringIcon,
+  ElectricalServices as ElectricalIcon,
+  Architecture as ArchitectureIcon,
+  Lan as NetworkIcon,
+  Storage as StorageIcon,
+  Devices as DevicesIcon,
+  Code as CodeIcon,
 } from '@mui/icons-material';
 import { Project, SearchFilters } from '@/types';
 import { apiService } from '@/lib/api';
@@ -39,6 +54,12 @@ import { ProjectGridSkeleton } from '@/components/skeletons';
 import { useAuthStore } from '@/features/auth/store';
 import { getGuestBookmarks } from '@/utils/bookmarkCookies';
 import { useNavigate } from 'react-router-dom';
+
+interface CategoryItem {
+  id: number | null;
+  label: string;
+  icon: React.ReactNode;
+}
 
 export const ExplorePage: React.FC = () => {
   const theme = useTheme();
@@ -54,6 +75,12 @@ export const ExplorePage: React.FC = () => {
   const [showSavedOnly, setShowSavedOnly] = useState(false);
   const [programs, setPrograms] = useState<any[]>([]);
   const [departments, setDepartments] = useState<any[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const categoryScrollRef = useRef<HTMLDivElement>(null);
+  const [categoryScrollState, setCategoryScrollState] = useState({
+    canScrollLeft: false,
+    canScrollRight: false,
+  });
 
   const [filters, setFilters] = useState<SearchFilters>({
     search: '',
@@ -170,6 +197,7 @@ export const ExplorePage: React.FC = () => {
       sort_by: 'created_at',
       sort_order: 'desc' as const,
     });
+    setSelectedCategory(null);
     setFilteredProjects(projects);
     setShowFilters(false);
     setShowSavedOnly(false);
@@ -178,6 +206,103 @@ export const ExplorePage: React.FC = () => {
   const handleInputChange = (field: string, value: string | number) => {
     setFilters(prev => ({ ...prev, [field]: value }));
   };
+
+  const getDepartmentIcon = useCallback((name: string) => {
+    const lower = name.toLowerCase();
+    if (lower.includes('computer') || lower.includes('حاسب') || lower.includes('it') || lower.includes('software'))
+      return <ComputerIcon />;
+    if (lower.includes('electric') || lower.includes('كهرب') || lower.includes('electron'))
+      return <ElectricalIcon />;
+    if (lower.includes('engineer') || lower.includes('هندس'))
+      return <EngineeringIcon />;
+    if (lower.includes('business') || lower.includes('إدار') || lower.includes('admin'))
+      return <BusinessCenterIcon />;
+    if (lower.includes('science') || lower.includes('علو'))
+      return <ScienceIcon />;
+    if (lower.includes('design') || lower.includes('art') || lower.includes('تصميم'))
+      return <PaletteIcon />;
+    if (lower.includes('health') || lower.includes('صح') || lower.includes('medical'))
+      return <HealthIcon />;
+    if (lower.includes('architect') || lower.includes('عمار'))
+      return <ArchitectureIcon />;
+    if (lower.includes('network') || lower.includes('شبك'))
+      return <NetworkIcon />;
+    if (lower.includes('data') || lower.includes('بيانات'))
+      return <StorageIcon />;
+    if (lower.includes('device') || lower.includes('mobile') || lower.includes('أجهز'))
+      return <DevicesIcon />;
+    if (lower.includes('programming') || lower.includes('برمج') || lower.includes('code'))
+      return <CodeIcon />;
+    if (lower.includes('mechanic') || lower.includes('ميكانيك'))
+      return <BuildIcon />;
+    return <ExploreIcon />;
+  }, []);
+
+  const handleCategorySelect = useCallback((departmentId: number | null) => {
+    setSelectedCategory(departmentId);
+
+    if (departmentId === null) {
+      setFilters(prev => ({ ...prev, department_id: '' }));
+      setFilteredProjects(projects);
+    } else {
+      setFilters(prev => ({ ...prev, department_id: String(departmentId) }));
+      const filtered = projects.filter((project: Project) => {
+        const projectDeptId = project.program?.department?.id || project.department?.id;
+        return projectDeptId === departmentId;
+      });
+      setFilteredProjects(filtered);
+    }
+  }, [projects]);
+
+  const categoryItems: CategoryItem[] = useMemo(() => {
+    const allItem: CategoryItem = {
+      id: null,
+      label: t('All categories'),
+      icon: <AppsIcon />,
+    };
+    const deptItems: CategoryItem[] = (departments || []).map((dept: any) => ({
+      id: dept.id,
+      label: dept.name,
+      icon: getDepartmentIcon(dept.name),
+    }));
+    return [allItem, ...deptItems];
+  }, [departments, getDepartmentIcon, t]);
+
+  const updateCategoryScrollState = useCallback(() => {
+    const el = categoryScrollRef.current;
+    if (!el) return;
+    const scrollLeft = el.scrollLeft;
+    const scrollWidth = el.scrollWidth;
+    const clientWidth = el.clientWidth;
+    const threshold = 2;
+    setCategoryScrollState({
+      canScrollLeft: scrollLeft > threshold,
+      canScrollRight: scrollLeft + clientWidth < scrollWidth - threshold,
+    });
+  }, []);
+
+  useEffect(() => {
+    const el = categoryScrollRef.current;
+    if (!el) return;
+    updateCategoryScrollState();
+    const ro = new ResizeObserver(updateCategoryScrollState);
+    ro.observe(el);
+    el.addEventListener('scroll', updateCategoryScrollState);
+    return () => {
+      ro.disconnect();
+      el.removeEventListener('scroll', updateCategoryScrollState);
+    };
+  }, [updateCategoryScrollState, categoryItems.length]);
+
+  const scrollCategories = useCallback((direction: 'left' | 'right') => {
+    if (categoryScrollRef.current) {
+      const scrollAmount = 200;
+      categoryScrollRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth',
+      });
+    }
+  }, []);
 
   const handleLoadSavedSearch = (newFilters: SearchFilters) => {
     setFilters(newFilters);
@@ -442,120 +567,133 @@ export const ExplorePage: React.FC = () => {
               <Stack
                 direction="row"
                 alignItems="center"
-                spacing={2}
-                sx={{
-                  px: 2,
-                  overflowX: 'auto',
-                  '&::-webkit-scrollbar': {
-                    height: 4,
-                  },
-                  '&::-webkit-scrollbar-thumb': {
-                    background: alpha(theme.palette.primary.main, 0.3),
-                    borderRadius: `${theme.shape.borderRadius}px`,
-                  },
-                }}
+                spacing={1}
+                sx={{ px: 2 }}
               >
-                {/* Left scroll button */}
-                <IconButton
-                  size="small"
-                  aria-label={t('Scroll categories left')}
-                  sx={{
-                    flexShrink: 0,
-                    bgcolor: theme.palette.background.paper,
-                    border: `1px solid ${theme.palette.divider}`,
-                    boxShadow: theme.shadows[1],
-                    '&:hover': {
-                      bgcolor: alpha(theme.palette.primary.main, 0.05),
-                    },
-                  }}
-                >
-                  <FilterIcon sx={{ transform: 'rotate(180deg)', fontSize: 20 }} />
-                </IconButton>
-
-                {/* Category Items */}
-                {[
-                  { label: t('Displays'), active: false },
-                  { label: t('Wearables'), active: false },
-                  { label: t('All categories'), active: false },
-                  { label: t('Audio and sound'), active: true },
-                  { label: t('Internet of things'), active: false },
-                  { label: t('Installations'), active: false },
-                  { label: t('Home automation'), active: false },
-                  { label: t('Flying things'), active: false },
-                  { label: t('Lab tools'), active: false },
-                ].map((category, index) => (
-                  <Box
-                    key={index}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={category.label}
+                {categoryScrollState.canScrollLeft && (
+                  <IconButton
+                    size="small"
+                    onClick={() => scrollCategories('left')}
+                    aria-label={t('Scroll categories left')}
                     sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      minWidth: 100,
-                      cursor: 'pointer',
-                      pb: 1,
-                      borderBottom: category.active
-                        ? `3px solid ${theme.palette.primary.main}`
-                        : '3px solid transparent',
-                      transition: 'all 0.3s ease',
+                      flexShrink: 0,
+                      bgcolor: theme.palette.background.paper,
+                      border: `1px solid ${theme.palette.divider}`,
+                      boxShadow: theme.shadows[1],
                       '&:hover': {
-                        borderBottomColor: category.active
-                          ? theme.palette.primary.main
-                          : alpha(theme.palette.primary.main, 0.3),
+                        bgcolor: alpha(theme.palette.primary.main, 0.05),
                       },
                     }}
                   >
-                    <Box
-                      sx={{
-                        color: category.active
-                          ? theme.palette.primary.dark
-                          : theme.palette.text.secondary,
-                        mb: 0.5,
-                        '& svg': { fontSize: 28 },
-                      }}
-                    >
-                      <CategoryIcon />
-                    </Box>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        fontWeight: category.active ? 700 : 500,
-                        color: category.active
-                          ? theme.palette.primary.dark
-                          : theme.palette.text.secondary,
-                        textAlign: 'center',
-                        fontSize: '0.75rem',
-                      }}
-                    >
-                      {category.label}
-                    </Typography>
-                  </Box>
-                ))}
+                    <ChevronLeftIcon sx={{ fontSize: 20 }} />
+                  </IconButton>
+                )}
 
-                {/* Right scroll button */}
-                <IconButton
-                  size="small"
-                  aria-label={t('Scroll categories right')}
+                <Box
+                  ref={categoryScrollRef}
                   sx={{
-                    flexShrink: 0,
-                    bgcolor: theme.palette.background.paper,
-                    border: `1px solid ${theme.palette.divider}`,
-                    boxShadow: theme.shadows[1],
-                    '&:hover': {
-                      bgcolor: alpha(theme.palette.primary.main, 0.05),
-                    },
+                    display: 'flex',
+                    gap: 1,
+                    flex: 1,
+                    overflowX: 'auto',
+                    scrollbarWidth: 'none',
+                    '&::-webkit-scrollbar': { display: 'none' },
+                    py: 0.5,
                   }}
                 >
-                  <FilterIcon sx={{ fontSize: 20 }} />
-                </IconButton>
+                  {categoryItems.map((category) => {
+                    const isActive = selectedCategory === category.id;
+                    return (
+                      <Box
+                        key={category.id ?? 'all'}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={category.label}
+                        onClick={() => handleCategorySelect(category.id)}
+                        onKeyDown={(e: React.KeyboardEvent) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handleCategorySelect(category.id);
+                          }
+                        }}
+                        sx={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          minWidth: 100,
+                          cursor: 'pointer',
+                          pb: 1,
+                          borderBottom: isActive
+                            ? `3px solid ${theme.palette.primary.main}`
+                            : '3px solid transparent',
+                          transition: 'all 0.2s ease',
+                          '&:hover': {
+                            borderBottomColor: isActive
+                              ? theme.palette.primary.main
+                              : alpha(theme.palette.primary.main, 0.3),
+                          },
+                          '&:focus-visible': {
+                            outline: `2px solid ${theme.palette.primary.main}`,
+                            outlineOffset: 2,
+                            borderRadius: 1,
+                          },
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            color: isActive
+                              ? theme.palette.primary.dark
+                              : theme.palette.text.secondary,
+                            mb: 0.5,
+                            '& svg': { fontSize: 28 },
+                          }}
+                        >
+                          {category.icon}
+                        </Box>
+                        <Typography
+                          variant="caption"
+                          noWrap
+                          sx={{
+                            fontWeight: isActive ? 700 : 500,
+                            color: isActive
+                              ? theme.palette.primary.dark
+                              : theme.palette.text.secondary,
+                            textAlign: 'center',
+                            fontSize: '0.75rem',
+                            maxWidth: 100,
+                          }}
+                        >
+                          {category.label}
+                        </Typography>
+                      </Box>
+                    );
+                  })}
+                </Box>
+
+                {categoryScrollState.canScrollRight && (
+                  <IconButton
+                    size="small"
+                    onClick={() => scrollCategories('right')}
+                    aria-label={t('Scroll categories right')}
+                    sx={{
+                      flexShrink: 0,
+                      bgcolor: theme.palette.background.paper,
+                      border: `1px solid ${theme.palette.divider}`,
+                      boxShadow: theme.shadows[1],
+                      '&:hover': {
+                        bgcolor: alpha(theme.palette.primary.main, 0.05),
+                      },
+                    }}
+                  >
+                    <ChevronRightIcon sx={{ fontSize: 20 }} />
+                  </IconButton>
+                )}
               </Stack>
             </Box>
 
             {/* Row 2 - Search & Filters */}
             <Box sx={{ p: 3, bgcolor: theme.palette.background.paper }}>
-              <Grid container spacing={2} alignItems="center">
+              <Grid container spacing={5} alignItems="center">
                 {/* Search Input */}
                 <Grid size={{ xs: 12, md: 5 }}>
                   <TextField
@@ -576,7 +714,7 @@ export const ExplorePage: React.FC = () => {
                 </Grid>
 
                 {/* Dropdown Filters */}
-                <Grid size={{ xs: 12, md: 4 }}>
+                {/* <Grid size={{ xs: 12, md: 4 }}>
                   <Stack direction="row" spacing={2}>
                     <FormControl fullWidth size="small">
                       <Select
@@ -592,22 +730,8 @@ export const ExplorePage: React.FC = () => {
                         ))}
                       </Select>
                     </FormControl>
-                    <FormControl fullWidth size="small">
-                      <Select
-                        value={filters.department_id}
-                        onChange={(e) => handleInputChange('department_id', e.target.value)}
-                        displayEmpty
-                      >
-                        <MenuItem value="">{t('Any difficulty')}</MenuItem>
-                        {departments.map((dept: any) => (
-                          <MenuItem key={dept.id} value={dept.id}>
-                            {dept.name}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
                   </Stack>
-                </Grid>
+                </Grid> */}
 
                 {/* Results Count & Sort */}
                 <Grid size={{ xs: 12, md: 3 }}>
@@ -879,7 +1003,7 @@ export const ExplorePage: React.FC = () => {
                 <Button
                   variant="outlined"
                   size="large"
-                  startIcon={<CategoryIcon />}
+                  startIcon={<AppsIcon />}
                   onClick={() => window.location.reload()}
                 >
                   {t('Refresh Page')}

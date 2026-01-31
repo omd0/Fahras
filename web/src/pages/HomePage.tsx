@@ -97,9 +97,9 @@ export const HomePage: React.FC = () => {
 
   const handleSubmitProject = () => {
     if (isAuthenticated) {
-      navigate('/projects/create');
+      navigate('/pr/create');
     } else {
-      navigate('/login', { state: { from: '/projects/create' } });
+      navigate('/login', { state: { from: '/pr/create' } });
     }
   };
 

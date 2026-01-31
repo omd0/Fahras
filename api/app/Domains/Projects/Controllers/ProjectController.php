@@ -8,10 +8,14 @@ use App\Models\Notification;
 use App\Models\Comment;
 use App\Models\Rating;
 use App\Models\Bookmark;
+use App\Models\MilestoneTemplate;
+use App\Domains\Projects\Models\ProjectMilestone;
 use App\Domains\Projects\Services\ProjectActivityService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ProjectController extends \App\Http\Controllers\Controller
 {
@@ -291,6 +295,13 @@ class ProjectController extends \App\Http\Controllers\Controller
 
         $creator = $request->user();
 
+        // Find default milestone template (Graduate Program)
+        $milestoneTemplateId = null;
+        $defaultTemplate = MilestoneTemplate::where('is_default', true)->first();
+        if ($defaultTemplate) {
+            $milestoneTemplateId = $defaultTemplate->id;
+        }
+
         try {
             DB::beginTransaction();
             
@@ -305,7 +316,23 @@ class ProjectController extends \App\Http\Controllers\Controller
                 'status' => 'draft',
                 'custom_members' => !empty($customMembers) ? $customMembers : null,
                 'custom_advisors' => !empty($customAdvisors) ? $customAdvisors : null,
+                'milestone_template_id' => $milestoneTemplateId,
             ]);
+
+            // Create project milestones from template
+            if ($defaultTemplate) {
+                foreach ($defaultTemplate->items as $item) {
+                    ProjectMilestone::create([
+                        'project_id' => $project->id,
+                        'template_item_id' => $item->id,
+                        'title' => $item->title,
+                        'description' => $item->description,
+                        'order' => $item->order,
+                        'status' => 'not_started',
+                        'due_date' => $item->estimated_days > 0 ? now()->addDays($item->estimated_days) : null,
+                    ]);
+                }
+            }
 
             // Add regular members (with user_id)
             foreach ($regularMembers as $member) {
@@ -348,7 +375,7 @@ class ProjectController extends \App\Http\Controllers\Controller
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Project creation failed', [
+            Log::error('Project creation failed', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'user_id' => $creator->id,
@@ -463,7 +490,7 @@ class ProjectController extends \App\Http\Controllers\Controller
             $projectData['is_bookmarked'] = $project->isBookmarkedBy($user->id);
         }
 
-        \Log::info('Project details requested', [
+        Log::info('Project details requested', [
             'project_id' => $project->id,
             'user_id' => $user ? $user->id : 'guest',
             'files_count' => count($projectData['files']),

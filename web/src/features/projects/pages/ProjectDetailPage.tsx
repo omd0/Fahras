@@ -163,9 +163,15 @@ export const ProjectDetailPage: React.FC = () => {
       } else {
         console.log('No files found for project');
       }
-    } catch (error: any) {
-      console.error('Error fetching project:', error);
-      setError(error.response?.data?.message || 'Failed to fetch project');
+    } catch (err: any) {
+      console.error('Error fetching project:', err);
+      const msg =
+        err.response?.data?.message ||
+        (err.response?.status === 404 ? 'Project not found or not available.' : null) ||
+        (err.request && !err.response ? 'Cannot reach the server. Check your connection and that the API is running.' : null) ||
+        err.message ||
+        'Failed to fetch project.';
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -216,12 +222,24 @@ export const ProjectDetailPage: React.FC = () => {
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
         </Alert>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={handleBackClick}
-        >
-          {t('Back')}
-        </Button>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setError(null);
+              setLoading(true);
+              if (slug) fetchProject(slug);
+            }}
+          >
+            {t('Retry')}
+          </Button>
+          <Button
+            startIcon={<ArrowBackIcon />}
+            onClick={handleBackClick}
+          >
+            {t('Back')}
+          </Button>
+        </Box>
       </Container>
     );
   }

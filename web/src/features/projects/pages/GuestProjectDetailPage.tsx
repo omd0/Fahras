@@ -76,9 +76,15 @@ export const GuestProjectDetailPage: React.FC = () => {
 
       const response = await apiService.getProject(projectId);
       setProject(response.project || response);
-    } catch (error: any) {
-      console.error('Failed to fetch project:', error);
-      setError(error.response?.data?.message || 'Failed to fetch project');
+    } catch (err: any) {
+      console.error('Failed to fetch project:', err);
+      const msg =
+        err.response?.data?.message ||
+        (err.response?.status === 404 ? 'Project not found or not available.' : null) ||
+        (err.request && !err.response ? 'Cannot reach the server. Check your connection and that the API is running.' : null) ||
+        err.message ||
+        'Failed to fetch project.';
+      setError(msg);
     } finally {
       setLoading(false);
     }

@@ -249,7 +249,7 @@ const StudentMyProjectsPage: React.FC = () => {
   };
 
   const handleCreateProject = () => {
-    navigate('/projects/create');
+    navigate('/pr/create');
   };
 
   const handleCloseDetailDialog = () => {

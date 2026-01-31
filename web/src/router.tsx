@@ -1,5 +1,5 @@
 import React from 'react';
-import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { createBrowserRouter, Navigate, useParams } from 'react-router-dom';
 import { ProtectedRoute } from '@/features/auth/components/ProtectedRoute';
 import { RoleProtectedRoute } from '@/features/auth/components/RoleProtectedRoute';
 import { HomePage } from '@/pages/HomePage';
@@ -33,6 +33,12 @@ import StudentMyProjectsPage from '@/pages/StudentMyProjectsPage';
 import { NotificationsPage } from '@/features/notifications/pages/NotificationsPage';
 import { TestAuthPage } from '@/pages/TestAuthPage';
 import { AppLayout } from '@/components/layout/AppLayout';
+
+/** Redirects legacy /projects/:id and /project/:id to /pr/:id */
+function RedirectProjectIdToPr() {
+  const { id } = useParams<{ id: string }>();
+  return <Navigate to={id ? `/pr/${id}` : '/explore'} replace />;
+}
 
 export const router = createBrowserRouter([
   {
@@ -252,14 +258,18 @@ export const router = createBrowserRouter([
         element: <TestAuthPage />,
       },
 
-      // Legacy redirects for backward compatibility
+      // Legacy redirects for backward compatibility (must be after more specific paths)
+      {
+        path: 'projects/create',
+        element: <Navigate to="/pr/create" replace />,
+      },
       {
         path: 'projects/:id',
-        element: <Navigate to="/pr/:id" replace />,
+        element: <RedirectProjectIdToPr />,
       },
       {
         path: 'project/:id',
-        element: <Navigate to="/pr/:id" replace />,
+        element: <RedirectProjectIdToPr />,
       },
     ],
   },
