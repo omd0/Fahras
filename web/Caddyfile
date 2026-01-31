@@ -1,4 +1,4 @@
-:{$PORT:3000} {
+:{$PORT:80} {
 	root * /app/build
 
 	# SPA fallback — all routes serve index.html

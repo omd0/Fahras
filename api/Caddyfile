@@ -1,7 +1,8 @@
-:{$PORT:8080} {
+:{$PORT:80} {
     root * /app/public
 
-    php_fastcgi 127.0.0.1:9000
+    # Reverse proxy to PHP built-in server
+    reverse_proxy localhost:9000
 
     encode gzip
 
