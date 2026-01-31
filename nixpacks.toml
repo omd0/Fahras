@@ -95,7 +95,7 @@ cmds = [
 
     # React: install ALL deps (dev included), build, then clean up
     "cd web && NODE_ENV=development npm ci --prefer-offline --no-audit",
-    "cd web && npm run build",
+    "cd web && npx vite build",
     "rm -rf web/node_modules",
 
     # Laravel: optimization caches
