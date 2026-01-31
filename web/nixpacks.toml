@@ -2,17 +2,17 @@
 # Deployed as separate static site service on Cranl.com PaaS
 
 [phases.setup]
-nixPkgs = ["nodejs_20"]
+nixPkgs = ["bun"]
 
 [env]
 VITE_API_URL = "https://api.yourdomain.com"
 
 [phases.install]
-cmds = ["npm ci --prefer-offline --no-audit"]
+cmds = ["bun install --frozen-lockfile || bun install"]
 
 [phases.build]
 dependsOn = ["install"]
-cmds = ["npx vite build"]
+cmds = ["bunx vite build", "bun add -g serve"]
 
 [start]
-cmd = "caddy run --config Caddyfile --adapter caddyfile"
+cmd = "serve build/ -l ${PORT:-80} --single"
