@@ -31,7 +31,7 @@ dependsOn = ["setup"]
 cmds = [
     "mkdir -p bootstrap/cache storage/framework/{cache,sessions,views} storage/logs storage/app/public",
     "chmod -R 775 storage bootstrap/cache",
-    "composer install --no-dev --optimize-autoloader --no-interaction"
+    "composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-req=ext-redis"
 ]
 
 [start]
