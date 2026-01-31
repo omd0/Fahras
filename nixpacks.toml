@@ -79,31 +79,26 @@ aptPkgs = [
 ]
 
 # ---------------------------------------------------------------------------
-# Phase: install
+# Phase: install — single phase (avoids NixPacks COPY between phases)
 # ---------------------------------------------------------------------------
 [phases.install]
 dependsOn = ["setup"]
+cacheDirectories = ["web/.npm"]
 cmds = [
+    # Laravel: create required directories BEFORE any artisan commands
+    "mkdir -p api/bootstrap/cache api/storage/framework/{cache,sessions,views} api/storage/logs",
+    "chmod -R 775 api/storage api/bootstrap/cache",
+
+    # Laravel: composer install (vendor stays in filesystem for runtime)
     "cd api && composer install --no-dev --optimize-autoloader --no-interaction --no-scripts",
     "cd api && php artisan package:discover --ansi || true",
+
+    # React: install ALL deps (dev included), build, then clean up
     "cd web && NODE_ENV=development npm ci --prefer-offline --no-audit",
-]
-cacheDirectories = ["api/vendor", "web/node_modules", "web/.npm"]
+    "cd web && npm run build",
+    "rm -rf web/node_modules",
 
-# ---------------------------------------------------------------------------
-# Phase: build
-# ---------------------------------------------------------------------------
-[phases.build]
-dependsOn = ["install"]
-cmds = [
-    # React / Vite production build
-    "cd web && npm run build && npm prune --production",
-
-    # Laravel storage & cache directories
-    "cd api && mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache",
-    "cd api && chmod -R 775 storage bootstrap/cache",
-
-    # Laravel optimization caches
+    # Laravel: optimization caches
     "cd api && php artisan config:cache  || true",
     "cd api && php artisan route:cache   || true",
     "cd api && php artisan view:cache    || true",
