@@ -34,7 +34,7 @@ nixPkgs = ["nodejs_20"]
 # ---------------------------------------------------------------------------
 [phases.install]
 dependsOn = ["setup"]
-cmds = ["npm ci --prefer-offline --no-audit"]
+cmds = ["NODE_ENV=development npm ci --prefer-offline --no-audit"]
 cacheDirectories = ["node_modules", ".npm"]
 
 # ---------------------------------------------------------------------------
@@ -42,7 +42,7 @@ cacheDirectories = ["node_modules", ".npm"]
 # ---------------------------------------------------------------------------
 [phases.build]
 dependsOn = ["install"]
-cmds = ["npm run build"]
+cmds = ["npm run build && npm prune --production"]
 
 # ---------------------------------------------------------------------------
 # Start command — static file server with SPA fallback

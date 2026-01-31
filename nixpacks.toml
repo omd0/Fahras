@@ -86,7 +86,7 @@ dependsOn = ["setup"]
 cmds = [
     "cd api && composer install --no-dev --optimize-autoloader --no-interaction --no-scripts",
     "cd api && php artisan package:discover --ansi || true",
-    "cd web && npm ci --prefer-offline --no-audit",
+    "cd web && NODE_ENV=development npm ci --prefer-offline --no-audit",
 ]
 cacheDirectories = ["api/vendor", "web/node_modules", "web/.npm"]
 
@@ -97,7 +97,7 @@ cacheDirectories = ["api/vendor", "web/node_modules", "web/.npm"]
 dependsOn = ["install"]
 cmds = [
     # React / Vite production build
-    "cd web && npm run build",
+    "cd web && npm run build && npm prune --production",
 
     # Laravel storage & cache directories
     "cd api && mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache",
