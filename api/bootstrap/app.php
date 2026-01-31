@@ -12,11 +12,21 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Register optional authentication middleware
-        $middleware->alias([
-            'auth.optional' => \App\Http\Middleware\OptionalAuthSanctum::class,
-        ]);
-    })
+         // Register optional authentication middleware
+         $middleware->alias([
+             'auth.optional' => \App\Http\Middleware\OptionalAuthSanctum::class,
+         ]);
+
+         // Trust proxies for PaaS deployments
+         $middleware->trustProxies(
+             at: '*',
+             headers: \Illuminate\Http\Request::HEADER_X_FORWARDED_FOR |
+                      \Illuminate\Http\Request::HEADER_X_FORWARDED_HOST |
+                      \Illuminate\Http\Request::HEADER_X_FORWARDED_PORT |
+                      \Illuminate\Http\Request::HEADER_X_FORWARDED_PROTO |
+                      \Illuminate\Http\Request::HEADER_X_FORWARDED_AWS_ELB
+         );
+     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
