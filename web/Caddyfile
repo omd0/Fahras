@@ -1,0 +1,26 @@
+:{$PORT:3000} {
+	root * /app/build
+
+	# SPA fallback — all routes serve index.html
+	try_files {path} /index.html
+	file_server
+
+	encode gzip
+
+	header {
+		X-Frame-Options SAMEORIGIN
+		X-XSS-Protection "1; mode=block"
+		X-Content-Type-Options nosniff
+		Referrer-Policy no-referrer-when-downgrade
+		-Server
+		# Cache static assets aggressively
+		Cache-Control "public, max-age=31536000, immutable" {
+			path /assets/*
+		}
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}

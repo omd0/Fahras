@@ -1,0 +1,20 @@
+:{$PORT:8080} {
+    root * /app/public
+
+    php_fastcgi 127.0.0.1:9000
+
+    encode gzip
+
+    header {
+        X-Frame-Options SAMEORIGIN
+        X-XSS-Protection "1; mode=block"
+        X-Content-Type-Options nosniff
+        Referrer-Policy no-referrer-when-downgrade
+        -Server
+    }
+
+    log {
+        output stdout
+        format console
+    }
+}

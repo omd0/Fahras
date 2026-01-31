@@ -1,0 +1,15 @@
+# Nixpacks Configuration for Fahras Frontend (React 19 + Vite)
+# Deployed as separate static site service on Cranl.com PaaS
+
+[phases.setup]
+nixPkgs = ["caddy"]
+
+[phases.install]
+cmds = ["npm ci --prefer-offline --no-audit"]
+
+[phases.build]
+dependsOn = ["install"]
+cmds = ["npm run build"]
+
+[start]
+cmd = "caddy run --config Caddyfile --adapter caddyfile"
