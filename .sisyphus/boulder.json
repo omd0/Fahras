@@ -1,8 +1,8 @@
 {
-  "active_plan": "/home/omd/Documents/CTI/Fahras/.sisyphus/plans/fahras-full-remediation.md",
-  "started_at": "2026-01-30T14:02:14.964Z",
+  "active_plan": "/home/omd/Documents/CTI/Fahras/.sisyphus/plans/paas-deployment.md",
+  "started_at": "2026-01-31T10:41:29.530Z",
   "session_ids": [
-    "ses_3f0e5b686ffeRYP4xDGO12kLOa"
+    "ses_3ec91c44affev9v2dLDIl0nONm"
   ],
-  "plan_name": "fahras-full-remediation"
+  "plan_name": "paas-deployment"
 }
