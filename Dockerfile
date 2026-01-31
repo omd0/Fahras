@@ -1,57 +1,57 @@
-# Stage 1: Build Frontend
-FROM node:20-alpine AS frontend
-WORKDIR /app/web
-COPY web/package*.json ./
-RUN npm ci --prefer-offline --no-audit
+# ── Stage 1: Build frontend with Bun ─────────────────────────
+FROM oven/bun:1-alpine AS frontend
+WORKDIR /app
+COPY web/package.json web/package-lock.json* web/bun.lock* ./
+RUN bun install --frozen-lockfile 2>/dev/null || bun install
 COPY web/ .
-# Run vite build directly to skip strict type checking during Docker build
-RUN npx vite build
+ARG VITE_API_URL
+ENV VITE_API_URL=${VITE_API_URL}
+RUN bunx --bun vite build
 
-# Stage 2: Final Image
-FROM php:8.3-fpm
+# ── Stage 2: Production ──────────────────────────────────────
+FROM php:8.3-fpm-alpine
 
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    libpq-dev \
-    libzip-dev \
-    zip \
-    unzip \
-    debian-keyring \
-    debian-archive-keyring \
-    apt-transport-https \
-    && curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg \
-    && curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | tee /etc/apt/sources.list.d/caddy-stable.list \
-    && apt-get update \
-    && apt-get install -y caddy \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+# System deps + Caddy + PHP extensions (single layer)
+RUN apk add --no-cache \
+      caddy libpng libpq libzip icu-libs oniguruma libxml2 \
+    && apk add --no-cache --virtual .build-deps \
+      libpng-dev libpq-dev libzip-dev icu-dev oniguruma-dev libxml2-dev \
+    && docker-php-ext-install pdo_pgsql pgsql mbstring exif pcntl bcmath gd intl zip \
+    && apk del .build-deps
 
-RUN docker-php-ext-install pdo_pgsql pgsql mbstring exif pcntl bcmath gd intl zip
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-RUN pecl install redis && docker-php-ext-enable redis
-
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-WORKDIR /app
-
-COPY api/ api/
-
+# ── PHP deps (cached separately from source) ─────────────────
 WORKDIR /app/api
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
-RUN php artisan package:discover --ansi || true
+COPY api/composer.json api/composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction --prefer-dist
 
-COPY --from=frontend /app/web/build /app/web/build
+# ── Laravel source ────────────────────────────────────────────
+COPY api/ .
+RUN touch .env \
+    && php artisan package:discover --ansi 2>/dev/null || true \
+    && rm -f .env
 
-COPY Caddyfile /app/Caddyfile
+# ── PHP runtime config ───────────────────────────────────────
+RUN cp php-custom.ini /usr/local/etc/php/conf.d/custom.ini 2>/dev/null || true
 
-RUN mkdir -p /app/api/storage /app/api/bootstrap/cache \
-    && chmod -R 775 /app/api/storage /app/api/bootstrap/cache \
-    && chown -R www-data:www-data /app/api/storage /app/api/bootstrap/cache
+# ── Storage directories ──────────────────────────────────────
+RUN mkdir -p storage/framework/{cache,sessions,views} \
+      storage/logs bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
 
-EXPOSE 80
-
+# ── Built frontend ───────────────────────────────────────────
 WORKDIR /app
-CMD sh -c "cd api && php artisan config:cache && php artisan route:cache && php artisan view:cache && (php artisan migrate --force || true) && php artisan serve --host=127.0.0.1 --port=9000 > /dev/null 2>&1 & sleep 5 && caddy run --config /app/Caddyfile --adapter caddyfile"
+COPY --from=frontend /app/build web/build/
+
+# ── Caddy config + entrypoint ────────────────────────────────
+COPY Caddyfile Caddyfile
+COPY docker-entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+    CMD wget -qO- http://localhost:${PORT:-3000}/ || exit 1
+
+ENTRYPOINT ["/entrypoint.sh"]
