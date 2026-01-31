@@ -12,6 +12,7 @@
         "league/flysystem-aws-s3-v3": "^3.0",
         "league/flysystem-azure-blob-storage": "^3.0",
         "league/flysystem-google-cloud-storage": "^3.0",
+        "predis/predis": "^3.3",
         "spatie/flysystem-dropbox": "^3.0",
         "symfony/yaml": "*"
     },

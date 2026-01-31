@@ -1,7 +1,7 @@
 :{$PORT:3000} {
 	# --- API: reverse proxy to Laravel artisan serve ---
 	handle /api/* {
-		reverse_proxy 127.0.0.1:8080
+		reverse_proxy 127.0.0.1:9000
 	}
 
 	# --- SPA: serve React build with client-side routing fallback ---
@@ -13,10 +13,10 @@
 		encode gzip
 
 		header {
-			X-Frame-Options          "SAMEORIGIN"
-			X-XSS-Protection         "1; mode=block"
-			X-Content-Type-Options   "nosniff"
-			Referrer-Policy          "no-referrer-when-downgrade"
+			X-Frame-Options "SAMEORIGIN"
+			X-XSS-Protection "1; mode=block"
+			X-Content-Type-Options "nosniff"
+			Referrer-Policy "no-referrer-when-downgrade"
 		}
 	}
 }
