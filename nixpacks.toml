@@ -1,0 +1,117 @@
+# =============================================================================
+# Fahras — Root NixPacks Configuration (Monorepo)
+# Laravel 11 API + React 19 SPA · Single-service deployment
+# =============================================================================
+#
+# For PaaS platforms that deploy from repo root (Cranl, etc.).
+# Builds both API and Web, serves via Caddy reverse proxy.
+#
+# Required environment variables:
+#   APP_KEY, APP_URL, DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD,
+#   REDIS_HOST, REDIS_PORT, FILESYSTEM_DISK, AWS_ACCESS_KEY_ID,
+#   AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION, AWS_BUCKET, AWS_ENDPOINT,
+#   AWS_URL, AWS_USE_PATH_STYLE_ENDPOINT, VITE_API_URL, VITE_APP_NAME
+#
+# Optional:
+#   PORT (default: 3000) — Caddy listen port (set by PaaS automatically)
+# =============================================================================
+
+# Disable auto-detection (prevents Python detection from requirements.txt)
+providers = []
+
+[variables]
+APP_ENV                 = "production"
+APP_DEBUG               = "false"
+LOG_CHANNEL             = "stderr"
+NODE_ENV                = "production"
+CI                      = "false"
+NIXPACKS_NODE_VERSION   = "20"
+
+# ---------------------------------------------------------------------------
+# Phase: setup
+# ---------------------------------------------------------------------------
+[phases.setup]
+nixPkgs = [
+    # PHP 8.3 runtime
+    "php83",
+    "php83Packages.composer",
+
+    # PHP extensions — database
+    "php83Extensions.pdo_pgsql",
+    "php83Extensions.pgsql",
+
+    # PHP extensions — cache / queue
+    "php83Extensions.redis",
+
+    # PHP extensions — Laravel core
+    "php83Extensions.mbstring",
+    "php83Extensions.xml",
+    "php83Extensions.dom",
+    "php83Extensions.curl",
+    "php83Extensions.fileinfo",
+    "php83Extensions.tokenizer",
+    "php83Extensions.ctype",
+    "php83Extensions.openssl",
+    "php83Extensions.bcmath",
+    "php83Extensions.pcntl",
+    "php83Extensions.intl",
+
+    # PHP extensions — image processing
+    "php83Extensions.gd",
+    "php83Extensions.exif",
+
+    # Node.js 20
+    "nodejs_20",
+
+    # Caddy — reverse proxy (mirrors nginx in docker-compose)
+    "caddy",
+]
+aptPkgs = [
+    "libpq-dev",
+    "libpng-dev",
+    "libjpeg-dev",
+    "libfreetype6-dev",
+    "libonig-dev",
+    "libxml2-dev",
+    "zip",
+    "unzip",
+    "locales",
+]
+
+# ---------------------------------------------------------------------------
+# Phase: install
+# ---------------------------------------------------------------------------
+[phases.install]
+dependsOn = ["setup"]
+cmds = [
+    "cd api && composer install --no-dev --optimize-autoloader --no-interaction --no-scripts",
+    "cd api && php artisan package:discover --ansi || true",
+    "cd web && npm ci --prefer-offline --no-audit",
+]
+cacheDirectories = ["api/vendor", "web/node_modules", "web/.npm"]
+
+# ---------------------------------------------------------------------------
+# Phase: build
+# ---------------------------------------------------------------------------
+[phases.build]
+dependsOn = ["install"]
+cmds = [
+    # React / Vite production build
+    "cd web && npm run build",
+
+    # Laravel storage & cache directories
+    "cd api && mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache",
+    "cd api && chmod -R 775 storage bootstrap/cache",
+
+    # Laravel optimization caches
+    "cd api && php artisan config:cache  || true",
+    "cd api && php artisan route:cache   || true",
+    "cd api && php artisan view:cache    || true",
+    "cd api && php artisan event:cache   || true",
+]
+
+# ---------------------------------------------------------------------------
+# Start — Laravel API (background) + Caddy reverse proxy (foreground)
+# ---------------------------------------------------------------------------
+[start]
+cmd = "cd api && php artisan migrate --force && php artisan serve --host=127.0.0.1 --port=8080 & sleep 2 && caddy run --config /app/Caddyfile --adapter caddyfile"
