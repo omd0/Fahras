@@ -12,7 +12,7 @@ cmds = ["bun install --frozen-lockfile || bun install"]
 
 [phases.build]
 dependsOn = ["install"]
-cmds = ["bunx vite build", "bun add -g serve"]
+cmds = ["bunx vite build", "bun add serve"]
 
 [start]
-cmd = "serve build/ -l ${PORT:-80} --single"
+cmd = "bunx serve build/ -l ${PORT:-80} --single"
