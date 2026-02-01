@@ -37,7 +37,10 @@ export default [
       // ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': [
         'warn',
-        { allowConstantExport: true },
+        { 
+          allowConstantExport: true,
+          allowExportNames: ['useLanguage', 'useFahrasTheme', 'useTheme']
+        },
       ],
       '@typescript-eslint/no-unused-vars': [
         'warn',
