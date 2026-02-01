@@ -1,0 +1,59 @@
+# Railpack-style Dockerfile for local testing
+# Mimics how Railpack/Nixpacks would build and deploy the API
+
+# Use Laravel Sail image which has extensions pre-built
+FROM laravelsail/php83-composer:latest
+
+# Switch to root for installations
+USER root
+
+# Install system dependencies and Caddy
+RUN apt-get update && apt-get install -y \
+    caddy \
+    libpq-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libicu-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install required PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
+        pdo_pgsql \
+        pgsql \
+        intl \
+        gd \
+        exif \
+    && pecl install redis \
+    && docker-php-ext-enable redis
+
+# Install Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# Set working directory
+WORKDIR /app
+
+# Copy application code
+COPY api/ .
+
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+# Copy Caddyfile from api directory to /app (for deploy-entrypoint.sh)
+COPY api/Caddyfile /app/Caddyfile
+
+# Make entrypoint executable
+RUN chmod +x deploy-entrypoint.sh
+
+# Set up Laravel storage
+RUN mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
+
+# Set environment for Caddy
+ENV PORT=8080
+
+EXPOSE 8080
+
+# Use the deploy-entrypoint.sh script
+CMD ["bash", "deploy-entrypoint.sh"]

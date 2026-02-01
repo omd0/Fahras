@@ -4,6 +4,34 @@
   "packages": {
     "php": "8.3"
   },
+  "buildAptPackages": [
+    "caddy",
+    "libpq-dev",
+    "libpng-dev",
+    "libjpeg-dev",
+    "libfreetype6-dev",
+    "libicu-dev"
+  ],
+  "phpExtensions": [
+    "pdo_pgsql",
+    "pgsql",
+    "intl",
+    "gd",
+    "exif",
+    "redis"
+  ],
+  "phpExtensionConfig": {
+    "gd": "--with-freetype --with-jpeg"
+  },
+  "steps": {
+    "install": {
+      "commands": [
+        "mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs storage/app/public bootstrap/cache",
+        "chmod -R 775 storage bootstrap/cache",
+        "composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist"
+      ]
+    }
+  },
   "deploy": {
     "startCommand": "bash deploy-entrypoint.sh"
   }

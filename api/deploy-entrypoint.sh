@@ -28,5 +28,4 @@ php -S 0.0.0.0:9000 -t public public/index.php &
 sleep 2
 
 echo "=== Starting Caddy ==="
-# Start Caddy (which will proxy to PHP)
-exec caddy run --config /app/Caddyfile --adapter caddyfile
+exec caddy run --config Caddyfile --adapter caddyfile
