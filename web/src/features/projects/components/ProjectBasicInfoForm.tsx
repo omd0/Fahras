@@ -24,7 +24,7 @@ interface ProjectBasicInfoFormProps {
   formData: CreateProjectData;
   programs: Program[];
   newKeyword: string;
-  onInputChange: (field: keyof CreateProjectData, value: Record<string, unknown>) => void;
+  onInputChange: (field: keyof CreateProjectData, value: CreateProjectData[keyof CreateProjectData]) => void;
   onNewKeywordChange: (value: string) => void;
   onAddKeyword: () => void;
   onRemoveKeyword: (keyword: string) => void;

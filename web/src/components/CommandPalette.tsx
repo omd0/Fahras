@@ -326,7 +326,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onClose })
       
       return true;
     });
-  }, [allCommands, isAuthenticated, user]);
+  }, [allCommands, isAuthenticated, user, hasRole]);
 
   // Group commands by category
   const commandsByCategory = useMemo(() => {

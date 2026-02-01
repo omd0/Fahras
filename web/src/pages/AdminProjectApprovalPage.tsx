@@ -271,11 +271,11 @@ const AdminProjectApprovalPage: React.FC = () => {
               <Grid size={{ xs: 12, md: 2 }}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Approval Status</InputLabel>
-                  <Select
-                    value={approvalStatus}
-                    label="Approval Status"
-                    onChange={(e) => setApprovalStatus(e.target.value as any)}
-                  >
+                   <Select
+                     value={approvalStatus}
+                     label="Approval Status"
+                     onChange={(e) => setApprovalStatus(e.target.value as 'pending' | 'approved' | 'hidden' | '')}
+                   >
                     <MenuItem value="">All</MenuItem>
                     <MenuItem value="pending">Pending</MenuItem>
                     <MenuItem value="approved">Approved</MenuItem>

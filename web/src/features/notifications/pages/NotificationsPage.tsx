@@ -29,6 +29,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useNotifications } from '@/features/notifications/hooks/useNotifications';
+import { Notification } from '@/features/notifications/api/notificationApi';
 
 export const NotificationsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -80,15 +81,12 @@ export const NotificationsPage: React.FC = () => {
     }
   };
 
-  const handleNotificationClick = async (notification: Record<string, unknown>) => {
-    // Mark notification as read if it's not already read
+  const handleNotificationClick = async (notification: Notification) => {
     if (!notification.is_read) {
       await markAsRead(notification.id);
     }
 
-    // Check if this is a project-related notification
     if (notification.project && notification.project.id) {
-      // Navigate to the protected project detail page (for authenticated users)
       navigate(`/dashboard/projects/${notification.project.id}`, { 
         state: { from: '/notifications' } 
       });

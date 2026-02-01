@@ -37,7 +37,7 @@ export const EmailVerificationPage: React.FC = () => {
   useEffect(() => {
     const emailParam = searchParams.get('email');
     const tokenParam = searchParams.get('token');
-    const stateEmail = (location.state as any)?.email;
+    const stateEmail = (location.state as Record<string, unknown>)?.email;
 
     if (emailParam) {
       setEmail(emailParam);

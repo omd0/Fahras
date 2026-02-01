@@ -31,14 +31,14 @@ import AdminProjectApprovalPage from '@/pages/AdminProjectApprovalPage';
 import FacultyPendingApprovalPage from '@/pages/FacultyPendingApprovalPage';
 import StudentMyProjectsPage from '@/pages/StudentMyProjectsPage';
 import { NotificationsPage } from '@/features/notifications/pages/NotificationsPage';
-import { TestAuthPage } from '@/pages/TestAuthPage';
+import { TestAuthPage} from '@/pages/TestAuthPage';
 import { AppLayout } from '@/components/layout/AppLayout';
 
-/** Redirects legacy /projects/:id and /project/:id to /pr/:id */
-function RedirectProjectIdToPr() {
+// eslint-disable-next-line react-refresh/only-export-components
+const RedirectProjectIdToPr = () => {
   const { id } = useParams<{ id: string }>();
   return <Navigate to={id ? `/pr/${id}` : '/explore'} replace />;
-}
+};
 
 export const router = createBrowserRouter([
   {

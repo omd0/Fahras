@@ -9,7 +9,6 @@ import {
   TableRow,
   Paper,
   Typography,
-  Chip,
   IconButton,
   Tooltip,
   Stack,
@@ -18,8 +17,6 @@ import {
   alpha,
 } from '@mui/material';
 import {
-  Visibility as ViewIcon,
-  Edit as EditIcon,
   Assignment as AssignmentIcon,
   Add as AddIcon,
 } from '@mui/icons-material';
@@ -97,165 +94,9 @@ export interface ProjectTableProps {
   sx?: React.CSSProperties;
 }
 
-/**
- * Utility function to get status color based on project status
- */
-export const getStatusColor = (status: string): 'default' | 'primary' | 'secondary' | 'error' | 'warning' | 'info' | 'success' => {
-  switch (status) {
-    case 'submitted':
-      return 'warning';
-    case 'approved':
-      return 'success';
-    case 'rejected':
-      return 'error';
-    case 'under_review':
-      return 'info';
-    case 'draft':
-      return 'default';
-    case 'completed':
-      return 'success';
-    case 'pending':
-      return 'warning';
-    case 'in_progress':
-      return 'info';
-    default:
-      return 'default';
-  }
-};
 
-/**
- * Utility function to get formatted status label
- */
-export const getStatusLabel = (status: string): string => {
-  switch (status) {
-    case 'submitted':
-      return 'Submitted';
-    case 'approved':
-      return 'Approved';
-    case 'rejected':
-      return 'Rejected';
-    case 'under_review':
-      return 'Under Review';
-    case 'draft':
-      return 'Draft';
-    case 'completed':
-      return 'Completed';
-    case 'pending':
-      return 'Pending Review';
-    case 'in_progress':
-      return 'In Progress';
-    default:
-      return status.replace('_', ' ');
-  }
-};
 
-/**
- * Default column configurations
- */
-export const createDefaultColumns = (t: (key: string) => string): ProjectTableColumn[] => [
-  {
-    id: 'title',
-    label: t('Project Title'),
-    render: (project: Project) => (
-      <Box>
-        <Typography variant="subtitle1" fontWeight="600" sx={{ mb: 0.5, color: 'text.primary' }}>
-          {project?.title || 'Untitled Project'}
-        </Typography>
-        <Typography 
-          variant="body2" 
-          color="text.secondary" 
-          sx={{ 
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            lineHeight: 1.4,
-          }}
-        >
-          {project?.abstract?.substring(0, 120) || 'No description available'}
-          {project?.abstract && project.abstract.length > 120 && '...'}
-        </Typography>
-      </Box>
-    ),
-  },
-  {
-    id: 'status',
-    label: t('Status'),
-    hideOnMobile: true,
-    render: (project: Project) => (
-      <Chip
-        label={getStatusLabel(project?.status || 'draft')}
-        color={getStatusColor(project?.status || 'draft')}
-        size="small"
-        sx={{
-          fontWeight: 600,
-          borderRadius: 2,
-          textTransform: 'capitalize',
-        }}
-      />
-    ),
-  },
-  {
-    id: 'academic_year',
-    label: t('Academic Year'),
-    hideOnMobile: true,
-    hideOnTablet: true,
-    render: (project: Project) => (
-      <Typography variant="body2" sx={{ fontWeight: 500 }}>
-        {project?.academic_year || 'N/A'}
-      </Typography>
-    ),
-  },
-  {
-    id: 'semester',
-    label: t('Semester'),
-    hideOnMobile: true,
-    hideOnTablet: true,
-    render: (project: Project) => (
-      <Typography variant="body2" sx={{ fontWeight: 500, textTransform: 'capitalize' }}>
-        {project?.semester || 'N/A'}
-      </Typography>
-    ),
-  },
-  {
-    id: 'created_at',
-    label: t('Created Date'),
-    hideOnMobile: true,
-    render: (project: Project) => (
-      <Typography variant="body2" sx={{ fontWeight: 500 }}>
-        {project?.created_at ? new Date(project.created_at).toLocaleDateString() : 'N/A'}
-      </Typography>
-    ),
-  },
-];
 
-/**
- * ProjectTable Component
- * 
- * A reusable table component for displaying projects with customizable columns,
- * actions, and styling. Eliminates duplicate table implementations across the app.
- * 
- * @example
- * ```tsx
- * <ProjectTable
- *   projects={myProjects}
- *   columns={[
- *     { id: 'title', label: 'Project Title', render: (p) => <span>{p.title}</span> },
- *     { id: 'status', label: 'Status', render: (p) => <Chip label={p.status} /> },
- *   ]}
- *   actions={[
- *     {
- *       id: 'view',
- *       icon: <ViewIcon />,
- *       tooltip: 'View Details',
- *       onClick: (project) => navigate(`/projects/${project.id}`),
- *     },
- *   ]}
- *   enhanced={true}
- *   themeColors={{ primary: '#512DA8' }}
- * />
- * ```
- */
 export const ProjectTable: React.FC<ProjectTableProps> = ({
   projects,
   columns,
@@ -432,36 +273,6 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
   );
 };
 
-/**
- * Default action configurations
- */
-export const createDefaultActions = (
-  onView: (project: Project) => void,
-  onEdit?: (project: Project) => void,
-  t: (key: string) => string = (key) => key
-): ProjectTableAction[] => {
-  const actions: ProjectTableAction[] = [
-    {
-      id: 'view',
-      icon: <ViewIcon />,
-      tooltip: t('View Details'),
-      onClick: onView,
-      color: 'primary',
-    },
-  ];
 
-  if (onEdit) {
-    actions.push({
-      id: 'edit',
-      icon: <EditIcon />,
-      tooltip: t('Edit Project'),
-      onClick: onEdit,
-      color: 'secondary',
-      show: (project: Project) => project?.status === 'draft',
-    });
-  }
-
-  return actions;
-};
 
 export default ProjectTable;

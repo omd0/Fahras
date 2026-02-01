@@ -4,7 +4,7 @@ import { FileTreeNode, FileTreeNodeType } from '@/store/repositoryStore';
 
 export interface FileTreeResponse {
   files: File[];
-  tree?: Record<string, any>; // Optional pre-built tree structure
+  tree?: Record<string, unknown>; // Optional pre-built tree structure
 }
 
 export interface FileContentResponse {

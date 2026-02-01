@@ -161,22 +161,22 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
     }
   };
 
-  const getMilestoneStatus = (milestone: ProjectMilestone): ProjectMilestone['status'] => {
-    if (milestone.status === 'completed') return 'completed';
-    if (milestone.status === 'in_progress') return 'in_progress';
-    if (milestone.status === 'blocked') return 'blocked';
-    
-    // Check if overdue
-    if (milestone.due_date) {
-      const dueDate = new Date(milestone.due_date);
-      const now = new Date();
-      if (dueDate < now && milestone.status !== 'completed') {
-        return 'overdue' as any;
-      }
-    }
-    
-    return milestone.status;
-  };
+   const getMilestoneStatus = (milestone: ProjectMilestone): ProjectMilestone['status'] | 'overdue' => {
+     if (milestone.status === 'completed') return 'completed';
+     if (milestone.status === 'in_progress') return 'in_progress';
+     if (milestone.status === 'blocked') return 'blocked';
+     
+     // Check if overdue
+     if (milestone.due_date) {
+       const dueDate = new Date(milestone.due_date);
+       const now = new Date();
+       if (dueDate < now && milestone.status !== 'completed') {
+         return 'overdue';
+       }
+     }
+     
+     return milestone.status;
+   };
 
   const getProgress = (milestone: ProjectMilestone): number => {
     if (milestone.status === 'completed') return 100;

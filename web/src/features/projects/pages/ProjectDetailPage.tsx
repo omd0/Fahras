@@ -110,8 +110,8 @@ export const ProjectDetailPage: React.FC = () => {
       console.log(`[DEBUG] Files array:`, filesResponse.files);
       console.log(`[DEBUG] Number of files:`, filesResponse.files?.length || 0);
       
-      if (filesResponse.files && filesResponse.files.length > 0) {
-        filesResponse.files.forEach((file: any, index: number) => {
+       if (filesResponse.files && filesResponse.files.length > 0) {
+         filesResponse.files.forEach((file: File, index: number) => {
           console.log(`[DEBUG] File ${index + 1}:`, {
             id: file.id,
             original_filename: file.original_filename,
@@ -198,13 +198,13 @@ export const ProjectDetailPage: React.FC = () => {
     }
   };
 
-  const handleStatusChange = async (newStatus: string) => {
-    if (!project) return;
-    
-    await apiService.updateProject(project.id, { status: newStatus as any });
-    // Refresh project data
-    await fetchProject(project.id);
-  };
+   const handleStatusChange = async (newStatus: string) => {
+     if (!project) return;
+     
+     await apiService.updateProject(project.id, { status: newStatus });
+     // Refresh project data
+     await fetchProject(project.id);
+   };
 
   // Show loading state
   if (loading) {

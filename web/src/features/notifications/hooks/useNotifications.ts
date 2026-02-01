@@ -116,9 +116,9 @@ export const useNotifications = (autoRefresh: boolean = true): UseNotificationsR
           onUnreadCountChanged: (count) => {
             setUnreadCount(count);
           },
-          onError: (err: Record<string, unknown>) => {
-            // Ignore 401 errors (unauthenticated)
-            if (err?.response?.status !== 401) {
+          onError: (err: Error) => {
+            const axiosErr = err as Error & { response?: { status?: number } };
+            if (axiosErr?.response?.status !== 401) {
               setError(err.message);
             }
           },

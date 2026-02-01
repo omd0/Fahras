@@ -70,8 +70,8 @@ export const ExplorePage: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [showSavedSearches, setShowSavedSearches] = useState(false);
   const [showSavedOnly, setShowSavedOnly] = useState(false);
-  const [_programs, setPrograms] = useState<any[]>([]);
-  const [departments, setDepartments] = useState<any[]>([]);
+  const [_programs, setPrograms] = useState<Program[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const categoryScrollRef = useRef<HTMLDivElement>(null);
   const [categoryScrollState, setCategoryScrollState] = useState({

@@ -194,10 +194,10 @@ export interface CreateProjectData {
   }>;
 }
 
-export interface ApiResponse<T = any> {
-  message?: string;
-  data?: T;
-  errors?: Record<string, string[]>;
+export interface ApiResponse<T = unknown> {
+   message?: string;
+   data?: T;
+   errors?: Record<string, string[]>;
 }
 
 export interface Comment {
@@ -284,15 +284,15 @@ export interface ProjectMilestone {
 }
 
 export interface ProjectActivity {
-  id: number;
-  project_id: number;
-  user_id: number;
-  activity_type: string;
-  title: string;
-  description?: string;
-  metadata?: Record<string, any>;
-  user?: User;
-  created_at: string;
+   id: number;
+   project_id: number;
+   user_id: number;
+   activity_type: string;
+   title: string;
+   description?: string;
+   metadata?: Record<string, unknown>;
+   user?: User;
+   created_at: string;
 }
 
 export interface ProjectFlag {
