@@ -88,13 +88,13 @@ export const ReviewerDashboard: React.FC = () => {
     }
   };
 
-  const handleSearch = async (filters: any) => {
+  const handleSearch = async (filters: Record<string, unknown>) => {
     try {
       setIsSearching(true);
       setError(null);
 
       // Build query parameters from filters
-      const params: any = {};
+      const params: Record<string, unknown> = {};
       if (filters.search) params.search = filters.search;
       if (filters.status) params.status = filters.status;
       if (filters.program_id) params.program_id = filters.program_id;

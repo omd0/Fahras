@@ -60,7 +60,7 @@ interface ProjectTabsProps {
   getStatusColor: (status: string) => string;
   getStatusLabel: (status: string) => string;
   getTabFilteredProjects: (tabIndex: number) => Project[];
-  dashboardTheme: any;
+  dashboardTheme: Record<string, unknown>;
   t: (key: string) => string;
 }
 
@@ -112,7 +112,7 @@ export const ProjectTabs: React.FC<ProjectTabsProps> = ({
         <TableCell sx={{ py: 2 }}>
           <Chip
             label={getStatusLabel(project?.status || 'draft')}
-            color={getStatusColor(project?.status || 'draft') as any}
+            color={getStatusColor(project?.status || 'draft')}
             size="small"
             sx={{
               fontWeight: 600,

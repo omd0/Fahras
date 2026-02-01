@@ -36,7 +36,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const navigate = useNavigate();
   const { user } = useAuthStore();
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string): 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' => {
     switch (status) {
       case 'draft': return 'warning';
       case 'submitted': return 'info';
@@ -107,7 +107,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       >
         <Chip
           label={project.status.replace('_', ' ')}
-          color={getStatusColor(project.status) as any}
+          color={getStatusColor(project.status)}
           size="small"
           sx={{
             textTransform: 'capitalize',

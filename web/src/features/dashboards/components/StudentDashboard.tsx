@@ -58,7 +58,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getProjectDetailUrl, getProjectEditUrl, projectRoutes } from '@/utils/projectRoutes';
-import { Project } from '@/types';
+import { Project, SearchFilters } from '@/types';
 import { apiService } from '@/lib/api';
 import { getRoleInfo } from '@/config/dashboardThemes';
 import { useAuthStore } from '@/features/auth/store';
@@ -198,13 +198,13 @@ export const StudentDashboard: React.FC = () => {
     }
   };
 
-  const handleSearch = async (filters: any) => {
+  const handleSearch = async (filters: SearchFilters) => {
     try {
       setIsSearching(true);
       setError(null);
 
       // Build query parameters from filters
-      const params: any = {};
+      const params: Record<string, unknown> = {};
       if (filters.search) params.search = filters.search;
       if (filters.status) params.status = filters.status;
       if (filters.program_id) params.program_id = filters.program_id;

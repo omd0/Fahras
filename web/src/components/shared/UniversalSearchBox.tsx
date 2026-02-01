@@ -24,6 +24,7 @@ import {
   ExpandLess as ExpandLessIcon,
 } from '@mui/icons-material';
 import { apiService } from '@/lib/api';
+import { Program, Department } from '@/types';
 
 interface SearchFilters {
   search: string;
@@ -43,7 +44,7 @@ interface UniversalSearchBoxProps {
   onSearch: (filters: SearchFilters) => void;
   onClear: () => void;
   loading?: boolean;
-  theme?: any;
+  theme?: React.CSSProperties;
   variant?: 'compact' | 'full';
   showAdvancedFilters?: boolean;
   roleSpecificFilters?: {
@@ -75,8 +76,8 @@ export const UniversalSearchBox: React.FC<UniversalSearchBoxProps> = ({
     sort_order: 'desc',
   });
 
-  const [programs, setPrograms] = useState<any[]>([]);
-  const [departments, setDepartments] = useState<any[]>([]);
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [showFilters, setShowFilters] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
 
@@ -101,7 +102,7 @@ export const UniversalSearchBox: React.FC<UniversalSearchBoxProps> = ({
     loadData();
   }, []);
 
-  const handleFilterChange = (field: keyof SearchFilters, value: any) => {
+  const handleFilterChange = (field: keyof SearchFilters, value: string | boolean | null) => {
     setFilters(prev => ({
       ...prev,
       [field]: value,

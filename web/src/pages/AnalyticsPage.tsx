@@ -24,6 +24,7 @@ import {
   Divider,
   Fade,
   Slide,
+  SelectChangeEvent,
 } from '@mui/material';
 import {
   TrendingUp as TrendingUpIcon,
@@ -171,7 +172,7 @@ export const AnalyticsPage: React.FC = () => {
       
       // Filter programs to show only Computer Science, Information Technology, and Software Engineering
       const targetDepartments = ['Computer Science', 'Information Technology', 'Software Engineering'];
-      const filteredPrograms = allPrograms.filter((program: any) => 
+      const filteredPrograms = allPrograms.filter((program: Program) => 
         program.department && targetDepartments.includes(program.department.name)
       );
       
@@ -187,7 +188,7 @@ export const AnalyticsPage: React.FC = () => {
   const fetchTopRatedProjects = async () => {
     try {
       setProjectsLoading(true);
-      const params: any = {
+      const params: Record<string, string | number | boolean> = {
         sort_by: 'created_at',
         sort_order: 'desc',
         per_page: 50, // Increased to get more projects for better filtering
@@ -210,7 +211,7 @@ export const AnalyticsPage: React.FC = () => {
       // For now, show all projects since we don't have rating data in the list
       // In a real implementation, you would need to fetch ratings separately
       const allProjects = projects
-        .filter((project: any) => project.status === 'approved' || project.status === 'completed')
+        .filter((project: Project) => project.status === 'approved' || project.status === 'completed')
         .slice(0, 20); // Top 20 projects
       
       setTopRatedProjects(allProjects);
@@ -240,7 +241,7 @@ export const AnalyticsPage: React.FC = () => {
     navigate('/login');
   };
 
-  const handleProgramChange = (event: any) => {
+  const handleProgramChange = (event: SelectChangeEvent<number | ''>) => {
     const programId = event.target.value;
     setSelectedProgram(programId);
     
@@ -249,7 +250,7 @@ export const AnalyticsPage: React.FC = () => {
     setSelectedProgramData(program || null);
   };
 
-  const handleYearChange = (event: any) => {
+  const handleYearChange = (event: SelectChangeEvent<string>) => {
     setSelectedYear(event.target.value);
   };
 
@@ -749,11 +750,11 @@ export const AnalyticsPage: React.FC = () => {
                         </Typography>
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                           {programs
-                            .filter((program: any) => 
+                            .filter((program: Program) => 
                               program.department?.name === selectedProgramData.department?.name && 
                               program.id !== selectedProgramData.id
                             )
-                            .map((program: any) => (
+                            .map((program: Program) => (
                               <Chip
                                 key={program.id}
                                 label={`${program.degree_level?.toUpperCase()} - ${program.name}`}

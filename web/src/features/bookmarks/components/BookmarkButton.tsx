@@ -7,7 +7,7 @@ import { useLanguage } from '@/providers/LanguageContext';
 interface BookmarkButtonProps {
   projectId: number;
   size?: 'small' | 'medium' | 'large';
-  sx?: any;
+  sx?: React.CSSProperties;
 }
 
 export const BookmarkButton: React.FC<BookmarkButtonProps> = ({ 

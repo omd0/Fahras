@@ -373,3 +373,5 @@ export interface UpdateSavedSearchData {
   filters?: SearchFilters;
   is_default?: boolean;
 }
+
+export type ChipColor = 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';

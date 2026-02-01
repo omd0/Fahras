@@ -15,6 +15,12 @@ import {
 } from '@mui/icons-material';
 import { ProjectActivity, ProjectMilestone } from '@/types';
 
+interface TimelineEvent {
+  type: string;
+  data: ProjectActivity | ProjectMilestone;
+  date: string;
+}
+
 interface ProgressTimelineProps {
   activities: ProjectActivity[];
   milestones: ProjectMilestone[];
@@ -36,33 +42,27 @@ export const ProgressTimeline: React.FC<ProgressTimelineProps> = ({
     ...statusChanges.map((s: ProjectActivity) => ({ type: 'status', data: s, date: s.created_at })),
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  const getEventIcon = (event: any) => {
+  const getEventIcon = (event: TimelineEvent) => {
     if (event.type === 'milestone') return <CheckCircleIcon />;
     if (event.type === 'status') return <SwapHorizIcon />;
-    if (event.data.activity_type === 'file_upload') return <UploadIcon />;
+    if ('activity_type' in event.data && event.data.activity_type === 'file_upload') return <UploadIcon />;
     return <CreateIcon />;
   };
 
-  const getEventColor = (event: any): string => {
+  const getEventColor = (event: TimelineEvent): string => {
     if (event.type === 'milestone') return 'success';
     if (event.type === 'status') return 'primary';
     return 'grey';
   };
 
-  const getEventTitle = (event: any): string => {
+  const getEventTitle = (event: TimelineEvent): string => {
     if (event.type === 'milestone') {
       return `Milestone Completed: ${event.data.title}`;
-    }
-    if (event.type === 'status') {
-      return event.data.title;
     }
     return event.data.title;
   };
 
-  const getEventDescription = (event: any): string => {
-    if (event.type === 'milestone') {
-      return event.data.description || '';
-    }
+  const getEventDescription = (event: TimelineEvent): string => {
     return event.data.description || '';
   };
 
@@ -141,9 +141,9 @@ export const ProgressTimeline: React.FC<ProgressTimelineProps> = ({
                           {getEventDescription(event)}
                         </Typography>
                       )}
-                      {event.data.user && (
+                      {'user' in event.data && event.data.user && (
                         <Typography variant="caption" color="text.secondary">
-                          by {event.data.user.full_name}
+                          by {(event.data as ProjectActivity).user?.full_name}
                         </Typography>
                       )}
                     </Box>

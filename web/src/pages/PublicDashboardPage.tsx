@@ -315,7 +315,7 @@ export const PublicDashboardPage: React.FC = () => {
                       </Box>
                       <Chip
                         label={project.status.replace('_', ' ')}
-                        color={getStatusColor(project.status) as any}
+                        color={getStatusColor(project.status)}
                         size="small"
                         sx={{ textTransform: 'capitalize' }}
                       />

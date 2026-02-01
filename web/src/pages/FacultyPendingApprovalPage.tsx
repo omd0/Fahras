@@ -398,7 +398,7 @@ const FacultyPendingApprovalPage: React.FC = () => {
                         <TableCell>
                           <Chip
                             label={getStatusLabel(project.status)}
-                            color={getStatusColor(project.status) as any}
+                            color={getStatusColor(project.status)}
                             size="small"
                           />
                         </TableCell>
@@ -639,7 +639,7 @@ const FacultyPendingApprovalPage: React.FC = () => {
                   </Typography>
                   <Chip
                     label={getStatusLabel(selectedProject.status)}
-                    color={getStatusColor(selectedProject.status) as any}
+                    color={getStatusColor(selectedProject.status)}
                     size="small"
                   />
                 </Grid>

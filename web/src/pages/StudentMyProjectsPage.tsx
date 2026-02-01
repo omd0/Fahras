@@ -736,7 +736,7 @@ const StudentMyProjectsPage: React.FC = () => {
                   </Typography>
                   <Chip
                     label={getStatusLabel(selectedProject?.status || 'draft')}
-                    color={getStatusColor(selectedProject?.status || 'draft') as any}
+                    color={getStatusColor(selectedProject?.status || 'draft')}
                     size="small"
                   />
                 </Grid>

@@ -18,7 +18,7 @@ import {
   FileDownload as FileDownloadIcon,
   CloudDownload as CloudDownloadIcon,
 } from '@mui/icons-material';
-import { Project } from '@/types';
+import { Project, File } from '@/types';
 import { apiService } from '@/lib/api';
 import { colorPalette } from '@/styles/theme/colorPalette';
 import { designTokens } from '@/styles/designTokens';
@@ -37,7 +37,7 @@ export const ProjectFiles: React.FC<ProjectFilesProps> = ({
 }) => {
   const { t } = useLanguage();
 
-  const handleDownload = async (file: any) => {
+  const handleDownload = async (file: File) => {
     try {
       console.log(`[DEBUG] Starting download for file:`, {
         id: file.id,
@@ -148,7 +148,7 @@ export const ProjectFiles: React.FC<ProjectFilesProps> = ({
             </Box>
           ) : project.files && project.files.length > 0 ? (
             <List sx={{ p: 0 }}>
-              {(project.files || []).map((file: any) => (
+              {(project.files || []).map((file: File) => (
                 <Paper 
                   key={file.id}
                   elevation={0}

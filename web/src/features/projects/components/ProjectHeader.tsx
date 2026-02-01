@@ -8,13 +8,13 @@ import {
 import {
   ArrowBack as ArrowBackIcon,
 } from '@mui/icons-material';
-import { Project } from '@/types';
+import { Project, User, Role } from '@/types';
 import ProjectVisibilityToggle from '@/features/projects/components/ProjectVisibilityToggle';
 import { designTokens } from '@/styles/designTokens';
 
 interface ProjectHeaderProps {
   project: Project;
-  user: any;
+  user: User;
   _isProfessor: boolean;
   onBackClick: () => void;
   onRefreshProject: () => void;
@@ -57,7 +57,7 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({
         {/* Only keeping the back button and title here for context */}
 
         {/* Admin visibility controls - keep here as it's admin-specific functionality */}
-        {user?.roles?.some((role: any) => role.name === 'admin') && (
+        {user?.roles?.some((role: Role) => role.name === 'admin') && (
           <ProjectVisibilityToggle
             project={project}
             onToggleComplete={onRefreshProject}

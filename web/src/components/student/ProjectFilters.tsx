@@ -25,7 +25,7 @@ interface ProjectFiltersProps {
   onSearchChange: (value: string) => void;
   onStatusChange: (value: string) => void;
   onAcademicYearChange: (value: string) => void;
-  dashboardTheme: any;
+  dashboardTheme: Record<string, unknown>;
 }
 
 export const ProjectFilters: React.FC<ProjectFiltersProps> = ({

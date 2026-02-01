@@ -38,7 +38,7 @@ export interface RepositoryState {
   breadcrumbs: string[];
   
   // Tab state persistence (keyed by tab name)
-  tabState: Record<string, any>;
+  tabState: Record<string, unknown>;
 }
 
 export interface RepositoryActions {
@@ -66,8 +66,8 @@ export interface RepositoryActions {
   setBreadcrumbs: (breadcrumbs: string[]) => void;
   
   // Tab state operations
-  setTabState: (tabName: string, state: any) => void;
-  getTabState: (tabName: string) => any;
+  setTabState: (tabName: string, state: unknown) => void;
+  getTabState: (tabName: string) => unknown;
   clearTabState: (tabName: string) => void;
   
   // Utility operations

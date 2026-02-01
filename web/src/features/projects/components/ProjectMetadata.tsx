@@ -13,14 +13,14 @@ import {
   CalendarToday as CalendarIcon,
   School as SchoolIcon,
 } from '@mui/icons-material';
-import { Project } from '@/types';
+import { Project, User, Role } from '@/types';
 import { StatusSelector } from '@/components/StatusSelector';
 import { designTokens } from '@/styles/designTokens';
 import { useLanguage } from '@/providers/LanguageContext';
 
 interface ProjectMetadataProps {
   project: Project;
-  user: any;
+  user: User;
   _isProfessor: boolean;
   canEdit: boolean;
   onStatusChange: (newStatus: string) => Promise<void>;
@@ -118,7 +118,7 @@ export const ProjectMetadata: React.FC<ProjectMetadataProps> = ({
                   {project.admin_approval_status && (
                     (() => {
                       // Admin: show all statuses
-                      if (user?.roles?.some((role: any) => role.name === 'admin')) {
+                      if (user?.roles?.some((role: Role) => role.name === 'admin')) {
                         return (
                           <Chip
                             label={project.admin_approval_status === 'pending' ? t('Pending Approval') : 

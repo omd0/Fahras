@@ -283,7 +283,7 @@ export const AdminDashboard: React.FC = () => {
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                             <Chip
                               label={project.admin_approval_status}
-                              color={getStatusColor(project.admin_approval_status) as any}
+                              color={getStatusColor(project.admin_approval_status)}
                               size="small"
                               sx={{ textTransform: 'capitalize' }}
                             />

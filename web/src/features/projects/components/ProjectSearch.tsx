@@ -23,6 +23,7 @@ import {
   ExpandLess as ExpandLessIcon,
 } from '@mui/icons-material';
 import { apiService } from '@/lib/api';
+import { Program, Department, Project } from '@/types';
 
 interface SearchFilters {
   search: string;
@@ -59,9 +60,9 @@ export const ProjectSearch: React.FC<SearchProps> = ({ onSearch, onClear, loadin
     sort_title: '',
   });
 
-  const [programs, setPrograms] = useState<any[]>([]);
-  const [departments, setDepartments] = useState<any[]>([]);
-  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [suggestions, setSuggestions] = useState<Project[]>([]);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   useEffect(() => {

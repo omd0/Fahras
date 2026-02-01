@@ -43,7 +43,7 @@ import {
   CloudDownload as CloudDownloadIcon,
 } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Project } from '@/types';
+import { Project, File as ProjectFile, ProjectMember, ProjectAdvisor } from '@/types';
 import { apiService } from '@/lib/api';
 import { TVTCLogo } from '@/components/TVTCLogo';
 import { CommentSection } from '@/components/CommentSection';
@@ -90,7 +90,7 @@ export const GuestProjectDetailPage: React.FC = () => {
     }
   };
 
-  const handleDownloadFile = async (file: any) => {
+  const handleDownloadFile = async (file: ProjectFile) => {
     try {
       const blob = await apiService.downloadFile(file.id);
       const url = window.URL.createObjectURL(blob);
@@ -427,7 +427,7 @@ export const GuestProjectDetailPage: React.FC = () => {
                   <Box sx={{ p: 3 }}>
                     {project.files && project.files.length > 0 ? (
                       <List sx={{ p: 0 }}>
-                        {(project.files || []).map((file: any) => (
+                        {(project.files || []).map((file: ProjectFile) => (
                           <Paper
                             key={file.id}
                             elevation={0}
@@ -541,7 +541,7 @@ export const GuestProjectDetailPage: React.FC = () => {
 
                       {project.members && project.members.length > 0 ? (
                         <List sx={{ p: 0 }}>
-                          {(project.members || []).map((member: any) => (
+                          {(project.members || []).map((member: ProjectMember) => (
                             <Paper key={member.id} elevation={0} sx={{ p: 2, mb: 1.5, borderRadius: 2, background: colorPalette.surface.elevated, border: `1px solid ${colorPalette.border.default}`, transition: designTokens.transitions.hover, '&:hover': { boxShadow: designTokens.shadows.elevation2, transform: 'translateY(-1px)' } }}>
                               <ListItem sx={{ p: 0 }}>
                                 <ListItemIcon>
@@ -575,7 +575,7 @@ export const GuestProjectDetailPage: React.FC = () => {
 
                       {project.advisors && project.advisors.length > 0 ? (
                         <List sx={{ p: 0 }}>
-                          {(project.advisors || []).map((advisor: any) => (
+                          {(project.advisors || []).map((advisor: ProjectAdvisor) => (
                             <Paper key={advisor.id} elevation={0} sx={{ p: 2, mb: 1.5, borderRadius: 2, background: colorPalette.surface.elevated, border: `1px solid ${colorPalette.border.default}`, transition: designTokens.transitions.hover, '&:hover': { boxShadow: designTokens.shadows.elevation2, transform: 'translateY(-1px)' } }}>
                               <ListItem sx={{ p: 0 }}>
                                 <ListItemIcon>

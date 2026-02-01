@@ -262,7 +262,7 @@ export const UsersTab: React.FC = () => {
                   <TableCell>
                     <Chip
                       label={user.status}
-                      color={getStatusColor(user.status) as any}
+                      color={getStatusColor(user.status)}
                       size="small"
                     />
                   </TableCell>

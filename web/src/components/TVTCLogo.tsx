@@ -6,7 +6,7 @@ interface TVTCLogoProps {
   size?: 'small' | 'medium' | 'large';
   variant?: 'full' | 'icon' | 'text';
   color?: 'primary' | 'secondary' | 'inherit';
-  sx?: any;
+  sx?: React.CSSProperties;
 }
 
 export const TVTCLogo: React.FC<TVTCLogoProps> = ({ 

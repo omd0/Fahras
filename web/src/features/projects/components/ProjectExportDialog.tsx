@@ -29,8 +29,15 @@ import {
   Code as CodeIcon,
   CheckCircle as CheckCircleIcon,
 } from '@mui/icons-material';
-import { Project } from '@/types';
+import { Project, Rating, Comment, File as ProjectFile } from '@/types';
 import { apiService } from '@/lib/api';
+
+interface ExportData {
+  project: Partial<Project> & Pick<Project, 'id' | 'title'>;
+  comments?: { comments: Comment[] };
+  ratings?: { ratings: Rating[]; average_rating: number | null; total_ratings: number };
+  files?: { files: ProjectFile[] };
+}
 
 interface ProjectExportDialogProps {
   open: boolean;
@@ -72,7 +79,7 @@ export const ProjectExportDialog: React.FC<ProjectExportDialogProps> = ({
   const [exportSuccess, setExportSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleOptionChange = (option: keyof ExportOptions, value: any) => {
+  const handleOptionChange = (option: keyof ExportOptions, value: unknown) => {
     setExportOptions(prev => ({
       ...prev,
       [option]: value,
@@ -93,12 +100,12 @@ export const ProjectExportDialog: React.FC<ProjectExportDialogProps> = ({
   };
 
   // Generate JSON export
-  const generateJSONExport = (exportData: any): string => {
+  const generateJSONExport = (exportData: ExportData): string => {
     return JSON.stringify(exportData, null, 2);
   };
 
   // Generate HTML export
-  const generateHTMLExport = (exportData: any): string => {
+  const generateHTMLExport = (exportData: ExportData): string => {
     const { project, comments, ratings, files } = exportData;
     const html = `
 <!DOCTYPE html>
@@ -126,7 +133,7 @@ export const ProjectExportDialog: React.FC<ProjectExportDialogProps> = ({
     <p><strong>Academic Year:</strong> ${project.academic_year}</p>
     <p><strong>Semester:</strong> ${project.semester}</p>
     <p><strong>Status:</strong> ${project.status}</p>
-    <p><strong>Created:</strong> ${new Date(project.created_at).toLocaleString()}</p>
+    <p><strong>Created:</strong> ${project.created_at ? new Date(project.created_at).toLocaleString() : 'N/A'}</p>
     ${project.program ? `<p><strong>Program:</strong> ${project.program.name}</p>` : ''}
     ${project.creator ? `<p><strong>Creator:</strong> ${project.creator.full_name}</p>` : ''}
   </div>
@@ -148,7 +155,7 @@ export const ProjectExportDialog: React.FC<ProjectExportDialogProps> = ({
   <div class="section">
     <h2>Ratings & Reviews</h2>
     <p><strong>Average Rating:</strong> ${ratings.average_rating?.toFixed(1) || 'N/A'} (${ratings.total_ratings || 0} ratings)</p>
-    ${ratings.ratings.map((rating: any) => `
+    ${ratings.ratings.map((rating: Rating) => `
       <div class="rating">
         <p><strong>${rating.user?.full_name || 'Anonymous'}</strong> - ${rating.rating}/5</p>
         ${rating.review ? `<p>${rating.review}</p>` : ''}
@@ -161,7 +168,7 @@ export const ProjectExportDialog: React.FC<ProjectExportDialogProps> = ({
   ${exportOptions.includeComments && comments && comments.comments && comments.comments.length > 0 ? `
   <div class="section">
     <h2>Comments</h2>
-    ${comments.comments.map((comment: any) => `
+    ${comments.comments.map((comment: Comment) => `
       <div class="comment">
         <p><strong>${comment.user?.full_name || 'Anonymous'}</strong></p>
         <p>${comment.content}</p>
@@ -174,7 +181,7 @@ export const ProjectExportDialog: React.FC<ProjectExportDialogProps> = ({
   ${exportOptions.includeFiles && files && files.files && files.files.length > 0 ? `
   <div class="section">
     <h2>Attached Files</h2>
-    ${files.files.map((file: any) => `
+    ${files.files.map((file: ProjectFile) => `
       <div class="file-item">
         <p><strong>${file.original_filename}</strong></p>
         <p><small>Size: ${(file.size_bytes / 1024).toFixed(2)} KB | Type: ${file.mime_type} | Uploaded: ${new Date(file.uploaded_at).toLocaleString()}</small></p>
@@ -192,7 +199,7 @@ export const ProjectExportDialog: React.FC<ProjectExportDialogProps> = ({
   };
 
   // Generate PDF export (basic implementation using browser print)
-  const generatePDFExport = async (exportData: any): Promise<void> => {
+  const generatePDFExport = async (exportData: ExportData): Promise<void> => {
     const html = generateHTMLExport(exportData);
     const printWindow = window.open('', '_blank');
     if (printWindow) {
@@ -224,7 +231,7 @@ export const ProjectExportDialog: React.FC<ProjectExportDialogProps> = ({
       ]);
 
       const fullProject = projectData.project || projectData;
-      const exportData: any = {
+      const exportData: ExportData = {
         project: exportOptions.includeMetadata ? fullProject : {
           id: fullProject.id,
           title: fullProject.title,

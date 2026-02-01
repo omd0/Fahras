@@ -8,7 +8,7 @@
  * @param fallbackMessage - Default message if no specific error message is found
  * @returns A user-friendly error message string
  */
-export function getErrorMessage(error: any, fallbackMessage: string = 'An unexpected error occurred'): string {
+export function getErrorMessage(error: unknown, fallbackMessage: string = 'An unexpected error occurred'): string {
   // Check for Axios error response (most common in this app)
   if (error?.response?.data?.message) {
     return error.response.data.message;
@@ -48,7 +48,7 @@ export function getErrorMessage(error: any, fallbackMessage: string = 'An unexpe
  * @param context - Context/location where error occurred
  * @param error - The error object
  */
-export function logError(context: string, error: any): void {
+export function logError(context: string, error: unknown): void {
   if (process.env.NODE_ENV === 'development') {
     console.error(`[${context}]`, error);
     if (error?.response) {

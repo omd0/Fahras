@@ -25,6 +25,7 @@ import {
   BookmarkBorder as BookmarkIcon,
 } from '@mui/icons-material';
 import { useLanguage } from '@/providers/LanguageContext';
+import { Program, Department } from '@/types';
 
 interface SearchFilters {
   search: string;
@@ -40,8 +41,8 @@ interface AdvancedFiltersProps {
   filters: SearchFilters;
   showFilters: boolean;
   searching: boolean;
-  programs: any[];
-  departments: any[];
+  programs: Program[];
+  departments: Department[];
   onFilterChange: (field: keyof SearchFilters, value: string) => void;
   onSearch: () => void;
   onClearSearch: () => void;

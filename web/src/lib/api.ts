@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import { LoginCredentials, RegisterData, ResetPasswordData, ChangePasswordData, User, Project, CreateProjectData, File, Program, Comment, Rating, Department, MilestoneTemplate, ProjectMilestone, ProjectActivity, ProjectFlag, ProjectFollower, TimelineData, SavedSearch, CreateSavedSearchData, UpdateSavedSearchData } from '@/types';
+import { LoginCredentials, RegisterData, ResetPasswordData, ChangePasswordData, User, Project, CreateProjectData, File, Program, Comment, Rating, Department, MilestoneTemplate, ProjectMilestone, ProjectActivity, ProjectFlag, ProjectFollower, TimelineData, SavedSearch, CreateSavedSearchData, UpdateSavedSearchData, Permission, Role } from '@/types';
 import { MilestoneTemplateData } from '@/types/milestones';
 
 // Use environment variable to define API base URL
@@ -198,7 +198,7 @@ class ApiService {
     return response.data;
   }
 
-  async searchProjects(query: string, filters?: any): Promise<{
+  async searchProjects(query: string, filters?: Record<string, unknown>): Promise<{
     projects: Project[];
     pagination: {
       current_page: number;
@@ -333,7 +333,7 @@ class ApiService {
     score: number;
     remarks: string;
     criteria_scores?: Record<string, number>;
-  }): Promise<{ evaluation: any }> {
+  }): Promise<{ evaluation: Record<string, unknown> }> {
     const response: AxiosResponse = await this.api.post(`/evaluations/${evaluationId}/submit`, data);
     return response.data;
   }
@@ -341,7 +341,7 @@ class ApiService {
   async updateApproval(approvalId: number, data: {
     decision: string;
     note: string;
-  }): Promise<{ approval: any }> {
+  }): Promise<{ approval: Record<string, unknown> }> {
     const response: AxiosResponse = await this.api.put(`/approvals/${approvalId}`, data);
     return response.data;
   }
@@ -379,7 +379,7 @@ class ApiService {
   }
 
 
-  async getProjectFiles(slugOrId: string | number): Promise<{ files: File[]; debug?: any }> {
+  async getProjectFiles(slugOrId: string | number): Promise<{ files: File[]; debug?: Record<string, unknown> }> {
     const response: AxiosResponse = await this.api.get(`/projects/${slugOrId}/files`);
     return response.data;
   }
@@ -537,7 +537,7 @@ class ApiService {
     return response.data || [];
   }
 
-  async getRoles(): Promise<Array<{ id: number; name: string; description?: string; is_system_role?: boolean; is_template?: boolean; user_count?: number; permission_count?: number; permissions?: any[] }>> {
+  async getRoles(): Promise<Array<{ id: number; name: string; description?: string; is_system_role?: boolean; is_template?: boolean; user_count?: number; permission_count?: number; permissions?: Permission[] }>> {
     const response: AxiosResponse = await this.api.get('/admin/roles');
     return response.data || [];
   }
@@ -551,7 +551,7 @@ class ApiService {
     name: string;
     description?: string;
     permissions?: Array<{ permission_id: number; scope: string }>;
-  }): Promise<{ message: string; role: any }> {
+  }): Promise<{ message: string; role: Role }> {
     const response: AxiosResponse = await this.api.post('/admin/roles', data);
     return response.data;
   }
@@ -560,7 +560,7 @@ class ApiService {
     name?: string;
     description?: string;
     permissions?: Array<{ permission_id: number; scope: string }>;
-  }): Promise<{ message: string; role: any }> {
+  }): Promise<{ message: string; role: Role }> {
     const response: AxiosResponse = await this.api.put(`/admin/roles/${roleId}`, data);
     return response.data;
   }

@@ -197,12 +197,12 @@ export const UserManagementPage: React.FC = () => {
     try {
       setError(null);
       setSuccess(null);
-      if (editingUser) {
-        const updateData: any = {
-          full_name: userForm.full_name,
-          email: userForm.email,
-          role_ids: userForm.role_ids,
-        };
+       if (editingUser) {
+         const updateData: Record<string, unknown> = {
+           full_name: userForm.full_name,
+           email: userForm.email,
+           role_ids: userForm.role_ids,
+         };
         if (userForm.password) {
           updateData.password = userForm.password;
         }
@@ -379,7 +379,7 @@ export const UserManagementPage: React.FC = () => {
               <TableCell>
                 <Chip
                   label={user.status}
-                  color={getStatusColor(user.status) as any}
+                  color={getStatusColor(user.status)}
                   size="small"
                 />
               </TableCell>

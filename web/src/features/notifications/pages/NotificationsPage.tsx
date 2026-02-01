@@ -80,7 +80,7 @@ export const NotificationsPage: React.FC = () => {
     }
   };
 
-  const handleNotificationClick = async (notification: any) => {
+  const handleNotificationClick = async (notification: Record<string, unknown>) => {
     // Mark notification as read if it's not already read
     if (!notification.is_read) {
       await markAsRead(notification.id);

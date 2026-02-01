@@ -108,7 +108,7 @@ const ProjectVisibilityToggle: React.FC<ProjectVisibilityToggleProps> = ({
         <Tooltip title={getButtonText()}>
           <IconButton
             onClick={handleToggle}
-            color={getButtonColor() as any}
+            color={getButtonColor()}
             size={size}
             disabled={!isApproved && !isHidden}
           >
@@ -147,7 +147,7 @@ const ProjectVisibilityToggle: React.FC<ProjectVisibilityToggleProps> = ({
             <Button
               onClick={handleConfirm}
               variant="contained"
-              color={getButtonColor() as any}
+              color={getButtonColor()}
               disabled={loading}
               startIcon={loading ? <CircularProgress size={16} /> : getButtonIcon()}
             >
@@ -163,7 +163,7 @@ const ProjectVisibilityToggle: React.FC<ProjectVisibilityToggleProps> = ({
     <>
       <Button
         variant="outlined"
-        color={getButtonColor() as any}
+        color={getButtonColor()}
         size={size}
         onClick={handleToggle}
         startIcon={getButtonIcon()}
@@ -203,7 +203,7 @@ const ProjectVisibilityToggle: React.FC<ProjectVisibilityToggleProps> = ({
           <Button
             onClick={handleConfirm}
             variant="contained"
-            color={getButtonColor() as any}
+            color={getButtonColor()}
             disabled={loading}
             startIcon={loading ? <CircularProgress size={16} /> : getButtonIcon()}
           >

@@ -145,7 +145,7 @@ export const EditProjectPage: React.FC = () => {
     }
   };
 
-  const handleInputChange = (field: keyof CreateProjectData, value: any) => {
+  const handleInputChange = (field: keyof CreateProjectData, value: unknown) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setIsDirty(true); // Mark form as dirty when any field changes
   };

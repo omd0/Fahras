@@ -48,7 +48,7 @@ import { useNotifications } from '@/features/notifications/hooks/useNotification
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { ThemeToggle } from './ThemeToggle';
 import { MobileDrawer } from './MobileDrawer';
-import { Project } from '@/types';
+import { Project, Role } from '@/types';
 import { apiService } from '@/lib/api';
 import { getProjectEditUrl, getProjectFollowUrl } from '@/utils/projectRoutes';
 import ProjectVisibilityToggle from '@/features/projects/components/ProjectVisibilityToggle';
@@ -629,7 +629,7 @@ export const Header: React.FC = () => {
               )}
 
               {/* Admin visibility toggle (Hide button) */}
-              {user?.roles?.some((role: any) => role.name === 'admin') && (
+              {user?.roles?.some((role: Role) => role.name === 'admin') && (
                 <ProjectVisibilityToggle
                   project={currentProject}
                   onToggleComplete={() => {

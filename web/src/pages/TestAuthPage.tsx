@@ -25,10 +25,18 @@ import {
 } from '@mui/icons-material';
 import { useAuthStore } from '@/features/auth/store';
 import { apiService } from '@/lib/api';
+import { Role, User } from '@/types';
+
+interface AuthTestResult {
+  success: boolean;
+  data?: User;
+  error?: string;
+  timestamp: string;
+}
 
 export const TestAuthPage: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuthStore();
-  const [authTest, setAuthTest] = useState<any>(null);
+  const [authTest, setAuthTest] = useState<AuthTestResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -145,11 +153,11 @@ export const TestAuthPage: React.FC = () => {
                       primary="Role"
                       secondary={
                         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                          {user.roles.map((role: any, index: number) => (
+                          {user.roles.map((role: Role, index: number) => (
                             <Chip
                               key={index}
                               label={role.name}
-                              color={getRoleColor(role.name) as any}
+                              color={getRoleColor(role.name)}
                               size="small"
                             />
                           ))}
@@ -221,7 +229,7 @@ export const TestAuthPage: React.FC = () => {
                     </Typography>
                     {authTest.data.roles && authTest.data.roles.length > 0 && (
                       <Typography variant="body2">
-                        <strong>Roles:</strong> {authTest.data.roles.map((role: any) => role.name).join(', ')}
+                        <strong>Roles:</strong> {authTest.data.roles.map((role: Role) => role.name).join(', ')}
                       </Typography>
                     )}
                   </Box>

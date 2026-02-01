@@ -328,7 +328,7 @@ export const EvaluationsPage: React.FC = () => {
                         <Chip
                           icon={getStatusIcon(evaluation.status)}
                           label={evaluation.status.replace('_', ' ')}
-                          color={getStatusColor(evaluation.status) as any}
+                          color={getStatusColor(evaluation.status)}
                           size="small"
                         />
                       </TableCell>
@@ -393,7 +393,7 @@ export const EvaluationsPage: React.FC = () => {
                         <Chip
                           icon={getStatusIcon(evaluation.status)}
                           label={evaluation.status.replace('_', ' ')}
-                          color={getStatusColor(evaluation.status) as any}
+                          color={getStatusColor(evaluation.status)}
                           size="small"
                         />
                       </TableCell>
@@ -472,7 +472,7 @@ export const EvaluationsPage: React.FC = () => {
                         <Chip
                           icon={getStatusIcon(evaluation.status)}
                           label={evaluation.status.replace('_', ' ')}
-                          color={getStatusColor(evaluation.status) as any}
+                          color={getStatusColor(evaluation.status)}
                           size="small"
                         />
                       </TableCell>

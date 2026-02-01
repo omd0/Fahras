@@ -94,7 +94,7 @@ export interface ProjectTableProps {
   /** Custom class name */
   className?: string;
   /** Custom styles */
-  sx?: any;
+  sx?: React.CSSProperties;
 }
 
 /**

@@ -20,7 +20,7 @@ interface ProjectDetailDialogProps {
   loading: boolean;
   project: Project | null;
   onClose: () => void;
-  getStatusColor: (status: string) => string;
+  getStatusColor: (status: string) => 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';
   getStatusLabel: (status: string) => string;
   t: (key: string) => string;
 }
@@ -72,7 +72,7 @@ export const ProjectDetailDialog: React.FC<ProjectDetailDialogProps> = ({
                 </Typography>
                 <Chip
                   label={getStatusLabel(project?.status || 'draft')}
-                  color={getStatusColor(project?.status || 'draft') as any}
+                  color={getStatusColor(project?.status || 'draft')}
                   size="small"
                 />
               </Grid>

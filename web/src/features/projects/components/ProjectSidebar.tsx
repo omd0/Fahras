@@ -12,7 +12,7 @@ import {
   Avatar,
   Paper,
 } from '@mui/material';
-import { Project } from '@/types';
+import { Project, ProjectMember, ProjectAdvisor } from '@/types';
 import { colorPalette } from '@/styles/theme/colorPalette';
 import { designTokens } from '@/styles/designTokens';
 
@@ -115,7 +115,7 @@ export const ProjectSidebar: React.FC<ProjectSidebarProps> = ({
           <Box sx={{ p: 3 }}>
             {project.members && project.members.length > 0 ? (
               <List sx={{ p: 0 }}>
-                {(project.members || []).map((member: any) => (
+                {(project.members || []).map((member: ProjectMember) => (
                   <Paper key={member.id} elevation={0} sx={memberPaperSx}>
                     <ListItem sx={{ p: 2 }}>
                       <ListItemIcon>
@@ -184,7 +184,7 @@ export const ProjectSidebar: React.FC<ProjectSidebarProps> = ({
             </Box>
             <Box sx={{ p: 3 }}>
               <List sx={{ p: 0 }}>
-                {(project.advisors || []).map((advisor: any) => (
+                {(project.advisors || []).map((advisor: ProjectAdvisor) => (
                   <Paper key={advisor.id} elevation={0} sx={memberPaperSx}>
                     <ListItem sx={{ p: 2 }}>
                       <ListItemIcon>

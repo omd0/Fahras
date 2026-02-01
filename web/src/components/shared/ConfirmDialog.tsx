@@ -50,7 +50,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     }
   };
 
-  const getConfirmButtonColor = () => {
+  const getConfirmButtonColor = (): 'primary' | 'error' | 'warning' => {
     switch (severity) {
       case 'info':
         return 'primary';
@@ -96,7 +96,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         <Button
           onClick={onConfirm}
           variant="contained"
-          color={getConfirmButtonColor() as any}
+          color={getConfirmButtonColor()}
           disabled={loading}
           autoFocus
         >
