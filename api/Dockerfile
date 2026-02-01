@@ -32,7 +32,7 @@ FROM base AS production
 COPY --from=build /app /app
 
 RUN chmod -R 775 storage bootstrap/cache \
-    && rm -f /etc/caddy/Caddyfile /Caddyfile
+    && rm -f /etc/caddy/Caddyfile /Caddyfile /etc/frankenphp/Caddyfile
 
 EXPOSE 8080
 
