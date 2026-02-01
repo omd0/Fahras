@@ -25,7 +25,8 @@ COPY . .
 
 RUN mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs storage/app/public bootstrap/cache resources/views \
     && chmod -R 775 storage bootstrap/cache \
-    && php artisan package:discover --ansi
+    && php artisan package:discover --ansi \
+    && php artisan octane:install --server=frankenphp
 
 FROM base AS production
 
