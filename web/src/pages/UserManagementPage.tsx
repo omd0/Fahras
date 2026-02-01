@@ -127,9 +127,12 @@ export const UserManagementPage: React.FC = () => {
       setError(null);
       const usersData = await apiService.getAdminUsers();
       setUsers(usersData || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch users:', error);
-      setError(error.response?.data?.message || 'Failed to fetch users');
+      const message = error && typeof error === 'object' && 'response' in error
+        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message || 'Failed to fetch users'
+        : 'Failed to fetch users';
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -219,7 +222,7 @@ export const UserManagementPage: React.FC = () => {
       setUserDialogOpen(false);
       await fetchUsers();
       setTimeout(() => setSuccess(null), 3000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to save user:', error);
       const errorMessage = error.response?.data?.message 
         || (error.response?.data?.errors ? Object.values(error.response.data.errors).flat().join(', ') : null)
@@ -247,7 +250,7 @@ export const UserManagementPage: React.FC = () => {
       await fetchUsers();
       setTimeout(() => setSuccess(null), 3000);
       setDeleteConfirmOpen(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to delete user:', error);
       const errorMessage = error.response?.data?.message 
         || error.response?.data?.error
@@ -269,7 +272,7 @@ export const UserManagementPage: React.FC = () => {
       setSuccess(response.message || 'User status updated successfully');
       await fetchUsers();
       setTimeout(() => setSuccess(null), 3000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to toggle user status:', error);
       const errorMessage = error.response?.data?.message 
         || error.response?.data?.error

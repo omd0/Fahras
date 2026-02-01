@@ -65,7 +65,7 @@ export const ProjectFiles: React.FC<ProjectFilesProps> = ({
       window.URL.revokeObjectURL(url);
       
       console.log(`[DEBUG] File download completed: ${file.original_filename}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('[DEBUG] Error downloading file:', error);
       console.error('[DEBUG] Error response:', error.response?.data);
       console.error('[DEBUG] Error status:', error.response?.status);

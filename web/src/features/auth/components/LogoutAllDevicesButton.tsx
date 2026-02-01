@@ -50,7 +50,7 @@ export const LogoutAllDevicesButton: React.FC = () => {
 
       // Redirect to login
       navigate('/login', { replace: true });
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(
         err.response?.data?.message ||
           'Failed to logout from all devices. Please try again.'

@@ -120,7 +120,7 @@ export const EditProjectPage: React.FC = () => {
           customName: advisor.is_custom ? advisor.full_name : undefined
         })),
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       setError(error.response?.data?.message || 'Failed to load project');
     } finally {
       setInitialLoading(false);
@@ -254,7 +254,7 @@ export const EditProjectPage: React.FC = () => {
             const _uploadResponse = await apiService.uploadFile(projectId, file, true);
             
             _uploadedCount++;
-          } catch (uploadError: any) {
+          } catch (uploadError: unknown) {
             console.error(`❌ File upload failed for ${file.name}:`, uploadError);
             console.error('Error details:', uploadError.response?.data);
             failedCount++;
@@ -270,7 +270,7 @@ export const EditProjectPage: React.FC = () => {
       }
 
       navigate(projectRoutes.detail(slug!));
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Project update failed:', error);
       console.error('Error response:', error.response?.data);
       setError(error.response?.data?.message || 'Failed to update project');

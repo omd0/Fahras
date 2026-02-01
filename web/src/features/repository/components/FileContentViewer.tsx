@@ -72,7 +72,7 @@ export const FileContentViewer: React.FC<FileContentViewerProps> = ({
         );
         setContent(response.content);
         setMimeType(response.mime_type);
-      } catch (err: any) {
+      } catch (err: unknown) {
         setError(err.message || 'Failed to load file content');
         console.error('Failed to load file content:', err);
       } finally {

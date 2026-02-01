@@ -80,7 +80,7 @@ export const ChangePasswordForm: React.FC = () => {
         new_password: '',
         new_password_confirmation: '',
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(
         err.response?.data?.message ||
           'Failed to change password. Please try again.'

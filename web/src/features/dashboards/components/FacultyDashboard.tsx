@@ -152,7 +152,7 @@ export const FacultyDashboard: React.FC = () => {
           return createdDate.getMonth() === now.getMonth() && createdDate.getFullYear() === now.getFullYear();
         }).length,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       setError(getErrorMessage(error, 'Failed to fetch dashboard data'));
     } finally {
       setLoading(false);

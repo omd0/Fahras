@@ -46,7 +46,7 @@ export const ForgotPasswordPage: React.FC = () => {
     try {
       await authApi.forgotPassword(email);
       setSuccess(true);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(
         err.response?.data?.message ||
           'Failed to send reset link. Please try again.'

@@ -84,10 +84,13 @@ export const HomePage: React.FC = () => {
       });
       const projectsData = Array.isArray(response) ? response : response.data || [];
       setRecentProjects(projectsData);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch recent projects:', error);
-      if (error.response?.status === 401) {
-        localStorage.removeItem('auth-storage');
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 401) {
+          localStorage.removeItem('auth-storage');
+        }
       }
       setRecentProjects([]);
     } finally {

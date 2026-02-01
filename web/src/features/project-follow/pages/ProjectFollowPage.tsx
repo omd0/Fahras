@@ -117,7 +117,7 @@ export const ProjectFollowPage: React.FC = () => {
       // For now, calculate a simple score
       calculateHealthScore(milestonesResponse.milestones, activitiesResponse.activities);
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to load project data');
     } finally {
       setLoading(false);
@@ -161,7 +161,7 @@ export const ProjectFollowPage: React.FC = () => {
         await apiService.followProject(projectId);
         setIsFollowing(true);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to update follow status');
     }
   };

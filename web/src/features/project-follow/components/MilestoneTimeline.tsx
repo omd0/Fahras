@@ -99,7 +99,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
     try {
       await onStart(milestoneId);
       if (onRefresh) onRefresh();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to start milestone');
     } finally {
       setLoading(false);
@@ -114,7 +114,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
       await onComplete(milestoneId, notes);
       if (onRefresh) onRefresh();
       setDialogOpen(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to complete milestone');
     } finally {
       setLoading(false);
@@ -129,7 +129,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
       await onUpdate(milestoneId, data);
       if (onRefresh) onRefresh();
       setDialogOpen(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to update milestone');
     } finally {
       setLoading(false);
@@ -152,7 +152,7 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
       if (onRefresh) onRefresh();
       setDialogOpen(false);
       setDeleteConfirmOpen(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to delete milestone');
       setDeleteConfirmOpen(false);
     } finally {

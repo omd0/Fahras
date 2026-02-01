@@ -57,7 +57,7 @@ export const StatusSelector: React.FC<StatusSelectorProps> = ({
     try {
       await onSave(selectedStatus);
       onClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to update status');
     } finally {
       setSaving(false);

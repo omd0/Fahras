@@ -119,7 +119,7 @@ const FacultyPendingApprovalPage: React.FC = () => {
       setPrograms(programsResponse || []);
       setDepartments(departmentsResponse.departments || departmentsResponse || []);
       setError(null);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to fetch data:', err);
       setError(err.response?.data?.message || 'Failed to load data');
     } finally {

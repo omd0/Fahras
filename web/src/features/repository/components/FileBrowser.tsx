@@ -62,7 +62,7 @@ export const FileBrowser: React.FC<FileBrowserProps> = ({
       try {
         const tree = await repositoryService.getFileTree(projectId);
         setFileTree(tree);
-      } catch (err: any) {
+      } catch (err: unknown) {
         setError(err.message || 'Failed to load file tree');
         console.error('Failed to load file tree:', err);
       } finally {

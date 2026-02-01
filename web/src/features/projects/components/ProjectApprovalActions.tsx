@@ -44,7 +44,7 @@ const ProjectApprovalActions: React.FC<ProjectApprovalActionsProps> = ({
       setApproveDialogOpen(false);
       setAdminNotes('');
       onActionComplete();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to approve project');
     } finally {
       setLoading(false);
@@ -60,7 +60,7 @@ const ProjectApprovalActions: React.FC<ProjectApprovalActionsProps> = ({
       setHideDialogOpen(false);
       setAdminNotes('');
       onActionComplete();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to hide project');
     } finally {
       setLoading(false);

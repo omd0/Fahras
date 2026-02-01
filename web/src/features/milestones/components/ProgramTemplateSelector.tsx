@@ -71,7 +71,7 @@ export const ProgramTemplateSelector: React.FC<ProgramTemplateSelectorProps> = (
         program_id: programId,
       });
       setTemplates(response.templates || []);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to load templates');
     } finally {
       setLoading(false);

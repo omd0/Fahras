@@ -104,7 +104,7 @@ export const EvaluationsPage: React.FC = () => {
       setError(null);
       const response = await apiService.getMyEvaluations();
       setEvaluations(response.data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch evaluations:', error);
       setError(error.response?.data?.message || 'Failed to fetch evaluations');
     } finally {
@@ -156,7 +156,7 @@ export const EvaluationsPage: React.FC = () => {
       
       setEvaluationDialogOpen(false);
       fetchEvaluations();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to submit evaluation:', error);
       setError(error.response?.data?.message || 'Failed to submit evaluation');
     }

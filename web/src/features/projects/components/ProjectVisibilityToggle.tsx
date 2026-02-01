@@ -55,7 +55,7 @@ const ProjectVisibilityToggle: React.FC<ProjectVisibilityToggleProps> = ({
       setDialogOpen(false);
       setAdminNotes('');
       onToggleComplete();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to toggle project visibility');
     } finally {
       setLoading(false);

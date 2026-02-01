@@ -61,7 +61,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
       setLoading(true);
       const response = await apiService.getComments(projectId);
       setComments(response.comments || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       // For guest users, don't show error if it's an authentication issue
       if (error.response?.status === 401 && !user) {
         setComments([]);
@@ -82,7 +82,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
       const response = await apiService.addComment(projectId, newComment.trim());
       setComments(prev => [response.comment, ...prev]);
       setNewComment('');
-    } catch (error: any) {
+    } catch (error: unknown) {
       setError(error.response?.data?.message || 'Failed to add comment');
     } finally {
       setSubmitting(false);
@@ -98,7 +98,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
       setComments(prev => [response.comment, ...prev]);
       setReplyText('');
       setReplyingTo(null);
-    } catch (error: any) {
+    } catch (error: unknown) {
       setError(error.response?.data?.message || 'Failed to add reply');
     } finally {
       setSubmitting(false);

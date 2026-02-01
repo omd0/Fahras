@@ -66,7 +66,7 @@ export const ApprovalsPage: React.FC = () => {
       const response = await apiService.getPendingApprovals();
       setProjects(response?.projects || []);
       setError(null);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to fetch pending approvals:', err);
       setError(err.response?.data?.message || 'Failed to load pending approvals');
     } finally {
@@ -110,7 +110,7 @@ export const ApprovalsPage: React.FC = () => {
       // Refresh the list
       await fetchPendingProjects();
       handleCloseApprovalDialog();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to process approval:', err);
       setError(err.response?.data?.message || 'Failed to process approval');
     } finally {

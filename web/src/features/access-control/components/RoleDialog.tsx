@@ -82,7 +82,7 @@ export const RoleDialog: React.FC<RoleDialogProps> = ({ open, onClose, role }) =
       }
 
       onClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(getErrorMessage(err, 'Failed to save role'));
     } finally {
       setSaving(false);

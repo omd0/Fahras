@@ -69,7 +69,7 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
       
       setHasMore(response.pagination.current_page < response.pagination.last_page);
       setPage(pageNum);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to load activities');
     } finally {
       setLoading(false);

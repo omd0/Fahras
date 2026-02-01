@@ -156,7 +156,7 @@ export const AnalyticsPage: React.FC = () => {
       setError(null);
       const data = await apiService.getProjectAnalytics();
       setAnalytics(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch analytics:', error);
       setError(error.response?.data?.message || 'Failed to fetch analytics');
     } finally {
@@ -214,7 +214,7 @@ export const AnalyticsPage: React.FC = () => {
         .slice(0, 20); // Top 20 projects
       
       setTopRatedProjects(allProjects);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch projects:', error);
       setTopRatedProjects([]);
     } finally {

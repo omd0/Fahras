@@ -72,7 +72,7 @@ export const EmailVerificationPage: React.FC = () => {
       await new Promise(resolve => setTimeout(resolve, 200));
 
       window.location.href = '/dashboard';
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(
         err.response?.data?.message || 'Invalid or expired verification link'
       );
@@ -108,7 +108,7 @@ export const EmailVerificationPage: React.FC = () => {
       await new Promise(resolve => setTimeout(resolve, 200));
 
       window.location.href = '/dashboard';
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(
         err.response?.data?.message || 'Verification failed. Please try again.'
       );
@@ -132,7 +132,7 @@ export const EmailVerificationPage: React.FC = () => {
       setSuccess(response.message);
       setResendCooldown(60);
       setOtp('');
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(
         err.response?.data?.message || 'Failed to resend code. Please try again.'
       );

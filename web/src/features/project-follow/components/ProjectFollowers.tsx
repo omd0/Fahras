@@ -37,7 +37,7 @@ export const ProjectFollowers: React.FC<ProjectFollowersProps> = ({
     try {
       const response = await apiService.getProjectFollowers(projectId);
       setFollowers(response.followers);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to load followers');
     } finally {
       setLoading(false);

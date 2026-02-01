@@ -121,7 +121,7 @@ export const MilestoneDetailDialog: React.FC<MilestoneDetailDialogProps> = ({
         });
       }
       onClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to save milestone');
     } finally {
       setLoading(false);
@@ -143,7 +143,7 @@ export const MilestoneDetailDialog: React.FC<MilestoneDetailDialogProps> = ({
       await onDelete(milestone.id);
       setDeleteConfirmOpen(false);
       onClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to delete milestone');
       setDeleteConfirmOpen(false);
     } finally {
@@ -160,7 +160,7 @@ export const MilestoneDetailDialog: React.FC<MilestoneDetailDialogProps> = ({
     try {
       await onComplete(milestone.id, completionNotes);
       onClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to complete milestone');
     } finally {
       setLoading(false);

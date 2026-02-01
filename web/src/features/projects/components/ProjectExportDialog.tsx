@@ -280,7 +280,7 @@ export const ProjectExportDialog: React.FC<ProjectExportDialogProps> = ({
         setExportSuccess(false);
       }, 2000);
       
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || 'Export failed. Please try again.');
     } finally {
       setExporting(false);

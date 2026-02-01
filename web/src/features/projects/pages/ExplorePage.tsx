@@ -121,16 +121,19 @@ export const ExplorePage: React.FC = () => {
         .slice(0, 6);
       setTopProjects(topProjectsData);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch projects:', error);
+      const axiosError = error && typeof error === 'object' && 'response' in error
+        ? error as { message?: string; response?: { data?: { message?: string }; status?: number }; config?: { url?: string; baseURL?: string } }
+        : null;
       console.error('Error details:', {
-        message: error?.message,
-        response: error?.response?.data,
-        status: error?.response?.status,
-        url: error?.config?.url,
-        baseURL: error?.config?.baseURL
+        message: axiosError?.message,
+        response: axiosError?.response?.data,
+        status: axiosError?.response?.status,
+        url: axiosError?.config?.url,
+        baseURL: axiosError?.config?.baseURL
       });
-      setError(error.response?.data?.message || error?.message || 'Failed to fetch projects');
+      setError(axiosError?.response?.data?.message || axiosError?.message || 'Failed to fetch projects');
     } finally {
       setLoading(false);
     }
@@ -140,7 +143,7 @@ export const ExplorePage: React.FC = () => {
     try {
       const programs = await apiService.getPrograms();
       setPrograms(programs || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch programs:', error);
       setPrograms([]);
     }
@@ -150,7 +153,7 @@ export const ExplorePage: React.FC = () => {
     try {
       const response = await apiService.getDepartments();
       setDepartments(response || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch departments:', error);
       setDepartments([]);
     }
@@ -175,9 +178,12 @@ export const ExplorePage: React.FC = () => {
       const projectsData = Array.isArray(response) ? response : response.data || [];
 
       setFilteredProjects(projectsData);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to search projects:', error);
-      setError(error.response?.data?.message || 'Failed to search projects');
+      const message = error && typeof error === 'object' && 'response' in error
+        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message || 'Failed to search projects'
+        : 'Failed to search projects';
+      setError(message);
       setFilteredProjects([]);
     } finally {
       setSearching(false);
@@ -318,7 +324,7 @@ export const ExplorePage: React.FC = () => {
         const projectsData = Array.isArray(response) ? response : response.data || [];
         setFilteredProjects(projectsData);
       })
-      .catch((error: any) => {
+      .catch((error: unknown) => {
         console.error('Failed to load saved search:', error);
         setError('Failed to load saved search');
       })
@@ -351,9 +357,12 @@ export const ExplorePage: React.FC = () => {
             setFilteredProjects([]);
           }
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Failed to fetch bookmarked projects:', error);
-        setError(error.response?.data?.message || 'Failed to fetch bookmarked projects');
+        const message = error && typeof error === 'object' && 'response' in error
+          ? (error as { response?: { data?: { message?: string } } }).response?.data?.message || 'Failed to fetch bookmarked projects'
+          : 'Failed to fetch bookmarked projects';
+        setError(message);
         setFilteredProjects([]);
       } finally {
         setSearching(false);

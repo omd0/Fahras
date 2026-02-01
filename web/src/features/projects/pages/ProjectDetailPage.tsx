@@ -130,7 +130,7 @@ export const ProjectDetailPage: React.FC = () => {
       }
       
       setProject(prev => prev ? { ...prev, files: filesResponse.files || [] } : prev);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('[DEBUG] Error fetching project files:', error);
       console.error('[DEBUG] Error response:', error.response?.data);
       console.error('[DEBUG] Error status:', error.response?.status);
@@ -163,7 +163,7 @@ export const ProjectDetailPage: React.FC = () => {
       } else {
         console.log('No files found for project');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error fetching project:', err);
       const msg =
         err.response?.data?.message ||
@@ -190,7 +190,7 @@ export const ProjectDetailPage: React.FC = () => {
       await apiService.deleteProject(project.id);
       setDeleteConfirmOpen(false);
       navigate('/dashboard');
-    } catch (error: any) {
+    } catch (error: unknown) {
       setError(error.response?.data?.message || 'Failed to delete project');
       setDeleteConfirmOpen(false);
     } finally {

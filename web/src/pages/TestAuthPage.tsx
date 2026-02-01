@@ -42,7 +42,7 @@ export const TestAuthPage: React.FC = () => {
         data: response,
         timestamp: new Date().toISOString(),
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       setAuthTest({
         success: false,
         error: err.message || 'Authentication test failed',

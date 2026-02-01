@@ -75,7 +75,7 @@ export const AdminDashboard: React.FC = () => {
           return createdDate > sevenDaysAgo;
         }).length,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       setError(getErrorMessage(error, 'Failed to fetch dashboard data'));
     } finally {
       setLoading(false);

@@ -127,7 +127,7 @@ const AdminProjectApprovalPage: React.FC = () => {
         setTotalPages(response.pagination.last_page);
         setTotalItems(response.pagination.total);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to load projects');
     } finally {
       setLoading(false);

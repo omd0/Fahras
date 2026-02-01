@@ -67,7 +67,7 @@ export const UsersTab: React.FC = () => {
       ]);
       setUsers(usersData || []);
       setRoles(rolesData || []);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(getErrorMessage(err, 'Failed to fetch users and roles'));
     } finally {
       setLoading(false);
@@ -96,7 +96,7 @@ export const UsersTab: React.FC = () => {
       setRoleDialogOpen(false);
       await fetchData();
       setTimeout(() => setSuccess(null), 3000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(getErrorMessage(err, 'Failed to update user roles'));
     } finally {
       setSaving(false);

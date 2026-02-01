@@ -72,7 +72,7 @@ export const ProjectFlags: React.FC<ProjectFlagsProps> = ({
         severity: filterSeverity || undefined,
       });
       setFlags(response.flags);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to load flags');
     } finally {
       setLoading(false);
@@ -90,7 +90,7 @@ export const ProjectFlags: React.FC<ProjectFlagsProps> = ({
     try {
       await apiService.resolveFlag(flagId, notes);
       await loadFlags();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to resolve flag');
     } finally {
       setLoading(false);

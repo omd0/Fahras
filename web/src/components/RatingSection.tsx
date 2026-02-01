@@ -65,7 +65,7 @@ export const RatingSection: React.FC<RatingSectionProps> = ({ projectId }) => {
         setUserRating(existingRating.rating);
         setUserReview(existingRating.review || '');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // For guest users, don't show error if it's an authentication issue
       if (error.response?.status === 401 && !user) {
         setRatings([]);
@@ -102,7 +102,7 @@ export const RatingSection: React.FC<RatingSectionProps> = ({ projectId }) => {
       setTotalRatings(allRatings.length);
       
       setShowReviewForm(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       setError(error.response?.data?.message || 'Failed to submit rating');
     } finally {
       setSubmitting(false);

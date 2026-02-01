@@ -398,7 +398,7 @@ export const CreateProjectPage: React.FC = () => {
             startDate,
             false // Don't preserve custom milestones (project is new)
           );
-        } catch (templateError: any) {
+        } catch (templateError: unknown) {
           console.error('Failed to apply template:', templateError);
           // Don't fail the whole creation if template application fails
           setError(`Project created successfully, but failed to apply milestone template: ${templateError.response?.data?.message || templateError.message}`);
@@ -420,7 +420,7 @@ export const CreateProjectPage: React.FC = () => {
             const _uploadResponse = await apiService.uploadFile(createdProject.project.id, file, true);
             
             _uploadedCount++;
-          } catch (uploadError: any) {
+          } catch (uploadError: unknown) {
             console.error(`❌ File upload failed for ${file.name}:`, uploadError);
             console.error('Error status:', uploadError.response?.status);
             console.error('Error details:', uploadError.response?.data);
@@ -452,7 +452,7 @@ export const CreateProjectPage: React.FC = () => {
           state: { refresh: true, timestamp: Date.now() }
         });
       }, 1500);
-    } catch (error: any) {
+    } catch (error: unknown) {
       // #region agent log
       fetch('http://127.0.0.1:7242/ingest/630c9ee4-de4f-48c7-bd76-5eabbd1dc8d2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CreateProjectPage.tsx:error',message:'project creation error',data:{errorMessage:error?.message,errorStatus:error?.response?.status,errorData:error?.response?.data,hasResponse:!!error?.response},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
       // #endregion

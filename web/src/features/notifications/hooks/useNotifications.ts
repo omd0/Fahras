@@ -28,7 +28,7 @@ export const useNotifications = (autoRefresh: boolean = true): UseNotificationsR
       const response = await notificationService.getNotifications();
       setNotifications(response.notifications);
       setUnreadCount(response.unread_count);
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Ignore 401 errors (unauthenticated) - this is expected for public pages
       if (err?.response?.status === 401) {
         setNotifications([]);
@@ -52,7 +52,7 @@ export const useNotifications = (autoRefresh: boolean = true): UseNotificationsR
         )
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || 'Failed to mark notification as read');
     }
   }, []);
@@ -64,7 +64,7 @@ export const useNotifications = (autoRefresh: boolean = true): UseNotificationsR
         prev.map(notification => ({ ...notification, is_read: true }))
       );
       setUnreadCount(0);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || 'Failed to mark all notifications as read');
     }
   }, []);
@@ -80,7 +80,7 @@ export const useNotifications = (autoRefresh: boolean = true): UseNotificationsR
       if (deletedNotification && !deletedNotification.is_read) {
         setUnreadCount(prev => Math.max(0, prev - 1));
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || 'Failed to delete notification');
     }
   }, [notifications]);
@@ -90,7 +90,7 @@ export const useNotifications = (autoRefresh: boolean = true): UseNotificationsR
       await notificationService.deleteAllNotifications();
       setNotifications([]);
       setUnreadCount(0);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || 'Failed to delete all notifications');
     }
   }, []);

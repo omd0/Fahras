@@ -370,7 +370,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
       }
 
       onSave();
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Handle validation errors (422) with field-specific messages
       if (err.response?.status === 422 && err.response?.data?.errors) {
         setServerErrors(err.response.data.errors);

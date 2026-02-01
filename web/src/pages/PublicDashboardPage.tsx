@@ -63,7 +63,7 @@ export const PublicDashboardPage: React.FC = () => {
       );
 
       setProjects(publicProjects);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch public projects:', error);
       setError(error.response?.data?.message || 'Failed to fetch projects');
       // Even on error, set empty array to avoid crashes

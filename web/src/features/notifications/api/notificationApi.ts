@@ -92,7 +92,7 @@ class NotificationService {
       this.callbacks.onUnreadCountChanged?.(response.unread_count);
 
       this.lastPollTime = new Date();
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Ignore 401 errors (unauthenticated) - this is expected for public pages
       if (error?.response?.status === 401) {
         // Stop polling if we get 401 - user is not authenticated

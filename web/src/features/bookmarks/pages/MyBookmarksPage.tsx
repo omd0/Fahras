@@ -75,7 +75,7 @@ export const MyBookmarksPage: React.FC = () => {
         
         setProjects(validProjects);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch bookmarked projects:', error);
       setError(error.response?.data?.message || error?.message || 'Failed to fetch bookmarked projects');
     } finally {

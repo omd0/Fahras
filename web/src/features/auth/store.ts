@@ -62,13 +62,16 @@ export const useAuthStore = create<AuthStore>()(
               // Don't fail login if sync fails
             }
           }
-        } catch (error: any) {
+        } catch (error: unknown) {
+          const errorMessage = error && typeof error === 'object' && 'response' in error
+            ? (error as { response?: { data?: { message?: string } } }).response?.data?.message || 'Login failed'
+            : 'Login failed';
           set({
             user: null,
             token: null,
             isAuthenticated: false,
             isLoading: false,
-            error: error.response?.data?.message || 'Login failed',
+            error: errorMessage,
           });
           throw error;
         }
@@ -99,23 +102,36 @@ export const useAuthStore = create<AuthStore>()(
               // Don't fail registration if sync fails
             }
           }
-        } catch (error: any) {
+        } catch (error: unknown) {
           // Extract validation errors from response
           let errorMessage = 'Registration failed. Please try again.';
           
-          if (error.response?.data?.errors) {
-            // Handle validation errors (422)
-            errorMessage = Object.values(error.response.data.errors).flat().join(', ');
-          } else if (error.response?.data?.message) {
-            // Handle server error messages (500)
-            errorMessage = error.response.data.message;
-            // Include detailed error if available (debug mode)
-            if (error.response.data.error) {
-              errorMessage += `: ${error.response.data.error}`;
+          if (error && typeof error === 'object') {
+            const axiosError = error as { 
+              response?: { 
+                data?: { 
+                  errors?: Record<string, string[]>; 
+                  message?: string; 
+                  error?: string 
+                } 
+              };
+              message?: string;
+            };
+            
+            if (axiosError.response?.data?.errors) {
+              // Handle validation errors (422)
+              errorMessage = Object.values(axiosError.response.data.errors).flat().join(', ');
+            } else if (axiosError.response?.data?.message) {
+              // Handle server error messages (500)
+              errorMessage = axiosError.response.data.message;
+              // Include detailed error if available (debug mode)
+              if (axiosError.response.data.error) {
+                errorMessage += `: ${axiosError.response.data.error}`;
+              }
+            } else if (axiosError.message) {
+              // Handle network errors
+              errorMessage = axiosError.message;
             }
-          } else if (error.message) {
-            // Handle network errors
-            errorMessage = error.message;
           }
           
           set({

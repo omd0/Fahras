@@ -81,7 +81,7 @@ export const ProjectFlagDialog: React.FC<ProjectFlagDialogProps> = ({
       });
       onSave();
       onClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to create flag');
     } finally {
       setLoading(false);

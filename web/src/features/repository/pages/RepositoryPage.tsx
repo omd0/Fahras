@@ -44,7 +44,7 @@ export const RepositoryPage: React.FC = () => {
     try {
       const response = await apiService.getProject(projectId);
       setProject(response.project || response);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to load project');
       console.error('Failed to fetch project:', err);
     } finally {

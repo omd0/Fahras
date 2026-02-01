@@ -90,7 +90,7 @@ export const ProfilePage: React.FC = () => {
         message: 'Profile updated successfully',
         severity: 'success',
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error updating profile:', err);
       setSnackbar({
         open: true,
@@ -134,7 +134,7 @@ export const ProfilePage: React.FC = () => {
         message: 'Avatar uploaded successfully',
         severity: 'success',
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error uploading avatar:', err);
       setSnackbar({
         open: true,
@@ -156,7 +156,7 @@ export const ProfilePage: React.FC = () => {
         message: 'Avatar deleted successfully',
         severity: 'success',
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error deleting avatar:', err);
       setSnackbar({
         open: true,

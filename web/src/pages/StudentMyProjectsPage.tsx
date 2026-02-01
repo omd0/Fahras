@@ -170,16 +170,21 @@ const StudentMyProjectsPage: React.FC = () => {
       
       setProjects(validProjects);
       setError(null);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to fetch data:', err);
       
       // Check if it's an authentication error
-      if (err.response?.status === 401) {
-        setError('Authentication failed. Please log in again.');
-      } else if (err.response?.status === 403) {
-        setError('Access forbidden. You may not have permission to view projects.');
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axiosError = err as { response?: { status?: number; data?: { message?: string } }; message?: string };
+        if (axiosError.response?.status === 401) {
+          setError('Authentication failed. Please log in again.');
+        } else if (axiosError.response?.status === 403) {
+          setError('Access forbidden. You may not have permission to view projects.');
+        } else {
+          setError(axiosError.response?.data?.message || axiosError.message || 'Failed to load data');
+        }
       } else {
-        setError(err.response?.data?.message || err.message || 'Failed to load data');
+        setError('Failed to load data');
       }
       setProjects([]); // Set empty array on error
     } finally {
@@ -224,7 +229,7 @@ const StudentMyProjectsPage: React.FC = () => {
     try {
       const response = await apiService.getProject(project.id);
       setSelectedProject(response.project);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch project details:', error);
       const errorMessage = error.response?.data?.message || 'Failed to load project details';
       setDetailError(errorMessage);

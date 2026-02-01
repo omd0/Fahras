@@ -106,7 +106,7 @@ export const ProjectInteractions: React.FC<ProjectInteractionsProps> = ({
       
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(null), 3000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to add comment');
     } finally {
       setSubmittingComment(false);
@@ -130,7 +130,7 @@ export const ProjectInteractions: React.FC<ProjectInteractionsProps> = ({
       
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(null), 3000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to submit rating');
     } finally {
       setSubmittingRating(false);

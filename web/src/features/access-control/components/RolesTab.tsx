@@ -40,7 +40,7 @@ export const RolesTab: React.FC = () => {
       setError(null);
       const data = await apiService.getRoles();
       setRoles(Array.isArray(data) ? data : []);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(getErrorMessage(err, 'Failed to fetch roles'));
     } finally {
       setLoading(false);
@@ -76,7 +76,7 @@ export const RolesTab: React.FC = () => {
       await apiService.deleteRole(roleToDelete);
       setDeleteConfirmOpen(false);
       fetchRoles();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(getErrorMessage(err, 'Failed to delete role'));
       setDeleteConfirmOpen(false);
     } finally {

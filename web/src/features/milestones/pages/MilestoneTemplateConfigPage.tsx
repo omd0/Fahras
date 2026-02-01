@@ -63,7 +63,7 @@ export const MilestoneTemplateConfigPage: React.FC = () => {
       ]);
       setPrograms(programsRes || []);
       setDepartments(departmentsRes || []);
-     } catch (_err: any) {
+     } catch (_err: unknown) {
        setError('Failed to load programs and departments');
     } finally {
       setLoading(false);
@@ -79,7 +79,7 @@ export const MilestoneTemplateConfigPage: React.FC = () => {
         department_id: filterDepartment || undefined,
       });
       setTemplates(response.templates || []);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to load templates');
     } finally {
       setLoading(false);
@@ -113,7 +113,7 @@ export const MilestoneTemplateConfigPage: React.FC = () => {
       await apiService.deleteMilestoneTemplate(templateToDelete);
       setDeleteConfirmOpen(false);
       await loadTemplates();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.response?.data?.message || 'Failed to delete program');
       setDeleteConfirmOpen(false);
     } finally {

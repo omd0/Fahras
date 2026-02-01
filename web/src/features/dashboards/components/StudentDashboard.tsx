@@ -153,7 +153,7 @@ export const StudentDashboard: React.FC = () => {
           p.admin_approval_status === 'pending'
         ).length,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Error logged in development only
       setError(error.response?.data?.message || 'Failed to fetch dashboard data');
     } finally {
@@ -166,7 +166,7 @@ export const StudentDashboard: React.FC = () => {
       setNotificationsLoading(true);
       const response = await apiService.getNotifications({ per_page: 5 });
       setNotifications(response.notifications || []);
-     } catch (_error: any) {
+     } catch (_error: unknown) {
        // Error logged in development only
        setNotifications([]);
     } finally {
@@ -221,7 +221,7 @@ export const StudentDashboard: React.FC = () => {
       const projectsData = Array.isArray(response) ? response : response.data || [];
 
       setFilteredProjects(projectsData);
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Error logged in development only
       setError(error.response?.data?.message || 'Failed to search projects');
       setFilteredProjects([]);

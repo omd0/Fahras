@@ -76,7 +76,7 @@ export const GuestProjectDetailPage: React.FC = () => {
 
       const response = await apiService.getProject(projectId);
       setProject(response.project || response);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to fetch project:', err);
       const msg =
         err.response?.data?.message ||
