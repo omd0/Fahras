@@ -35,6 +35,7 @@ import {
 import { Comment } from '@/types';
 import { apiService } from '@/lib/api';
 import { useAuthStore } from '@/features/auth/store';
+import { getErrorMessage, getErrorStatus } from '@/utils/errorHandling';
 
 interface CommentSectionProps {
   projectId: number;
@@ -56,54 +57,54 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
     fetchComments();
   }, [projectId]);
 
-  const fetchComments = async () => {
-    try {
-      setLoading(true);
-      const response = await apiService.getComments(projectId);
-      setComments(response.comments || []);
-    } catch (error: unknown) {
-      // For guest users, don't show error if it's an authentication issue
-      if (error.response?.status === 401 && !user) {
-        setComments([]);
-        setError(null);
-      } else {
-        setError(error.response?.data?.message || 'Failed to fetch comments');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+   const fetchComments = async () => {
+     try {
+       setLoading(true);
+       const response = await apiService.getComments(projectId);
+       setComments(response.comments || []);
+     } catch (error: unknown) {
+       // For guest users, don't show error if it's an authentication issue
+       if (getErrorStatus(error) === 401 && !user) {
+         setComments([]);
+         setError(null);
+       } else {
+         setError(getErrorMessage(error, 'Failed to fetch comments'));
+       }
+     } finally {
+       setLoading(false);
+     }
+   };
 
-  const handleSubmitComment = async () => {
-    if (!newComment.trim()) return;
+   const handleSubmitComment = async () => {
+     if (!newComment.trim()) return;
 
-    try {
-      setSubmitting(true);
-      const response = await apiService.addComment(projectId, newComment.trim());
-      setComments(prev => [response.comment, ...prev]);
-      setNewComment('');
-    } catch (error: unknown) {
-      setError(error.response?.data?.message || 'Failed to add comment');
-    } finally {
-      setSubmitting(false);
-    }
-  };
+     try {
+       setSubmitting(true);
+       const response = await apiService.addComment(projectId, newComment.trim());
+       setComments(prev => [response.comment, ...prev]);
+       setNewComment('');
+     } catch (error: unknown) {
+       setError(getErrorMessage(error, 'Failed to add comment'));
+     } finally {
+       setSubmitting(false);
+     }
+   };
 
-  const handleSubmitReply = async (parentId: number) => {
-    if (!replyText.trim()) return;
+   const handleSubmitReply = async (parentId: number) => {
+     if (!replyText.trim()) return;
 
-    try {
-      setSubmitting(true);
-      const response = await apiService.addComment(projectId, replyText.trim(), parentId);
-      setComments(prev => [response.comment, ...prev]);
-      setReplyText('');
-      setReplyingTo(null);
-    } catch (error: unknown) {
-      setError(error.response?.data?.message || 'Failed to add reply');
-    } finally {
-      setSubmitting(false);
-    }
-  };
+     try {
+       setSubmitting(true);
+       const response = await apiService.addComment(projectId, replyText.trim(), parentId);
+       setComments(prev => [response.comment, ...prev]);
+       setReplyText('');
+       setReplyingTo(null);
+     } catch (error: unknown) {
+       setError(getErrorMessage(error, 'Failed to add reply'));
+     } finally {
+       setSubmitting(false);
+     }
+   };
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, _commentId: number) => {
     setMenuAnchor(event.currentTarget);

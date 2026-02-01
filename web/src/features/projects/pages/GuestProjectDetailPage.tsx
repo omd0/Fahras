@@ -45,6 +45,7 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import { Project, File as ProjectFile, ProjectMember, ProjectAdvisor } from '@/types';
 import { apiService } from '@/lib/api';
+import { getErrorMessage } from '@/utils/errorHandling';
 import { TVTCLogo } from '@/components/TVTCLogo';
 import { CommentSection } from '@/components/CommentSection';
 import { RatingSection } from '@/components/RatingSection';
@@ -69,26 +70,21 @@ export const GuestProjectDetailPage: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [id]);
 
-  const fetchProject = async (projectId: number) => {
-    try {
-      setLoading(true);
-      setError(null);
+   const fetchProject = async (projectId: number) => {
+     try {
+       setLoading(true);
+       setError(null);
 
-      const response = await apiService.getProject(projectId);
-      setProject(response.project || response);
-    } catch (err: unknown) {
-      console.error('Failed to fetch project:', err);
-      const msg =
-        err.response?.data?.message ||
-        (err.response?.status === 404 ? 'Project not found or not available.' : null) ||
-        (err.request && !err.response ? 'Cannot reach the server. Check your connection and that the API is running.' : null) ||
-        err.message ||
-        'Failed to fetch project.';
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
+       const response = await apiService.getProject(projectId);
+       setProject(response.project || response);
+     } catch (err: unknown) {
+       console.error('Failed to fetch project:', err);
+       const msg = getErrorMessage(err, 'Failed to fetch project.');
+       setError(msg);
+     } finally {
+       setLoading(false);
+     }
+   };
 
   const handleDownloadFile = async (file: ProjectFile) => {
     try {

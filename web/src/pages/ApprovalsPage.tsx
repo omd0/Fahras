@@ -34,6 +34,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/features/auth/store';
 import { apiService } from '@/lib/api';
+import { getErrorMessage } from '@/utils/errorHandling';
 import { Project } from '@/types';
 import { getDashboardTheme } from '@/config/dashboardThemes';
 
@@ -66,10 +67,10 @@ export const ApprovalsPage: React.FC = () => {
       const response = await apiService.getPendingApprovals();
       setProjects(response?.projects || []);
       setError(null);
-    } catch (err: unknown) {
-      console.error('Failed to fetch pending approvals:', err);
-      setError(err.response?.data?.message || 'Failed to load pending approvals');
-    } finally {
+     } catch (err: unknown) {
+       console.error('Failed to fetch pending approvals:', err);
+       setError(getErrorMessage(err, 'Failed to load pending approvals'));
+     } finally {
       setLoading(false);
     }
   };
@@ -110,10 +111,10 @@ export const ApprovalsPage: React.FC = () => {
       // Refresh the list
       await fetchPendingProjects();
       handleCloseApprovalDialog();
-    } catch (err: unknown) {
-      console.error('Failed to process approval:', err);
-      setError(err.response?.data?.message || 'Failed to process approval');
-    } finally {
+     } catch (err: unknown) {
+       console.error('Failed to process approval:', err);
+       setError(getErrorMessage(err, 'Failed to process approval'));
+     } finally {
       setProcessing(false);
     }
   };

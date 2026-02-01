@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import { Visibility, VisibilityOff, Lock as LockIcon } from '@mui/icons-material';
 import { authApi } from '@/lib/api';
+import { getErrorMessage } from '@/utils/errorHandling';
 
 export const ResetPasswordPage: React.FC = () => {
   const navigate = useNavigate();
@@ -93,17 +94,14 @@ export const ResetPasswordPage: React.FC = () => {
       setSuccess(true);
 
       // Redirect to login after 2 seconds
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
-    } catch (err: unknown) {
-      setError(
-        err.response?.data?.message ||
-          'Failed to reset password. Please try again.'
-      );
-    } finally {
-      setLoading(false);
-    }
+       setTimeout(() => {
+         navigate('/login');
+       }, 2000);
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to reset password. Please try again.'));
+     } finally {
+       setLoading(false);
+     }
   };
 
   const handleChange = (field: string, value: string) => {

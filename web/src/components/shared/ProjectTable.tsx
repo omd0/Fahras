@@ -20,19 +20,7 @@ import {
   Delete as DeleteIcon,
 } from '@mui/icons-material';
 import { getStatusColor, getStatusLabel, formatDate } from '@/utils/projectHelpers';
-
-export interface Project {
-  id: number;
-  title: string;
-  status: string;
-  approval_status?: string;
-  academic_year?: string;
-  semester?: string;
-  program?: { name: string };
-  department?: { name: string };
-  created_at: string;
-  creator?: { full_name: string };
-}
+import { Project } from '@/types';
 
 interface ProjectTableProps {
   projects: Project[];

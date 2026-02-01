@@ -1,64 +1,68 @@
-/**
- * Utility functions for error handling and user-friendly error messages
- */
+interface AxiosLikeError {
+  response?: {
+    status?: number;
+    data?: {
+      message?: string;
+      errors?: Record<string, string[]>;
+      error?: string;
+    };
+  };
+  message?: string;
+}
 
-/**
- * Extracts a user-friendly error message from an Error object or Axios error
- * @param error - The error object (can be Error, AxiosError, or any)
- * @param fallbackMessage - Default message if no specific error message is found
- * @returns A user-friendly error message string
- */
-export function getErrorMessage(error: unknown, fallbackMessage: string = 'An unexpected error occurred'): string {
-  // Type guard for objects with response property (Axios-like errors)
-  const err = error as Record<string, unknown> | null | undefined;
-  const response = err && typeof err === 'object' ? (err as { response?: { data?: { message?: string; errors?: Record<string, string[]>; error?: string } } }).response : undefined;
-  
-  // Check for Axios error response (most common in this app)
-  if (response?.data?.message) {
-    return response.data.message;
+/** Type guard — narrows `unknown` to an Axios-shaped error with `.response`. */
+export function isAxiosError(error: unknown): error is AxiosLikeError {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'response' in error
+  );
+}
+
+export function getErrorStatus(error: unknown): number | undefined {
+  if (isAxiosError(error)) {
+    return error.response?.status;
   }
-  
-  // Check for validation errors array (Laravel-style errors)
-  if (response?.data?.errors) {
-    const errors = response.data.errors;
-    if (typeof errors === 'object') {
-      // Flatten all error messages into a single string
-      const messages = Object.values(errors).flat().join(', ');
+  return undefined;
+}
+
+export function getValidationErrors(error: unknown): Record<string, string[]> | undefined {
+  if (isAxiosError(error) && error.response?.status === 422) {
+    return error.response.data?.errors;
+  }
+  return undefined;
+}
+
+export function getErrorMessage(error: unknown, fallbackMessage: string = 'An unexpected error occurred'): string {
+  if (isAxiosError(error)) {
+    const data = error.response?.data;
+    if (data?.message) return data.message;
+    if (data?.errors && typeof data.errors === 'object') {
+      const messages = Object.values(data.errors).flat().join(', ');
       if (messages) return messages;
     }
+    if (data?.error) return data.error;
+    if (error.message) return error.message;
   }
-  
-  // Check for generic error field
-  if (response?.data?.error) {
-    return response.data.error;
-  }
-  
-  // Check for standard Error object message
-  if (error instanceof Error) {
-    return error.message;
-  }
-  
-  // If error is a string, return it
-  if (typeof error === 'string') {
-    return error;
-  }
-  
-  // Return fallback message
+  if (error instanceof Error) return error.message;
+  if (typeof error === 'string') return error;
   return fallbackMessage;
 }
 
-/**
- * Logs error to console in development mode only
- * @param context - Context/location where error occurred
- * @param error - The error object
- */
+/** Extract the response data from an Axios-like error, if present. */
+export function getErrorResponseData(error: unknown): Record<string, unknown> | undefined {
+  if (isAxiosError(error)) {
+    return error.response?.data as Record<string, unknown> | undefined;
+  }
+  return undefined;
+}
+
 export function logError(context: string, error: unknown): void {
   if (process.env.NODE_ENV === 'development') {
     console.error(`[${context}]`, error);
-    const axiosErr = error as { response?: { data?: unknown; status?: number } } | undefined;
-    if (axiosErr?.response) {
-      console.error('Error response:', axiosErr.response.data);
-      console.error('Error status:', axiosErr.response.status);
+    if (isAxiosError(error) && error.response) {
+      console.error('Error response:', error.response.data);
+      console.error('Error status:', error.response.status);
     }
   }
 }

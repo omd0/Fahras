@@ -625,7 +625,7 @@ export const FacultyDashboard: React.FC = () => {
                         {filteredProjects.map((project, index) => (
                           <React.Fragment key={project.id}>
                             <ListItem 
-                              button 
+                              component="div"
                               onClick={() => handleProjectClick(project.id)}
                               sx={{ 
                                 '&:hover': { 

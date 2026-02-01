@@ -87,6 +87,7 @@ export interface Project {
   status: 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected' | 'completed';
   is_public: boolean;
   admin_approval_status: 'pending' | 'approved' | 'hidden';
+  approval_status?: 'pending' | 'approved' | 'hidden';
   approved_by_user_id?: number;
   approved_at?: string;
   admin_notes?: string;
@@ -102,7 +103,7 @@ export interface Project {
   approver?: User;
   members?: ProjectMember[];
   advisors?: ProjectAdvisor[];
-  files?: File[];
+  files?: ProjectFile[];
   created_at: string;
   updated_at: string;
 }
@@ -127,7 +128,7 @@ export interface ProjectAdvisor {
   };
 }
 
-export interface File {
+export interface ProjectFile {
   id: number;
   project_id: number;
   uploaded_by_user_id: number;
@@ -141,11 +142,15 @@ export interface File {
   size_human?: string;
   checksum?: string;
   is_public: boolean;
+  storage_exists?: boolean;
   uploaded_at: string;
   uploader?: User;
   created_at: string;
   updated_at: string;
 }
+
+/** @deprecated Use ProjectFile instead — avoids collision with the browser's global File type. */
+export type File = ProjectFile;
 
 export interface LoginCredentials {
   email: string;
@@ -343,6 +348,8 @@ export interface SearchFilters {
   program_id?: string | number;
   department_id?: string | number;
   academic_year?: string;
+  academic_year_filter?: string;
+  title_search?: string;
   semester?: string;
   status?: string;
   is_public?: boolean | null;

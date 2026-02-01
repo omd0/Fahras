@@ -16,6 +16,7 @@ import {
   Search as SearchIcon,
   FilterList as FilterIcon,
 } from '@mui/icons-material';
+import type { DashboardTheme } from '@/config/dashboardThemes';
 
 interface ProjectFiltersProps {
   searchTerm: string;
@@ -25,7 +26,7 @@ interface ProjectFiltersProps {
   onSearchChange: (value: string) => void;
   onStatusChange: (value: string) => void;
   onAcademicYearChange: (value: string) => void;
-  dashboardTheme: Record<string, unknown>;
+  dashboardTheme: DashboardTheme;
 }
 
 export const ProjectFilters: React.FC<ProjectFiltersProps> = ({

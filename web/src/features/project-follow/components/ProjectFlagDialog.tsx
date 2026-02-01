@@ -24,6 +24,7 @@ import {
 } from '@mui/icons-material';
 import { ProjectFlag } from '@/types';
 import { apiService } from '@/lib/api';
+import { getErrorMessage } from '@/utils/errorHandling';
 
 interface ProjectFlagDialogProps {
   open: boolean;
@@ -79,14 +80,14 @@ export const ProjectFlagDialog: React.FC<ProjectFlagDialogProps> = ({
         message,
         is_confidential: isConfidential,
       });
-      onSave();
-      onClose();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to create flag');
-    } finally {
-      setLoading(false);
-    }
-  };
+       onSave();
+       onClose();
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to create flag'));
+     } finally {
+       setLoading(false);
+     }
+   };
 
   return (
     <Dialog

@@ -10,8 +10,10 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { authApi } from '@/lib/api';
+import { User } from '@/types';
 import { OTPInput } from '../components/OTPInput';
 import { useAuthStore } from '../store';
+import { getErrorMessage } from '@/utils/errorHandling';
 
 export const EmailVerificationPage: React.FC = () => {
   const navigate = useNavigate();
@@ -41,8 +43,8 @@ export const EmailVerificationPage: React.FC = () => {
 
     if (emailParam) {
       setEmail(emailParam);
-    } else if (stateEmail) {
-      setEmail(stateEmail);
+     } else if (stateEmail) {
+       setEmail(stateEmail as string);
     }
 
     if (tokenParam) {
@@ -71,13 +73,11 @@ export const EmailVerificationPage: React.FC = () => {
 
       await new Promise(resolve => setTimeout(resolve, 200));
 
-      window.location.href = '/dashboard';
-    } catch (err: unknown) {
-      setError(
-        err.response?.data?.message || 'Invalid or expired verification link'
-      );
-      setVerifyingMagicLink(false);
-    }
+       window.location.href = '/dashboard';
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Invalid or expired verification link'));
+       setVerifyingMagicLink(false);
+     }
   };
 
   const handleVerify = async () => {
@@ -95,26 +95,24 @@ export const EmailVerificationPage: React.FC = () => {
     setError('');
     setSuccess('');
 
-    try {
-      const response = await authApi.verifyEmail(email, otp);
-      setSuccess(response.message);
+     try {
+       const response = await authApi.verifyEmail(email, otp) as { message: string; user: User; token?: string };
+       setSuccess(response.message);
 
-      if (response.token) {
-        setToken(response.token);
-      }
-      setAuthenticated(true);
-      setUser(response.user);
+       if (response.token) {
+         setToken(response.token);
+       }
+       setAuthenticated(true);
+       setUser(response.user);
 
       await new Promise(resolve => setTimeout(resolve, 200));
 
-      window.location.href = '/dashboard';
-    } catch (err: unknown) {
-      setError(
-        err.response?.data?.message || 'Verification failed. Please try again.'
-      );
-    } finally {
-      setLoading(false);
-    }
+       window.location.href = '/dashboard';
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Verification failed. Please try again.'));
+     } finally {
+       setLoading(false);
+     }
   };
 
   const handleResend = async () => {
@@ -130,15 +128,13 @@ export const EmailVerificationPage: React.FC = () => {
     try {
       const response = await authApi.sendVerificationEmail(email);
       setSuccess(response.message);
-      setResendCooldown(60);
-      setOtp('');
-    } catch (err: unknown) {
-      setError(
-        err.response?.data?.message || 'Failed to resend code. Please try again.'
-      );
-    } finally {
-      setResendLoading(false);
-    }
+       setResendCooldown(60);
+       setOtp('');
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to resend code. Please try again.'));
+     } finally {
+       setResendLoading(false);
+     }
   };
 
   if (verifyingMagicLink) {

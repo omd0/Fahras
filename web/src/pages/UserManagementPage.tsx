@@ -47,6 +47,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/features/auth/store';
 import { getDashboardTheme } from '@/config/dashboardThemes';
+import { getErrorMessage } from '@/utils/errorHandling';
 import { apiService } from '@/lib/api';
 import { useLanguage } from '@/providers/LanguageContext';
 import { ConfirmDialog } from '@/components/shared';
@@ -57,7 +58,7 @@ interface User {
   email: string;
   status: string;
   roles: Array<{ id: number; name: string }>;
-  last_login_at: string | null;
+  last_login_at?: string | null;
   created_at: string;
 }
 
@@ -127,13 +128,10 @@ export const UserManagementPage: React.FC = () => {
       setError(null);
       const usersData = await apiService.getAdminUsers();
       setUsers(usersData || []);
-    } catch (error: unknown) {
-      console.error('Failed to fetch users:', error);
-      const message = error && typeof error === 'object' && 'response' in error
-        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message || 'Failed to fetch users'
-        : 'Failed to fetch users';
-      setError(message);
-    } finally {
+     } catch (error: unknown) {
+       console.error('Failed to fetch users:', error);
+       setError(getErrorMessage(error, 'Failed to fetch users'));
+     } finally {
       setLoading(false);
     }
   };
@@ -224,11 +222,7 @@ export const UserManagementPage: React.FC = () => {
       setTimeout(() => setSuccess(null), 3000);
     } catch (error: unknown) {
       console.error('Failed to save user:', error);
-      const errorMessage = error.response?.data?.message 
-        || (error.response?.data?.errors ? Object.values(error.response.data.errors).flat().join(', ') : null)
-        || error.response?.data?.error
-        || 'Failed to save user';
-      setError(errorMessage);
+      setError(getErrorMessage(error, 'Failed to save user'));
       setSuccess(null);
     }
   };
@@ -252,10 +246,7 @@ export const UserManagementPage: React.FC = () => {
       setDeleteConfirmOpen(false);
     } catch (error: unknown) {
       console.error('Failed to delete user:', error);
-      const errorMessage = error.response?.data?.message 
-        || error.response?.data?.error
-        || 'Failed to delete user';
-      setError(errorMessage);
+      setError(getErrorMessage(error, 'Failed to delete user'));
       setSuccess(null);
     } finally {
       setDeleteLoading(false);
@@ -274,10 +265,7 @@ export const UserManagementPage: React.FC = () => {
       setTimeout(() => setSuccess(null), 3000);
     } catch (error: unknown) {
       console.error('Failed to toggle user status:', error);
-      const errorMessage = error.response?.data?.message 
-        || error.response?.data?.error
-        || 'Failed to toggle user status';
-      setError(errorMessage);
+      setError(getErrorMessage(error, 'Failed to toggle user status'));
       setSuccess(null);
     }
   };
@@ -385,7 +373,7 @@ export const UserManagementPage: React.FC = () => {
               </TableCell>
               <TableCell>
                 <Typography variant="body2">
-                  {formatDate(user.last_login_at)}
+                  {formatDate(user.last_login_at ?? null)}
                 </Typography>
               </TableCell>
               <TableCell>

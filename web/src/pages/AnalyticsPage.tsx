@@ -44,6 +44,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/features/auth/store';
 import { apiService } from '@/lib/api';
+import { getErrorMessage } from '@/utils/errorHandling';
 import { getDashboardTheme } from '@/config/dashboardThemes';
 import { Project, Program } from '@/types';
 import { useLanguage } from '@/providers/LanguageContext';
@@ -58,8 +59,8 @@ interface AnalyticsData {
 }
 
 interface TopRatedProject extends Project {
-  average_rating: number;
-  rating_count: number;
+  average_rating?: number;
+  rating_count?: number;
   program?: Program;
 }
 
@@ -157,10 +158,10 @@ export const AnalyticsPage: React.FC = () => {
       setError(null);
       const data = await apiService.getProjectAnalytics();
       setAnalytics(data);
-    } catch (error: unknown) {
-      console.error('Failed to fetch analytics:', error);
-      setError(error.response?.data?.message || 'Failed to fetch analytics');
-    } finally {
+     } catch (error: unknown) {
+       console.error('Failed to fetch analytics:', error);
+       setError(getErrorMessage(error, 'Failed to fetch analytics'));
+     } finally {
       setLoading(false);
     }
   };
@@ -204,21 +205,22 @@ export const AnalyticsPage: React.FC = () => {
         params.academic_year = selectedYear;
       }
 
-      const response = await apiService.getProjects(params);
-      const projects = Array.isArray(response) ? response : response.data || [];
-      
-      
-      // For now, show all projects since we don't have rating data in the list
-      // In a real implementation, you would need to fetch ratings separately
-      const allProjects = projects
-        .filter((project: Project) => project.status === 'approved' || project.status === 'completed')
-        .slice(0, 20); // Top 20 projects
-      
-      setTopRatedProjects(allProjects);
-    } catch (error: unknown) {
-      console.error('Failed to fetch projects:', error);
-      setTopRatedProjects([]);
-    } finally {
+       const response = await apiService.getProjects(params);
+       const projects = Array.isArray(response) ? response : response.data || [];
+       
+       
+       // For now, show all projects since we don't have rating data in the list
+       // In a real implementation, you would need to fetch ratings separately
+       const allProjects = projects
+         .filter((project: Project) => project.status === 'approved' || project.status === 'completed')
+         .slice(0, 20); // Top 20 projects
+       
+       setTopRatedProjects(allProjects);
+     } catch (error: unknown) {
+       console.error('Failed to fetch projects:', error);
+       setError(getErrorMessage(error, 'Failed to fetch projects'));
+       setTopRatedProjects([]);
+     } finally {
       setProjectsLoading(false);
     }
   };
@@ -806,7 +808,7 @@ export const AnalyticsPage: React.FC = () => {
                           {topRatedProjects.map((project, index) => (
                             <React.Fragment key={project.id}>
                               <ListItem 
-                                button 
+                                component="div"
                                 onClick={() => handleProjectClick(project.id)}
                                 sx={{ 
                                   '&:hover': { 

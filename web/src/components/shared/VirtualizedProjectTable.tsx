@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo } from 'react';
-import { List, useListRef } from 'react-window';
+import React, { useCallback, useMemo, useRef } from 'react';
+import { List, type ListImperativeAPI } from 'react-window';
 import {
   Table,
   TableCell,
@@ -207,7 +207,7 @@ const VirtualizedProjectTable: React.FC<VirtualizedProjectTableProps> = ({
   containerHeight = 600,
   itemHeight = 73,
 }) => {
-  const [listRef] = useListRef();
+  const listRef = useRef<ListImperativeAPI>(null);
 
   const rowProps = useMemo(
     () => ({
@@ -237,7 +237,7 @@ const VirtualizedProjectTable: React.FC<VirtualizedProjectTableProps> = ({
   // Scroll to item function
   const _scrollToItem = useCallback((index: number) => {
     if (listRef.current) {
-      listRef.current.scrollToRow(index);
+      listRef.current.scrollToRow({ index });
     }
   }, [listRef]);
 
@@ -316,14 +316,14 @@ const VirtualizedProjectTable: React.FC<VirtualizedProjectTableProps> = ({
         </TableHead>
       </Table>
       <Box sx={{ height: containerHeight }}>
-        <List
+        <List<Record<string, never>>
           listRef={listRef}
           defaultHeight={containerHeight}
           rowCount={projects.length}
           rowHeight={itemHeight}
           overscanCount={5}
-          rowComponent={RowComponent}
-          rowProps={{}}
+          rowComponent={RowComponent as unknown as (props: { ariaAttributes: Record<string, unknown>; index: number; style: React.CSSProperties }) => React.ReactElement}
+          rowProps={{} as Record<string, never>}
         />
       </Box>
     </TableContainer>

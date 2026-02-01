@@ -45,6 +45,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { Project, Program, Department } from '@/types';
 import { apiService } from '@/lib/api';
+import { getErrorMessage } from '@/utils/errorHandling';
 import ProjectApprovalActions from '@/features/projects/components/ProjectApprovalActions';
 import ProjectVisibilityToggle from '@/features/projects/components/ProjectVisibilityToggle';
 import { useLanguage } from '@/providers/LanguageContext';
@@ -127,9 +128,9 @@ const AdminProjectApprovalPage: React.FC = () => {
         setTotalPages(response.pagination.last_page);
         setTotalItems(response.pagination.total);
       }
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to load projects');
-    } finally {
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to load projects'));
+     } finally {
       setLoading(false);
     }
   };

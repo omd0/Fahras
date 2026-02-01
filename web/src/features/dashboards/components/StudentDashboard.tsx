@@ -66,6 +66,7 @@ import { useLanguage } from '@/providers/LanguageContext';
 
 import { ProjectGridSkeleton } from '@/components/skeletons';
 import { UniversalSearchBox } from '@/components/shared/UniversalSearchBox';
+import { getErrorMessage } from '@/utils/errorHandling';
 
 interface StudentStats {
   myProjects: number;
@@ -149,16 +150,16 @@ export const StudentDashboard: React.FC = () => {
           ['submitted', 'under_review'].includes(p.status)
         ).length,
         completed: myProjects.filter((p: Project) => p.status === 'completed').length,
-        pendingApproval: myProjects.filter((p: Project) => 
-          p.admin_approval_status === 'pending'
-        ).length,
-      });
-    } catch (error: unknown) {
-      // Error logged in development only
-      setError(error.response?.data?.message || 'Failed to fetch dashboard data');
-    } finally {
-      setLoading(false);
-    }
+         pendingApproval: myProjects.filter((p: Project) => 
+           p.admin_approval_status === 'pending'
+         ).length,
+       });
+     } catch (error: unknown) {
+       // Error logged in development only
+       setError(getErrorMessage(error, 'Failed to fetch dashboard data'));
+     } finally {
+       setLoading(false);
+     }
   };
 
   const fetchNotifications = async () => {
@@ -220,14 +221,14 @@ export const StudentDashboard: React.FC = () => {
       const response = await apiService.getProjects(params);
       const projectsData = Array.isArray(response) ? response : response.data || [];
 
-      setFilteredProjects(projectsData);
-    } catch (error: unknown) {
-      // Error logged in development only
-      setError(error.response?.data?.message || 'Failed to search projects');
-      setFilteredProjects([]);
-    } finally {
-      setIsSearching(false);
-    }
+       setFilteredProjects(projectsData);
+     } catch (error: unknown) {
+       // Error logged in development only
+       setError(getErrorMessage(error, 'Failed to search projects'));
+       setFilteredProjects([]);
+     } finally {
+       setIsSearching(false);
+     }
   };
 
   const handleClearSearch = () => {
@@ -1111,17 +1112,22 @@ export const StudentDashboard: React.FC = () => {
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             },
           }}>
-            <UniversalSearchBox 
-              onSearch={handleSearch}
-              onClear={handleClearSearch}
-              loading={isSearching}
-              variant="compact"
-              showAdvancedFilters={true}
-              roleSpecificFilters={{
-                showPublicFilter: true,
-              }}
-              placeholder="Search projects and content..."
-            />
+             <UniversalSearchBox 
+               onSearch={(filters) => { 
+                 handleSearch({
+                   ...filters,
+                   sort_order: (filters.sort_order as 'asc' | 'desc' | undefined),
+                 } as SearchFilters);
+               }}
+               onClear={handleClearSearch}
+               loading={isSearching}
+               variant="compact"
+               showAdvancedFilters={true}
+               roleSpecificFilters={{
+                 showPublicFilter: true,
+               }}
+               placeholder="Search projects and content..."
+             />
           </Box>
               </Paper>
             </Slide>

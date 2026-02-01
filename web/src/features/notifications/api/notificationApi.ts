@@ -1,4 +1,5 @@
 import { apiService } from '@/lib/api';
+import { getErrorStatus } from '@/utils/errorHandling';
 
 export interface Notification {
   id: number;
@@ -93,17 +94,12 @@ class NotificationService {
 
       this.lastPollTime = new Date();
     } catch (error: unknown) {
-      // Ignore 401 errors (unauthenticated) - this is expected for public pages
-      if (error?.response?.status === 401) {
-        // Stop polling if we get 401 - user is not authenticated
+      if (getErrorStatus(error) === 401) {
         this.stopPolling();
         return;
       }
       console.error('Failed to check for notifications:', error);
-      // Only call onError for non-401 errors
-      if (error?.response?.status !== 401) {
-        this.callbacks.onError?.(error as Error);
-      }
+      this.callbacks.onError?.(error instanceof Error ? error : new Error('Notification poll failed'));
     }
   }
 

@@ -38,7 +38,9 @@ import {
   ArrowForward as ArrowForwardIcon,
 } from '@mui/icons-material';
 import { MilestoneTemplate, MilestoneTemplateItem, Program, Department } from '@/types';
+import type { MilestoneTemplateData } from '@/types/milestones';
 import { apiService } from '@/lib/api';
+import { getErrorMessage, getValidationErrors } from '@/utils/errorHandling';
 
 interface TemplateEditorProps {
   open: boolean;
@@ -364,29 +366,25 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
       };
 
       if (isNew) {
-        await apiService.createMilestoneTemplate(templateData);
+        await apiService.createMilestoneTemplate(templateData as MilestoneTemplateData);
       } else {
-        await apiService.updateMilestoneTemplate(template!.id, templateData);
+        await apiService.updateMilestoneTemplate(template!.id, templateData as Partial<MilestoneTemplate>);
       }
 
-      onSave();
-    } catch (err: unknown) {
-      // Handle validation errors (422) with field-specific messages
-      if (err.response?.status === 422 && err.response?.data?.errors) {
-        setServerErrors(err.response.data.errors);
-        // Set general error message if available
-        if (err.response.data.message) {
-          setError(err.response.data.message);
-        } else {
-          setError('Validation failed. Please check the form for errors.');
-        }
-      } else {
-        // Handle other errors (500, network error, etc.)
-        setError(err.response?.data?.message || 'Failed to save template');
-      }
-    } finally {
-      setLoading(false);
-    }
+       onSave();
+     } catch (err: unknown) {
+       // Handle validation errors (422) with field-specific messages
+       const validationErrors = getValidationErrors(err);
+       if (validationErrors) {
+         setServerErrors(validationErrors);
+         setError('Validation failed. Please check the form for errors.');
+       } else {
+         // Handle other errors (500, network error, etc.)
+         setError(getErrorMessage(err, 'Failed to save template'));
+       }
+     } finally {
+       setLoading(false);
+     }
   };
 
   if (!open) {

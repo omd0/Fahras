@@ -30,6 +30,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { apiService } from '@/lib/api';
 import { User } from '@/types';
+import { getErrorMessage } from '@/utils/errorHandling';
 import { getDashboardTheme } from '@/config/dashboardThemes';
 import { ChangePasswordForm } from '@/features/auth/components/ChangePasswordForm';
 import { LogoutAllDevicesButton } from '@/features/auth/components/LogoutAllDevicesButton';
@@ -90,14 +91,14 @@ export const ProfilePage: React.FC = () => {
         message: 'Profile updated successfully',
         severity: 'success',
       });
-    } catch (err: unknown) {
-      console.error('Error updating profile:', err);
-      setSnackbar({
-        open: true,
-        message: err.response?.data?.message || 'Failed to update profile',
-        severity: 'error',
-      });
-    } finally {
+     } catch (err: unknown) {
+       console.error('Error updating profile:', err);
+       setSnackbar({
+         open: true,
+         message: getErrorMessage(err, 'Failed to update profile'),
+         severity: 'error',
+       });
+     } finally {
       setUploading(false);
     }
   };
@@ -134,14 +135,14 @@ export const ProfilePage: React.FC = () => {
         message: 'Avatar uploaded successfully',
         severity: 'success',
       });
-    } catch (err: unknown) {
-      console.error('Error uploading avatar:', err);
-      setSnackbar({
-        open: true,
-        message: err.response?.data?.message || 'Failed to upload avatar',
-        severity: 'error',
-      });
-    } finally {
+     } catch (err: unknown) {
+       console.error('Error uploading avatar:', err);
+       setSnackbar({
+         open: true,
+         message: getErrorMessage(err, 'Failed to upload avatar'),
+         severity: 'error',
+       });
+     } finally {
       setUploading(false);
     }
   };
@@ -156,14 +157,14 @@ export const ProfilePage: React.FC = () => {
         message: 'Avatar deleted successfully',
         severity: 'success',
       });
-    } catch (err: unknown) {
-      console.error('Error deleting avatar:', err);
-      setSnackbar({
-        open: true,
-        message: err.response?.data?.message || 'Failed to delete avatar',
-        severity: 'error',
-      });
-    } finally {
+     } catch (err: unknown) {
+       console.error('Error deleting avatar:', err);
+       setSnackbar({
+         open: true,
+         message: getErrorMessage(err, 'Failed to delete avatar'),
+         severity: 'error',
+       });
+     } finally {
       setUploading(false);
     }
   };

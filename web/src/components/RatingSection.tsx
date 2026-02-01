@@ -29,6 +29,7 @@ import {
 import { Rating } from '@/types';
 import { apiService } from '@/lib/api';
 import { useAuthStore } from '@/features/auth/store';
+import { getErrorMessage, getErrorStatus } from '@/utils/errorHandling';
 
 interface RatingSectionProps {
   projectId: number;
@@ -65,17 +66,17 @@ export const RatingSection: React.FC<RatingSectionProps> = ({ projectId }) => {
         setUserRating(existingRating.rating);
         setUserReview(existingRating.review || '');
       }
-    } catch (error: unknown) {
-      // For guest users, don't show error if it's an authentication issue
-      if (error.response?.status === 401 && !user) {
-        setRatings([]);
-        setAverageRating(null);
-        setTotalRatings(0);
-        setError(null);
-      } else {
-        setError(error.response?.data?.message || 'Failed to fetch ratings');
-      }
-    } finally {
+     } catch (error: unknown) {
+       // For guest users, don't show error if it's an authentication issue
+       if (getErrorStatus(error) === 401 && !user) {
+         setRatings([]);
+         setAverageRating(null);
+         setTotalRatings(0);
+         setError(null);
+       } else {
+         setError(getErrorMessage(error, 'Failed to fetch ratings'));
+       }
+     } finally {
       setLoading(false);
     }
   };
@@ -101,13 +102,13 @@ export const RatingSection: React.FC<RatingSectionProps> = ({ projectId }) => {
       setAverageRating(Math.round(newAverage * 10) / 10);
       setTotalRatings(allRatings.length);
       
-      setShowReviewForm(false);
-    } catch (error: unknown) {
-      setError(error.response?.data?.message || 'Failed to submit rating');
-    } finally {
-      setSubmitting(false);
-    }
-  };
+       setShowReviewForm(false);
+     } catch (error: unknown) {
+       setError(getErrorMessage(error, 'Failed to submit rating'));
+     } finally {
+       setSubmitting(false);
+     }
+   };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {

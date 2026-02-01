@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Card, CardContent, Grid, Button, CircularProgress, Alert, Typography, Chip } from '@mui/material';
+import { SearchFilters } from '@/types';
 import {
   Assignment as AssignmentIcon,
   RateReview as RateReviewIcon,
@@ -22,6 +23,7 @@ import { StatsCard } from '@/components/shared/StatsCard';
 import { designTokens } from '@/styles/designTokens';
 import { ProjectCard } from '@/components/shared/ProjectCard';
 import { ProjectSearch } from '@/features/projects/components/ProjectSearch';
+import { getErrorMessage } from '@/utils/errorHandling';
 
 interface ReviewerStats {
   totalProjects: number;
@@ -78,17 +80,17 @@ export const ReviewerDashboard: React.FC = () => {
           const createdDate = new Date(p.created_at);
           return createdDate > weekAgo;
         }).length,
-        approvedProjects: approvedProjects.filter((p: Project) => p.status === 'approved').length,
-      });
-    } catch (error: unknown) {
-      // Error logged in development only
-      setError(error.response?.data?.message || 'Failed to fetch dashboard data');
-    } finally {
-      setLoading(false);
-    }
+         approvedProjects: approvedProjects.filter((p: Project) => p.status === 'approved').length,
+       });
+     } catch (error: unknown) {
+       // Error logged in development only
+       setError(getErrorMessage(error, 'Failed to fetch dashboard data'));
+     } finally {
+       setLoading(false);
+     }
   };
 
-  const handleSearch = async (filters: Record<string, unknown>) => {
+   const handleSearch = async (filters: SearchFilters) => {
     try {
       setIsSearching(true);
       setError(null);
@@ -112,14 +114,14 @@ export const ReviewerDashboard: React.FC = () => {
         p.admin_approval_status === 'approved'
       );
 
-      setFilteredProjects(approvedProjects);
-    } catch (error: unknown) {
-      // Error logged in development only
-      setError(error.response?.data?.message || 'Failed to search projects');
-      setFilteredProjects([]);
-    } finally {
-      setIsSearching(false);
-    }
+       setFilteredProjects(approvedProjects);
+     } catch (error: unknown) {
+       // Error logged in development only
+       setError(getErrorMessage(error, 'Failed to search projects'));
+       setFilteredProjects([]);
+     } finally {
+       setIsSearching(false);
+     }
   };
 
   const handleClearSearch = () => {
@@ -179,31 +181,31 @@ export const ReviewerDashboard: React.FC = () => {
           </Grid>
 
           {/* Search Section */}
-          <Box sx={{ 
-            '& .MuiPaper-root': {
-              borderRadius: 3,
-              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-              border: `2px solid ${theme.palette.primary.main}20`,
-            },
-            '& .MuiButton-contained': {
-              background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: '0 6px 16px rgba(0,0,0,0.15)',
-              },
-              transition: 'all 0.3s ease',
-            },
-            '& .MuiChip-colorPrimary': {
-              background: theme.palette.primary.main,
-              color: 'white',
-            },
-          }}>
-            <ProjectSearch 
-              onSearch={handleSearch}
-              onClear={handleClearSearch}
-              loading={isSearching}
-            />
-          </Box>
+           <Box sx={{ 
+             '& .MuiPaper-root': {
+               borderRadius: 3,
+               boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+               border: `2px solid ${theme.palette.primary.main}20`,
+             },
+             '& .MuiButton-contained': {
+               background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+               '&:hover': {
+                 transform: 'translateY(-2px)',
+                 boxShadow: '0 6px 16px rgba(0,0,0,0.15)',
+               },
+               transition: 'all 0.3s ease',
+             },
+             '& .MuiChip-colorPrimary': {
+               background: theme.palette.primary.main,
+               color: 'white',
+             },
+           }}>
+             <ProjectSearch 
+               onSearch={(filters) => handleSearch(filters as SearchFilters)}
+               onClear={handleClearSearch}
+               loading={isSearching}
+             />
+           </Box>
 
           {/* Search Results Summary and Clear Button */}
           {filteredProjects.length !== projects.length && (

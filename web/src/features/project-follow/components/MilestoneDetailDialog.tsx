@@ -26,6 +26,7 @@ import {
 } from '@mui/icons-material';
 import { ProjectMilestone } from '@/types';
 import { apiService } from '@/lib/api';
+import { getErrorMessage } from '@/utils/errorHandling';
 import { ConfirmDialog } from '@/components/shared';
 
 interface MilestoneDetailDialogProps {
@@ -119,14 +120,14 @@ export const MilestoneDetailDialog: React.FC<MilestoneDetailDialogProps> = ({
           dependencies: selectedDependencies.length > 0 ? selectedDependencies : undefined,
           completion_notes: completionNotes || undefined,
         });
-      }
-      onClose();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to save milestone');
-    } finally {
-      setLoading(false);
-    }
-  };
+       }
+       onClose();
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to save milestone'));
+     } finally {
+       setLoading(false);
+     }
+   };
 
   const handleDelete = async () => {
     if (!milestone || !onDelete) return;
@@ -140,16 +141,16 @@ export const MilestoneDetailDialog: React.FC<MilestoneDetailDialogProps> = ({
     setError(null);
 
     try {
-      await onDelete(milestone.id);
-      setDeleteConfirmOpen(false);
-      onClose();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to delete milestone');
-      setDeleteConfirmOpen(false);
-    } finally {
-      setLoading(false);
-    }
-  };
+       await onDelete(milestone.id);
+       setDeleteConfirmOpen(false);
+       onClose();
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to delete milestone'));
+       setDeleteConfirmOpen(false);
+     } finally {
+       setLoading(false);
+     }
+   };
 
   const handleComplete = async () => {
     if (!milestone || !onComplete) return;
@@ -157,15 +158,15 @@ export const MilestoneDetailDialog: React.FC<MilestoneDetailDialogProps> = ({
     setLoading(true);
     setError(null);
 
-    try {
-      await onComplete(milestone.id, completionNotes);
-      onClose();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to complete milestone');
-    } finally {
-      setLoading(false);
-    }
-  };
+     try {
+       await onComplete(milestone.id, completionNotes);
+       onClose();
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to complete milestone'));
+     } finally {
+       setLoading(false);
+     }
+   };
 
   return (
     <Dialog

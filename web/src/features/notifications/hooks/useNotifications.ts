@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { notificationService, Notification } from '@/features/notifications/api/notificationApi';
 import { useAuthStore } from '@/features/auth/store';
+import { getErrorMessage, getErrorStatus } from '@/utils/errorHandling';
 
 export interface UseNotificationsReturn {
   notifications: Notification[];
@@ -21,79 +22,79 @@ export const useNotifications = (autoRefresh: boolean = true): UseNotificationsR
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const refreshNotifications = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await notificationService.getNotifications();
-      setNotifications(response.notifications);
-      setUnreadCount(response.unread_count);
-    } catch (err: unknown) {
-      // Ignore 401 errors (unauthenticated) - this is expected for public pages
-      if (err?.response?.status === 401) {
-        setNotifications([]);
-        setUnreadCount(0);
-        return;
-      }
-      setError(err.message || 'Failed to fetch notifications');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+   const refreshNotifications = useCallback(async () => {
+     try {
+       setLoading(true);
+       setError(null);
+       const response = await notificationService.getNotifications();
+       setNotifications(response.notifications);
+       setUnreadCount(response.unread_count);
+     } catch (err: unknown) {
+       // Ignore 401 errors (unauthenticated) - this is expected for public pages
+       if (getErrorStatus(err) === 401) {
+         setNotifications([]);
+         setUnreadCount(0);
+         return;
+       }
+       setError(getErrorMessage(err, 'Failed to fetch notifications'));
+     } finally {
+       setLoading(false);
+     }
+   }, []);
 
-  const markAsRead = useCallback(async (notificationId: number) => {
-    try {
-      await notificationService.markAsRead(notificationId);
-      setNotifications(prev => 
-        prev.map(notification => 
-          notification.id === notificationId 
-            ? { ...notification, is_read: true }
-            : notification
-        )
-      );
-      setUnreadCount(prev => Math.max(0, prev - 1));
-    } catch (err: unknown) {
-      setError(err.message || 'Failed to mark notification as read');
-    }
-  }, []);
+   const markAsRead = useCallback(async (notificationId: number) => {
+     try {
+       await notificationService.markAsRead(notificationId);
+       setNotifications(prev => 
+         prev.map(notification => 
+           notification.id === notificationId 
+             ? { ...notification, is_read: true }
+             : notification
+         )
+       );
+       setUnreadCount(prev => Math.max(0, prev - 1));
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to mark notification as read'));
+     }
+   }, []);
 
-  const markAllAsRead = useCallback(async () => {
-    try {
-      await notificationService.markAllAsRead();
-      setNotifications(prev => 
-        prev.map(notification => ({ ...notification, is_read: true }))
-      );
-      setUnreadCount(0);
-    } catch (err: unknown) {
-      setError(err.message || 'Failed to mark all notifications as read');
-    }
-  }, []);
+   const markAllAsRead = useCallback(async () => {
+     try {
+       await notificationService.markAllAsRead();
+       setNotifications(prev => 
+         prev.map(notification => ({ ...notification, is_read: true }))
+       );
+       setUnreadCount(0);
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to mark all notifications as read'));
+     }
+   }, []);
 
-  const deleteNotification = useCallback(async (notificationId: number) => {
-    try {
-      await notificationService.deleteNotification(notificationId);
-      setNotifications(prev => 
-        prev.filter(notification => notification.id !== notificationId)
-      );
-      // Update unread count if the deleted notification was unread
-      const deletedNotification = notifications.find(n => n.id === notificationId);
-      if (deletedNotification && !deletedNotification.is_read) {
-        setUnreadCount(prev => Math.max(0, prev - 1));
-      }
-    } catch (err: unknown) {
-      setError(err.message || 'Failed to delete notification');
-    }
-  }, [notifications]);
+   const deleteNotification = useCallback(async (notificationId: number) => {
+     try {
+       await notificationService.deleteNotification(notificationId);
+       setNotifications(prev => 
+         prev.filter(notification => notification.id !== notificationId)
+       );
+       // Update unread count if the deleted notification was unread
+       const deletedNotification = notifications.find(n => n.id === notificationId);
+       if (deletedNotification && !deletedNotification.is_read) {
+         setUnreadCount(prev => Math.max(0, prev - 1));
+       }
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to delete notification'));
+     }
+   }, [notifications]);
 
-  const deleteAllNotifications = useCallback(async () => {
-    try {
-      await notificationService.deleteAllNotifications();
-      setNotifications([]);
-      setUnreadCount(0);
-    } catch (err: unknown) {
-      setError(err.message || 'Failed to delete all notifications');
-    }
-  }, []);
+   const deleteAllNotifications = useCallback(async () => {
+     try {
+       await notificationService.deleteAllNotifications();
+       setNotifications([]);
+       setUnreadCount(0);
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to delete all notifications'));
+     }
+   }, []);
 
   useEffect(() => {
     // Only fetch notifications if user is authenticated

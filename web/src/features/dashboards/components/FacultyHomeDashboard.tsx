@@ -16,6 +16,7 @@ import { useLanguage } from '@/providers/LanguageContext';
 import { DashboardContainer } from '@/components/shared/DashboardContainer';
 import { DashboardHeader } from '@/components/shared/DashboardHeader';
 import { ProjectCard } from '@/components/shared/ProjectCard';
+import { getErrorMessage } from '@/utils/errorHandling';
 
 interface FacultyStats {
   advisingProjects: number;
@@ -73,18 +74,18 @@ export const FacultyHomeDashboard: React.FC = () => {
         advisingProjects: advisingProjects.length,
         underReview: advisingProjects.filter((p: Project) => p.status === 'under_review').length,
         completed: advisingProjects.filter((p: Project) => p.status === 'completed').length,
-        thisMonth: advisingProjects.filter((p: Project) => {
-          const createdDate = new Date(p.created_at);
-          const now = new Date();
-          return createdDate.getMonth() === now.getMonth() && createdDate.getFullYear() === now.getFullYear();
-        }).length,
-      });
-    } catch (error: unknown) {
-      // Error logged in development only
-      setError(error.response?.data?.message || 'Failed to fetch dashboard data');
-    } finally {
-      setLoading(false);
-    }
+         thisMonth: advisingProjects.filter((p: Project) => {
+           const createdDate = new Date(p.created_at);
+           const now = new Date();
+           return createdDate.getMonth() === now.getMonth() && createdDate.getFullYear() === now.getFullYear();
+         }).length,
+       });
+     } catch (error: unknown) {
+       // Error logged in development only
+       setError(getErrorMessage(error, 'Failed to fetch dashboard data'));
+     } finally {
+       setLoading(false);
+     }
   };
 
   return (

@@ -26,6 +26,7 @@ import {
 import { useAuthStore } from '@/features/auth/store';
 import { apiService } from '@/lib/api';
 import { Role, User } from '@/types';
+import { getErrorMessage } from '@/utils/errorHandling';
 
 interface AuthTestResult {
   success: boolean;
@@ -44,20 +45,21 @@ export const TestAuthPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiService.getCurrentUser();
-      setAuthTest({
-        success: true,
-        data: response,
-        timestamp: new Date().toISOString(),
-      });
-    } catch (err: unknown) {
-      setAuthTest({
-        success: false,
-        error: err.message || 'Authentication test failed',
-        timestamp: new Date().toISOString(),
-      });
-      setError(err.message || 'Authentication test failed');
-    } finally {
+       const response = await apiService.getUser();
+       setAuthTest({
+         success: true,
+         data: response.user,
+         timestamp: new Date().toISOString(),
+       });
+     } catch (err: unknown) {
+       const errorMsg = getErrorMessage(err, 'Authentication test failed');
+       setAuthTest({
+         success: false,
+         error: errorMsg,
+         timestamp: new Date().toISOString(),
+       });
+       setError(errorMsg);
+     } finally {
       setLoading(false);
     }
   };

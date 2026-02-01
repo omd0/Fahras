@@ -17,6 +17,7 @@ import {
 } from '@mui/icons-material';
 import { Project } from '@/types';
 import { apiService } from '@/lib/api';
+import { getErrorMessage } from '@/utils/errorHandling';
 
 interface ProjectApprovalActionsProps {
   project: Project;
@@ -35,37 +36,37 @@ const ProjectApprovalActions: React.FC<ProjectApprovalActionsProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleApprove = async () => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      await apiService.approveProject(project.id, { admin_notes: adminNotes });
-      setApproveDialogOpen(false);
-      setAdminNotes('');
-      onActionComplete();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to approve project');
-    } finally {
-      setLoading(false);
-    }
-  };
+   const handleApprove = async () => {
+     setLoading(true);
+     setError(null);
+     
+     try {
+       await apiService.approveProject(project.id, { admin_notes: adminNotes });
+       setApproveDialogOpen(false);
+       setAdminNotes('');
+       onActionComplete();
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to approve project'));
+     } finally {
+       setLoading(false);
+     }
+   };
 
-  const handleHide = async () => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      await apiService.hideProject(project.id, { admin_notes: adminNotes });
-      setHideDialogOpen(false);
-      setAdminNotes('');
-      onActionComplete();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to hide project');
-    } finally {
-      setLoading(false);
-    }
-  };
+   const handleHide = async () => {
+     setLoading(true);
+     setError(null);
+     
+     try {
+       await apiService.hideProject(project.id, { admin_notes: adminNotes });
+       setHideDialogOpen(false);
+       setAdminNotes('');
+       onActionComplete();
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to hide project'));
+     } finally {
+       setLoading(false);
+     }
+   };
 
   const getApprovalStatusChip = () => {
     switch (project.admin_approval_status) {

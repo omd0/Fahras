@@ -122,41 +122,35 @@ export const useRepositoryStore = create<RepositoryStore>((set, get) => ({
   // Expansion operations
   toggleExpand: (path) =>
     set((state) => {
-      const newExpanded = new Set(state.expandedPaths);
-      if (newExpanded.has(path)) {
-        newExpanded.delete(path);
-      } else {
-        newExpanded.add(path);
-      }
-      return { expandedPaths: newExpanded };
+      const s = new Set(state.expandedPaths);
+      if (s.has(path)) { s.delete(path); } else { s.add(path); }
+      return { expandedPaths: [...s] };
     }),
 
   expandPath: (path) =>
     set((state) => {
-      const newExpanded = new Set(state.expandedPaths);
-      newExpanded.add(path);
-      return { expandedPaths: newExpanded };
+      const s = new Set(state.expandedPaths);
+      s.add(path);
+      return { expandedPaths: [...s] };
     }),
 
   collapsePath: (path) =>
     set((state) => {
-      const newExpanded = new Set(state.expandedPaths);
-      newExpanded.delete(path);
-      return { expandedPaths: newExpanded };
+      const s = new Set(state.expandedPaths);
+      s.delete(path);
+      return { expandedPaths: [...s] };
     }),
 
   expandAll: () =>
     set((state) => {
-      const newExpanded = new Set(state.expandedPaths);
+      const s = new Set(state.expandedPaths);
       Object.values(state.fileTree).forEach((node) => {
-        if (node.type === 'folder') {
-          newExpanded.add(node.path);
-        }
+        if (node.type === 'folder') { s.add(node.path); }
       });
-      return { expandedPaths: newExpanded };
+      return { expandedPaths: [...s] };
     }),
 
-  collapseAll: () => set({ expandedPaths: new Set() }),
+  collapseAll: () => set({ expandedPaths: [] }),
 
   // Selection operations
   selectFile: (path) => set({ selectedFilePath: path }),

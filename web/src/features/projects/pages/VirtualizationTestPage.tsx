@@ -72,7 +72,7 @@ const generateMockProjects = (count: number): Project[] => {
     rating_count: Math.floor(Math.random() * 50) + 1,
     created_at: new Date(2024, index % 12, (index % 28) + 1).toISOString(),
     updated_at: new Date(2024, index % 12, (index % 28) + 1).toISOString(),
-  })) as Project[];
+  })) as unknown as Project[];
 };
 
 export const VirtualizationTestPage: React.FC = () => {

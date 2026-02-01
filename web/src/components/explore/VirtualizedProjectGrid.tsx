@@ -1,5 +1,5 @@
 import React, { useRef, useCallback, useMemo } from 'react';
-import { Grid, useGridRef } from 'react-window';
+import { Grid, type GridImperativeAPI } from 'react-window';
 import { Box, useMediaQuery, useTheme } from '@mui/material';
 import { Project } from '@/types';
 import { ProjectGridCard } from './ProjectGridCard';
@@ -17,7 +17,7 @@ export const VirtualizedProjectGrid: React.FC<VirtualizedProjectGridProps> = ({
   itemGap = 32,
 }) => {
   const theme = useTheme();
-  const [gridRef] = useGridRef();
+  const gridRef = useRef<GridImperativeAPI>(null);
 
   // Responsive column count based on screen size
   const isXs = useMediaQuery(theme.breakpoints.down('md'));
@@ -50,9 +50,12 @@ export const VirtualizedProjectGrid: React.FC<VirtualizedProjectGridProps> = ({
   const rowCount = Math.ceil(projects.length / columnCount);
 
   // Cell renderer component
-  const CellComponent = useCallback(({ columnIndex, rowIndex, style }: { columnIndex: number; rowIndex: number; style: React.CSSProperties }) => {
+  const CellComponent = useCallback((props: { columnIndex: number; rowIndex: number; style: React.CSSProperties }): React.ReactElement => {
+    const { columnIndex, rowIndex, style } = props;
     const index = rowIndex * columnCount + columnIndex;
-    if (index >= projects.length) return null;
+    if (index >= projects.length) {
+      return <Box style={style} />;
+    }
 
     const project = projects[index];
 
@@ -74,7 +77,7 @@ export const VirtualizedProjectGrid: React.FC<VirtualizedProjectGridProps> = ({
 
   return (
     <Box ref={containerRef} sx={{ width: '100%', height: containerHeight }}>
-      <Grid
+      <Grid<Record<string, never>>
         gridRef={gridRef}
         columnCount={columnCount}
         columnWidth={itemWidth + itemGap}
@@ -83,11 +86,9 @@ export const VirtualizedProjectGrid: React.FC<VirtualizedProjectGridProps> = ({
         rowCount={rowCount}
         rowHeight={itemHeight}
         overscanCount={2}
-        style={{
-          overflowX: 'hidden',
-        }}
-        cellComponent={CellComponent}
-        cellProps={{}}
+        style={{ overflowX: 'hidden' }}
+        cellComponent={CellComponent as unknown as (props: { ariaAttributes: Record<string, unknown>; columnIndex: number; rowIndex: number; style: React.CSSProperties }) => React.ReactElement}
+        cellProps={{} as Record<string, never>}
       />
     </Box>
   );

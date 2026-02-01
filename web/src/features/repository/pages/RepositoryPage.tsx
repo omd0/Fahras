@@ -10,6 +10,7 @@ import { FileContentViewer } from '@/features/repository/components/FileContentV
 import { useRepositoryStore } from '@/store/repositoryStore';
 import { Breadcrumb, BreadcrumbItem } from '@/components/shared/Breadcrumb';
 import { Code as CodeIcon } from '@mui/icons-material';
+import { getErrorMessage } from '@/utils/errorHandling';
 
 export const RepositoryPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -44,10 +45,10 @@ export const RepositoryPage: React.FC = () => {
     try {
       const response = await apiService.getProject(projectId);
       setProject(response.project || response);
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to load project');
-      console.error('Failed to fetch project:', err);
-    } finally {
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to load project'));
+       console.error('Failed to fetch project:', err);
+     } finally {
       setLoading(false);
     }
   };

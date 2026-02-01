@@ -25,6 +25,7 @@ import {
 } from '@mui/icons-material';
 import { ProjectMilestone, TimelineLink } from '@/types';
 import { apiService } from '@/lib/api';
+import { getErrorMessage } from '@/utils/errorHandling';
 import { MilestoneTimelineItem } from './MilestoneTimelineItem';
 import { MilestoneDetailDialog } from './MilestoneDetailDialog';
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
@@ -92,49 +93,49 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
     }
   };
 
-  const handleStart = async (milestoneId: number) => {
-    if (!onStart) return;
-    setLoading(true);
-    setError(null);
-    try {
-      await onStart(milestoneId);
-      if (onRefresh) onRefresh();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to start milestone');
-    } finally {
-      setLoading(false);
-    }
-  };
+   const handleStart = async (milestoneId: number) => {
+     if (!onStart) return;
+     setLoading(true);
+     setError(null);
+     try {
+       await onStart(milestoneId);
+       if (onRefresh) onRefresh();
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to start milestone'));
+     } finally {
+       setLoading(false);
+     }
+   };
 
-  const handleComplete = async (milestoneId: number, notes?: string) => {
-    if (!onComplete) return;
-    setLoading(true);
-    setError(null);
-    try {
-      await onComplete(milestoneId, notes);
-      if (onRefresh) onRefresh();
-      setDialogOpen(false);
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to complete milestone');
-    } finally {
-      setLoading(false);
-    }
-  };
+   const handleComplete = async (milestoneId: number, notes?: string) => {
+     if (!onComplete) return;
+     setLoading(true);
+     setError(null);
+     try {
+       await onComplete(milestoneId, notes);
+       if (onRefresh) onRefresh();
+       setDialogOpen(false);
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to complete milestone'));
+     } finally {
+       setLoading(false);
+     }
+   };
 
-  const handleUpdate = async (milestoneId: number, data: Partial<ProjectMilestone>) => {
-    if (!onUpdate) return;
-    setLoading(true);
-    setError(null);
-    try {
-      await onUpdate(milestoneId, data);
-      if (onRefresh) onRefresh();
-      setDialogOpen(false);
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to update milestone');
-    } finally {
-      setLoading(false);
-    }
-  };
+   const handleUpdate = async (milestoneId: number, data: Partial<ProjectMilestone>) => {
+     if (!onUpdate) return;
+     setLoading(true);
+     setError(null);
+     try {
+       await onUpdate(milestoneId, data);
+       if (onRefresh) onRefresh();
+       setDialogOpen(false);
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to update milestone'));
+     } finally {
+       setLoading(false);
+     }
+   };
 
   const handleDelete = async (milestoneId: number) => {
     if (!onDelete) return;
@@ -142,38 +143,38 @@ export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
     setDeleteConfirmOpen(true);
   };
 
-  const handleConfirmDelete = async () => {
-    if (!onDelete || milestoneToDelete === null) return;
-    
-    setLoading(true);
-    setError(null);
-    try {
-      await onDelete(milestoneToDelete);
-      if (onRefresh) onRefresh();
-      setDialogOpen(false);
-      setDeleteConfirmOpen(false);
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to delete milestone');
-      setDeleteConfirmOpen(false);
-    } finally {
-      setLoading(false);
-      setMilestoneToDelete(null);
-    }
-  };
+   const handleConfirmDelete = async () => {
+     if (!onDelete || milestoneToDelete === null) return;
+     
+     setLoading(true);
+     setError(null);
+     try {
+       await onDelete(milestoneToDelete);
+       if (onRefresh) onRefresh();
+       setDialogOpen(false);
+       setDeleteConfirmOpen(false);
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to delete milestone'));
+       setDeleteConfirmOpen(false);
+     } finally {
+       setLoading(false);
+       setMilestoneToDelete(null);
+     }
+   };
 
    const getMilestoneStatus = (milestone: ProjectMilestone): ProjectMilestone['status'] | 'overdue' => {
      if (milestone.status === 'completed') return 'completed';
      if (milestone.status === 'in_progress') return 'in_progress';
      if (milestone.status === 'blocked') return 'blocked';
      
-     // Check if overdue
-     if (milestone.due_date) {
-       const dueDate = new Date(milestone.due_date);
-       const now = new Date();
-       if (dueDate < now && milestone.status !== 'completed') {
-         return 'overdue';
-       }
-     }
+      // Check if overdue
+      if (milestone.due_date) {
+        const dueDate = new Date(milestone.due_date);
+        const now = new Date();
+        if (dueDate < now && milestone.status === 'not_started') {
+          return 'overdue';
+        }
+      }
      
      return milestone.status;
    };

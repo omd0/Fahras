@@ -27,6 +27,7 @@ import { MilestoneTemplate, Program, Department } from '@/types';
 import { TemplateList } from '@/features/milestones/components/TemplateList';
 import { TemplateEditor } from '@/features/milestones/components/TemplateEditor';
 import { ConfirmDialog } from '@/components/shared';
+import { getErrorMessage } from '@/utils/errorHandling';
 
 export const MilestoneTemplateConfigPage: React.FC = () => {
   const [_activeTab, setActiveTab] = useState(0);
@@ -61,13 +62,13 @@ export const MilestoneTemplateConfigPage: React.FC = () => {
         apiService.getPrograms(),
         apiService.getDepartments(),
       ]);
-      setPrograms(programsRes || []);
-      setDepartments(departmentsRes || []);
-     } catch (_err: unknown) {
-       setError('Failed to load programs and departments');
-    } finally {
-      setLoading(false);
-    }
+       setPrograms(programsRes || []);
+       setDepartments(departmentsRes || []);
+      } catch (_err: unknown) {
+        setError(getErrorMessage(_err, 'Failed to load programs and departments'));
+     } finally {
+       setLoading(false);
+     }
   };
 
   const loadTemplates = async () => {
@@ -78,12 +79,12 @@ export const MilestoneTemplateConfigPage: React.FC = () => {
         program_id: filterProgram || undefined,
         department_id: filterDepartment || undefined,
       });
-      setTemplates(response.templates || []);
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to load templates');
-    } finally {
-      setLoading(false);
-    }
+       setTemplates(response.templates || []);
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to load templates'));
+     } finally {
+       setLoading(false);
+     }
   };
 
   const _handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
@@ -112,14 +113,14 @@ export const MilestoneTemplateConfigPage: React.FC = () => {
       setDeleteLoading(true);
       await apiService.deleteMilestoneTemplate(templateToDelete);
       setDeleteConfirmOpen(false);
-      await loadTemplates();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to delete program');
-      setDeleteConfirmOpen(false);
-    } finally {
-      setDeleteLoading(false);
-      setTemplateToDelete(null);
-    }
+       await loadTemplates();
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to delete program'));
+       setDeleteConfirmOpen(false);
+     } finally {
+       setDeleteLoading(false);
+       setTemplateToDelete(null);
+     }
   };
 
   const handleEditorClose = () => {

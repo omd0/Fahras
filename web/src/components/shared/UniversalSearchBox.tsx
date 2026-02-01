@@ -343,7 +343,7 @@ export const UniversalSearchBox: React.FC<UniversalSearchBoxProps> = ({
                     <Select
                       value={filters.is_public === null ? '' : filters.is_public ? 'public' : 'private'}
                       onChange={(e) => {
-                        const value = e.target.value;
+                        const value = e.target.value as '' | 'public' | 'private';
                         handleFilterChange('is_public', value === '' ? null : value === 'public');
                       }}
                       label="Visibility"
@@ -403,20 +403,20 @@ export const UniversalSearchBox: React.FC<UniversalSearchBoxProps> = ({
                       size="small"
                     />
                   )}
-                  {filters.program_id && (
-                    <Chip
-                      label={`Program: ${programs.find(p => p.id === filters.program_id)?.name}`}
-                      onDelete={() => handleFilterChange('program_id', '')}
-                      size="small"
-                    />
-                  )}
-                  {filters.department_id && (
-                    <Chip
-                      label={`Dept: ${departments.find(d => d.id === filters.department_id)?.name}`}
-                      onDelete={() => handleFilterChange('department_id', '')}
-                      size="small"
-                    />
-                  )}
+                   {filters.program_id && (
+                     <Chip
+                       label={`Program: ${programs.find(p => p.id === Number(filters.program_id))?.name}`}
+                       onDelete={() => handleFilterChange('program_id', '')}
+                       size="small"
+                     />
+                   )}
+                   {filters.department_id && (
+                     <Chip
+                       label={`Dept: ${departments.find(d => d.id === Number(filters.department_id))?.name}`}
+                       onDelete={() => handleFilterChange('department_id', '')}
+                       size="small"
+                     />
+                   )}
                   {filters.academic_year && (
                     <Chip
                       label={`Year: ${filters.academic_year}`}

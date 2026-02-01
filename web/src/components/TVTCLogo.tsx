@@ -1,12 +1,13 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
+import type { SxProps, Theme } from '@mui/material/styles';
 import { School as SchoolIcon } from '@mui/icons-material';
 
 interface TVTCLogoProps {
   size?: 'small' | 'medium' | 'large';
   variant?: 'full' | 'icon' | 'text';
   color?: 'primary' | 'secondary' | 'inherit';
-  sx?: React.CSSProperties;
+  sx?: SxProps<Theme>;
 }
 
 export const TVTCLogo: React.FC<TVTCLogoProps> = ({ 

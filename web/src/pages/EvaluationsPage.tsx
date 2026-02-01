@@ -36,6 +36,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/features/auth/store';
 import { apiService } from '@/lib/api';
+import { getErrorMessage } from '@/utils/errorHandling';
 import { getDashboardTheme } from '@/config/dashboardThemes';
 import { useLanguage } from '@/providers/LanguageContext';
 
@@ -104,10 +105,10 @@ export const EvaluationsPage: React.FC = () => {
       setError(null);
       const response = await apiService.getMyEvaluations();
       setEvaluations(response.data || []);
-    } catch (error: unknown) {
-      console.error('Failed to fetch evaluations:', error);
-      setError(error.response?.data?.message || 'Failed to fetch evaluations');
-    } finally {
+     } catch (error: unknown) {
+       console.error('Failed to fetch evaluations:', error);
+       setError(getErrorMessage(error, 'Failed to fetch evaluations'));
+     } finally {
       setLoading(false);
     }
   };
@@ -156,11 +157,11 @@ export const EvaluationsPage: React.FC = () => {
       
       setEvaluationDialogOpen(false);
       fetchEvaluations();
-    } catch (error: unknown) {
-      console.error('Failed to submit evaluation:', error);
-      setError(error.response?.data?.message || 'Failed to submit evaluation');
-    }
-  };
+     } catch (error: unknown) {
+       console.error('Failed to submit evaluation:', error);
+       setError(getErrorMessage(error, 'Failed to submit evaluation'));
+     }
+   };
 
   const getStatusColor = (status: string) => {
     switch (status) {

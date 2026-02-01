@@ -48,7 +48,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     }
   };
 
-  const canEdit = user && (user.id === project.creator_id || user.roles?.some(r => r.name === 'admin'));
+  const canEdit = user && (user.id === project.created_by_user_id || user.roles?.some(r => r.name === 'admin'));
 
   return (
     <BasePortalCard

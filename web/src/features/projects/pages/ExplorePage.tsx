@@ -45,6 +45,7 @@ import {
 import { Project, SearchFilters, Department, Program } from '@/types';
 import { apiService } from '@/lib/api';
 import { useLanguage } from '@/providers/LanguageContext';
+import { getErrorMessage } from '@/utils/errorHandling';
 import { SavedSearches } from '@/components/explore/SavedSearches';
 import { SmartProjectGrid } from '@/components/explore/SmartProjectGrid';
 import { ProjectGridSkeleton } from '@/components/skeletons';
@@ -121,20 +122,10 @@ export const ExplorePage: React.FC = () => {
         .slice(0, 6);
       setTopProjects(topProjectsData);
 
-    } catch (error: unknown) {
-      console.error('Failed to fetch projects:', error);
-      const axiosError = error && typeof error === 'object' && 'response' in error
-        ? error as { message?: string; response?: { data?: { message?: string }; status?: number }; config?: { url?: string; baseURL?: string } }
-        : null;
-      console.error('Error details:', {
-        message: axiosError?.message,
-        response: axiosError?.response?.data,
-        status: axiosError?.response?.status,
-        url: axiosError?.config?.url,
-        baseURL: axiosError?.config?.baseURL
-      });
-      setError(axiosError?.response?.data?.message || axiosError?.message || 'Failed to fetch projects');
-    } finally {
+     } catch (error: unknown) {
+       console.error('Failed to fetch projects:', error);
+       setError(getErrorMessage(error, 'Failed to fetch projects'));
+     } finally {
       setLoading(false);
     }
   };
@@ -178,14 +169,11 @@ export const ExplorePage: React.FC = () => {
       const projectsData = Array.isArray(response) ? response : response.data || [];
 
       setFilteredProjects(projectsData);
-    } catch (error: unknown) {
-      console.error('Failed to search projects:', error);
-      const message = error && typeof error === 'object' && 'response' in error
-        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message || 'Failed to search projects'
-        : 'Failed to search projects';
-      setError(message);
-      setFilteredProjects([]);
-    } finally {
+     } catch (error: unknown) {
+       console.error('Failed to search projects:', error);
+       setError(getErrorMessage(error, 'Failed to search projects'));
+       setFilteredProjects([]);
+     } finally {
       setSearching(false);
     }
   };

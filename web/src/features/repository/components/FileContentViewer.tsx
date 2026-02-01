@@ -16,6 +16,7 @@ import {
 } from '@mui/icons-material';
 import { repositoryService } from '@/features/repository/api/repositoryApi';
 import { useRepositoryStore } from '@/store/repositoryStore';
+import { getErrorMessage } from '@/utils/errorHandling';
 
 interface FileContentViewerProps {
   projectId: number;
@@ -72,10 +73,10 @@ export const FileContentViewer: React.FC<FileContentViewerProps> = ({
         );
         setContent(response.content);
         setMimeType(response.mime_type);
-      } catch (err: unknown) {
-        setError(err.message || 'Failed to load file content');
-        console.error('Failed to load file content:', err);
-      } finally {
+       } catch (err: unknown) {
+         setError(getErrorMessage(err, 'Failed to load file content'));
+         console.error('Failed to load file content:', err);
+       } finally {
         setLoading(false);
       }
     };

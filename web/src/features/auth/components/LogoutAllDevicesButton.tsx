@@ -15,6 +15,7 @@ import {
 import { Logout } from '@mui/icons-material';
 import { authApi } from '@/lib/api';
 import { useAuthStore } from '../store';
+import { getErrorMessage } from '@/utils/errorHandling';
 
 export const LogoutAllDevicesButton: React.FC = () => {
   const navigate = useNavigate();
@@ -48,16 +49,13 @@ export const LogoutAllDevicesButton: React.FC = () => {
       // Close dialog
       setOpen(false);
 
-      // Redirect to login
-      navigate('/login', { replace: true });
-    } catch (err: unknown) {
-      setError(
-        err.response?.data?.message ||
-          'Failed to logout from all devices. Please try again.'
-      );
-    } finally {
-      setLoading(false);
-    }
+       // Redirect to login
+       navigate('/login', { replace: true });
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to logout from all devices. Please try again.'));
+     } finally {
+       setLoading(false);
+     }
   };
 
   return (

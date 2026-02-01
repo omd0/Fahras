@@ -29,6 +29,7 @@ import { useAuthStore } from '@/features/auth/store';
 import { useLanguage } from '@/providers/LanguageContext';
 import { getGuestBookmarks } from '@/utils/bookmarkCookies';
 import { BookmarkButton } from '@/features/bookmarks/components/BookmarkButton';
+import { getErrorMessage } from '@/utils/errorHandling';
 
 const COLORS = guestColors;
 const decorativeElements = createDecorativeElements();
@@ -75,12 +76,12 @@ export const MyBookmarksPage: React.FC = () => {
         
         setProjects(validProjects);
       }
-    } catch (error: unknown) {
-      console.error('Failed to fetch bookmarked projects:', error);
-      setError(error.response?.data?.message || error?.message || 'Failed to fetch bookmarked projects');
-    } finally {
-      setLoading(false);
-    }
+     } catch (error: unknown) {
+       console.error('Failed to fetch bookmarked projects:', error);
+       setError(getErrorMessage(error, 'Failed to fetch bookmarked projects'));
+     } finally {
+       setLoading(false);
+     }
   };
 
   if (loading) {

@@ -32,6 +32,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { getStatusColor } from '@/utils/projectHelpers';
 import { Project } from '@/types';
+import { getErrorMessage } from '@/utils/errorHandling';
 import { apiService } from '@/lib/api';
 import { TVTCLogo } from '@/components/TVTCLogo';
 import { TVTCBranding } from '@/components/TVTCBranding';
@@ -63,12 +64,12 @@ export const PublicDashboardPage: React.FC = () => {
       );
 
       setProjects(publicProjects);
-    } catch (error: unknown) {
-      console.error('Failed to fetch public projects:', error);
-      setError(error.response?.data?.message || 'Failed to fetch projects');
-      // Even on error, set empty array to avoid crashes
-      setProjects([]);
-    } finally {
+     } catch (error: unknown) {
+       console.error('Failed to fetch public projects:', error);
+       setError(getErrorMessage(error, 'Failed to fetch projects'));
+       // Even on error, set empty array to avoid crashes
+       setProjects([]);
+     } finally {
       setLoading(false);
     }
   };

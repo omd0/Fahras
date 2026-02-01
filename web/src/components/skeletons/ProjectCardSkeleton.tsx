@@ -35,8 +35,8 @@ export const ProjectCardSkeleton: React.FC<ProjectCardSkeletonProps> = ({
         {/* Icon Badge Skeleton */}
         <Skeleton
           variant="circular"
-          width={{ xs: 64, sm: 80 }}
-          height={{ xs: 64, sm: 80 }}
+          width={80}
+          height={80}
           sx={{ mb: 2 }}
         />
 

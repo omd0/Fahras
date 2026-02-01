@@ -15,6 +15,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { CheckCircle as CheckCircleIcon } from '@mui/icons-material';
+import { getErrorMessage } from '@/utils/errorHandling';
 
 interface StatusSelectorProps {
   open: boolean;
@@ -54,14 +55,14 @@ export const StatusSelector: React.FC<StatusSelectorProps> = ({
 
     setSaving(true);
     setError(null);
-    try {
-      await onSave(selectedStatus);
-      onClose();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to update status');
-    } finally {
-      setSaving(false);
-    }
+     try {
+       await onSave(selectedStatus);
+       onClose();
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to update status'));
+     } finally {
+       setSaving(false);
+     }
   };
 
   const handleClose = () => {

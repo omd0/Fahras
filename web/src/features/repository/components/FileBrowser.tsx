@@ -22,6 +22,7 @@ import {
 } from '@mui/icons-material';
 import { useRepositoryStore } from '@/store/repositoryStore';
 import { repositoryService } from '@/features/repository/api/repositoryApi';
+import { getErrorMessage } from '@/utils/errorHandling';
 
 interface FileBrowserProps {
   projectId: number;
@@ -62,10 +63,10 @@ export const FileBrowser: React.FC<FileBrowserProps> = ({
       try {
         const tree = await repositoryService.getFileTree(projectId);
         setFileTree(tree);
-      } catch (err: unknown) {
-        setError(err.message || 'Failed to load file tree');
-        console.error('Failed to load file tree:', err);
-      } finally {
+       } catch (err: unknown) {
+         setError(getErrorMessage(err, 'Failed to load file tree'));
+         console.error('Failed to load file tree:', err);
+       } finally {
         setLoading(false);
       }
     };

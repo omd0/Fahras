@@ -22,6 +22,7 @@ import {
   Send as SendIcon,
 } from '@mui/icons-material';
 import { apiService } from '@/lib/api';
+import { getErrorMessage } from '@/utils/errorHandling';
 
 interface Comment {
   id: number;
@@ -104,14 +105,14 @@ export const ProjectInteractions: React.FC<ProjectInteractionsProps> = ({
       setSuccess('Comment added successfully!');
       onCommentAdded?.();
       
-      // Clear success message after 3 seconds
-      setTimeout(() => setSuccess(null), 3000);
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to add comment');
-    } finally {
-      setSubmittingComment(false);
-    }
-  };
+       // Clear success message after 3 seconds
+       setTimeout(() => setSuccess(null), 3000);
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to add comment'));
+     } finally {
+       setSubmittingComment(false);
+     }
+   };
 
   const handleRatingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,14 +129,14 @@ export const ProjectInteractions: React.FC<ProjectInteractionsProps> = ({
       setSuccess('Rating submitted successfully!');
       onRatingAdded?.();
       
-      // Clear success message after 3 seconds
-      setTimeout(() => setSuccess(null), 3000);
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to submit rating');
-    } finally {
-      setSubmittingRating(false);
-    }
-  };
+       // Clear success message after 3 seconds
+       setTimeout(() => setSuccess(null), 3000);
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to submit rating'));
+     } finally {
+       setSubmittingRating(false);
+     }
+   };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {

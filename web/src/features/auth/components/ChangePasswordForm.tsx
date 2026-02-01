@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { authApi } from '@/lib/api';
+import { getErrorMessage } from '@/utils/errorHandling';
 
 export const ChangePasswordForm: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -80,12 +81,9 @@ export const ChangePasswordForm: React.FC = () => {
         new_password: '',
         new_password_confirmation: '',
       });
-    } catch (err: unknown) {
-      setError(
-        err.response?.data?.message ||
-          'Failed to change password. Please try again.'
-      );
-    } finally {
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to change password. Please try again.'));
+     } finally {
       setLoading(false);
     }
   };

@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import { ProjectActivity } from '@/types';
 import { apiService } from '@/lib/api';
+import { getErrorMessage } from '@/utils/errorHandling';
 import { ActivityItem } from './ActivityItem';
 
 interface ActivityFeedProps {
@@ -69,9 +70,9 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
       
       setHasMore(response.pagination.current_page < response.pagination.last_page);
       setPage(pageNum);
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to load activities');
-    } finally {
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to load activities'));
+     } finally {
       setLoading(false);
     }
   };

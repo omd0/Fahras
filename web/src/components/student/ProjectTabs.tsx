@@ -24,6 +24,7 @@ import {
   Add as AddIcon,
 } from '@mui/icons-material';
 import { Project } from '@/types';
+import type { DashboardTheme } from '@/config/dashboardThemes';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -57,10 +58,10 @@ interface ProjectTabsProps {
   onViewProject: (project: Project) => void;
   onEditProject: (project: Project) => void;
   onCreateProject: () => void;
-  getStatusColor: (status: string) => string;
+  getStatusColor: (status: string) => 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';
   getStatusLabel: (status: string) => string;
   getTabFilteredProjects: (tabIndex: number) => Project[];
-  dashboardTheme: Record<string, unknown>;
+  dashboardTheme: DashboardTheme;
   t: (key: string) => string;
 }
 

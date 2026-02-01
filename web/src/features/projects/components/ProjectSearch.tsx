@@ -23,7 +23,7 @@ import {
   ExpandLess as ExpandLessIcon,
 } from '@mui/icons-material';
 import { apiService } from '@/lib/api';
-import { Program, Department, Project } from '@/types';
+import { Program, Department } from '@/types';
 
 interface SearchFilters {
   search: string;
@@ -62,7 +62,7 @@ export const ProjectSearch: React.FC<SearchProps> = ({ onSearch, onClear, loadin
 
   const [programs, setPrograms] = useState<Program[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
-  const [suggestions, setSuggestions] = useState<Project[]>([]);
+  const [suggestions, setSuggestions] = useState<Array<{ id: number; title: string; academic_year: string; semester: string }>>([]);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   useEffect(() => {

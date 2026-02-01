@@ -27,6 +27,7 @@ import { DashboardContainer } from '@/components/shared/DashboardContainer';
 import { useTheme } from '@/providers/ThemeContext';
 import { useAuthStore } from '@/features/auth/store';
 import { apiService } from '@/lib/api';
+import { getErrorMessage } from '@/utils/errorHandling';
 import { Project, ProjectMilestone, TimelineData, ProjectActivity } from '@/types';
 import { MilestoneTimeline } from '@/features/project-follow/components/MilestoneTimeline';
 import { ActivityFeed } from '@/features/project-follow/components/ActivityFeed';
@@ -113,16 +114,16 @@ export const ProjectFollowPage: React.FC = () => {
       const followersResponse = await apiService.getProjectFollowers(projectId);
       setIsFollowing(followersResponse.followers.some(f => f.user_id === user?.id));
 
-      // TODO: Load health score (will be implemented in backend)
-      // For now, calculate a simple score
-      calculateHealthScore(milestonesResponse.milestones, activitiesResponse.activities);
+       // TODO: Load health score (will be implemented in backend)
+       // For now, calculate a simple score
+       calculateHealthScore(milestonesResponse.milestones, activitiesResponse.activities);
 
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to load project data');
-    } finally {
-      setLoading(false);
-    }
-  };
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to load project data'));
+     } finally {
+       setLoading(false);
+     }
+   };
 
   const calculateHealthScore = (milestones: ProjectMilestone[], activities: ProjectActivity[]) => {
     // Simple calculation - will be replaced with backend service
@@ -152,19 +153,19 @@ export const ProjectFollowPage: React.FC = () => {
     setActiveTab(newValue);
   };
 
-  const handleFollow = async () => {
-    try {
-      if (isFollowing) {
-        await apiService.unfollowProject(projectId);
-        setIsFollowing(false);
-      } else {
-        await apiService.followProject(projectId);
-        setIsFollowing(true);
-      }
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to update follow status');
-    }
-  };
+   const handleFollow = async () => {
+     try {
+       if (isFollowing) {
+         await apiService.unfollowProject(projectId);
+         setIsFollowing(false);
+       } else {
+         await apiService.followProject(projectId);
+         setIsFollowing(true);
+       }
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to update follow status'));
+     }
+   };
 
   const handleMilestoneStart = async (milestoneId: number) => {
     await apiService.startMilestone(milestoneId);

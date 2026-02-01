@@ -25,6 +25,7 @@ import {
   IconButton,
   Tooltip,
   Stack,
+  Chip,
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -35,6 +36,7 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/features/auth/store';
 import { useLanguage } from '@/providers/LanguageContext';
+import { getErrorMessage } from '@/utils/errorHandling';
 import { Project } from '@/types';
 import { apiService } from '@/lib/api';
 import { TVTCLogo } from '@/components/TVTCLogo';
@@ -170,24 +172,11 @@ const StudentMyProjectsPage: React.FC = () => {
       
       setProjects(validProjects);
       setError(null);
-    } catch (err: unknown) {
-      console.error('Failed to fetch data:', err);
-      
-      // Check if it's an authentication error
-      if (err && typeof err === 'object' && 'response' in err) {
-        const axiosError = err as { response?: { status?: number; data?: { message?: string } }; message?: string };
-        if (axiosError.response?.status === 401) {
-          setError('Authentication failed. Please log in again.');
-        } else if (axiosError.response?.status === 403) {
-          setError('Access forbidden. You may not have permission to view projects.');
-        } else {
-          setError(axiosError.response?.data?.message || axiosError.message || 'Failed to load data');
-        }
-      } else {
-        setError('Failed to load data');
-      }
-      setProjects([]); // Set empty array on error
-    } finally {
+     } catch (err: unknown) {
+       console.error('Failed to fetch data:', err);
+       setError(getErrorMessage(err, 'Failed to load data'));
+       setProjects([]); // Set empty array on error
+     } finally {
       setLoading(false);
     }
   };
@@ -231,8 +220,7 @@ const StudentMyProjectsPage: React.FC = () => {
       setSelectedProject(response.project);
     } catch (error: unknown) {
       console.error('Failed to fetch project details:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to load project details';
-      setDetailError(errorMessage);
+      setDetailError(getErrorMessage(error, 'Failed to load project details'));
       // Still set the project so user can see basic info
       setSelectedProject(project);
     } finally {

@@ -38,9 +38,9 @@ const defaultOptions: SwipeOptions = {
  * return <div ref={swipeRef}>Swipeable content</div>;
  */
 export const useSwipeGesture = <T extends HTMLElement>(
-  callbacks: SwipeCallbacks,
-  options: SwipeOptions = {}
-): RefObject<T> => {
+   callbacks: SwipeCallbacks,
+   options: SwipeOptions = {}
+ ): RefObject<T | null> => {
   const ref = useRef<T>(null);
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
 

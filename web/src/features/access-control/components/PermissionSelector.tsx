@@ -66,7 +66,7 @@ export const PermissionSelector: React.FC<PermissionSelectorProps> = ({
     try {
       setLoading(true);
       const data = await apiService.getPermissions();
-      setPermissions(Array.isArray(data) ? data : []);
+      setPermissions(Array.isArray(data) ? data as Permission[] : []);
     } catch (_err) {
        // Silently fail - permissions will be empty, component will still render
        setPermissions([]);

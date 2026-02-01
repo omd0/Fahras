@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import { ProjectFollower } from '@/types';
 import { apiService } from '@/lib/api';
+import { getErrorMessage } from '@/utils/errorHandling';
 
 interface ProjectFollowersProps {
   projectId: number;
@@ -31,18 +32,18 @@ export const ProjectFollowers: React.FC<ProjectFollowersProps> = ({
     loadFollowers();
   }, [projectId]);
 
-  const loadFollowers = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await apiService.getProjectFollowers(projectId);
-      setFollowers(response.followers);
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to load followers');
-    } finally {
-      setLoading(false);
-    }
-  };
+   const loadFollowers = async () => {
+     setLoading(true);
+     setError(null);
+     try {
+       const response = await apiService.getProjectFollowers(projectId);
+       setFollowers(response.followers);
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to load followers'));
+     } finally {
+       setLoading(false);
+     }
+   };
 
   const getUserInitials = (name: string): string => {
     return name

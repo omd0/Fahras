@@ -20,6 +20,7 @@ import {
 } from '@mui/icons-material';
 import { Project, File } from '@/types';
 import { apiService } from '@/lib/api';
+import { getErrorMessage, getErrorResponseData, getErrorStatus } from '@/utils/errorHandling';
 import { colorPalette } from '@/styles/theme/colorPalette';
 import { designTokens } from '@/styles/designTokens';
 import { useLanguage } from '@/providers/LanguageContext';
@@ -65,20 +66,20 @@ export const ProjectFiles: React.FC<ProjectFilesProps> = ({
       window.URL.revokeObjectURL(url);
       
       console.log(`[DEBUG] File download completed: ${file.original_filename}`);
-    } catch (error: unknown) {
-      console.error('[DEBUG] Error downloading file:', error);
-      console.error('[DEBUG] Error response:', error.response?.data);
-      console.error('[DEBUG] Error status:', error.response?.status);
-      
-      // Show user-friendly error message
-      alert(`Failed to download file: ${file.original_filename}\n${error.response?.data?.message || error.message}`);
-      
-      // Fallback to opening the public URL or storage URL
-      if (file.public_url || file.storage_url) {
-        console.log('[DEBUG] Attempting fallback download');
-        window.open(file.public_url || file.storage_url, '_blank');
-      }
-    }
+     } catch (error: unknown) {
+       console.error('[DEBUG] Error downloading file:', error);
+        console.error('[DEBUG] Error response:', getErrorResponseData(error));
+        console.error('[DEBUG] Error status:', getErrorStatus(error));
+       
+       // Show user-friendly error message
+       alert(`Failed to download file: ${file.original_filename}\n${getErrorMessage(error, 'Unknown error')}`);
+       
+       // Fallback to opening the public URL or storage URL
+       if (file.public_url || file.storage_url) {
+         console.log('[DEBUG] Attempting fallback download');
+         window.open(file.public_url || file.storage_url, '_blank');
+       }
+     }
   };
 
   return (

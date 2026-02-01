@@ -19,6 +19,7 @@ import {
 } from '@mui/icons-material';
 import { MilestoneTemplate, Program } from '@/types';
 import { apiService } from '@/lib/api';
+import { getErrorMessage } from '@/utils/errorHandling';
 
 interface ProgramTemplateSelectorProps {
   programId: number | null;
@@ -70,12 +71,12 @@ export const ProgramTemplateSelector: React.FC<ProgramTemplateSelectorProps> = (
       const response = await apiService.getMilestoneTemplates({
         program_id: programId,
       });
-      setTemplates(response.templates || []);
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to load templates');
-    } finally {
-      setLoading(false);
-    }
+       setTemplates(response.templates || []);
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to load templates'));
+     } finally {
+       setLoading(false);
+     }
   };
 
   const handleTemplateChange = (templateId: number | '') => {

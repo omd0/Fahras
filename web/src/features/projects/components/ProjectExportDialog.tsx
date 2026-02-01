@@ -31,6 +31,7 @@ import {
 } from '@mui/icons-material';
 import { Project, Rating, Comment, File as ProjectFile } from '@/types';
 import { apiService } from '@/lib/api';
+import { getErrorMessage } from '@/utils/errorHandling';
 
 interface ExportData {
   project: Partial<Project> & Pick<Project, 'id' | 'title'>;
@@ -279,20 +280,20 @@ export const ProjectExportDialog: React.FC<ProjectExportDialogProps> = ({
         }
       }
 
-      setExportSuccess(true);
-      
-      // Auto-close after success
-      setTimeout(() => {
-        onClose();
-        setExportSuccess(false);
-      }, 2000);
-      
-    } catch (err: unknown) {
-      setError(err.message || 'Export failed. Please try again.');
-    } finally {
-      setExporting(false);
-    }
-  };
+       setExportSuccess(true);
+       
+       // Auto-close after success
+       setTimeout(() => {
+         onClose();
+         setExportSuccess(false);
+       }, 2000);
+       
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Export failed. Please try again.'));
+     } finally {
+       setExporting(false);
+     }
+   };
 
   const getSelectedFormat = () => {
     return formatOptions.find(option => option.value === exportOptions.format);

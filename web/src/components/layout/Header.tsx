@@ -112,7 +112,7 @@ export const Header: React.FC = () => {
       if (projectSlug) {
         try {
           const response = await apiService.getProject(projectSlug);
-          setCurrentProject(response);
+          setCurrentProject(response.project ?? response);
         } catch (error) {
           console.error('Failed to fetch project:', error);
           setCurrentProject(null);
@@ -635,7 +635,7 @@ export const Header: React.FC = () => {
                   onToggleComplete={() => {
                     // Refresh the project data
                     if (projectSlug) {
-                      apiService.getProject(projectSlug).then(setCurrentProject);
+                      apiService.getProject(projectSlug).then(res => setCurrentProject(res.project ?? res));
                     }
                   }}
                   variant="button"

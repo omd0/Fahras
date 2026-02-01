@@ -1,13 +1,15 @@
 import React from 'react';
 import { IconButton, Tooltip } from '@mui/material';
+import type { SxProps, Theme } from '@mui/material/styles';
 import { Bookmark as BookmarkIcon } from '@mui/icons-material';
 import { useBookmark } from '@/features/bookmarks/hooks/useBookmark';
 import { useLanguage } from '@/providers/LanguageContext';
 
-interface BookmarkButtonProps {
+export interface BookmarkButtonProps {
   projectId: number;
   size?: 'small' | 'medium' | 'large';
-  sx?: React.CSSProperties;
+  variant?: string;
+  sx?: SxProps<Theme>;
 }
 
 export const BookmarkButton: React.FC<BookmarkButtonProps> = ({ 
@@ -29,10 +31,10 @@ export const BookmarkButton: React.FC<BookmarkButtonProps> = ({
         size={size}
         onClick={handleClick}
         disabled={loading}
-        sx={{
-          color: isBookmarked ? 'info.main' : (sx?.color || 'inherit'),
-          ...sx,
-        }}
+        sx={[
+          { color: isBookmarked ? 'info.main' : 'inherit' },
+          ...(Array.isArray(sx) ? sx : sx ? [sx] : []),
+        ]}
       >
         <BookmarkIcon 
           fontSize={size} 

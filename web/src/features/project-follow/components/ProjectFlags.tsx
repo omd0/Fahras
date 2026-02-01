@@ -21,6 +21,7 @@ import {
 } from '@mui/icons-material';
 import { ProjectFlag } from '@/types';
 import { apiService } from '@/lib/api';
+import { getErrorMessage } from '@/utils/errorHandling';
 import { ProjectFlagDialog } from './ProjectFlagDialog';
 
 interface ProjectFlagsProps {
@@ -63,39 +64,39 @@ export const ProjectFlags: React.FC<ProjectFlagsProps> = ({
     loadFlags();
   }, [projectId, filterResolved, filterSeverity]);
 
-  const loadFlags = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await apiService.getProjectFlags(projectId, {
-        resolved: filterResolved !== null ? filterResolved : undefined,
-        severity: filterSeverity || undefined,
-      });
-      setFlags(response.flags);
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to load flags');
-    } finally {
-      setLoading(false);
-    }
-  };
+   const loadFlags = async () => {
+     setLoading(true);
+     setError(null);
+     try {
+        const response = await apiService.getProjectFlags(projectId, {
+          resolved: filterResolved !== null ? filterResolved : undefined,
+          severity: filterSeverity ? (filterSeverity as ProjectFlag['severity']) : undefined,
+        });
+       setFlags(response.flags);
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to load flags'));
+     } finally {
+       setLoading(false);
+     }
+   };
 
   const handleCreateFlag = () => {
     setSelectedFlag(null);
     setDialogOpen(true);
   };
 
-  const handleResolveFlag = async (flagId: number, notes?: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      await apiService.resolveFlag(flagId, notes);
-      await loadFlags();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to resolve flag');
-    } finally {
-      setLoading(false);
-    }
-  };
+   const handleResolveFlag = async (flagId: number, notes?: string) => {
+     setLoading(true);
+     setError(null);
+     try {
+       await apiService.resolveFlag(flagId, notes);
+       await loadFlags();
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to resolve flag'));
+     } finally {
+       setLoading(false);
+     }
+   };
 
   const unresolvedFlags = flags.filter(f => !f.resolved_at);
   const resolvedFlags = flags.filter(f => f.resolved_at);

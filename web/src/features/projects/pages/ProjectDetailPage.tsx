@@ -13,8 +13,9 @@ import {
 } from '@mui/icons-material';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/features/auth/store';
-import { Project } from '@/types';
+import { Project, ProjectFile } from '@/types';
 import { apiService } from '@/lib/api';
+import { getErrorMessage } from '@/utils/errorHandling';
 import { CommentSection } from '@/components/CommentSection';
 import { RatingSection } from '@/components/RatingSection';
 import { StatusSelector } from '@/components/StatusSelector';
@@ -111,7 +112,7 @@ export const ProjectDetailPage: React.FC = () => {
       console.log(`[DEBUG] Number of files:`, filesResponse.files?.length || 0);
       
        if (filesResponse.files && filesResponse.files.length > 0) {
-         filesResponse.files.forEach((file: File, index: number) => {
+         filesResponse.files.forEach((file: ProjectFile, index: number) => {
           console.log(`[DEBUG] File ${index + 1}:`, {
             id: file.id,
             original_filename: file.original_filename,
@@ -130,12 +131,9 @@ export const ProjectDetailPage: React.FC = () => {
       }
       
       setProject(prev => prev ? { ...prev, files: filesResponse.files || [] } : prev);
-    } catch (error: unknown) {
-      console.error('[DEBUG] Error fetching project files:', error);
-      console.error('[DEBUG] Error response:', error.response?.data);
-      console.error('[DEBUG] Error status:', error.response?.status);
-      console.error('[DEBUG] Full error:', error);
-    } finally {
+     } catch (error: unknown) {
+       console.error('[DEBUG] Error fetching project files:', error);
+     } finally {
       setFilesLoading(false);
     }
   };
@@ -163,16 +161,11 @@ export const ProjectDetailPage: React.FC = () => {
       } else {
         console.log('No files found for project');
       }
-    } catch (err: unknown) {
-      console.error('Error fetching project:', err);
-      const msg =
-        err.response?.data?.message ||
-        (err.response?.status === 404 ? 'Project not found or not available.' : null) ||
-        (err.request && !err.response ? 'Cannot reach the server. Check your connection and that the API is running.' : null) ||
-        err.message ||
-        'Failed to fetch project.';
-      setError(msg);
-    } finally {
+     } catch (err: unknown) {
+       console.error('Error fetching project:', err);
+       const msg = getErrorMessage(err, 'Failed to fetch project.');
+       setError(msg);
+     } finally {
       setLoading(false);
     }
   };
@@ -190,10 +183,10 @@ export const ProjectDetailPage: React.FC = () => {
       await apiService.deleteProject(project.id);
       setDeleteConfirmOpen(false);
       navigate('/dashboard');
-    } catch (error: unknown) {
-      setError(error.response?.data?.message || 'Failed to delete project');
-      setDeleteConfirmOpen(false);
-    } finally {
+     } catch (error: unknown) {
+       setError(getErrorMessage(error, 'Failed to delete project'));
+       setDeleteConfirmOpen(false);
+     } finally {
       setDeleting(false);
     }
   };
@@ -201,7 +194,7 @@ export const ProjectDetailPage: React.FC = () => {
    const handleStatusChange = async (newStatus: string) => {
      if (!project) return;
      
-     await apiService.updateProject(project.id, { status: newStatus });
+     await apiService.updateProject(project.id, { status: newStatus as Project['status'] });
      // Refresh project data
      await fetchProject(project.id);
    };
@@ -280,7 +273,7 @@ export const ProjectDetailPage: React.FC = () => {
             <ProjectMainInfo
               project={project}
               user={user}
-              isProfessor={!!isProfessor}
+              _isProfessor={!!isProfessor}
               canEdit={!!canEdit}
               onStatusClick={() => setStatusDialogOpen(true)}
             />
@@ -288,7 +281,7 @@ export const ProjectDetailPage: React.FC = () => {
             <Box sx={{ mt: 3 }}>
               <ProjectFiles
                 project={project}
-                isProfessor={!!isProfessor}
+                _isProfessor={!!isProfessor}
                 filesLoading={filesLoading}
               />
             </Box>

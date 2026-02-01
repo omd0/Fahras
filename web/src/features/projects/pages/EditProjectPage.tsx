@@ -37,6 +37,7 @@ import { projectRoutes } from '@/utils/projectRoutes';
 import { useAuthStore } from '@/features/auth/store';
 import { CreateProjectData, Program, User } from '@/types';
 import { apiService } from '@/lib/api';
+import { getErrorMessage, getErrorResponseData } from '@/utils/errorHandling';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 
@@ -120,12 +121,12 @@ export const EditProjectPage: React.FC = () => {
           customName: advisor.is_custom ? advisor.full_name : undefined
         })),
       });
-    } catch (error: unknown) {
-      setError(error.response?.data?.message || 'Failed to load project');
-    } finally {
-      setInitialLoading(false);
-    }
-  };
+     } catch (error: unknown) {
+       setError(getErrorMessage(error, 'Failed to load project'));
+     } finally {
+       setInitialLoading(false);
+     }
+   };
 
   const fetchPrograms = async () => {
     try {
@@ -254,11 +255,11 @@ export const EditProjectPage: React.FC = () => {
             const _uploadResponse = await apiService.uploadFile(projectId, file, true);
             
             _uploadedCount++;
-          } catch (uploadError: unknown) {
-            console.error(`❌ File upload failed for ${file.name}:`, uploadError);
-            console.error('Error details:', uploadError.response?.data);
-            failedCount++;
-          }
+           } catch (uploadError: unknown) {
+             console.error(`❌ File upload failed for ${file.name}:`, uploadError);
+              console.error('Error details:', getErrorResponseData(uploadError));
+             failedCount++;
+           }
         }
         
         
@@ -269,15 +270,15 @@ export const EditProjectPage: React.FC = () => {
         }
       }
 
-      navigate(projectRoutes.detail(slug!));
-    } catch (error: unknown) {
-      console.error('Project update failed:', error);
-      console.error('Error response:', error.response?.data);
-      setError(error.response?.data?.message || 'Failed to update project');
-    } finally {
-      setLoading(false);
-    }
-  };
+       navigate(projectRoutes.detail(slug!));
+     } catch (error: unknown) {
+       console.error('Project update failed:', error);
+        console.error('Error response:', getErrorResponseData(error));
+       setError(getErrorMessage(error, 'Failed to update project'));
+     } finally {
+       setLoading(false);
+     }
+   };
 
   if (initialLoading) {
     return (

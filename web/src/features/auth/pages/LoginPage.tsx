@@ -42,7 +42,7 @@ export const LoginPage: React.FC = () => {
   const location = useLocation();
   const { t } = useLanguage();
 
-  const from = (location.state as Record<string, unknown>)?.from?.pathname || '/dashboard';
+  const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname || '/dashboard';
 
   const handleChange = (field: keyof LoginCredentials) => (
     event: React.ChangeEvent<HTMLInputElement>

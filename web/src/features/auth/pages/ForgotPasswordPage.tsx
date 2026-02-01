@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import { Email as EmailIcon } from '@mui/icons-material';
 import { authApi } from '@/lib/api';
+import { getErrorMessage } from '@/utils/errorHandling';
 
 export const ForgotPasswordPage: React.FC = () => {
   const navigate = useNavigate();
@@ -43,17 +44,14 @@ export const ForgotPasswordPage: React.FC = () => {
 
     setLoading(true);
 
-    try {
-      await authApi.forgotPassword(email);
-      setSuccess(true);
-    } catch (err: unknown) {
-      setError(
-        err.response?.data?.message ||
-          'Failed to send reset link. Please try again.'
-      );
-    } finally {
-      setLoading(false);
-    }
+     try {
+       await authApi.forgotPassword(email);
+       setSuccess(true);
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to send reset link. Please try again.'));
+     } finally {
+       setLoading(false);
+     }
   };
 
   if (success) {

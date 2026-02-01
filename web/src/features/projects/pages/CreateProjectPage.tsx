@@ -50,6 +50,7 @@ import { useAuthStore } from '@/features/auth/store';
 import { useLanguage } from '@/providers/LanguageContext';
 import { CreateProjectData, Program, User } from '@/types';
 import { apiService } from '@/lib/api';
+import { getErrorMessage, getErrorStatus, getErrorResponseData, isAxiosError } from '@/utils/errorHandling';
 import { ProgramTemplateSelector } from '@/features/milestones/components/ProgramTemplateSelector';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
@@ -398,11 +399,11 @@ export const CreateProjectPage: React.FC = () => {
             startDate,
             false // Don't preserve custom milestones (project is new)
           );
-        } catch (templateError: unknown) {
-          console.error('Failed to apply template:', templateError);
-          // Don't fail the whole creation if template application fails
-          setError(`Project created successfully, but failed to apply milestone template: ${templateError.response?.data?.message || templateError.message}`);
-        }
+         } catch (templateError: unknown) {
+           console.error('Failed to apply template:', templateError);
+           // Don't fail the whole creation if template application fails
+           setError(`Project created successfully, but failed to apply milestone template: ${getErrorMessage(templateError, 'Unknown error')}`);
+         }
       }
       // #region agent log
       fetch('http://127.0.0.1:7242/ingest/630c9ee4-de4f-48c7-bd76-5eabbd1dc8d2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CreateProjectPage.tsx:379',message:'project creation success path',data:{hasProject:!!createdProject,projectId:createdProject?.project?.id,createdBy:createdProject?.project?.created_by_user_id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
@@ -420,14 +421,14 @@ export const CreateProjectPage: React.FC = () => {
             const _uploadResponse = await apiService.uploadFile(createdProject.project.id, file, true);
             
             _uploadedCount++;
-          } catch (uploadError: unknown) {
-            console.error(`❌ File upload failed for ${file.name}:`, uploadError);
-            console.error('Error status:', uploadError.response?.status);
-            console.error('Error details:', uploadError.response?.data);
-            console.error('Error message:', uploadError.message);
-            console.error('Full error:', uploadError);
-            failedCount++;
-          }
+           } catch (uploadError: unknown) {
+             console.error(`❌ File upload failed for ${file.name}:`, uploadError);
+              console.error('Error status:', getErrorStatus(uploadError));
+              console.error('Error details:', getErrorResponseData(uploadError));
+             console.error('Error message:', getErrorMessage(uploadError, 'Unknown error'));
+             console.error('Full error:', uploadError);
+             failedCount++;
+           }
         }
         
         
@@ -452,16 +453,16 @@ export const CreateProjectPage: React.FC = () => {
           state: { refresh: true, timestamp: Date.now() }
         });
       }, 1500);
-    } catch (error: unknown) {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/630c9ee4-de4f-48c7-bd76-5eabbd1dc8d2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CreateProjectPage.tsx:error',message:'project creation error',data:{errorMessage:error?.message,errorStatus:error?.response?.status,errorData:error?.response?.data,hasResponse:!!error?.response},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
-      console.error('Project creation failed:', error);
-      console.error('Error response:', error.response?.data);
-      setError(error.response?.data?.message || 'Failed to create project');
-    } finally {
-      setLoading(false);
-    }
+     } catch (error: unknown) {
+       // #region agent log
+       fetch('http://127.0.0.1:7242/ingest/630c9ee4-de4f-48c7-bd76-5eabbd1dc8d2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CreateProjectPage.tsx:error',message:'project creation error',data:{errorMessage:getErrorMessage(error, 'Unknown error'),errorStatus:getErrorStatus(error),errorData:getErrorResponseData(error),hasResponse:isAxiosError(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+       // #endregion
+       console.error('Project creation failed:', error);
+        console.error('Error response:', getErrorResponseData(error));
+        setError(getErrorMessage(error, 'Failed to create project'));
+     } finally {
+       setLoading(false);
+     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

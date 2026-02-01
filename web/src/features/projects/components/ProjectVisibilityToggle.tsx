@@ -19,6 +19,7 @@ import {
 } from '@mui/icons-material';
 import { Project } from '@/types';
 import { apiService } from '@/lib/api';
+import { getErrorMessage } from '@/utils/errorHandling';
 
 interface ProjectVisibilityToggleProps {
   project: Project;
@@ -50,17 +51,17 @@ const ProjectVisibilityToggle: React.FC<ProjectVisibilityToggleProps> = ({
     setLoading(true);
     setError(null);
 
-    try {
-      await apiService.toggleProjectVisibility(project.id, adminNotes);
-      setDialogOpen(false);
-      setAdminNotes('');
-      onToggleComplete();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to toggle project visibility');
-    } finally {
-      setLoading(false);
-    }
-  };
+     try {
+       await apiService.toggleProjectVisibility(project.id, adminNotes);
+       setDialogOpen(false);
+       setAdminNotes('');
+       onToggleComplete();
+     } catch (err: unknown) {
+       setError(getErrorMessage(err, 'Failed to toggle project visibility'));
+     } finally {
+       setLoading(false);
+     }
+   };
 
   const handleCancel = () => {
     setDialogOpen(false);
