@@ -31,7 +31,8 @@ FROM base AS production
 
 COPY --from=build /app /app
 
-RUN chmod -R 775 storage bootstrap/cache
+RUN chmod -R 775 storage bootstrap/cache \
+    && rm -f /etc/caddy/Caddyfile /Caddyfile
 
 EXPOSE 8080
 
