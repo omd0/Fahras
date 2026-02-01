@@ -42,7 +42,7 @@ import {
   Devices as DevicesIcon,
   Code as CodeIcon,
 } from '@mui/icons-material';
-import { Project, SearchFilters } from '@/types';
+import { Project, SearchFilters, Department, Program } from '@/types';
 import { apiService } from '@/lib/api';
 import { useLanguage } from '@/providers/LanguageContext';
 import { SavedSearches } from '@/components/explore/SavedSearches';
@@ -165,7 +165,7 @@ export const ExplorePage: React.FC = () => {
       setError(null);
 
       // Build query parameters from filters
-      const params: any = {};
+      const params: Record<string, unknown> = {};
       if (filters.search) params.search = filters.search;
       if (filters.program_id) params.program_id = filters.program_id;
       if (filters.department_id) params.department_id = filters.department_id;
@@ -263,7 +263,7 @@ export const ExplorePage: React.FC = () => {
       label: t('All categories'),
       icon: <AppsIcon />,
     };
-    const deptItems: CategoryItem[] = (departments || []).map((dept: any) => ({
+    const deptItems: CategoryItem[] = (departments || []).map((dept: Department) => ({
       id: dept.id,
       label: dept.name,
       icon: getDepartmentIcon(dept.name),
@@ -309,7 +309,7 @@ export const ExplorePage: React.FC = () => {
 
   const handleLoadSavedSearch = (newFilters: SearchFilters) => {
     setFilters(newFilters);
-    const params: any = {};
+    const params: Record<string, unknown> = {};
     if (newFilters.search) params.search = newFilters.search;
     if (newFilters.program_id) params.program_id = newFilters.program_id;
     if (newFilters.department_id) params.department_id = newFilters.department_id;
@@ -729,7 +729,7 @@ export const ExplorePage: React.FC = () => {
                         displayEmpty
                       >
                         <MenuItem value="">{t('Any type')}</MenuItem>
-                        {programs.map((program: any) => (
+                        {programs.map((program: Program) => (
                           <MenuItem key={program.id} value={program.id}>
                             {program.name}
                           </MenuItem>

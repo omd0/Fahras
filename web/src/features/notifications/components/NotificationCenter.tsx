@@ -26,6 +26,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useNotifications } from '@/features/notifications/hooks/useNotifications';
+import { Notification } from '@/features/notifications/api/notificationApi';
 
 interface NotificationCenterProps {
   open: boolean;
@@ -87,17 +88,13 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, on
     }
   };
 
-  const handleNotificationClick = async (notification: Record<string, unknown>) => {
-    // Mark notification as read if it's not already read
+  const handleNotificationClick = async (notification: Notification) => {
     if (!notification.is_read) {
       await markAsRead(notification.id);
     }
 
-    // Check if this is a project-related notification
     if (notification.project && notification.project.id) {
-      // Close the notification center
       onClose();
-      // Navigate to the protected project detail page (for authenticated users)
       navigate(`/dashboard/projects/${notification.project.id}`, { 
         state: { from: '/notifications' } 
       });

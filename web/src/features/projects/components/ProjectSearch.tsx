@@ -126,11 +126,11 @@ export const ProjectSearch: React.FC<SearchProps> = ({ onSearch, onClear, loadin
     onClear();
   };
 
-  const handleInputChange = (field: keyof SearchFilters, value: any) => {
+  const handleInputChange = (field: keyof SearchFilters, value: unknown) => {
     setFilters(prev => ({ ...prev, [field]: value }));
     
     if (field === 'search' && value) {
-      fetchSuggestions(value);
+      fetchSuggestions(value as string);
     }
   };
 
