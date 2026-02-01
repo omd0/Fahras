@@ -18,7 +18,6 @@ import {
   DialogContent,
   DialogActions,
   Snackbar,
-  Divider,
 } from '@mui/material';
 import {
   Email as EmailIcon,
@@ -39,7 +38,7 @@ export const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [user, setUser] = useState<User | null>(null);
-  const dashboardTheme = getDashboardTheme(user?.roles);
+  const _dashboardTheme = getDashboardTheme(user?.roles);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   

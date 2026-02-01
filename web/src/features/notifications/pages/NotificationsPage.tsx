@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { colorPalette } from '@/styles/theme/colorPalette';
 import {
   Box,
@@ -61,7 +61,7 @@ export const NotificationsPage: React.FC = () => {
     }
   };
 
-  const getNotificationColor = (type: string) => {
+  const getNotificationColor = (_type: string) => {
     return colorPalette.secondary.light; // Sky blue for all notification types
   };
 

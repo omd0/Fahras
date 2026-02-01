@@ -5,11 +5,6 @@ import {
   Typography,
   Box,
   Button,
-  AppBar,
-  Toolbar,
-  IconButton,
-  Menu,
-  MenuItem,
   Avatar,
   Table,
   TableBody,
@@ -39,9 +34,6 @@ import {
 } from '@mui/material';
 import {
   People as PeopleIcon,
-  AccountCircle,
-  ExitToApp,
-  ArrowBack as ArrowBackIcon,
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
@@ -103,7 +95,7 @@ export const UserManagementPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [_anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [userDialogOpen, setUserDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [activeTab, setActiveTab] = useState(0);
@@ -152,20 +144,20 @@ export const UserManagementPage: React.FC = () => {
     }
   };
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+  const _handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleMenuClose = () => {
+  const _handleMenuClose = () => {
     setAnchorEl(null);
   };
 
-  const handleProfileClick = () => {
+  const _handleProfileClick = () => {
     setAnchorEl(null);
     navigate('/profile');
   };
 
-  const handleLogout = () => {
+  const _handleLogout = () => {
     logout();
     navigate('/login');
   };

@@ -28,8 +28,6 @@ import {
   ListItemAvatar,
   ListItemText,
   ListItemSecondaryAction,
-  LinearProgress,
-  Skeleton,
   Snackbar,
   InputAdornment,
 } from '@mui/material';
@@ -41,11 +39,8 @@ import {
   CloudUpload as CloudUploadIcon,
   AttachFile as AttachFileIcon,
   Person as PersonIcon,
-  School as SchoolIcon,
   Description as DescriptionIcon,
   Info as InfoIcon,
-  CheckCircle as CheckCircleIcon,
-  Error as ErrorIcon,
   NavigateNext as NavigateNextIcon,
   NavigateBefore as NavigateBeforeIcon,
   Code as CodeIcon,
@@ -76,7 +71,7 @@ export const CreateProjectPage: React.FC = () => {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
-  const [loadingPrograms, setLoadingPrograms] = useState(true);
+  const [_loadingPrograms, setLoadingPrograms] = useState(true);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -416,15 +411,15 @@ export const CreateProjectPage: React.FC = () => {
       // If files are selected, upload them individually
       if (selectedFiles.length > 0 && createdProject?.project?.id) {
         
-        let uploadedCount = 0;
+        let _uploadedCount = 0;
         let failedCount = 0;
         
         for (let i = 0; i < selectedFiles.length; i++) {
           const file = selectedFiles[i];
           try {
-            const uploadResponse = await apiService.uploadFile(createdProject.project.id, file, true);
+            const _uploadResponse = await apiService.uploadFile(createdProject.project.id, file, true);
             
-            uploadedCount++;
+            _uploadedCount++;
           } catch (uploadError: any) {
             console.error(`❌ File upload failed for ${file.name}:`, uploadError);
             console.error('Error status:', uploadError.response?.status);

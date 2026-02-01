@@ -1,8 +1,7 @@
-import React, { useRef, useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { List, useListRef } from 'react-window';
 import {
   Table,
-  TableBody,
   TableCell,
   TableContainer,
   TableHead,
@@ -13,7 +12,6 @@ import {
   Tooltip,
   Typography,
   Box,
-  alpha,
 } from '@mui/material';
 import {
   Visibility as VisibilityIcon,
@@ -237,7 +235,7 @@ const VirtualizedProjectTable: React.FC<VirtualizedProjectTableProps> = ({
   );
 
   // Scroll to item function
-  const scrollToItem = useCallback((index: number) => {
+  const _scrollToItem = useCallback((index: number) => {
     if (listRef.current) {
       listRef.current.scrollToRow(index);
     }

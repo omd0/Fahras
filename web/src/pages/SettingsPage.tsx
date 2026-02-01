@@ -5,9 +5,6 @@ import {
   Box,
   Card,
   CardContent,
-  AppBar,
-  Toolbar,
-  IconButton,
   List,
   ListItem,
   ListItemIcon,
@@ -17,27 +14,22 @@ import {
   FormControlLabel,
 } from '@mui/material';
 import {
-  ArrowBack as ArrowBackIcon,
-  Settings as SettingsIcon,
   Notifications as NotificationsIcon,
   Palette as PaletteIcon,
   Language as LanguageIcon,
   Security as SecurityIcon,
   AccountCircle as AccountIcon,
-  Brightness4 as DarkModeIcon,
-  Brightness7 as LightModeIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { TVTCLogo } from '@/components/TVTCLogo';
 import { useAuthStore } from '@/features/auth/store';
 import { getDashboardTheme } from '@/config/dashboardThemes';
 import { ChangePasswordForm } from '@/features/auth/components/ChangePasswordForm';
 import { LogoutAllDevicesButton } from '@/features/auth/components/LogoutAllDevicesButton';
 
 export const SettingsPage: React.FC = () => {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   const { user } = useAuthStore();
-  const dashboardTheme = getDashboardTheme(user?.roles);
+  const _dashboardTheme = getDashboardTheme(user?.roles);
 
   return (
     <Box sx={{ flexGrow: 1 }}>

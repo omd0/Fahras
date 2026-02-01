@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Grid, CircularProgress, Alert } from '@mui/material';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { getProjectDetailUrl, getProjectEditUrl, getProjectFollowUrl, getProjectCodeUrl, projectRoutes, getProjectSlug } from '@/utils/projectRoutes';
+import { getProjectDetailUrl } from '@/utils/projectRoutes';
 import { Project } from '@/types';
 import { apiService } from '@/lib/api';
 import { RepositoryLayout } from '@/features/repository/components/RepositoryLayout';

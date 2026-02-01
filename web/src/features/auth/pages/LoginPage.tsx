@@ -84,9 +84,9 @@ export const LoginPage: React.FC = () => {
     try {
       await login(credentials);
       navigate(from, { replace: true });
-    } catch (error) {
-      // Error is handled by the store
-    }
+    } catch (_error) {
+       // Error is handled by the store
+     }
   };
 
   const handleGuestContinue = () => {

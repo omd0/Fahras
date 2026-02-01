@@ -3,9 +3,6 @@ import {
   Box,
   Typography,
   Button,
-  Stack,
-  useTheme,
-  MobileStepper,
   Container,
 } from '@mui/material';
 import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from '@mui/icons-material';
@@ -44,8 +41,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
   autoplayInterval = 5000,
   height = { xs: '300px', sm: '400px', md: '500px' },
 }) => {
-  const theme = useTheme();
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const [activeStep, setActiveStep] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
 

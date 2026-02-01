@@ -67,7 +67,7 @@ interface ProjectTabsProps {
 export const ProjectTabs: React.FC<ProjectTabsProps> = ({
   tabValue,
   onTabChange,
-  currentProjects,
+  currentProjects: _currentProjects,
   indexOfFirstProject,
   indexOfLastProject,
   onViewProject,

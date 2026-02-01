@@ -7,7 +7,6 @@ import {
   Typography,
   Card,
   CardContent,
-  Chip,
   Button,
   Alert,
   CircularProgress,
@@ -19,12 +18,11 @@ import {
   Assessment as AssessmentIcon,
   Flag as FlagIcon,
   People as PeopleIcon,
-  Add as AddIcon,
   Notifications as NotificationsIcon,
   NotificationsOff as NotificationsOffIcon,
 } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getProjectDetailUrl, getProjectEditUrl, getProjectFollowUrl, getProjectCodeUrl, projectRoutes, getProjectSlug } from '@/utils/projectRoutes';
+import { getProjectDetailUrl } from '@/utils/projectRoutes';
 import { DashboardContainer } from '@/components/shared/DashboardContainer';
 import { useTheme } from '@/providers/ThemeContext';
 import { useAuthStore } from '@/features/auth/store';
@@ -61,7 +59,7 @@ function TabPanel(props: TabPanelProps) {
 export const ProjectFollowPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [project, setProject] = useState<Project | null>(null);
-  const [milestones, setMilestones] = useState<ProjectMilestone[]>([]);
+  const [_milestones, setMilestones] = useState<ProjectMilestone[]>([]);
   const [timelineData, setTimelineData] = useState<TimelineData | null>(null);
   const [activities, setActivities] = useState<ProjectActivity[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -324,19 +322,19 @@ export const ProjectFollowPage: React.FC = () => {
 
         <CardContent sx={{ p: 4 }}>
           <TabPanel value={activeTab} index={0}>
-            {timelineData && (
-              <MilestoneTimeline
-                projectId={projectId}
-                milestones={timelineData.milestones}
-                links={timelineData.links}
-                onStart={handleMilestoneStart}
-                onComplete={handleMilestoneComplete}
-                onUpdate={handleMilestoneUpdate}
-                onDelete={handleMilestoneDelete}
-                onRefresh={loadProjectData}
-                canEdit={canEdit || false}
-              />
-            )}
+             {timelineData && (
+               <MilestoneTimeline
+                 projectId={projectId}
+                 milestones={timelineData.milestones}
+                 _links={timelineData.links}
+                 onStart={handleMilestoneStart}
+                 onComplete={handleMilestoneComplete}
+                 onUpdate={handleMilestoneUpdate}
+                 onDelete={handleMilestoneDelete}
+                 onRefresh={loadProjectData}
+                 canEdit={canEdit || false}
+               />
+             )}
           </TabPanel>
           <TabPanel value={activeTab} index={1}>
             <ActivityFeed projectId={projectId} initialActivities={activities} />

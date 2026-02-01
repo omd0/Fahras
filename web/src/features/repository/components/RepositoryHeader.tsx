@@ -2,7 +2,6 @@ import React from 'react';
 import {
   Box,
   Typography,
-  Button,
   IconButton,
   Breadcrumbs,
   Link,
@@ -11,9 +10,6 @@ import {
 } from '@mui/material';
 import {
   ArrowBack as ArrowBackIcon,
-  Star as StarIcon,
-  StarBorder as StarBorderIcon,
-  Code as CodeIcon,
   Download as DownloadIcon,
   MoreVert as MoreVertIcon,
 } from '@mui/icons-material';

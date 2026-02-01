@@ -149,9 +149,9 @@ export const useAuthStore = create<AuthStore>()(
         try {
           const response = await authApi.refreshToken(token);
           set({ token: response.token });
-        } catch (error) {
-          // If refresh fails, logout user
-          get().logout();
+         } catch (_error) {
+           // If refresh fails, logout user
+           get().logout();
         }
       },
 

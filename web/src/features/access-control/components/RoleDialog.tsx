@@ -29,7 +29,7 @@ export const RoleDialog: React.FC<RoleDialogProps> = ({ open, onClose, role }) =
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [selectedPermissions, setSelectedPermissions] = useState<Record<number, 'all' | 'department' | 'own' | 'none'>>({});
-  const [loading, setLoading] = useState(false);
+  const [loading, _setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { theme } = useTheme();

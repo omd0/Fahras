@@ -5,9 +5,6 @@ import {
   Box,
   Card,
   CardContent,
-  AppBar,
-  Toolbar,
-  IconButton,
   Button,
   Chip,
   Grid,
@@ -26,9 +23,8 @@ import {
   Stack,
   Paper,
 } from '@mui/material';
-import { getStatusColor, getStatusLabel } from '@/utils/projectHelpers';
+import { getStatusColor } from '@/utils/projectHelpers';
 import {
-  ArrowBack as ArrowBackIcon,
   Approval as ApprovalIcon,
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,
@@ -39,13 +35,12 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/features/auth/store';
 import { apiService } from '@/lib/api';
 import { Project } from '@/types';
-import { TVTCLogo } from '@/components/TVTCLogo';
 import { getDashboardTheme } from '@/config/dashboardThemes';
 
 export const ApprovalsPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const dashboardTheme = getDashboardTheme(user?.roles);
+  const _dashboardTheme = getDashboardTheme(user?.roles);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

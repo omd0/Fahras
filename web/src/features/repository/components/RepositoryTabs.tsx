@@ -9,7 +9,7 @@ import {
   MenuBook as WikiIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
-import { getProjectDetailUrl, getProjectEditUrl, getProjectFollowUrl, getProjectCodeUrl, projectRoutes, getProjectSlug } from '@/utils/projectRoutes';
+
 
 interface TabConfig {
   value: string;
@@ -43,7 +43,7 @@ export const RepositoryTabs: React.FC<RepositoryTabsProps> = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { '*': pathMatch } = useParams<{ '*': string }>();
+  const { '*': _pathMatch } = useParams<{ '*': string }>();
 
   // Extract current tab from URL
   // URL format: /projects/:id/code or /projects/:id/issues, etc.

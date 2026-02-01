@@ -244,16 +244,16 @@ export const EditProjectPage: React.FC = () => {
       // If files are selected, upload them
       if (selectedFiles.length > 0) {
         
-        let uploadedCount = 0;
+        let _uploadedCount = 0;
         let failedCount = 0;
         
         for (let i = 0; i < selectedFiles.length; i++) {
           const file = selectedFiles[i];
           try {
 
-            const uploadResponse = await apiService.uploadFile(projectId, file, true);
+            const _uploadResponse = await apiService.uploadFile(projectId, file, true);
             
-            uploadedCount++;
+            _uploadedCount++;
           } catch (uploadError: any) {
             console.error(`❌ File upload failed for ${file.name}:`, uploadError);
             console.error('Error details:', uploadError.response?.data);

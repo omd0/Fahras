@@ -6,21 +6,12 @@ import {
   Box,
   LinearProgress,
   Chip,
-  IconButton,
-  Tooltip,
   Button,
   useTheme,
 } from '@mui/material';
 import {
-  CheckCircle as CheckCircleIcon,
-  PlayCircle as PlayCircleIcon,
-  PauseCircle as PauseCircleIcon,
-  Block as BlockIcon,
-  Warning as WarningIcon,
   PlayArrow as PlayArrowIcon,
   Check as CheckIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
 } from '@mui/icons-material';
 import { ProjectMilestone } from '@/types';
 import { SvgIconComponent } from '@mui/icons-material';

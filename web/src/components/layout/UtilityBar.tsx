@@ -5,7 +5,6 @@ import {
   Phone as PhoneIcon,
   Mail as MailIcon,
   Print as PrintIcon,
-  Language as LanguageIcon,
 } from '@mui/icons-material';
 import { ThemeToggle } from './ThemeToggle';
 import { LanguageSwitcher } from './LanguageSwitcher';

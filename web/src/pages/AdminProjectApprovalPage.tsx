@@ -37,8 +37,6 @@ import {
   Search as SearchIcon,
   FilterList as FilterIcon,
   Visibility as ViewIcon,
-  CheckCircle as ApproveIcon,
-  VisibilityOff as HideIcon,
   Refresh as RefreshIcon,
   Home as HomeIcon,
   Pending as PendingIcon,
@@ -50,28 +48,6 @@ import { apiService } from '@/lib/api';
 import ProjectApprovalActions from '@/features/projects/components/ProjectApprovalActions';
 import ProjectVisibilityToggle from '@/features/projects/components/ProjectVisibilityToggle';
 import { useLanguage } from '@/providers/LanguageContext';
-
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-    </div>
-  );
-}
 
 const AdminProjectApprovalPage: React.FC = () => {
   const navigate = useNavigate();
@@ -117,12 +93,12 @@ const AdminProjectApprovalPage: React.FC = () => {
       ]);
       setPrograms(programsRes || []);
       setDepartments(departmentsRes || []);
-    } catch (err) {
-      setError('Failed to load initial data');
-    }
-  };
+     } catch (_err) {
+       setError('Failed to load initial data');
+     }
+   };
 
-  const loadProjects = async () => {
+   const loadProjects = async () => {
     setLoading(true);
     setError(null);
 

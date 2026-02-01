@@ -5,7 +5,6 @@ import {
   CardContent,
   Typography,
   LinearProgress,
-  Chip,
   List,
   ListItem,
   ListItemText,

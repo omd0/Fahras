@@ -36,7 +36,6 @@ import {
 import { getStatusColor, getStatusLabel } from '@/utils/projectHelpers';
 import {
   Search as SearchIcon,
-  FilterList as FilterIcon,
   Visibility as ViewIcon,
   Refresh as RefreshIcon,
   Home as HomeIcon,

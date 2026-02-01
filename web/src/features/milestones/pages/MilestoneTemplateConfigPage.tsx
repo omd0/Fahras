@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box,
-  Tabs,
-  Tab,
   IconButton,
   Typography,
   Card,
@@ -20,8 +18,6 @@ import {
   ArrowBack as ArrowBackIcon,
   Timeline as TimelineIcon,
   Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { DashboardContainer } from '@/components/shared/DashboardContainer';
@@ -32,29 +28,8 @@ import { TemplateList } from '@/features/milestones/components/TemplateList';
 import { TemplateEditor } from '@/features/milestones/components/TemplateEditor';
 import { ConfirmDialog } from '@/components/shared';
 
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`template-config-tabpanel-${index}`}
-      aria-labelledby={`template-config-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box sx={{ pt: 3 }}>{children}</Box>}
-    </div>
-  );
-}
-
 export const MilestoneTemplateConfigPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState(0);
+  const [_activeTab, setActiveTab] = useState(0);
   const [templates, setTemplates] = useState<MilestoneTemplate[]>([]);
   const [programs, setPrograms] = useState<Program[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -88,8 +63,8 @@ export const MilestoneTemplateConfigPage: React.FC = () => {
       ]);
       setPrograms(programsRes || []);
       setDepartments(departmentsRes || []);
-    } catch (err: any) {
-      setError('Failed to load programs and departments');
+     } catch (_err: any) {
+       setError('Failed to load programs and departments');
     } finally {
       setLoading(false);
     }
@@ -111,7 +86,7 @@ export const MilestoneTemplateConfigPage: React.FC = () => {
     }
   };
 
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+  const _handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
   };
 
@@ -204,8 +179,8 @@ export const MilestoneTemplateConfigPage: React.FC = () => {
         <TemplateEditor
           open={editorOpen}
           template={selectedTemplate}
-          programs={programs}
-          departments={departments}
+          _programs={programs}
+          _departments={departments}
           onClose={handleEditorClose}
           onSave={handleEditorSave}
         />

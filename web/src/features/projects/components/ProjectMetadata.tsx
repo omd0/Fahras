@@ -8,11 +8,6 @@ import {
   Paper,
   Chip,
   Grid,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  Avatar,
 } from '@mui/material';
 import {
   CalendarToday as CalendarIcon,
@@ -26,7 +21,7 @@ import { useLanguage } from '@/providers/LanguageContext';
 interface ProjectMetadataProps {
   project: Project;
   user: any;
-  isProfessor: boolean;
+  _isProfessor: boolean;
   canEdit: boolean;
   onStatusChange: (newStatus: string) => Promise<void>;
 }
@@ -34,7 +29,7 @@ interface ProjectMetadataProps {
 export const ProjectMetadata: React.FC<ProjectMetadataProps> = ({
   project,
   user,
-  isProfessor,
+  _isProfessor,
   canEdit,
   onStatusChange,
 }) => {
@@ -53,7 +48,7 @@ export const ProjectMetadata: React.FC<ProjectMetadataProps> = ({
     }
   };
 
-  const getRoleColor = (role: string) => {
+  const _getRoleColor = (role: string) => {
     switch (role) {
       case 'LEAD': return 'primary';
       case 'MEMBER': return 'secondary';

@@ -5,7 +5,6 @@ import {
   Grid,
   Typography,
   Box,
-  Chip,
   Divider,
   List,
   ListItem,
@@ -16,7 +15,6 @@ import {
 import {
   Person as PersonIcon,
   School as SchoolIcon,
-  CalendarToday as CalendarIcon,
   Label as LabelIcon,
 } from '@mui/icons-material';
 import { formatDate } from '@/utils/projectHelpers';
@@ -40,7 +38,7 @@ interface ProjectInfoProps {
   customMembers?: Member[];
   customAdvisors?: Member[];
   createdAt?: string;
-  updatedAt?: string;
+  _updatedAt?: string;
 }
 
 const ProjectInfo: React.FC<ProjectInfoProps> = ({
@@ -55,7 +53,7 @@ const ProjectInfo: React.FC<ProjectInfoProps> = ({
   customMembers = [],
   customAdvisors = [],
   createdAt,
-  updatedAt,
+  _updatedAt,
 }) => {
   const allMembers = [...(members || []), ...(customMembers || [])];
   const allAdvisors = [...(advisors || []), ...(customAdvisors || [])];

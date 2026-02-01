@@ -6,12 +6,6 @@ import {
   Card,
   CardContent,
   Button,
-  AppBar,
-  Toolbar,
-  IconButton,
-  Menu,
-  MenuItem,
-  Avatar,
   Chip,
   Table,
   TableBody,
@@ -32,12 +26,8 @@ import {
   Tab,
   Grid,
 } from '@mui/material';
-import { getStatusColor } from '@/utils/projectHelpers';
 import {
   Assignment as AssignmentIcon,
-  AccountCircle,
-  ExitToApp,
-  ArrowBack as ArrowBackIcon,
   CheckCircle as CheckCircleIcon,
   Pending as PendingIcon,
   Star as StarIcon,
@@ -89,7 +79,7 @@ export const EvaluationsPage: React.FC = () => {
   const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [_anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [tabValue, setTabValue] = useState(0);
   const [selectedEvaluation, setSelectedEvaluation] = useState<Evaluation | null>(null);
   const [evaluationDialogOpen, setEvaluationDialogOpen] = useState(false);
@@ -102,7 +92,7 @@ export const EvaluationsPage: React.FC = () => {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const dashboardTheme = getDashboardTheme(user?.roles);
+  const _dashboardTheme = getDashboardTheme(user?.roles);
 
   useEffect(() => {
     fetchEvaluations();
@@ -122,20 +112,20 @@ export const EvaluationsPage: React.FC = () => {
     }
   };
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+  const _handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleMenuClose = () => {
+  const _handleMenuClose = () => {
     setAnchorEl(null);
   };
 
-  const handleProfileClick = () => {
+  const _handleProfileClick = () => {
     setAnchorEl(null);
     navigate('/profile');
   };
 
-  const handleLogout = () => {
+  const _handleLogout = () => {
     logout();
     navigate('/login');
   };

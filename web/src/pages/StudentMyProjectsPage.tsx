@@ -29,17 +29,13 @@ import {
 import {
   Search as SearchIcon,
   FilterList as FilterIcon,
-  Visibility as ViewIcon,
-  Refresh as RefreshIcon,
   Home as HomeIcon,
-  Assignment as AssignmentIcon,
-  Edit as EditIcon,
   Add as AddIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/features/auth/store';
 import { useLanguage } from '@/providers/LanguageContext';
-import { Project, Program, Department } from '@/types';
+import { Project } from '@/types';
 import { apiService } from '@/lib/api';
 import { TVTCLogo } from '@/components/TVTCLogo';
 import { getDashboardTheme } from '@/config/dashboardThemes';
@@ -76,7 +72,7 @@ const StudentMyProjectsPage: React.FC = () => {
   const dashboardTheme = getDashboardTheme(user?.roles);
   
   const [projects, setProjects] = useState<Project[]>([]);
-  const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
+  const [_filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -259,7 +255,7 @@ const StudentMyProjectsPage: React.FC = () => {
   };
 
 
-  const handleRefresh = () => {
+  const _handleRefresh = () => {
     fetchData();
   };
 

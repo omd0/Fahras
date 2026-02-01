@@ -5,10 +5,10 @@ import {
   CardContent,
   Typography,
   Button,
-  IconButton,
-  LinearProgress,
-  Chip,
-  Tooltip,
+  
+  
+  
+  
   useMediaQuery,
   useTheme,
   Alert,
@@ -32,7 +32,7 @@ import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 interface MilestoneTimelineProps {
   projectId: number;
   milestones: ProjectMilestone[];
-  links: TimelineLink[];
+  _links: TimelineLink[];
   onMilestoneClick?: (milestone: ProjectMilestone) => void;
   onStart?: (milestoneId: number) => Promise<void>;
   onComplete?: (milestoneId: number, notes?: string) => Promise<void>;
@@ -53,7 +53,7 @@ const statusIcons = {
 export const MilestoneTimeline: React.FC<MilestoneTimelineProps> = ({
   projectId,
   milestones: initialMilestones,
-  links,
+  _links,
   onMilestoneClick,
   onStart,
   onComplete,

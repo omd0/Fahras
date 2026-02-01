@@ -5,7 +5,6 @@ import {
   Button,
   Menu,
   MenuItem,
-  Typography,
   useTheme,
   IconButton,
 } from '@mui/material';

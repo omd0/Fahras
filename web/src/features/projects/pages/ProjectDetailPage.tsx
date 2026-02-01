@@ -52,7 +52,7 @@ export const ProjectDetailPage: React.FC = () => {
     user.id === project.created_by_user_id ||
     user.roles?.some(role => role.name === 'admin')
   );
-  const canDelete = user && project && (
+  const _canDelete = user && project && (
     user.id === project.created_by_user_id ||
     user.roles?.some(role => role.name === 'admin')
   );
@@ -177,7 +177,7 @@ export const ProjectDetailPage: React.FC = () => {
     }
   };
 
-  const handleDelete = () => {
+  const _handleDelete = () => {
     if (!project) return;
     setDeleteConfirmOpen(true);
   };

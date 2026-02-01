@@ -15,7 +15,7 @@ import { designTokens } from '@/styles/designTokens';
 interface ProjectHeaderProps {
   project: Project;
   user: any;
-  isProfessor: boolean;
+  _isProfessor: boolean;
   onBackClick: () => void;
   onRefreshProject: () => void;
 }
@@ -23,7 +23,7 @@ interface ProjectHeaderProps {
 export const ProjectHeader: React.FC<ProjectHeaderProps> = ({
   project,
   user,
-  isProfessor,
+  _isProfessor,
   onBackClick,
   onRefreshProject,
 }) => {

@@ -1,6 +1,6 @@
 import { apiService } from '@/lib/api';
 import { File } from '@/types';
-import { FileTreeNode, FileTreeNodeType, LoadingStatus } from '@/store/repositoryStore';
+import { FileTreeNode, FileTreeNodeType } from '@/store/repositoryStore';
 
 export interface FileTreeResponse {
   files: File[];
@@ -130,7 +130,7 @@ class RepositoryService {
   /**
    * Get file blame (attribution) - placeholder for future implementation
    */
-  async getFileBlame(projectId: number, filePath: string): Promise<FileBlameResponse> {
+  async getFileBlame(_projectId: number, _filePath: string): Promise<FileBlameResponse> {
     // TODO: Implement when backend supports it
     // This would require version tracking in the backend
     throw new Error('File blame not yet implemented');

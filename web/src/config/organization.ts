@@ -31,18 +31,18 @@ export async function loadOrganizationConfig(): Promise<OrganizationConfig> {
               orgConfig = loadedConfig;
             }
           }
-      } catch (yamlError) {
-        // Silently fall back to default config if YAML loading fails
-        console.debug('Using default organization config (YAML not available)');
+       } catch (_yamlError) {
+         // Silently fall back to default config if YAML loading fails
+         console.debug('Using default organization config (YAML not available)');
       }
     } else {
       // In production, use static config or fetch from API
       // For now, use hardcoded fallback that matches the YAML structure
       orgConfig = getDefaultConfig();
     }
-  } catch (error) {
-    // Silently use default config on any error
-    console.debug('Using default organization config:', error);
+   } catch (_error) {
+     // Silently use default config on any error
+     console.debug('Using default organization config:', _error);
   }
 
   return orgConfig;

@@ -11,7 +11,6 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  FormControlLabel,
   Checkbox,
   Alert,
   CircularProgress,

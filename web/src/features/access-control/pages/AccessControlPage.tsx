@@ -4,7 +4,6 @@ import {
   ArrowBack as ArrowBackIcon, 
   Security as SecurityIcon,
   Badge as BadgeIcon,
-  Lock as LockIcon,
   People as PeopleIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';

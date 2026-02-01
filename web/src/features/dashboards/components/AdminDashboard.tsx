@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Card, CardContent, Grid, Button, CircularProgress, Alert, Typography, IconButton, Chip, Skeleton } from '@mui/material';
+import { Box, Card, CardContent, Grid, Button, Alert, Typography, IconButton, Chip, Skeleton } from '@mui/material';
 import { getErrorMessage } from '@/utils/errorHandling';
 import {
   Assignment as AssignmentIcon,
@@ -14,7 +14,7 @@ import {
   Timeline as TimelineIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { getProjectDetailUrl, getProjectEditUrl, getProjectFollowUrl, getProjectCodeUrl, projectRoutes, getProjectSlug } from '@/utils/projectRoutes';
+import { getProjectDetailUrl } from '@/utils/projectRoutes';
 import { Project } from '@/types';
 import { apiService } from '@/lib/api';
 import { getRoleInfo } from '@/config/dashboardThemes';

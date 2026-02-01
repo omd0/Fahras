@@ -39,7 +39,6 @@ export const FileBrowser: React.FC<FileBrowserProps> = ({
     expandedPaths,
     selectedFilePath,
     toggleExpand,
-    expandPath,
     getChildren,
     findNode,
     setFileTree,
@@ -129,11 +128,11 @@ export const FileBrowser: React.FC<FileBrowserProps> = ({
         useRepositoryStore.getState().updateFileNode(path, {
           loadingStatus: 'loaded',
         });
-      } catch (err) {
-        useRepositoryStore.getState().updateFileNode(path, {
-          loadingStatus: 'error',
-        });
-      }
+       } catch (_err) {
+         useRepositoryStore.getState().updateFileNode(path, {
+           loadingStatus: 'error',
+         });
+       }
     }
   };
 

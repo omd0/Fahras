@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, Button, Stack, useTheme, Container } from '@mui/material';
+import { Box, Typography, Button, Stack, Container } from '@mui/material';
 import { ArrowForward as ArrowForwardIcon } from '@mui/icons-material';
 import { colorPalette } from '@/styles/theme/colorPalette';
 
@@ -38,8 +38,6 @@ export const SectionBand: React.FC<SectionBandProps> = ({
   align = 'right',
   height = 'auto',
 }) => {
-  const theme = useTheme();
-
   // Gradient backgrounds
   const gradients = {
     primary: `linear-gradient(to right, ${colorPalette.secondary.dark}, ${colorPalette.secondary.main})`,

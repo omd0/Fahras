@@ -14,10 +14,7 @@ import {
   Skeleton,
   IconButton,
   TextField,
-  Select,
-  MenuItem,
   InputAdornment,
-  FormControl,
   useTheme,
 } from '@mui/material';
 import {
@@ -73,7 +70,7 @@ export const ExplorePage: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [showSavedSearches, setShowSavedSearches] = useState(false);
   const [showSavedOnly, setShowSavedOnly] = useState(false);
-  const [programs, setPrograms] = useState<any[]>([]);
+  const [_programs, setPrograms] = useState<any[]>([]);
   const [departments, setDepartments] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const categoryScrollRef = useRef<HTMLDivElement>(null);

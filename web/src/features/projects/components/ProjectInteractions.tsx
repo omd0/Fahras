@@ -15,7 +15,6 @@ import {
   ListItemAvatar,
   Avatar,
   Chip,
-  Paper,
 } from '@mui/material';
 import {
   Comment as CommentIcon,

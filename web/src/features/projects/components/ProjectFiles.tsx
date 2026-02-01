@@ -26,13 +26,13 @@ import { useLanguage } from '@/providers/LanguageContext';
 
 interface ProjectFilesProps {
   project: Project;
-  isProfessor: boolean;
+  _isProfessor: boolean;
   filesLoading: boolean;
 }
 
 export const ProjectFiles: React.FC<ProjectFilesProps> = ({
   project,
-  isProfessor,
+  _isProfessor,
   filesLoading,
 }) => {
   const { t } = useLanguage();

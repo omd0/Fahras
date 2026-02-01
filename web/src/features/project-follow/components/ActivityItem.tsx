@@ -53,7 +53,7 @@ export const ActivityItem: React.FC<ActivityItemProps> = ({ activity }: Activity
 
   const icon = activityIcons[activity.activity_type] || <CreateIcon />;
   const color = activityColors[activity.activity_type] || theme.palette.grey[500];
-  const userInitials = activity.user?.full_name
+  const _userInitials = activity.user?.full_name
     ? activity.user.full_name
         .split(' ')
         .map((n: string) => n[0])

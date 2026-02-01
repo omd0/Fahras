@@ -22,7 +22,7 @@ import { useLanguage } from '@/providers/LanguageContext';
 interface ProjectMainInfoProps {
   project: Project;
   user: User | null;
-  isProfessor: boolean;
+  _isProfessor: boolean;
   canEdit: boolean;
   onStatusClick?: () => void;
 }
@@ -30,7 +30,7 @@ interface ProjectMainInfoProps {
 export const ProjectMainInfo: React.FC<ProjectMainInfoProps> = ({
   project,
   user,
-  isProfessor,
+  _isProfessor,
   canEdit,
   onStatusClick,
 }) => {

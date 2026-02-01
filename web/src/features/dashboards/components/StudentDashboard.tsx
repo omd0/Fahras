@@ -52,13 +52,8 @@ import {
   CalendarToday as CalendarIcon,
   Person as PersonIcon,
   AutoAwesome as AutoAwesomeIcon,
-  Speed as SpeedIcon,
   EmojiEvents as EmojiEventsIcon,
   Psychology as PsychologyIcon,
-  Lightbulb as LightbulbIcon,
-  Timeline as TimelineIcon,
-  TrendingFlat as TrendingFlatIcon,
-  PlayArrow as PlayArrowIcon,
   Refresh as RefreshIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -69,10 +64,6 @@ import { getRoleInfo } from '@/config/dashboardThemes';
 import { useAuthStore } from '@/features/auth/store';
 import { useLanguage } from '@/providers/LanguageContext';
 
-import { DashboardContainer } from '@/components/shared/DashboardContainer';
-import { DashboardHeader } from '@/components/shared/DashboardHeader';
-import { StatsCard } from '@/components/shared/StatsCard';
-import { ProjectCard } from '@/components/shared/ProjectCard';
 import { ProjectGridSkeleton } from '@/components/skeletons';
 import { UniversalSearchBox } from '@/components/shared/UniversalSearchBox';
 
@@ -113,7 +104,7 @@ export const StudentDashboard: React.FC = () => {
   const location = useLocation();
   const theme = useTheme();
   const { t } = useLanguage();
-  const roleInfo = getRoleInfo('student', user?.full_name, t);
+  const _roleInfo = getRoleInfo('student', user?.full_name, t);
   const myProjectsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -175,9 +166,9 @@ export const StudentDashboard: React.FC = () => {
       setNotificationsLoading(true);
       const response = await apiService.getNotifications({ per_page: 5 });
       setNotifications(response.notifications || []);
-    } catch (error: any) {
-      // Error logged in development only
-      setNotifications([]);
+     } catch (_error: any) {
+       // Error logged in development only
+       setNotifications([]);
     } finally {
       setNotificationsLoading(false);
     }
@@ -189,12 +180,12 @@ export const StudentDashboard: React.FC = () => {
       setNotifications(prev => 
         prev.map(n => n.id === notificationId ? { ...n, is_read: true } : n)
       );
-    } catch (error) {
-      // Error logged in development only
-    }
-  };
+     } catch (_error) {
+       // Error logged in development only
+     }
+   };
 
-  const getNotificationIcon = (type: string) => {
+   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'comment':
         return <CommentIcon sx={{ color: 'info.main' }} />;

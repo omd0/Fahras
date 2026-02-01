@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useRef, useState } from 'react';
-import { useLocation, useNavigate, useBlocker } from 'react-router-dom';
+import { useNavigate, useBlocker } from 'react-router-dom';
 
 export interface UseUnsavedChangesOptions {
   /** Whether the form has unsaved changes */
@@ -69,7 +69,7 @@ export const useUnsavedChanges = ({
   const [showDialog, setShowDialog] = useState(false);
   const [pendingLocation, setPendingLocation] = useState<string | null>(null);
   const proceedRef = useRef(false);
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
 
   // Use React Router's useBlocker to block navigation
   const blocker = useBlocker(

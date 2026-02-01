@@ -5,7 +5,6 @@ import {
   CardContent,
   Typography,
   Avatar,
-  Divider,
   useTheme,
 } from '@mui/material';
 import {

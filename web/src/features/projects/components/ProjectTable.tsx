@@ -77,7 +77,7 @@ export interface ProjectTableProps {
   /** Custom theme colors */
   themeColors?: {
     primary?: string;
-    accent?: string;
+    _accent?: string;
   };
   /** Message to display when no projects are found */
   emptyMessage?: string;
@@ -90,7 +90,7 @@ export interface ProjectTableProps {
     icon?: React.ReactElement;
   };
   /** Loading state */
-  loading?: boolean;
+  _loading?: boolean;
   /** Custom class name */
   className?: string;
   /** Custom styles */
@@ -265,12 +265,12 @@ export const ProjectTable: React.FC<ProjectTableProps> = ({
   emptyMessage = 'No projects found',
   emptyDescription = 'No projects match your current filters',
   emptyAction,
-  loading = false,
+  _loading = false,
   className,
   sx = {},
 }) => {
   const { t } = useLanguage();
-  const { primary = colorPalette.secondary.dark, accent = colorPalette.info.lighter } = themeColors;
+  const { primary = colorPalette.secondary.dark, _accent = colorPalette.info.lighter } = themeColors;
 
   // Filter out null/undefined projects
   const validProjects = (projects || []).filter(project => project != null);

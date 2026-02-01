@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuthStore } from '@/features/auth/store';
 import { apiService } from '@/lib/api';
 import {
-  getGuestBookmarks,
   addGuestBookmark,
   removeGuestBookmark,
   isGuestBookmarked,

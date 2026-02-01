@@ -38,7 +38,7 @@ export const dashboardThemes: Record<string, DashboardTheme> = {
   default: unified,
 };
 
-export const getDashboardTheme = (roles: Array<{ name: string }> | undefined): DashboardTheme => {
+export const getDashboardTheme = (_roles: Array<{ name: string }> | undefined): DashboardTheme => {
   return unified;
 };
 

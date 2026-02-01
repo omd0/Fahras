@@ -4,18 +4,10 @@ import {
   TextField,
   Box,
   Typography,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   IconButton,
   Checkbox,
   FormControlLabel,
   Alert,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
   Card,
   CardContent,
   Divider,
@@ -25,7 +17,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  FormGroup,
   FormHelperText,
   Table,
   TableBody,
@@ -52,8 +43,8 @@ import { apiService } from '@/lib/api';
 interface TemplateEditorProps {
   open: boolean;
   template: MilestoneTemplate | null;
-  programs: Program[];
-  departments: Department[];
+  _programs: Program[];
+  _departments: Department[];
   onClose: () => void;
   onSave: () => void;
 }
@@ -61,8 +52,8 @@ interface TemplateEditorProps {
 export const TemplateEditor: React.FC<TemplateEditorProps> = ({
   open,
   template,
-  programs,
-  departments,
+  _programs,
+  _departments,
   onClose,
   onSave,
 }) => {
@@ -89,7 +80,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   const isNew = template === null;
-  let nextTempId = 1;
+  let _nextTempId = 1;
 
   useEffect(() => {
     if (open) {
@@ -255,7 +246,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
     }
   };
 
-  const handleMoveItem = (index: number, direction: 'up' | 'down') => {
+  const _handleMoveItem = (index: number, direction: 'up' | 'down') => {
     if (direction === 'up' && index === 0) return;
     if (direction === 'down' && index === items.length - 1) return;
 
@@ -925,8 +916,8 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
                                       setItemPermissions(newPermissions);
                                       
                                       // Update roles and actions arrays based on remaining permissions
-                                      const allRoles = ['admin', 'faculty', 'student'] as const;
-                                      const allActions = ['start', 'pause', 'extend', 'view', 'edit', 'complete'] as const;
+                                      const _allRoles = ['admin', 'faculty', 'student'] as const;
+                                      const _allActions = ['start', 'pause', 'extend', 'view', 'edit', 'complete'] as const;
                                       
                                       const rolesInPermissions = new Set<string>();
                                       const actionsInPermissions = new Set<string>();

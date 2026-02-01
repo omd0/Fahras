@@ -1,5 +1,3 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
 import { vi } from 'vitest';
 
 // Simple test to verify Vitest is working

@@ -10,14 +10,11 @@ import {
   MenuItem,
   Alert,
   CircularProgress,
-  Button,
   Chip,
   useTheme,
 } from '@mui/material';
 import {
   Timeline as TimelineIcon,
-  CheckCircle as CheckCircleIcon,
-  Info as InfoIcon,
   ArrowForward as ArrowForwardIcon,
 } from '@mui/icons-material';
 import { MilestoneTemplate, Program } from '@/types';
@@ -29,7 +26,7 @@ interface ProgramTemplateSelectorProps {
   onTemplateSelect: (templateId: number | null) => void;
   onProgramSelect?: (programId: number | null) => void;
   programs?: Program[];
-  onApplyTemplate?: (templateId: number, startDate: string) => Promise<void>;
+  _onApplyTemplate?: (templateId: number, startDate: string) => Promise<void>;
 }
 
 export const ProgramTemplateSelector: React.FC<ProgramTemplateSelectorProps> = ({
@@ -38,7 +35,7 @@ export const ProgramTemplateSelector: React.FC<ProgramTemplateSelectorProps> = (
   onTemplateSelect,
   onProgramSelect,
   programs = [],
-  onApplyTemplate,
+  _onApplyTemplate,
 }) => {
   const theme = useTheme();
   const [templates, setTemplates] = useState<MilestoneTemplate[]>([]);

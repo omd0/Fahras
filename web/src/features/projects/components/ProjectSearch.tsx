@@ -69,25 +69,25 @@ export const ProjectSearch: React.FC<SearchProps> = ({ onSearch, onClear, loadin
     fetchDepartments();
   }, []);
 
-  const fetchPrograms = async () => {
-    try {
-      const programs = await apiService.getPrograms();
-      setPrograms(programs || []);
-    } catch (error) {
-      // Silently fail - programs filter is optional
-      setPrograms([]);
-    }
-  };
+   const fetchPrograms = async () => {
+     try {
+       const programs = await apiService.getPrograms();
+       setPrograms(programs || []);
+     } catch (_error) {
+       // Silently fail - programs filter is optional
+       setPrograms([]);
+     }
+   };
 
-  const fetchDepartments = async () => {
-    try {
-      const response = await apiService.getDepartments();
-      setDepartments(response || []);
-    } catch (error) {
-      // Silently fail - departments filter is optional
-      setDepartments([]);
-    }
-  };
+   const fetchDepartments = async () => {
+     try {
+       const response = await apiService.getDepartments();
+       setDepartments(response || []);
+     } catch (_error) {
+       // Silently fail - departments filter is optional
+       setDepartments([]);
+     }
+   };
 
   const fetchSuggestions = async (query: string) => {
     if (query.length < 2) {
@@ -95,14 +95,14 @@ export const ProjectSearch: React.FC<SearchProps> = ({ onSearch, onClear, loadin
       return;
     }
 
-    try {
-      const response = await apiService.getProjectSuggestions(query);
-      setSuggestions(response.suggestions || response || []);
-    } catch (error) {
-      // Silently fail - suggestions are optional
-      setSuggestions([]);
-    }
-  };
+     try {
+       const response = await apiService.getProjectSuggestions(query);
+       setSuggestions(response.suggestions || response || []);
+     } catch (_error) {
+       // Silently fail - suggestions are optional
+       setSuggestions([]);
+     }
+   };
 
   const handleSearch = () => {
     onSearch(filters);

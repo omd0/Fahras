@@ -7,8 +7,6 @@ import {
   Alert,
   CircularProgress,
   Container,
-  AppBar,
-  Toolbar,
   List,
   ListItem,
   ListItemText,

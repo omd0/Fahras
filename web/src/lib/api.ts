@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import { LoginCredentials, RegisterData, ResetPasswordData, ChangePasswordData, User, Project, CreateProjectData, File, Program, Comment, Rating, Department, MilestoneTemplate, MilestoneTemplateItem, ProjectMilestone, ProjectActivity, ProjectFlag, ProjectFollower, TimelineData, SavedSearch, CreateSavedSearchData, UpdateSavedSearchData } from '@/types';
+import { LoginCredentials, RegisterData, ResetPasswordData, ChangePasswordData, User, Project, CreateProjectData, File, Program, Comment, Rating, Department, MilestoneTemplate, ProjectMilestone, ProjectActivity, ProjectFlag, ProjectFollower, TimelineData, SavedSearch, CreateSavedSearchData, UpdateSavedSearchData } from '@/types';
 import { MilestoneTemplateData } from '@/types/milestones';
 
 // Use environment variable to define API base URL

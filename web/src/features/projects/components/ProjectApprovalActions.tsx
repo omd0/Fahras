@@ -14,7 +14,6 @@ import {
 import {
   CheckCircle as ApproveIcon,
   VisibilityOff as HideIcon,
-  EditNote as NotesIcon,
 } from '@mui/icons-material';
 import { Project } from '@/types';
 import { apiService } from '@/lib/api';

@@ -9,7 +9,6 @@ import {
   ListItemIcon,
   Typography,
   IconButton,
-  Badge,
   Button,
   Chip,
   Divider,
@@ -26,7 +25,6 @@ import {
   Delete as DeleteIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { getProjectDetailUrl, getProjectEditUrl, getProjectFollowUrl, getProjectCodeUrl, projectRoutes, getProjectSlug } from '@/utils/projectRoutes';
 import { useNotifications } from '@/features/notifications/hooks/useNotifications';
 
 interface NotificationCenterProps {
@@ -70,7 +68,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({ open, on
     }
   };
 
-  const getNotificationColor = (type: string) => {
+  const getNotificationColor = (_type: string) => {
     return colorPalette.secondary.light; // Sky blue for all notification types
   };
 

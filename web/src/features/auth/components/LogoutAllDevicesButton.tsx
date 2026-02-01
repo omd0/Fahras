@@ -11,7 +11,6 @@ import {
   Alert,
   Paper,
   Typography,
-  Box,
 } from '@mui/material';
 import { Logout } from '@mui/icons-material';
 import { authApi } from '@/lib/api';

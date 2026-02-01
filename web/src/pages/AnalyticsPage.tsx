@@ -9,11 +9,6 @@ import {
   CardContent,
   CircularProgress,
   Alert,
-  AppBar,
-  Toolbar,
-  IconButton,
-  Avatar,
-  Menu,
   MenuItem,
   Grid,
   FormControl,
@@ -27,39 +22,27 @@ import {
   Button,
   Paper,
   Divider,
-  Rating,
-  Stack,
-  LinearProgress,
   Fade,
   Slide,
 } from '@mui/material';
 import {
-  Analytics as AnalyticsIcon,
-  AccountCircle,
-  ExitToApp,
-  ArrowBack as ArrowBackIcon,
   TrendingUp as TrendingUpIcon,
   Assessment as AssessmentIcon,
   BarChart as BarChartIcon,
-  PieChart as PieChartIcon,
   Timeline as TimelineIcon,
   School as SchoolIcon,
   CalendarToday as CalendarIcon,
-  People as PeopleIcon,
   Assignment as AssignmentIcon,
   Star as StarIcon,
   Visibility as VisibilityIcon,
   FilterList as FilterIcon,
   Clear as ClearIcon,
-  Insights as InsightsIcon,
-  Dashboard as DashboardIcon,
   ShowChart as ShowChartIcon,
 } from '@mui/icons-material';
 // Chart components will be implemented with basic MUI components for now
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/features/auth/store';
 import { apiService } from '@/lib/api';
-import { TVTCLogo } from '@/components/TVTCLogo';
 import { getDashboardTheme } from '@/config/dashboardThemes';
 import { Project, Program } from '@/types';
 import { useLanguage } from '@/providers/LanguageContext';
@@ -140,7 +123,7 @@ export const AnalyticsPage: React.FC = () => {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [_anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   
   // New state for enhanced analytics
   const [programs, setPrograms] = useState<Program[]>([]);
@@ -153,7 +136,7 @@ export const AnalyticsPage: React.FC = () => {
 
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
-  const dashboardTheme = getDashboardTheme(user?.roles);
+  const _dashboardTheme = getDashboardTheme(user?.roles);
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -239,20 +222,20 @@ export const AnalyticsPage: React.FC = () => {
     }
   };
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+  const _handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleMenuClose = () => {
+  const _handleMenuClose = () => {
     setAnchorEl(null);
   };
 
-  const handleProfileClick = () => {
+  const _handleProfileClick = () => {
     setAnchorEl(null);
     navigate('/profile');
   };
 
-  const handleLogout = () => {
+  const _handleLogout = () => {
     logout();
     navigate('/login');
   };

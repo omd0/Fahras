@@ -23,14 +23,10 @@ import {
   ListItemText,
   ListItemSecondaryAction,
   Divider,
-  Stack,
-  LinearProgress,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  FormControlLabel,
-  Switch,
   TextField,
   InputAdornment,
 } from '@mui/material';
@@ -38,35 +34,22 @@ import {
   School as SchoolIcon,
   TrendingUp as TrendingUpIcon,
   Assessment as AssessmentIcon,
-  BarChart as BarChartIcon,
-  PieChart as PieChartIcon,
-  Timeline as TimelineIcon,
   CalendarToday as CalendarIcon,
   People as PeopleIcon,
   Assignment as AssignmentIcon,
-  Star as StarIcon,
   Visibility as VisibilityIcon,
   FilterList as FilterIcon,
   Clear as ClearIcon,
-  Insights as InsightsIcon,
-  Dashboard as DashboardIcon,
   ShowChart as ShowChartIcon,
   Search as SearchIcon,
-  Sort as SortIcon,
-  ViewList as ViewListIcon,
-  ViewModule as ViewModuleIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { getProjectDetailUrl, getProjectEditUrl, projectRoutes } from '@/utils/projectRoutes';
+import { getProjectDetailUrl, projectRoutes } from '@/utils/projectRoutes';
 import { Project } from '@/types';
 import { apiService } from '@/lib/api';
 import { getRoleInfo } from '@/config/dashboardThemes';
 import { useAuthStore } from '@/features/auth/store';
 import { useLanguage } from '@/providers/LanguageContext';
-import { DashboardContainer } from '@/components/shared/DashboardContainer';
-import { DashboardHeader } from '@/components/shared/DashboardHeader';
-import { ProjectCard } from '@/components/shared/ProjectCard';
-import { TVTCLogo } from '@/components/TVTCLogo';
 
 // Harmonious color palette derived from design system tokens
 const ANALYTICS_COLORS = {
@@ -129,7 +112,7 @@ export const FacultyDashboard: React.FC = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const roleInfo = getRoleInfo('faculty', user?.full_name, t);
+  const _roleInfo = getRoleInfo('faculty', user?.full_name, t);
   const userIsFaculty = (user?.roles || []).some(role => role.name === 'faculty');
 
   const isMyAdvisingProject = (project: Project) => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Grid } from '@mui/material';
+import { Box } from '@mui/material';
 import { Project } from '@/types';
 import { RepositoryHeader } from './RepositoryHeader';
 import { RepositoryTabs } from './RepositoryTabs';

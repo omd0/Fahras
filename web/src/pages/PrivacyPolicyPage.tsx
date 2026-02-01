@@ -3,7 +3,6 @@ import {
   Container,
   Typography,
   Box,
-  Paper,
   Divider,
   useTheme,
 } from '@mui/material';
@@ -11,7 +10,7 @@ import { useLanguage } from '@/providers/LanguageContext';
 
 export const PrivacyPolicyPage: React.FC = () => {
   const theme = useTheme();
-  const { t } = useLanguage();
+  useLanguage();
 
   const lastUpdated = 'January 30, 2025';
 
