@@ -10,6 +10,7 @@
 
 # production
 /build
+.nixpacks-output/
 
 # misc
 .DS_Store

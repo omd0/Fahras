@@ -1,11 +1,11 @@
-# Docker Compose configuration using Nixpacks-built image
+# Docker Compose configuration using Railpack-built image
 # Simulates how the app runs on CranL PaaS
 
 services:
   # PostgreSQL Database
   db:
     image: postgres:16-alpine
-    container_name: fahras-db-nixpacks
+    container_name: fahras-db-railpack
     restart: unless-stopped
     environment:
       POSTGRES_DB: fahras
@@ -13,7 +13,7 @@ services:
       POSTGRES_PASSWORD: fahras_password
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
     volumes:
-      - postgres_data_nixpacks:/var/lib/postgresql/data
+      - postgres_data_railpack:/var/lib/postgresql/data
     ports:
       - "5433:5432"
     healthcheck:
@@ -23,18 +23,18 @@ services:
       retries: 10
       start_period: 40s
     networks:
-      - fahras-nixpacks
+      - fahras-railpack
 
   # Redis Cache/Session/Queue
   redis:
     image: redis:7-alpine
-    container_name: fahras-redis-nixpacks
+    container_name: fahras-redis-railpack
     restart: unless-stopped
     command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     ports:
       - "6379:6379"
     volumes:
-      - redis_data_nixpacks:/data
+      - redis_data_railpack:/data
     healthcheck:
       test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
       interval: 10s
@@ -42,12 +42,12 @@ services:
       retries: 10
       start_period: 20s
     networks:
-      - fahras-nixpacks
+      - fahras-railpack
 
   # MinIO S3-compatible storage
   minio:
     image: minio/minio:latest
-    container_name: fahras-minio-nixpacks
+    container_name: fahras-minio-railpack
     restart: unless-stopped
     ports:
       - "9000:9000"
@@ -58,7 +58,7 @@ services:
       LANG: en_US.UTF-8
       LC_ALL: en_US.UTF-8
     volumes:
-      - minio_data_nixpacks:/data
+      - minio_data_railpack:/data
     command: server /data --console-address ":9001"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
@@ -67,12 +67,12 @@ services:
       retries: 5
       start_period: 20s
     networks:
-      - fahras-nixpacks
+      - fahras-railpack
 
   # MinIO Bucket Initialization
   minio-init:
     image: minio/mc:latest
-    container_name: fahras-minio-init-nixpacks
+    container_name: fahras-minio-init-railpack
     depends_on:
       minio:
         condition: service_healthy
@@ -86,13 +86,13 @@ services:
       exit 0;
       "
     networks:
-      - fahras-nixpacks
+      - fahras-railpack
     restart: "no"
 
-  # Laravel Application (Nixpacks-built)
+  # Laravel Application (Railpack-built)
   app:
-    image: fahras-api-nixpacks:latest
-    container_name: fahras-app-nixpacks
+    image: fahras-api-railpack:latest
+    container_name: fahras-app-railpack
     restart: unless-stopped
     ports:
       - "8080:8080"
@@ -141,7 +141,7 @@ services:
       minio-init:
         condition: service_completed_successfully
     networks:
-      - fahras-nixpacks
+      - fahras-railpack
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8080/api/health || exit 1"]
       interval: 30s
@@ -150,13 +150,13 @@ services:
       start_period: 60s
 
 volumes:
-  postgres_data_nixpacks:
+  postgres_data_railpack:
     driver: local
-  redis_data_nixpacks:
+  redis_data_railpack:
     driver: local
-  minio_data_nixpacks:
+  minio_data_railpack:
     driver: local
 
 networks:
-  fahras-nixpacks:
+  fahras-railpack:
     driver: bridge

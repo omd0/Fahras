@@ -1,0 +1,32 @@
+{
+	admin off
+	persist_config off
+	auto_https off
+	log {
+		format json
+	}
+	servers {
+		trusted_proxies static private_ranges 100.0.0.0/8
+	}
+}
+
+:{$PORT:3000} {
+	log {
+		format json
+	}
+
+	# health check endpoint
+	rewrite /health /*
+
+	# serve from the 'build' folder (Vite builds into 'build' via vite.config.ts outDir)
+	root * /app/build
+
+	# enable gzip compression
+	encode gzip
+
+	# serve static files
+	file_server
+
+	# SPA routing: if path doesn't exist, redirect to index.html for client-side routing
+	try_files {path} /index.html
+}

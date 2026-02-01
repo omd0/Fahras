@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "=== Fahras API - Production Startup ==="
+echo "=== Fahras API - Production Startup (Railpack) ==="
 
 # Create required Laravel storage directories
 mkdir -p storage/framework/{cache,sessions,views} storage/logs storage/app/public bootstrap/cache
@@ -20,7 +20,7 @@ php artisan event:cache
 echo "Running migrations..."
 php artisan migrate --force 2>/dev/null || echo "Migration skipped or already up to date"
 
-# Start PHP built-in server in background (simpler for Nixpacks)
+# Start PHP built-in server in background (used with Railpack custom start command)
 echo "Starting PHP built-in server..."
 php -S 0.0.0.0:9000 -t public public/index.php &
 
