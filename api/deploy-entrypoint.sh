@@ -28,4 +28,5 @@ php -S 0.0.0.0:9000 -t public public/index.php &
 sleep 2
 
 echo "=== Starting Caddy ==="
-exec caddy run --config Caddyfile --adapter caddyfile
+# Use local caddy binary downloaded during build
+exec ./caddy run --config Caddyfile --adapter caddyfile

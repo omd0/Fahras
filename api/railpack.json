@@ -26,8 +26,9 @@
   "steps": {
     "install": {
       "commands": [
-        "mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs storage/app/public bootstrap/cache",
+        "mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs storage/app/public bootstrap/cache resources/views",
         "chmod -R 775 storage bootstrap/cache",
+        "curl -L -o caddy \"https://caddyserver.com/api/download?os=linux&arch=amd64&p=caddy\" && chmod +x caddy",
         "composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist"
       ]
     }
