@@ -17,7 +17,12 @@ export default defineConfig({
     hmr: {
       clientPort: 3000,
     },
-    allowedHosts: ['.localhost', 'localhost', 'node', 'nginx', 'app.saudiflux.org', '.saudiflux.org'],
+    allowedHosts: [
+      '.localhost', 'localhost', 'node', 'nginx',
+      'app.saudiflux.org', '.saudiflux.org',
+      '.cranl.net', '.traefik.me',
+      ...(process.env.VITE_ALLOWED_HOSTS?.split(',').filter(Boolean) ?? []),
+    ],
     fs: {
       strict: false,
       allow: ['..'],

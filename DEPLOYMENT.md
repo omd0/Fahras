@@ -9,7 +9,7 @@ Fahras deploys as two independent services on Cranl:
 1. **Backend API Service** - Laravel 11 API with PostgreSQL and Redis
 2. **Frontend Service** - React 19 static site served via Caddy
 
-Both services use **Railpack** for automatic build detection and deployment. Railpack is the successor to Nixpacks, offering smaller images (38-77% reduction), precise semantic versioning, and better caching via BuildKit. The platform auto-detects configuration from `railpack.json` files in each service's root directory.
+Both services use **Nixpacks** for automatic build detection and deployment. The platform auto-detects configuration from `nixpacks.toml` files in each service's root directory.
 
 ## Prerequisites
 
@@ -24,21 +24,14 @@ Before deploying to Cranl, ensure you have:
 
 ### Configuration
 
-The backend API service is configured via `api/railpack.json` and deploys automatically using Railpack.
-
-Railpack auto-detects Laravel from `composer.json` and handles:
-- PHP extensions (read from `composer.json` `require` section: `ext-pgsql`, `ext-redis`, etc.)
-- Composer dependency installation (`composer install --no-dev`)
-- Artisan optimizations (config/route/view/event caching)
-- Storage directory creation and symlink
-- Database migrations (unless `RAILPACK_SKIP_MIGRATIONS=true`)
+The backend API service is configured via `api/nixpacks.toml` and deploys automatically using Nixpacks.
 
 **Service Settings:**
 - **Name**: `fahras-api` (or your preferred name)
 - **Root Directory**: `/api`
 - **Region**: MENA (Saudi Arabia) - Available on Pro+ plans
-- **Build System**: Railpack (auto-detected from `railpack.json`)
-- **Start Command**: `bash deploy-entrypoint.sh` (defined in railpack.json)
+- **Build System**: Nixpacks (auto-detected from `nixpacks.toml`)
+- **Start Command**: `bash deploy-entrypoint.sh` (defined in nixpacks.toml)
 
 ### Required Add-ons
 
@@ -116,31 +109,25 @@ CACHE_DRIVER=redis
 4. **Add PostgreSQL**: Attach PostgreSQL add-on
 5. **Add Redis**: Attach Redis add-on
 6. **Configure Environment**: Add all variables from `.env.cranl.api.example`
-7. **Deploy**: Cranl will auto-detect Railpack and deploy
+7. **Deploy**: Cranl will auto-detect Nixpacks and deploy
 
 The deployment script (`api/deploy-entrypoint.sh`) automatically:
 - Runs database migrations
 - Optimizes Laravel caches
-- Starts PHP built-in server and Caddy web server
+- Starts PHP-FPM and Caddy web server
 
 ## Service 2 — Frontend
 
 ### Configuration
 
-The frontend service is configured via `web/railpack.json` and serves a static React build.
-
-Railpack auto-detects the Vite project from `vite.config.ts` and handles:
-- Node.js installation (version from `engines.node` in `package.json` or default)
-- Dependency installation via detected package manager
-- Build execution (`npm run build` / `tsc && vite build`)
-- Static site serving via Caddy web server
+The frontend service is configured via `web/nixpacks.toml` and serves a static React build.
 
 **Service Settings:**
 - **Name**: `fahras-web` (or your preferred name)
 - **Root Directory**: `/web`
 - **Region**: MENA (Saudi Arabia) - Available on Pro+ plans
-- **Build System**: Railpack (auto-detected from `railpack.json`)
-- **Start Command**: Auto-configured (Caddy serves static files)
+- **Build System**: Nixpacks (auto-detected from `nixpacks.toml`)
+- **Start Command**: `caddy run --config Caddyfile --adapter caddyfile` (defined in nixpacks.toml)
 
 ### Environment Variables
 
@@ -153,29 +140,25 @@ VITE_API_URL=https://api.fahras.tvtc.gov.sa
 
 # Application Name
 VITE_APP_NAME=Fahras
-
-# Railpack: Custom output directory (Vite builds to 'build/' via vite.config.ts)
-RAILPACK_SPA_OUTPUT_DIR=build
 ```
 
 **CRITICAL NOTE:**
 - `VITE_API_URL` **MUST** be the full URL of your backend service (e.g., `https://api.fahras.tvtc.gov.sa`)
 - **DO NOT** use relative paths like `/api` - this will fail in production
 - This value is **baked into the build at build time** - changing it requires redeploying the frontend
-- `RAILPACK_SPA_OUTPUT_DIR=build` is required because Vite is configured to output to `build/` instead of the default `dist/`
 
 ### Deployment Process
 
 1. **Create Service**: In Cranl dashboard, create new service from GitHub repo
 2. **Set Root Directory**: `/web`
 3. **Select Region**: MENA (Saudi Arabia)
-4. **Configure Environment**: Add `VITE_API_URL` pointing to backend service URL, and `RAILPACK_SPA_OUTPUT_DIR=build`
-5. **Deploy**: Cranl will auto-detect Railpack, build React app, and serve via Caddy
+4. **Configure Environment**: Add `VITE_API_URL` pointing to backend service URL
+5. **Deploy**: Cranl will auto-detect Nixpacks, build React app, and serve via Caddy
 
 The build process:
 - Installs dependencies via `npm ci`
 - Builds production bundle via `npm run build`
-- Serves static files via Caddy web server with SPA routing
+- Serves static files via Caddy web server
 
 ## Post-Deployment Checklist
 
@@ -266,15 +249,14 @@ curl -H "Origin: https://fahras.tvtc.gov.sa" \
 
 ### Build Failures
 
-**Symptom**: Railpack build fails during deployment
+**Symptom**: Nixpacks build fails during deployment
 
 **Solutions**:
 1. Check build logs in Cranl dashboard
-2. Verify `railpack.json` exists in service root directory (`/api` or `/web`)
-3. For backend: Verify PHP extensions are declared in `composer.json` `require` section
+2. Verify `nixpacks.toml` exists in service root directory (`/api` or `/web`)
+3. Ensure all required Nix packages are declared in `nixpacks.toml`
 4. For backend: Verify Composer dependencies are compatible with PHP 8.3
 5. For frontend: Check Node.js version compatibility (requires Node 20+)
-6. Check Railpack-specific env vars (`RAILPACK_SPA_OUTPUT_DIR`, `RAILPACK_NODE_VERSION`, etc.)
 
 ### Database Connection Errors
 
@@ -341,8 +323,7 @@ curl -H "Origin: https://fahras.tvtc.gov.sa" \
 ## Additional Resources
 
 - **Cranl Documentation**: [docs.cranl.com](https://docs.cranl.com)
-- **Railpack Documentation**: [railpack.com](https://railpack.com)
-- **Railpack GitHub**: [github.com/railwayapp/railpack](https://github.com/railwayapp/railpack)
+- **Nixpacks Documentation**: [nixpacks.com/docs](https://nixpacks.com/docs)
 - **Laravel Deployment**: [laravel.com/docs/deployment](https://laravel.com/docs/deployment)
 - **Vite Production Build**: [vitejs.dev/guide/build](https://vitejs.dev/guide/build)
 - **Alibaba Cloud OSS**: [alibabacloud.com/help/oss](https://www.alibabacloud.com/help/oss)
