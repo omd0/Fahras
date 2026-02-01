@@ -5,11 +5,21 @@
     "php": "8.3"
   },
   "buildAptPackages": [
+    "bison",
+    "re2c",
     "libpq-dev",
     "libpng-dev",
     "libjpeg-dev",
     "libfreetype6-dev",
-    "libicu-dev"
+    "libgd-dev",
+    "libicu-dev",
+    "libonig-dev",
+    "libxml2-dev",
+    "libsqlite3-dev",
+    "libreadline-dev",
+    "libzip-dev",
+    "libcurl4-openssl-dev",
+    "libssl-dev"
   ],
   "phpExtensions": [
     "pdo_pgsql",
