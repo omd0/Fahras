@@ -35,6 +35,8 @@ COPY --from=build /app /app
 RUN chmod -R 775 storage bootstrap/cache \
     && rm -f /etc/caddy/Caddyfile /Caddyfile /etc/frankenphp/Caddyfile
 
+ENV CACHE_BUST=2026-02-02-debug
+
 EXPOSE 8080
 
 ENTRYPOINT ["bash", "deploy-entrypoint.sh"]

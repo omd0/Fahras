@@ -1,4 +1,5 @@
 {
+	auto_https off
 	frankenphp {
 		worker {
 			file public/frankenphp-worker.php
@@ -8,7 +9,7 @@
 }
 
 # Explicitly bind to IPv4 0.0.0.0
-http://0.0.0.0:{$PORT:8080} {
+0.0.0.0:{$PORT:8080} {
 	root * public/
 	encode zstd br gzip
 	php_server

@@ -20,5 +20,9 @@ php artisan route:cache
 php artisan event:cache
 php artisan migrate --force 2>/dev/null || echo "Migration skipped or already up to date"
 
-echo "Starting FrankenPHP with custom Caddyfile on port ${PORT:-8080}..."
-exec php artisan octane:start --server=frankenphp --caddyfile=Caddyfile.production --port=${PORT:-8080}
+echo "DEBUG: Checking file system..."
+ls -la /Caddyfile 2>/dev/null || echo "/Caddyfile does not exist"
+ls -la Caddyfile.production 2>/dev/null || echo "Caddyfile.production does not exist"
+echo "DEBUG: Starting Octane..."
+
+exec php artisan octane:start --server=frankenphp --caddyfile=Caddyfile.production --port=${PORT:-8080} --verbose
