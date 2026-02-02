@@ -12,7 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-         // Register optional authentication middleware
+         $middleware->append(\App\Http\Middleware\NoCdnCache::class);
+
          $middleware->alias([
              'auth.optional' => \App\Http\Middleware\OptionalAuthSanctum::class,
          ]);

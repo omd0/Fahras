@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
 
+echo "=== Fahras API Startup ==="
+echo "PHP: $(php -v | head -1)"
+echo "PWD: $(pwd)"
+echo "PORT: ${PORT:-8080}"
+echo "==========================="
+
 mkdir -p storage/framework/{cache,sessions,views} storage/logs storage/app/public bootstrap/cache resources/views public
 chmod -R 775 storage bootstrap/cache resources/views
 
