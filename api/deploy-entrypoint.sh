@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+set -x
 
 mkdir -p storage/framework/{cache,sessions,views} storage/logs storage/app/public bootstrap/cache resources/views public
 chmod -R 775 storage bootstrap/cache resources/views
