@@ -1,0 +1,23 @@
+{
+	admin off
+	persist_config off
+	auto_https off
+
+	frankenphp {
+		{$FRANKENPHP_CONFIG}
+	}
+}
+
+:{$PORT:80} {
+	root * /app/public
+	encode zstd br gzip
+
+	header {
+		Cache-Control "no-store, no-cache, must-revalidate, private"
+		CDN-Cache-Control "no-store"
+		Surrogate-Control "no-store"
+		X-Powered-By "Fahras API"
+	}
+
+	php_server
+}
