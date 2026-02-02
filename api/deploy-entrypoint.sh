@@ -25,5 +25,7 @@ echo "DEBUG: Overwriting /Caddyfile with custom config..."
 cp Caddyfile.production /Caddyfile
 cat /Caddyfile
 
-echo "DEBUG: Starting Octane using /Caddyfile..."
-exec php artisan octane:start --server=frankenphp --caddyfile=/Caddyfile --port=${PORT:-8080} --verbose
+echo "DEBUG: Starting FrankenPHP directly (bypassing Octane CLI)..."
+# Using frankenphp directly ensures it respects our Caddyfile 100%
+# without Octane command interfering with port binding.
+exec frankenphp run --config /Caddyfile
