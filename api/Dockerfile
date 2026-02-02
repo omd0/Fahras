@@ -33,6 +33,7 @@ FROM base AS production
 COPY --from=build /app /app
 
 RUN chmod -R 775 storage bootstrap/cache \
+    && chmod +x deploy-entrypoint.sh \
     && rm -f /etc/caddy/Caddyfile /Caddyfile /etc/frankenphp/Caddyfile
 
 ENV CACHE_BUST=2026-02-02-debug
