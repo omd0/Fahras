@@ -15,7 +15,6 @@
         "ext-gd": "*",
         "ext-intl": "*",
         "ext-mbstring": "*",
-
         "ext-pcntl": "*",
         "ext-pdo": "*",
         "ext-pdo_pgsql": "*",

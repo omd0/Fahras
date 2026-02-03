@@ -2,15 +2,12 @@
 	admin off
 	persist_config off
 	auto_https off
-
 	{$CADDY_GLOBAL_OPTIONS}
-
 	log {
 		format json
 		output stderr
-		level INFO
+		level {$CADDY_LOG_LEVEL:WARN}
 	}
-
 	frankenphp {
 		{$FRANKENPHP_CONFIG}
 	}
@@ -20,22 +17,18 @@
 
 :{$PORT:80} {
 	root * /app/public
-
 	encode zstd br gzip
-
 	file_server {
 		hide .git
 		hide .env*
 	}
-
 	header {
 		X-Frame-Options "SAMEORIGIN"
 		X-Content-Type-Options "nosniff"
-		X-XSS-Protection "1; mode=block"
 		Referrer-Policy "no-referrer-when-downgrade"
+		-X-Powered-By
+		-Server
 	}
-
 	{$CADDY_SERVER_EXTRA_DIRECTIVES}
-
 	php_server
 }
