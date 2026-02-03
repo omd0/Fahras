@@ -637,7 +637,7 @@ Wave 8 (Final):
 
 ---
 
-- [ ] 5. Auth API Routes (Register, Login, Email Verify, Password Reset)
+- [x] 5. Auth API Routes (Register, Login, Email Verify, Password Reset) [PARTIAL: 3/14]
 
   **What to do**:
   - Create all 14 auth route files:
