@@ -712,7 +712,7 @@ Wave 8 (Final):
 
 ### Wave 3: Core API Routes (ALL parallel)
 
-- [ ] 7. Academic Structure + Tags API
+- [x] 7. Academic Structure + Tags API
 
   **What to do**: Create `app/api/programs/route.ts` (GET), `app/api/departments/route.ts` (GET), `app/api/tags/route.ts` (GET, POST)
 
