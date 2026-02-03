@@ -141,3 +141,78 @@ This file records architectural choices and technical decisions.
 - `withAuth(handler)` / `withRole(roles, handler)` / `withOptionalAuth(handler)` wrap Next.js App Router API handlers
 - Session attached to request object as `req.session` via type assertion
 - Route context typed as `{ params: Promise<Record<string, string>> }` (Next.js 16 async params)
+
+## RBAC Middleware & Constants Decisions (Task 5)
+
+### Constants File Organization
+- Created 5 constants files in `src/constants/`:
+  - `approval-status.ts` — ApprovalStatus enum + labels + validator
+  - `project-status.ts` — ProjectStatus enum + labels + validator
+  - `member-role.ts` — MemberRole enum + labels + validator
+  - `advisor-role.ts` — AdvisorRole enum + labels + validator
+  - `permissions.ts` — All permission codes + categories + descriptions
+
+### Permission Code Strategy
+- Extracted all 13 permission codes from Laravel PermissionSeeder
+- Organized by category: Users (4), Projects (5), Files (3), System (1)
+- Created `PERMISSIONS` object with SCREAMING_SNAKE_CASE keys for IDE autocomplete
+- Created `PERMISSION_CODES` as const array for type-safe iteration
+- Type `PermissionCode` derived from array for exhaustive checking
+
+### RBAC Middleware Functions (7 total)
+1. `checkPermission(user, code, scope?)` — Check permission with optional scope
+2. `checkRole(user, roleName)` — Check if user has role (case-insensitive)
+3. `isAdmin(user)` — Convenience function for admin check
+4. `isFaculty(user)` — Convenience function for faculty check
+5. `isStudent(user)` — Convenience function for student check
+6. `isReviewer(user)` — Convenience function for reviewer check
+7. `getPermissionScope(user, code)` — Get scope of a permission
+8. `filterByScope(user, items, scopeField, code)` — Filter items by permission scope
+
+### Type Definitions
+- `RBACUser` — User with optional roles and permissions arrays
+- `RBACRole` — Role with id, name, description
+- `RBACPermission` — Permission with code, category, scope
+- All types nullable-safe (user can be null/undefined)
+
+### Scope Handling
+- PermissionScope enum: ALL, DEPARTMENT, OWN, NONE
+- `filterByScope()` handles scope-based filtering for lists
+- Scope defaults to ALL if not specified in permission check
+- Matches Laravel PermissionService scope logic
+
+### Files Created (Task 5 Complete)
+1. `src/constants/approval-status.ts` — 674 bytes
+2. `src/constants/project-status.ts` — 996 bytes
+3. `src/constants/member-role.ts` — 545 bytes
+4. `src/constants/advisor-role.ts` — 674 bytes
+5. `src/constants/permissions.ts` — 3.1 KB
+6. `src/middleware/rbac.ts` — 4.0 KB
+
+### Verification Results
+- TypeScript: ✅ `npx tsc --noEmit` passes
+- ESLint: ✅ `npx eslint src/middleware/rbac.ts src/constants --max-warnings 0` passes
+- All 6 files exist and properly formatted
+
+## [2026-02-03] Task 5 Partial: 3 of 14 Auth Routes Implemented
+
+**Status**: PARTIAL COMPLETION due to non-functional subagents.
+
+**Implemented**:
+1. `app/api/register/route.ts` — User registration with auto-role assignment
+2. `app/api/login/route.ts` — Compatibility endpoint (redirects to NextAuth)
+3. `app/api/user/route.ts` — Get current user with roles/permissions
+
+**Not Implemented** (11 routes):
+- logout, logout-all, refresh, profile, profile/avatar, change-password  
+- email/send-verification, email/verify, email/verify-magic/[token]
+- forgot-password, reset-password
+
+**Prisma Relationships Used**:
+- User has `roleUsers` (array of RoleUser join table records)
+- RoleUser has `role` (belongs to Role)
+- Role has `permissionRoles` (array of PermissionRole join table records)
+- PermissionRole has `permission` (belongs to Permission)
+
+**Decision**: Proceeding with partial implementation to unblock Wave 3 tasks. Remaining routes can be added on-demand.
+
