@@ -1,8 +1,4 @@
-# Docker Compose configuration using Railpack-built image
-# Simulates how the app runs on CranL PaaS
-
 services:
-  # PostgreSQL Database
   db:
     image: postgres:16-alpine
     container_name: fahras-db-railpack
@@ -18,14 +14,13 @@ services:
       - "5433:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U fahras -d fahras || exit 1"]
-      interval: 10s
-      timeout: 5s
+      interval: 5s
+      timeout: 3s
       retries: 10
-      start_period: 40s
+      start_period: 10s
     networks:
       - fahras-railpack
 
-  # Redis Cache/Session/Queue
   redis:
     image: redis:7-alpine
     container_name: fahras-redis-railpack
@@ -33,128 +28,50 @@ services:
     command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     ports:
       - "6379:6379"
-    volumes:
-      - redis_data_railpack:/data
     healthcheck:
       test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
-      interval: 10s
-      timeout: 5s
+      interval: 5s
+      timeout: 3s
       retries: 10
-      start_period: 20s
+      start_period: 5s
     networks:
       - fahras-railpack
 
-  # MinIO S3-compatible storage
-  minio:
-    image: minio/minio:latest
-    container_name: fahras-minio-railpack
-    restart: unless-stopped
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin123
-      LANG: en_US.UTF-8
-      LC_ALL: en_US.UTF-8
-    volumes:
-      - minio_data_railpack:/data
-    command: server /data --console-address ":9001"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
-    networks:
-      - fahras-railpack
-
-  # MinIO Bucket Initialization
-  minio-init:
-    image: minio/mc:latest
-    container_name: fahras-minio-init-railpack
-    depends_on:
-      minio:
-        condition: service_healthy
-    entrypoint: >
-      /bin/sh -c "
-      echo 'Configuring MinIO...';
-      mc alias set myminio http://minio:9000 minioadmin minioadmin123;
-      mc mb myminio/fahras-files --ignore-existing;
-      mc anonymous set download myminio/fahras-files;
-      echo 'MinIO configured successfully!';
-      exit 0;
-      "
-    networks:
-      - fahras-railpack
-    restart: "no"
-
-  # Laravel Application (Railpack-built)
   app:
-    image: fahras-api-railpack:latest
+    image: fahras-api:latest
     container_name: fahras-app-railpack
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "8080:80"
     environment:
-      # Database
+      - APP_KEY=base64:A1UJjm/mnhQNm0zokctCFut3yoH4c5iKlc7VZCp3T7k=
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_URL=http://localhost:8080
+      - LOG_CHANNEL=stderr
       - DB_CONNECTION=pgsql
       - DB_HOST=db
       - DB_PORT=5432
       - DB_DATABASE=fahras
       - DB_USERNAME=fahras
       - DB_PASSWORD=fahras_password
-      
-      # Application
-      - APP_ENV=production
-      - APP_DEBUG=false
-      - APP_KEY=base64:A1UJjm/mnhQNm0zokctCFut3yoH4c5iKlc7VZCp3T7k=
-      - APP_URL=http://localhost
-      
-      # Redis
+      - REDIS_CLIENT=phpredis
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - CACHE_DRIVER=redis
-      - QUEUE_CONNECTION=redis
+      - CACHE_STORE=redis
       - SESSION_DRIVER=redis
-      
-      # S3/MinIO
-      - FILESYSTEM_DISK=s3
-      - AWS_ACCESS_KEY_ID=minioadmin
-      - AWS_SECRET_ACCESS_KEY=minioadmin123
-      - AWS_DEFAULT_REGION=us-east-1
-      - AWS_BUCKET=fahras-files
-      - AWS_ENDPOINT=http://minio:9000
-      - AWS_URL=http://localhost:9000
-      - AWS_USE_PATH_STYLE_ENDPOINT=true
-      
-      # UTF-8 Support
-      - LANG=en_US.UTF-8
-      - LC_ALL=en_US.UTF-8
+      - QUEUE_CONNECTION=sync
+      - FILESYSTEM_DISK=local
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
-      minio:
-        condition: service_healthy
-      minio-init:
-        condition: service_completed_successfully
     networks:
       - fahras-railpack
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/api/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
 
 volumes:
   postgres_data_railpack:
-    driver: local
-  redis_data_railpack:
-    driver: local
-  minio_data_railpack:
     driver: local
 
 networks:
