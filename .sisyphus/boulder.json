@@ -1,8 +1,9 @@
 {
-  "active_plan": "/home/omd/Documents/CTI/Fahras/.sisyphus/plans/paas-deployment.md",
-  "started_at": "2026-01-31T10:41:29.530Z",
+  "active_plan": "/home/omd/Documents/CTI/Fahras/.sisyphus/plans/nextjs-migration.md",
+  "started_at": "2026-02-03T09:36:04.039Z",
   "session_ids": [
-    "ses_3ec91c44affev9v2dLDIl0nONm"
+    "ses_3dd6b742dffeklLmV7pWDVixgE",
+    "ses_3dd0c5e53ffe2GNb4yGCPaaJYA"
   ],
-  "plan_name": "paas-deployment"
+  "plan_name": "nextjs-migration"
 }
