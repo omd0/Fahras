@@ -12,11 +12,9 @@ class NoCdnCache
     {
         $response = $next($request);
 
-        if ($response instanceof Response) {
-            $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-            $response->headers->set('CDN-Cache-Control', 'no-store');
-            $response->headers->set('Surrogate-Control', 'no-store');
-        }
+        $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        $response->headers->set('CDN-Cache-Control', 'no-store');
+        $response->headers->set('Surrogate-Control', 'no-store');
 
         return $response;
     }
