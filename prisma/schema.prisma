@@ -1,0 +1,799 @@
+// =============================================================================
+// Fahras — Prisma Schema (Single Source of Truth for Database Structure)
+// =============================================================================
+// Mirrors ALL tables from the Laravel backend with exact column names, types,
+// constraints, indexes, and relationships.
+//
+// IMPORTANT:
+//   - All field names use camelCase with @map("snake_case") for DB columns
+//   - All model names use PascalCase with @@map("table_name") for DB tables
+//   - Do NOT run `prisma migrate` or `prisma db push` — the Laravel backend
+//     owns the migration lifecycle. Only use `prisma generate`.
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// ENUMS
+// =============================================================================
+
+enum UserStatus {
+  active
+  inactive
+  suspended
+}
+
+enum DegreeLevel {
+  bachelor
+  master
+  phd
+}
+
+enum Semester {
+  fall
+  spring
+  summer
+}
+
+enum ProjectStatus {
+  draft
+  submitted
+  under_review
+  approved
+  rejected
+  completed
+}
+
+enum AdminApprovalStatus {
+  pending
+  approved
+  hidden
+}
+
+enum AiAnalysisStatus {
+  pending
+  processing
+  completed
+  failed
+}
+
+enum MemberRole {
+  LEAD
+  MEMBER
+}
+
+enum AdvisorRole {
+  MAIN
+  CO_ADVISOR
+  REVIEWER
+}
+
+enum MilestoneStatus {
+  not_started
+  in_progress
+  completed
+  blocked
+}
+
+enum FlagType {
+  scope_creep
+  technical_blocker
+  team_conflict
+  resource_shortage
+  timeline_risk
+  other
+}
+
+enum FlagSeverity {
+  low
+  medium
+  high
+  critical
+}
+
+enum TagType {
+  manual
+  ai_generated
+  system
+}
+
+enum ProjectTagSource {
+  manual
+  ai_suggested
+  ai_auto
+}
+
+enum PermissionCategory {
+  Projects
+  Users
+  Files
+  Analytics
+  Settings
+  System
+  Roles
+}
+
+enum PermissionScope {
+  all
+  department
+  own
+  none
+}
+
+enum ComplexityLevel {
+  beginner
+  intermediate
+  advanced
+  expert
+}
+
+// =============================================================================
+// AUTH & USER MODELS
+// =============================================================================
+
+model User {
+  id              Int        @id @default(autoincrement())
+  fullName        String     @map("full_name")
+  email           String     @unique
+  emailVerifiedAt DateTime?  @map("email_verified_at")
+  avatarUrl       String?    @map("avatar_url")
+  password        String
+  status          UserStatus @default(active)
+  lastLoginAt     DateTime?  @map("last_login_at")
+  rememberToken   String?    @map("remember_token") @db.VarChar(100)
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  // Relations
+  roleUsers                  RoleUser[]
+  faculty                    Faculty?
+  student                    Student?
+  createdProjects            Project[]            @relation("ProjectCreator")
+  approvedProjects           Project[]            @relation("ProjectApprover")
+  projectMembers             ProjectMember[]
+  projectAdvisors            ProjectAdvisor[]
+  uploadedFiles              File[]
+  notifications              Notification[]
+  comments                   Comment[]
+  ratings                    Rating[]
+  bookmarks                  Bookmark[]
+  searchQueries              SearchQuery[]
+  savedSearches              SavedSearch[]
+  projectActivities          ProjectActivity[]
+  createdMilestoneTemplates  MilestoneTemplate[]
+  flagsCreated               ProjectFlag[]        @relation("FlagCreator")
+  flagsResolved              ProjectFlag[]        @relation("FlagResolver")
+  projectFollowers           ProjectFollower[]
+  sessions                   Session[]
+
+  @@map("users")
+}
+
+model Role {
+  id           Int      @id @default(autoincrement())
+  name         String   @unique
+  description  String?
+  isSystemRole Boolean  @default(false) @map("is_system_role")
+  isTemplate   Boolean  @default(false) @map("is_template")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  roleUsers       RoleUser[]
+  permissionRoles PermissionRole[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          Int                 @id @default(autoincrement())
+  code        String              @unique
+  category    PermissionCategory?
+  description String?
+  createdAt   DateTime            @default(now()) @map("created_at")
+  updatedAt   DateTime            @updatedAt @map("updated_at")
+
+  // Relations
+  permissionRoles PermissionRole[]
+
+  @@map("permissions")
+}
+
+model RoleUser {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  roleId    Int      @map("role_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@map("role_user")
+}
+
+model PermissionRole {
+  id           Int             @id @default(autoincrement())
+  roleId       Int             @map("role_id")
+  permissionId Int             @map("permission_id")
+  scope        PermissionScope @default(all)
+  createdAt    DateTime        @default(now()) @map("created_at")
+  updatedAt    DateTime        @updatedAt @map("updated_at")
+
+  // Relations
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@map("permission_role")
+}
+
+model PersonalAccessToken {
+  id            Int       @id @default(autoincrement())
+  tokenableType String    @map("tokenable_type")
+  tokenableId   Int       @map("tokenable_id")
+  name          String    @db.Text
+  token         String    @unique @db.VarChar(64)
+  abilities     String?   @db.Text
+  lastUsedAt    DateTime? @map("last_used_at")
+  expiresAt     DateTime? @map("expires_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  @@index([tokenableType, tokenableId])
+  @@index([expiresAt])
+  @@map("personal_access_tokens")
+}
+
+model EmailVerification {
+  id         Int      @id @default(autoincrement())
+  email      String
+  code       String   @db.VarChar(6)
+  magicToken String?  @unique @map("magic_token") @db.VarChar(64)
+  expiresAt  DateTime @map("expires_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@index([email])
+  @@index([email, code])
+  @@map("email_verifications")
+}
+
+model PasswordResetToken {
+  email     String    @id
+  token     String
+  createdAt DateTime? @map("created_at")
+
+  @@map("password_reset_tokens")
+}
+
+model Session {
+  id           String  @id
+  userId       Int?    @map("user_id")
+  ipAddress    String? @map("ip_address") @db.VarChar(45)
+  userAgent    String? @map("user_agent") @db.Text
+  payload      String  @db.Text
+  lastActivity Int     @map("last_activity")
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([lastActivity])
+  @@map("sessions")
+}
+
+// =============================================================================
+// ACADEMIC STRUCTURE MODELS
+// =============================================================================
+
+model Department {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  programs           Program[]
+  faculty            Faculty[]
+  milestoneTemplates MilestoneTemplate[]
+
+  @@map("departments")
+}
+
+model Program {
+  id           Int         @id @default(autoincrement())
+  departmentId Int         @map("department_id")
+  name         String
+  degreeLevel  DegreeLevel @map("degree_level")
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  // Relations
+  department         Department          @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  projects           Project[]
+  students           Student[]
+  milestoneTemplates MilestoneTemplate[]
+
+  @@map("programs")
+}
+
+model Faculty {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @unique @map("user_id")
+  departmentId Int      @map("department_id")
+  facultyNo    String   @unique @map("faculty_no")
+  isSupervisor Boolean  @default(false) @map("is_supervisor")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  @@map("faculty")
+}
+
+model Student {
+  id         Int      @id @default(autoincrement())
+  userId     Int      @unique @map("user_id")
+  programId  Int      @map("program_id")
+  studentNo  String   @unique @map("student_no")
+  cohortYear Int      @map("cohort_year")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  program Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@map("students")
+}
+
+// =============================================================================
+// PROJECT MODELS
+// =============================================================================
+
+model Project {
+  id                    Int                  @id @default(autoincrement())
+  slug                  String?              @unique @db.VarChar(20)
+  programId             Int                  @map("program_id")
+  createdByUserId       Int                  @map("created_by_user_id")
+  title                 String
+  abstract              String               @db.Text
+  keywords              Json?
+  academicYear          String               @map("academic_year")
+  semester              Semester             @default(fall)
+  status                ProjectStatus        @default(draft)
+  isPublic              Boolean              @default(false) @map("is_public")
+  aiAnalysisEnabled     Boolean              @default(true) @map("ai_analysis_enabled")
+  aiAnalysisStatus      AiAnalysisStatus     @default(pending) @map("ai_analysis_status")
+  adminApprovalStatus   AdminApprovalStatus  @default(pending) @map("admin_approval_status")
+  approvedByUserId      Int?                 @map("approved_by_user_id")
+  approvedAt            DateTime?            @map("approved_at")
+  adminNotes            String?              @map("admin_notes") @db.Text
+  doi                   String?
+  repoUrl               String?              @map("repo_url")
+  customMembers         Json?                @map("custom_members")
+  customAdvisors        Json?                @map("custom_advisors")
+  milestoneTemplateId   Int?                 @map("milestone_template_id")
+  createdAt             DateTime             @default(now()) @map("created_at")
+  updatedAt             DateTime             @updatedAt @map("updated_at")
+
+  // Relations
+  program            Program              @relation(fields: [programId], references: [id], onDelete: Cascade)
+  creator            User                 @relation("ProjectCreator", fields: [createdByUserId], references: [id], onDelete: Cascade)
+  approver           User?                @relation("ProjectApprover", fields: [approvedByUserId], references: [id], onDelete: SetNull)
+  milestoneTemplate  MilestoneTemplate?   @relation(fields: [milestoneTemplateId], references: [id], onDelete: SetNull)
+  projectMembers     ProjectMember[]
+  projectAdvisors    ProjectAdvisor[]
+  files              File[]
+  notifications      Notification[]
+  comments           Comment[]
+  ratings            Rating[]
+  bookmarks          Bookmark[]
+  projectTags        ProjectTag[]
+  aiMetadata         ProjectAiMetadata?
+  milestones         ProjectMilestone[]
+  activities         ProjectActivity[]
+  flags              ProjectFlag[]
+  followers          ProjectFollower[]
+
+  @@index([slug])
+  @@map("projects")
+}
+
+model ProjectMember {
+  id            Int        @id @default(autoincrement())
+  projectId     Int        @map("project_id")
+  userId        Int        @map("user_id")
+  roleInProject MemberRole @map("role_in_project")
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @updatedAt @map("updated_at")
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@map("project_members")
+}
+
+model ProjectAdvisor {
+  id          Int         @id @default(autoincrement())
+  projectId   Int         @map("project_id")
+  userId      Int         @map("user_id")
+  advisorRole AdvisorRole @map("advisor_role")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@map("project_advisors")
+}
+
+model File {
+  id               Int      @id @default(autoincrement())
+  projectId        Int      @map("project_id")
+  uploadedByUserId Int      @map("uploaded_by_user_id")
+  version          Int      @default(1)
+  filename         String
+  originalFilename String   @map("original_filename")
+  mimeType         String   @map("mime_type")
+  sizeBytes        BigInt   @map("size_bytes")
+  storageUrl       String   @map("storage_url")
+  checksum         String?
+  isPublic         Boolean  @default(false) @map("is_public")
+  uploadedAt       DateTime @default(now()) @map("uploaded_at")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  project  Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  uploader User    @relation(fields: [uploadedByUserId], references: [id], onDelete: Cascade)
+
+  @@map("files")
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  projectId  Int      @map("project_id")
+  userId     Int      @map("user_id")
+  content    String   @db.Text
+  parentId   Int?     @map("parent_id")
+  isApproved Boolean  @default(true) @map("is_approved")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  project Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies Comment[] @relation("CommentReplies")
+
+  @@index([projectId, createdAt])
+  @@index([userId, createdAt])
+  @@map("comments")
+}
+
+model Rating {
+  id         Int      @id @default(autoincrement())
+  projectId  Int      @map("project_id")
+  userId     Int      @map("user_id")
+  rating     Int
+  review     String?  @db.Text
+  isApproved Boolean  @default(true) @map("is_approved")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@index([projectId, rating])
+  @@map("ratings")
+}
+
+model Bookmark {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  projectId Int      @map("project_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId])
+  @@map("bookmarks")
+}
+
+// =============================================================================
+// TAG & AI MODELS
+// =============================================================================
+
+model Tag {
+  id         Int      @id @default(autoincrement())
+  name       String   @unique
+  slug       String   @unique
+  color      String?
+  type       TagType  @default(manual)
+  usageCount Int      @default(0) @map("usage_count")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  projectTags ProjectTag[]
+
+  @@index([type])
+  @@index([usageCount])
+  @@map("tags")
+}
+
+model ProjectTag {
+  id              Int              @id @default(autoincrement())
+  projectId       Int              @map("project_id")
+  tagId           Int              @map("tag_id")
+  source          ProjectTagSource @default(manual)
+  confidenceScore Float?           @map("confidence_score")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, tagId])
+  @@index([source])
+  @@map("project_tag")
+}
+
+model ProjectAiMetadata {
+  id                    Int              @id @default(autoincrement())
+  projectId             Int              @unique @map("project_id")
+  aiSummary             String?          @map("ai_summary") @db.Text
+  keyConcepts           Json?            @map("key_concepts")
+  researchArea          String?          @map("research_area")
+  researchSubcategories Json?            @map("research_subcategories")
+  embeddingVector       Json?            @map("embedding_vector")
+  detectedLanguage      String?          @map("detected_language")
+  complexityLevel       ComplexityLevel? @map("complexity_level")
+  aiModelVersion        String?          @map("ai_model_version")
+  lastAnalyzedAt        DateTime?        @map("last_analyzed_at")
+  analysisAttempts      Int              @default(0) @map("analysis_attempts")
+  analysisError         String?          @map("analysis_error") @db.Text
+  createdAt             DateTime         @default(now()) @map("created_at")
+  updatedAt             DateTime         @updatedAt @map("updated_at")
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([researchArea])
+  @@index([complexityLevel])
+  @@index([lastAnalyzedAt])
+  @@map("project_ai_metadata")
+}
+
+model SearchQuery {
+  id               Int      @id @default(autoincrement())
+  userId           Int?     @map("user_id")
+  originalQuery    String   @map("original_query") @db.Text
+  normalizedQuery  String?  @map("normalized_query") @db.Text
+  extractedFilters Json?    @map("extracted_filters")
+  resultsCount     Int      @default(0) @map("results_count")
+  hadResults       Boolean  @default(true) @map("had_results")
+  ipAddress        String?  @map("ip_address")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([hadResults])
+  @@index([createdAt])
+  @@map("search_queries")
+}
+
+// =============================================================================
+// MILESTONE MODELS
+// =============================================================================
+
+model MilestoneTemplate {
+  id              Int      @id @default(autoincrement())
+  name            String
+  description     String?  @db.Text
+  programId       Int?     @map("program_id")
+  departmentId    Int?     @map("department_id")
+  isDefault       Boolean  @default(false) @map("is_default")
+  createdByUserId Int      @map("created_by_user_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  program    Program?    @relation(fields: [programId], references: [id], onDelete: SetNull)
+  department Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  creator    User        @relation(fields: [createdByUserId], references: [id], onDelete: Cascade)
+  items      MilestoneTemplateItem[]
+  projects   Project[]
+
+  @@index([programId, isDefault])
+  @@index([departmentId, isDefault])
+  @@map("milestone_templates")
+}
+
+model MilestoneTemplateItem {
+  id             Int      @id @default(autoincrement())
+  templateId     Int      @map("template_id")
+  title          String
+  description    String?  @db.Text
+  order          Int      @default(0)
+  estimatedDays  Int      @default(0) @map("estimated_days")
+  isRequired     Boolean  @default(true) @map("is_required")
+  allowedRoles   Json?    @map("allowed_roles")
+  allowedActions Json?    @map("allowed_actions")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  template           MilestoneTemplate  @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  projectMilestones  ProjectMilestone[]
+
+  @@index([templateId, order])
+  @@map("milestone_template_items")
+}
+
+model ProjectMilestone {
+  id              Int             @id @default(autoincrement())
+  projectId       Int             @map("project_id")
+  templateItemId  Int?            @map("template_item_id")
+  title           String
+  description     String?         @db.Text
+  status          MilestoneStatus @default(not_started)
+  dueDate         DateTime?       @map("due_date") @db.Date
+  startedAt       DateTime?       @map("started_at")
+  completedAt     DateTime?       @map("completed_at")
+  order           Int             @default(0)
+  dependencies    Json?
+  completionNotes String?         @map("completion_notes") @db.Text
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+
+  // Relations
+  project      Project                @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  templateItem MilestoneTemplateItem? @relation(fields: [templateItemId], references: [id], onDelete: SetNull)
+
+  @@index([projectId, order])
+  @@index([projectId, status])
+  @@index([dueDate])
+  @@map("project_milestones")
+}
+
+// =============================================================================
+// ACTIVITY, FOLLOW & FLAG MODELS
+// =============================================================================
+
+model ProjectActivity {
+  id           Int      @id @default(autoincrement())
+  projectId    Int      @map("project_id")
+  userId       Int      @map("user_id")
+  activityType String   @map("activity_type")
+  title        String
+  description  String?  @db.Text
+  metadata     Json?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, createdAt])
+  @@index([projectId, activityType])
+  @@index([userId])
+  @@map("project_activities")
+}
+
+model ProjectFollower {
+  id                      Int      @id @default(autoincrement())
+  projectId               Int      @map("project_id")
+  userId                  Int      @map("user_id")
+  notificationPreferences Json?    @map("notification_preferences")
+  createdAt               DateTime @default(now()) @map("created_at")
+  updatedAt               DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@index([userId])
+  @@map("project_followers")
+}
+
+model ProjectFlag {
+  id               Int          @id @default(autoincrement())
+  projectId        Int          @map("project_id")
+  flaggedByUserId  Int          @map("flagged_by_user_id")
+  flagType         FlagType     @default(other) @map("flag_type")
+  severity         FlagSeverity @default(medium)
+  message          String       @db.Text
+  isConfidential   Boolean      @default(false) @map("is_confidential")
+  resolvedAt       DateTime?    @map("resolved_at")
+  resolvedByUserId Int?         @map("resolved_by_user_id")
+  resolutionNotes  String?      @map("resolution_notes") @db.Text
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+
+  // Relations
+  project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  flaggedBy  User    @relation("FlagCreator", fields: [flaggedByUserId], references: [id], onDelete: Cascade)
+  resolvedBy User?   @relation("FlagResolver", fields: [resolvedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([projectId, resolvedAt])
+  @@index([flagType])
+  @@index([severity])
+  @@map("project_flags")
+}
+
+// =============================================================================
+// SEARCH MODELS
+// =============================================================================
+
+model SavedSearch {
+  id         Int       @id @default(autoincrement())
+  userId     Int       @map("user_id")
+  name       String
+  filters    Json
+  isDefault  Boolean   @default(false) @map("is_default")
+  usageCount Int       @default(0) @map("usage_count")
+  lastUsedAt DateTime? @map("last_used_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("saved_searches")
+}
+
+// =============================================================================
+// NOTIFICATION MODEL
+// =============================================================================
+
+model Notification {
+  id        Int       @id @default(autoincrement())
+  userId    Int       @map("user_id")
+  projectId Int?      @map("project_id")
+  type      String
+  title     String
+  message   String    @db.Text
+  data      Json?
+  isRead    Boolean   @default(false) @map("is_read")
+  readAt    DateTime? @map("read_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+  @@map("notifications")
+}
