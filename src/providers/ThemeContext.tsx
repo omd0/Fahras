@@ -29,7 +29,7 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children, userRoles }) => {
-  const theme = getDashboardTheme(userRoles);
+  const theme = getDashboardTheme();
 
   const getUserRole = () => {
     if (!userRoles || userRoles.length === 0) return 'default';
