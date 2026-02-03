@@ -112,3 +112,32 @@ This file records architectural choices and technical decisions.
 12. `src/providers/Providers.tsx` — new composition wrapper
 13. `src/app/layout.tsx` — updated with providers + CSS imports
 
+## NextAuth v5 Authentication Decisions (Task — Auth Config)
+
+### NextAuth v5 Beta Pattern
+- Using `next-auth@5.0.0-beta.30` which exports `{ handlers, auth, signIn, signOut }` from `NextAuth(config)`
+- Route handler uses `export const { GET, POST } = handlers` (v5 pattern), not `NextAuth()` in route file (v4 pattern)
+- JWT strategy chosen (no database adapter) to match the existing Sanctum token approach
+
+### Type Augmentation
+- `next-auth` module: augmented `User` and `Session` interfaces
+- `@auth/core/jwt` module: augmented `JWT` interface (not `next-auth/jwt` which fails with bundler moduleResolution)
+- User's rich role data uses field name `authRoles` (not `roles`) to avoid type collision with JWT's `string[] roles`
+
+### JWT Token Shape
+- Roles flattened to `string[]` (role names only) for fast checks
+- Permissions flattened to `"code:scope"` format (e.g., `"projects.create:all"`) with Set deduplication
+- Full role/permission objects only exist during authorize() — JWT carries flat strings
+
+### Password Compatibility
+- bcryptjs v3 handles Laravel's `$2y$` bcrypt prefix transparently (algorithically identical to `$2a$`/`$2b$`)
+- 12 salt rounds for new hashes (auth-helpers), matching reasonable security for the use case
+
+### Case-Insensitive Email
+- Prisma `mode: "insensitive"` on `findFirst` mirrors Laravel's `whereRaw('LOWER(email) = ?', ...)`
+- Email normalized to lowercase + trimmed before lookup (matching AuthController behavior)
+
+### Middleware Pattern
+- `withAuth(handler)` / `withRole(roles, handler)` / `withOptionalAuth(handler)` wrap Next.js App Router API handlers
+- Session attached to request object as `req.session` via type assertion
+- Route context typed as `{ params: Promise<Record<string, string>> }` (Next.js 16 async params)

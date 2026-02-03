@@ -608,7 +608,7 @@ Wave 8 (Final):
 
 ### Wave 2: Authentication System
 
-- [ ] 4. NextAuth v5 Setup + Credentials Provider
+- [x] 4. NextAuth v5 Setup + Credentials Provider
 
   **What to do**:
   - Create `src/lib/auth.ts` — NextAuth v5 config: Credentials provider, JWT strategy, bcryptjs comparison, case-insensitive email, JWT callbacks with user.id/roles/permissions
