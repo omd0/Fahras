@@ -1,0 +1,136 @@
+.sr-only,
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.sr-only-focusable:focus,
+.visually-hidden-focusable:focus {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  padding: inherit !important;
+  margin: inherit !important;
+  overflow: visible !important;
+  clip: auto !important;
+  white-space: normal !important;
+}
+
+.skip-link {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.skip-link:focus {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  z-index: 9999;
+  padding: 1rem;
+  background-color: #008A3E;
+  color: white;
+  text-decoration: none;
+  border-radius: 0 0 4px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  font-weight: 600;
+}
+
+*:focus {
+  outline: 3px solid #008A3E;
+  outline-offset: 2px;
+}
+
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: 3px solid #008A3E;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(0, 138, 62, 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (prefers-contrast: high) {
+  * {
+    border-color: currentColor !important;
+  }
+
+  button,
+  a {
+    text-decoration: underline;
+  }
+}
+
+body {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  text-decoration-skip-ink: auto;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid #008A3E;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(0, 138, 62, 0.25);
+}
+
+[role="button"]:focus-visible,
+[role="link"]:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: 3px solid #008A3E;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(0, 138, 62, 0.25);
+}
+
+button,
+a,
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .skip-link:focus {
+    background-color: #18B3A8;
+    color: #000;
+  }
+
+  *:focus-visible {
+    outline-color: #18B3A8;
+    box-shadow: 0 0 0 3px rgba(24, 179, 168, 0.25);
+  }
+}
