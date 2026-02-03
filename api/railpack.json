@@ -1,0 +1,15 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "provider": "php",
+  "packages": {
+    "php": "8.3"
+  },
+  "deploy": {
+    "aptPackages": ["libpq-dev"],
+    "variables": {
+      "APP_ENV": "production",
+      "APP_DEBUG": "false",
+      "LOG_CHANNEL": "stderr"
+    }
+  }
+}
