@@ -56,13 +56,13 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(tag, { status: 201 });
   } catch (_error) {
-    if (error instanceof Error && error.message.includes('Insufficient permissions')) {
+    if (_error instanceof Error && _error.message.includes('Insufficient permissions')) {
       return NextResponse.json(
         { error: 'Admin role required' },
         { status: 403 }
       );
     }
-    if (error instanceof Error && error.message.includes('Authentication required')) {
+    if (_error instanceof Error && _error.message.includes('Authentication required')) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
