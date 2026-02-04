@@ -945,7 +945,7 @@ Wave 8 (Final):
 
 ---
 
-- [ ] 21. Explore Page (Search, Filters, Grid/Table)
+- [x] 21. Explore Page (Search, Filters, Grid/Table)
 
   **What to do**: Migrate ExplorePage + all explore components (grids, filters, saved searches, cards, skeletons). Migrate useVirtualization hook.
 

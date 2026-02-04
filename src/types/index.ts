@@ -143,3 +143,35 @@ export interface RegisterData {
   password: string;
   password_confirmation: string;
 }
+
+export interface SearchFilters {
+  search?: string;
+  program_id?: string | number;
+  department_id?: string | number;
+  academic_year?: string;
+  academic_year_filter?: string;
+  title_search?: string;
+  semester?: string;
+  status?: string;
+  is_public?: boolean | null;
+  sort_by?: string;
+  sort_order?: 'asc' | 'desc';
+}
+
+export interface SavedSearch {
+  id: number;
+  user_id: number;
+  name: string;
+  filters: SearchFilters;
+  is_default: boolean;
+  usage_count: number;
+  last_used_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateSavedSearchData {
+  name: string;
+  filters: SearchFilters;
+  is_default?: boolean;
+}

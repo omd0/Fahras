@@ -865,3 +865,60 @@ These stubs enable layout migration while remaining features are unmigrated:
 - ✅ ESLint: All 8 changed files pass (zero warnings)
 - ✅ Next.js build: `npx next build` succeeds
 - ✅ LSP diagnostics: Zero errors on all changed files
+
+## [2026-02-04] Task 21: Explore Page Migration
+
+**Status**: ✅ COMPLETED
+
+**Files Created** (10 total):
+
+*Target files (6)*:
+1. `src/app/explore/page.tsx` — Main explore page with search, filters, category scroller, project grids (38KB)
+2. `src/components/explore/SavedSearches.tsx` — Dialog for saved search management (12KB)
+3. `src/components/explore/SmartProjectGrid.tsx` — Grid wrapper with virtualization support (830B)
+4. `src/components/explore/ProjectCard.tsx` — Individual project card with icon, rating, bookmark (9.7KB)
+5. `src/components/explore/ProjectGridSkeleton.tsx` — Loading skeleton grid (2.4KB)
+6. `src/hooks/useVirtualization.ts` — Virtualization hook (2.5KB)
+
+*Supporting files (4)*:
+7. `src/features/bookmarks/hooks/useBookmark.ts` — Bookmark state hook (guest cookies + auth API)
+8. `src/features/bookmarks/components/BookmarkButton.tsx` — Bookmark toggle button
+
+*Modified files (2)*:
+9. `src/types/index.ts` — Added SearchFilters, SavedSearch, CreateSavedSearchData types
+10. `src/lib/api.ts` — Added 10 API methods: getPrograms, getDepartments, getBookmarkedProjects, isProjectBookmarked, bookmarkProject, unbookmarkProject, getSavedSearches, createSavedSearch, updateSavedSearch, deleteSavedSearch, setSavedSearchAsDefault, recordSavedSearchUsage
+
+**Key Migration Patterns**:
+
+1. **React Router → Next.js Navigation**:
+   - `useNavigate()` → `useRouter()` from `next/navigation`
+   - `navigate(path)` → `router.push(path)`
+   - `navigate('/register')` → `router.push('/register')`
+
+2. **ProjectGridCard refactored to ProjectCard**:
+   - Original used BasePortalCard (from web/src/components/shared/) and useNavigate
+   - Next.js version inlines Card layout, uses useRouter
+   - ProjectCard is self-contained (no BasePortalCard dependency in explore module)
+
+3. **SmartProjectGrid simplified**:
+   - Original imports VirtualizedProjectGrid using react-window
+   - react-window not in Next.js deps — SmartProjectGrid always renders standard Grid
+   - useOptimalVirtualization still called for future virtualization support
+
+4. **SavedSearches migration**:
+   - Removed `legacyColors` import (used COLORS from colorPalette.ts in SPA)
+   - Replaced with `theme.palette` colors throughout (theme-aware, dark mode ready)
+
+5. **TextField InputProps → slotProps**:
+   - MUI v7 deprecates `InputProps` on TextField
+   - Use `slotProps={{ input: { startAdornment: ... } }}` instead
+
+6. **eslint-disable not needed for useEffect deps**:
+   - eslint config doesn't enforce react-hooks/exhaustive-deps
+   - Adding `// eslint-disable-next-line` causes "Unused eslint-disable directive" warning
+
+**Verification**:
+- ✅ TypeScript: `npx tsc --noEmit` passes (zero errors)
+- ✅ ESLint: All files pass with `--max-warnings 0`
+- ✅ LSP diagnostics: Zero errors on all 6 target files + 4 supporting files
+- ✅ All 6 target files exist at correct locations

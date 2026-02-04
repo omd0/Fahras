@@ -1,6 +1,15 @@
 'use client';
 
-import type { User, LoginCredentials, RegisterData, Project } from '@/types';
+import type {
+  User,
+  LoginCredentials,
+  RegisterData,
+  Project,
+  Department,
+  Program,
+  SavedSearch,
+  CreateSavedSearchData,
+} from '@/types';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -159,5 +168,61 @@ export const apiService = {
       method: 'POST',
       body: JSON.stringify({ project_ids: projectIds }),
     });
+  },
+
+  getPrograms: async (): Promise<Program[]> => {
+    const res = await fetchJson<{ data: Program[] } | Program[]>(`${API_BASE}/programs`);
+    return Array.isArray(res) ? res : (res as { data: Program[] }).data || [];
+  },
+
+  getDepartments: async (): Promise<Department[]> => {
+    const res = await fetchJson<{ data: Department[] } | Department[]>(`${API_BASE}/departments`);
+    return Array.isArray(res) ? res : (res as { data: Department[] }).data || [];
+  },
+
+  getBookmarkedProjects: async (): Promise<{ data: Project[] }> => {
+    return fetchJson(`${API_BASE}/bookmarks`);
+  },
+
+  isProjectBookmarked: async (projectId: number): Promise<{ is_bookmarked: boolean }> => {
+    return fetchJson(`${API_BASE}/projects/${projectId}/bookmark`);
+  },
+
+  bookmarkProject: async (projectId: number): Promise<any> => {
+    return fetchJson(`${API_BASE}/projects/${projectId}/bookmark`, { method: 'POST' });
+  },
+
+  unbookmarkProject: async (projectId: number): Promise<any> => {
+    return fetchJson(`${API_BASE}/projects/${projectId}/bookmark`, { method: 'POST' });
+  },
+
+  getSavedSearches: async (): Promise<{ data: SavedSearch[] }> => {
+    return fetchJson(`${API_BASE}/saved-searches`);
+  },
+
+  createSavedSearch: async (data: CreateSavedSearchData): Promise<any> => {
+    return fetchJson(`${API_BASE}/saved-searches`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateSavedSearch: async (id: number, data: CreateSavedSearchData): Promise<any> => {
+    return fetchJson(`${API_BASE}/saved-searches/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteSavedSearch: async (id: number): Promise<any> => {
+    return fetchJson(`${API_BASE}/saved-searches/${id}`, { method: 'DELETE' });
+  },
+
+  setSavedSearchAsDefault: async (id: number): Promise<any> => {
+    return fetchJson(`${API_BASE}/saved-searches/${id}/default`, { method: 'POST' });
+  },
+
+  recordSavedSearchUsage: async (id: number): Promise<any> => {
+    return fetchJson(`${API_BASE}/saved-searches/${id}/usage`, { method: 'POST' });
   },
 };
