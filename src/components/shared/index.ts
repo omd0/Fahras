@@ -13,3 +13,7 @@ export { ConfirmDialog } from './ConfirmDialog';
 export type { ConfirmDialogProps } from './ConfirmDialog';
 export { DragDropFileUpload } from './DragDropFileUpload';
 export type { FileWithProgress } from './DragDropFileUpload';
+export { DashboardContainer } from './DashboardContainer';
+export { DashboardHeader } from './DashboardHeader';
+export { StatsCard } from './StatsCard';
+export { ProjectCard } from './ProjectCard';

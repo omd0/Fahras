@@ -389,4 +389,63 @@ export const apiService = {
   deleteAvatar: async (): Promise<{ user: User; message: string }> => {
     return fetchJson(`${API_BASE}/profile/avatar`, { method: 'DELETE' });
   },
+
+  // Dashboard / My Projects
+  getMyProjects: async (params?: {
+    page?: number;
+    per_page?: number;
+    status?: string;
+    academic_year?: string;
+    semester?: string;
+    search?: string;
+    sort_by?: string;
+    sort_order?: string;
+  }): Promise<{ data: Project[]; current_page: number; last_page: number; total: number; per_page: number }> => {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          searchParams.set(key, String(value));
+        }
+      });
+    }
+    searchParams.set('my_projects', 'true');
+    const query = searchParams.toString();
+    return fetchJson(`${API_BASE}/projects?${query}`);
+  },
+
+  // Notifications
+  getNotifications: async (params?: {
+    type?: string;
+    is_read?: boolean;
+    per_page?: number;
+    page?: number;
+  }): Promise<{
+    notifications: Array<{
+      id: number;
+      type: string;
+      title: string;
+      message: string;
+      is_read: boolean;
+      created_at: string;
+      project?: Project;
+    }>;
+    unread_count: number;
+  }> => {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          searchParams.set(key, String(value));
+        }
+      });
+    }
+    const query = searchParams.toString();
+    const url = query ? `${API_BASE}/notifications?${query}` : `${API_BASE}/notifications`;
+    return fetchJson(url);
+  },
+
+  markNotificationRead: async (notificationId: number): Promise<void> => {
+    await fetchJson(`${API_BASE}/notifications/${notificationId}/read`, { method: 'PUT' });
+  },
 };

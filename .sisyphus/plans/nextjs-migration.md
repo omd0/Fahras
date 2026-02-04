@@ -995,7 +995,7 @@ Wave 8 (Final):
 
 ### Wave 6: Feature Frontend Pages (ALL parallel)
 
-- [ ] 25. Dashboard Pages (5 Role-Based)
+- [x] 25. Dashboard Pages (5 Role-Based)
 
   Migrate DashboardPage + StudentDashboard, FacultyDashboard, FacultyHomeDashboard, AdminDashboard, ReviewerDashboard, StatsCard, DashboardContainer. Also StudentMyProjectsPage.
 
