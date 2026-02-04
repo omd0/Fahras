@@ -760,7 +760,7 @@ Wave 8 (Final):
 
 ---
 
-- [ ] 11. File Management API (S3)
+- [x] 11. File Management API (S3)
 
   **What to do**: Create `src/lib/s3.ts` (S3 client: upload, download stream, delete, presign). Create `app/api/projects/[slug]/files/route.ts` (GET list, POST upload with UUID, SHA256). Create `app/api/files/[id]/download/route.ts` (GET stream, RFC 5987 Content-Disposition for Arabic). Create `app/api/files/[id]/route.ts` (DELETE).
 

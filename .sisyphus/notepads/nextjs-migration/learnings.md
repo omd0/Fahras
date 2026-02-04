@@ -297,3 +297,55 @@ When implementing other admin routes:
 - ✅ TypeScript: `npx tsc --noEmit` passes
 - ✅ ESLint: All project route files pass
 - ✅ LSP diagnostics: Zero errors on all 5 files
+
+## [2026-02-04] Task 11: File Management API (S3)
+
+**Status**: COMPLETED
+
+**Files Created** (4 total):
+1. `src/lib/s3.ts` — S3 client library (upload, download stream, delete, presign, RFC 5987)
+2. `app/api/projects/[slug]/files/route.ts` — GET list files, POST upload
+3. `app/api/files/[id]/download/route.ts` — GET stream download
+4. `app/api/files/[id]/route.ts` — DELETE with ownership check
+
+**Package Installed**:
+- `@aws-sdk/s3-request-presigner` (was missing; `@aws-sdk/client-s3` already present)
+
+**Key Implementation Patterns**:
+
+1. **Prisma Schema Mapping**: Field names differ from task spec
+   - Spec said `s3Key` → actual Prisma field is `storageUrl` (maps to `storage_url` column)
+   - Spec said `sha256Hash` → actual field is `checksum`
+   - Always verify against actual Prisma schema, not task description
+
+2. **S3 Streaming Downloads**: `@aws-sdk/client-s3` returns body as `ReadableStream` in Node 18+
+   - Cast: `response.Body as unknown as ReadableStream`
+   - Pass directly into `new NextResponse(body, { headers })` — no buffering
+   - Must use `NextResponse` not `Response` to satisfy `withOptionalAuth` return type
+
+3. **RFC 5987 Content-Disposition**: Dual filename encoding
+   - ASCII fallback: `filename="encoded"` 
+   - UTF-8 proper: `filename*=UTF-8''encoded`
+   - Uses `encodeURIComponent()` for both (handles Arabic, CJK, etc.)
+
+4. **BigInt Serialization**: File `sizeBytes` is BigInt in Prisma
+   - Must call `.toString()` before including in JSON response
+   - JSON.stringify throws on raw BigInt values
+
+5. **Delete Authorization**: Matches Laravel logic exactly
+   - Project creator OR file uploader OR admin can delete
+   - S3 delete failure doesn't prevent DB cleanup (try/catch around S3 delete)
+
+6. **Upload Flow**: UUID-based S3 keys prevent filename collisions
+   - Key format: `uploads/projects/{projectId}/{uuid}.{ext}`
+   - SHA-256 hash computed from buffer for integrity verification
+   - `formData.get('file') as File` for browser-native File API
+
+7. **NextResponse vs Response**: `withOptionalAuth` handler must return `Promise<NextResponse>`
+   - `new Response(body)` type doesn't satisfy this — use `new NextResponse(body)` instead
+   - Both extend the same Web Response API, NextResponse adds cookies property
+
+**Verification**:
+- TypeScript: `npx tsc --noEmit` passes
+- ESLint: All 4 files pass lint check (zero warnings)
+- LSP diagnostics: Zero errors on all 4 files
