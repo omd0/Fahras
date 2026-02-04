@@ -1,3 +1,0 @@
-This is a test file for debugging file upload functionality.
-Created: 2024-12-19
-Purpose: Testing file upload through API endpoint
