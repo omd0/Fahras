@@ -1039,7 +1039,7 @@ Wave 8 (Final):
 
 ---
 
-- [ ] 29. Repository Viewer Page
+- [x] 29. Repository Viewer Page
 
   Migrate RepositoryPage + FileBrowser, FileContentViewer, RepositoryLayout, RepositoryHeader, RepositoryTabs. Migrate repositoryStore.ts, repositoryApi.ts.
 
