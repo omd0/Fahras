@@ -1,0 +1,48 @@
+# Dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Build outputs
+.next
+dist
+build
+out
+
+# Development
+.git
+.gitignore
+.env.local
+.env.*.local
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Project-specific
+api/
+web/
+docker-compose.yml
+docker-compose.*.yml
+setup.sh
+README.md
+CLAUDE.md
+.sisyphus/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Testing
+coverage/
+.nyc_output/
+
+# Misc
+.turbo
+.cache

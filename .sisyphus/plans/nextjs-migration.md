@@ -1124,7 +1124,7 @@ Wave 8 (Final):
 
 ---
 
-- [ ] 36. CranL Deployment Configuration
+- [x] 36. CranL Deployment Configuration
 
   **What to do**:
   - Create `Dockerfile` (multi-stage: deps → build → runner):
