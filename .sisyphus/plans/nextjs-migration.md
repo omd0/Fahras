@@ -1088,7 +1088,7 @@ Wave 8 (Final):
 
 ---
 
-- [ ] 33. Shared Components Finalization
+- [x] 33. Shared Components Finalization
 
   **What to do**: Migrate remaining: CommandPalette, ErrorBoundary, StatusSelector, ConfirmDialog, Breadcrumb, SkipLink, UniversalSearchBox. Migrate hooks: useResponsive, useKeyboardNavigation, useSwipeGesture. Migrate types, themeStore. Migrate `web/src/lib/api.ts` → `src/lib/api.ts` (change base URL to same-origin, keep Axios interceptors). Replace all `import.meta.env`.
 

@@ -17,3 +17,5 @@ export { DashboardContainer } from './DashboardContainer';
 export { DashboardHeader } from './DashboardHeader';
 export { StatsCard } from './StatsCard';
 export { ProjectCard } from './ProjectCard';
+export { CommandPalette } from './CommandPalette';
+export { ErrorBoundary } from './ErrorBoundary';
