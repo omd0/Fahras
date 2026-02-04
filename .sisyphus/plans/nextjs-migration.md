@@ -836,7 +836,7 @@ Wave 8 (Final):
 
 ### Wave 4: Frontend Layout + Auth Pages
 
-- [ ] 17. App Router Layout (Header, Nav, MobileDrawer, UtilityBar)
+- [x] 17. App Router Layout (Header, Nav, MobileDrawer, UtilityBar)
 
   **What to do**:
   - Migrate layout components from `web/src/components/layout/` → `src/components/layout/`: AppLayout, Header, HeaderLogo, PrimaryNav, MobileDrawer, UtilityBar, ThemeToggle, LanguageSwitcher, PageTransition

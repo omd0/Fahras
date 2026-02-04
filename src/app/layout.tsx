@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Providers } from '@/providers/Providers';
+import { AppLayout } from '@/components/layout/AppLayout';
 import '@/styles/accessibility.css';
 import './globals.css';
 
@@ -17,7 +18,9 @@ export default function RootLayout({
   return (
     <html lang="en" dir="ltr" suppressHydrationWarning>
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <AppLayout>{children}</AppLayout>
+        </Providers>
       </body>
     </html>
   );

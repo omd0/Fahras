@@ -640,3 +640,32 @@ When implementing other admin routes:
 
 **Next Steps**:
 - Task 16: Implement saved searches API
+
+## Task 17: Layout Component Migration
+
+### React Router → Next.js Navigation Patterns
+- `useNavigate()` → `useRouter()` from `next/navigation`
+- `navigate(path)` → `router.push(path)`
+- `navigate(-1)` → `router.back()`
+- `useLocation()` → `usePathname()` from `next/navigation`
+- `<Outlet />` → `{children}` prop (Next.js uses nested layouts, not outlets)
+- MUI `<Link component={RouterLink}>` → Next.js `<Link href="">` with native styles
+- All layout components need `'use client'` directive since they use hooks and browser APIs
+
+### Stub Dependencies Created
+These stubs enable layout migration while remaining features are unmigrated:
+- `src/types/index.ts` — Core types (User, Role, Project, etc.)
+- `src/features/auth/store.ts` — Zustand auth store (minimal)
+- `src/features/notifications/hooks/useNotifications.ts` — Noop notification hook
+- `src/lib/api.ts` — API service with basic fetch
+- `src/utils/projectRoutes.ts` — URL routing utility
+- `src/hooks/useResponsive.ts` — Responsive breakpoint hooks
+- `src/components/shared/SkipLink.tsx` — Accessibility skip navigation
+- `src/components/CommandPalette.tsx` — Noop command palette
+- `src/features/projects/components/ProjectVisibilityToggle.tsx` — Noop visibility toggle
+
+### AppLayout Architecture
+- `AppLayout` is a client component that wraps `{children}` (replaces React Router `<Outlet />`)
+- Placed inside `<Providers>` in `app/layout.tsx` so it has access to theme/language contexts
+- `app/layout.tsx` remains a Server Component (metadata export works)
+- AppLayout handles: Header, Footer, CommandPalette, SkipNavigation
