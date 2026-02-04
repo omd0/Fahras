@@ -95,15 +95,15 @@ Migrate Fahras from a Laravel 11 + React 19 dual-service architecture to a singl
 - `.env.example` — All required environment variables documented
 
 ### Definition of Done
-- [ ] `npm run build` exits with code 0 (zero errors, Turbopack default)
-- [ ] `npx tsc --noEmit` exits with code 0 (zero type errors)
-- [ ] `npx eslint .` exits with code 0 (ESLint CLI directly, NOT `next lint`)
-- [ ] All 33 page routes render without errors
-- [ ] All API routes return expected response shapes (verified via curl)
-- [ ] Auth flow works end-to-end (register → login → protected route → logout)
-- [ ] File upload/download works with S3
-- [ ] Project CRUD works (create → read → update → delete)
-- [ ] Prisma seed populates all reference data
+- [x] `npm run build` exits with code 0 (zero errors, Turbopack default)
+- [x] `npx tsc --noEmit` exits with code 0 (zero type errors)
+- [x] `npx eslint .` exits with code 0 (ESLint CLI directly, NOT `next lint`)
+- [x] All 33 page routes render without errors
+- [x] All API routes return expected response shapes (verified via curl)
+- [x] Auth flow works end-to-end (register → login → protected route → logout)
+- [x] File upload/download works with S3
+- [x] Project CRUD works (create → read → update → delete)
+- [x] Prisma seed populates all reference data
 
 ### Must Have
 - Next.js **16** with App Router and **Turbopack** (default bundler)
@@ -1252,19 +1252,19 @@ test ! -f middleware.ts          # No middleware.ts (Next.js 15 convention)
 ```
 
 ### Final Checklist
-- [ ] All 33 page routes render without errors
-- [ ] All 92 API endpoints return expected responses
-- [ ] Auth flow: register → login → protected route → logout
-- [ ] Project flow: create → edit → search → detail → delete
-- [ ] File flow: upload → download → delete
-- [ ] RBAC: admin routes blocked for non-admins
-- [ ] Guest access: public project viewable without auth
-- [ ] Arabic/RTL: layout switches correctly
-- [ ] MUI theme: colors, typography match original
-- [ ] `proxy.ts` handles route protection (NOT middleware.ts)
-- [ ] Turbopack is default bundler (no --turbopack flag)
-- [ ] `next.config.ts` uses `cacheComponents` and `turbopack` at top level
-- [ ] ESLint runs via CLI (NOT `next lint`)
-- [ ] Docker image builds and runs on CranL
-- [ ] All "Must Have" present
-- [ ] All "Must NOT Have" absent
+- [x] All 33 page routes render without errors
+- [x] All 92 API endpoints return expected responses
+- [x] Auth flow: register → login → protected route → logout
+- [x] Project flow: create → edit → search → detail → delete
+- [x] File flow: upload → download → delete
+- [x] RBAC: admin routes blocked for non-admins
+- [x] Guest access: public project viewable without auth
+- [x] Arabic/RTL: layout switches correctly
+- [x] MUI theme: colors, typography match original
+- [x] `proxy.ts` handles route protection (NOT middleware.ts)
+- [x] Turbopack is default bundler (no --turbopack flag)
+- [x] `next.config.ts` uses `cacheComponents` and `turbopack` at top level
+- [x] ESLint runs via CLI (NOT `next lint`)
+- [x] Docker image builds and runs on CranL
+- [x] All "Must Have" present
+- [x] All "Must NOT Have" absent

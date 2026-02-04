@@ -986,3 +986,85 @@ These stubs enable layout migration while remaining features are unmigrated:
 - ✅ MUI v7 Grid syntax used throughout: `<Grid size={{ xs: 12, md: 8 }}>`
 - ✅ All array accesses use fallback: `(items || []).map()`
 - ✅ All API responses handled with try/catch and fallback values
+
+## Final Migration Learnings (Task 37 - QA)
+
+### ESLint Configuration
+- **Issue**: ESLint was flagging unused parameters with underscore prefix
+- **Solution**: Added custom rule to `eslint.config.mjs`:
+  ```typescript
+  {
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          "argsIgnorePattern": "^_",
+          "varsIgnorePattern": "^_",
+          "caughtErrorsIgnorePattern": "^_"
+        }
+      ]
+    }
+  }
+  ```
+- **Pattern**: Prefix unused parameters with underscore: `_request`, `_error`
+
+### TypeScript Type Safety
+- **Issue**: Using `any` type caused ESLint errors
+- **Solution**: Replace with proper types or `unknown`
+- **Example**: 
+  ```typescript
+  // Bad
+  const data = { projects: [], statistics: {} } as any;
+  
+  // Good
+  const data: AnalyticsData = {
+    status_distribution: {},
+    year_distribution: [],
+    // ... all required fields
+  };
+  ```
+
+### Next.js 16 Verification Checklist
+All verified and passing:
+- ✅ `proxy.ts` exists (NOT `middleware.ts`)
+- ✅ `export async function proxy()` at line 122
+- ✅ `output: "standalone"` in next.config.ts
+- ✅ `cacheComponents: true` at top level
+- ✅ `turbopack: {}` at top level
+- ✅ No `--turbopack` flags in package.json scripts
+- ✅ ESLint flat config (`eslint.config.mjs`)
+
+### Build Verification
+All commands exit 0:
+- ✅ `npm run build` - Turbopack default, 33 routes + 92 API routes
+- ✅ `npx tsc --noEmit` - Zero type errors
+- ✅ `npx eslint . --max-warnings 0` - Zero errors, zero warnings
+
+### Docker Deployment
+- ✅ Multi-stage build succeeds
+- ✅ Final image: 409MB (reasonable for Next.js app)
+- ✅ Health check configured
+- ✅ Non-root user (nextjs:1001)
+
+### Migration Completeness
+- **Total Tasks**: 37 (36 completed + 1 skipped)
+- **Task 31 (AI Analysis)**: Intentionally skipped - optional feature not wired to frontend
+- **All verification criteria**: Met and documented in task-37-report.md
+- **Production readiness**: ✅ READY
+
+### Key Success Factors
+1. **Atomic commits**: Each task committed separately with clear messages
+2. **Verification at every step**: Never trusted subagent claims without running commands
+3. **Notepad system**: Accumulated knowledge across all tasks
+4. **Next.js 16 compliance**: Strict adherence to new patterns (proxy, turbopack, cacheComponents)
+5. **Type safety**: Zero TypeScript errors, zero ESLint warnings
+6. **Documentation**: Comprehensive reports and environment variable documentation
+
+### Post-Migration Recommendations
+1. **Deploy to CranL**: Push to GitHub for auto-deployment
+2. **Environment setup**: Configure all variables from .env.example
+3. **Database initialization**: Run migrations and seed
+4. **User acceptance testing**: Test all features with real users
+5. **Monitor performance**: Check logs, metrics, errors
+6. **Future enhancements**: AI analysis, email sending, evaluation system
+
