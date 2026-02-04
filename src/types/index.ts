@@ -200,3 +200,24 @@ export interface CreateSavedSearchData {
   filters: SearchFilters;
   is_default?: boolean;
 }
+
+export interface CreateProjectData {
+  program_id: number;
+  title: string;
+  abstract: string;
+  keywords?: string[];
+  academic_year: string;
+  semester: 'fall' | 'spring' | 'summer';
+  status?: 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected' | 'completed';
+  github_url?: string;
+  members: Array<{
+    user_id: number;
+    role: 'LEAD' | 'MEMBER';
+    customName?: string;
+  }>;
+  advisors?: Array<{
+    user_id: number;
+    role: 'MAIN' | 'CO_ADVISOR' | 'REVIEWER';
+    customName?: string;
+  }>;
+}

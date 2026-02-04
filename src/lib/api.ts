@@ -12,6 +12,7 @@ import type {
   Program,
   SavedSearch,
   CreateSavedSearchData,
+  CreateProjectData,
 } from '@/types';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -279,10 +280,69 @@ export const apiService = {
     return fetchJson(`${API_BASE}/projects/${projectId}`, { method: 'DELETE' });
   },
 
-  updateProject: async (projectId: number, data: Partial<Project>): Promise<any> => {
+  updateProject: async (projectId: number, data: Partial<Project> | CreateProjectData): Promise<any> => {
     return fetchJson(`${API_BASE}/projects/${projectId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
+    });
+  },
+
+  createProject: async (data: CreateProjectData): Promise<any> => {
+    return fetchJson(`${API_BASE}/projects`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  uploadFile: async (projectId: number, file: File, isPublic: boolean = true): Promise<any> => {
+    const token =
+      typeof window !== 'undefined'
+        ? JSON.parse(localStorage.getItem('auth-storage') || '{}')?.state?.token
+        : null;
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('is_public', String(isPublic));
+
+    const headers: Record<string, string> = {
+      Accept: 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+
+    const res = await fetch(`${API_BASE}/projects/${projectId}/files`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      const error: any = new Error(errorData.message || `Upload failed: HTTP ${res.status}`);
+      error.response = { status: res.status, data: errorData };
+      throw error;
+    }
+
+    return res.json();
+  },
+
+  getUsers: async (): Promise<User[]> => {
+    const res = await fetchJson<{ data: User[] } | User[]>(`${API_BASE}/admin/users`);
+    return Array.isArray(res) ? res : (res as { data: User[] }).data || [];
+  },
+
+  applyTemplateToProject: async (
+    templateId: number,
+    projectId: number,
+    startDate: string,
+    preserveCustom: boolean,
+  ): Promise<any> => {
+    return fetchJson(`${API_BASE}/milestone-templates/${templateId}/apply`, {
+      method: 'POST',
+      body: JSON.stringify({
+        project_id: projectId,
+        start_date: startDate,
+        preserve_custom: preserveCustom,
+      }),
     });
   },
 };

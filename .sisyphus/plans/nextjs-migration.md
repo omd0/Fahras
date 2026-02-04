@@ -969,7 +969,7 @@ Wave 8 (Final):
 
 ---
 
-- [ ] 23. Create/Edit Project Pages
+- [x] 23. Create/Edit Project Pages
 
   **What to do**: Migrate CreateProjectPage, EditProjectPage, ProjectBasicInfoForm, MemberManagementForm, DragDropFileUpload, useUnsavedChanges.
 

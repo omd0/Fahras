@@ -11,3 +11,5 @@ export { Breadcrumb } from './Breadcrumb';
 export type { BreadcrumbItem } from './Breadcrumb';
 export { ConfirmDialog } from './ConfirmDialog';
 export type { ConfirmDialogProps } from './ConfirmDialog';
+export { DragDropFileUpload } from './DragDropFileUpload';
+export type { FileWithProgress } from './DragDropFileUpload';
