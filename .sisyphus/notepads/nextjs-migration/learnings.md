@@ -821,3 +821,47 @@ These stubs enable layout migration while remaining features are unmigrated:
 - Task 20: Migrate home/landing page
 - Task 21: Migrate explore page with search/filters
 - Task 22: Migrate project detail page
+
+## [2026-02-04] Task 20: Home/Landing Page Migration
+
+**Status**: ✅ COMPLETED
+
+**Files Created** (7 total):
+1. `src/components/shared/HeroCarousel.tsx` — Full-bleed hero carousel with autoplay, RTL, overlay
+2. `src/components/shared/SectionBand.tsx` — Gradient section divider with CTA
+3. `src/components/shared/QuickActions.tsx` — Action buttons card with pill-shaped buttons
+4. `src/components/shared/PortalServiceCard.tsx` — Service card with icon badge and rating
+5. `src/components/shared/TVTCLogo.tsx` — Institutional logo (icon/text/full variants)
+6. `src/components/shared/TVTCBranding.tsx` — Branding component (header/footer/sidebar/card)
+7. `src/components/shared/index.ts` — Barrel export for all shared components
+
+**Files Modified** (2):
+1. `src/app/page.tsx` — Full home page (replaced stub)
+2. `src/lib/api.ts` — Added `getProjects()` with query param builder
+
+**Key Migration Patterns**:
+
+1. **Navigation**: `useNavigate()` → `useRouter()` from `next/navigation`
+   - `navigate(path)` → `router.push(path)`
+   - `navigate(path, { state: { from } })` → `router.push('/login?redirect=/pr/create')` (query param)
+
+2. **Link State → Query Params**: Next.js doesn't support location state
+   - React Router: `navigate('/login', { state: { from: '/pr/create' } })`
+   - Next.js: `router.push('/login?redirect=/pr/create')`
+
+3. **Project URLs**: Used slug-first with ID fallback
+   - `router.push(\`/projects/\${project.slug || project.id}\`)`
+
+4. **API getProjects()**: URLSearchParams builder pattern
+   - Builds query string from params object, skipping null/undefined
+   - Returns `{ data: Project[] } | Project[]` to handle both response shapes
+
+5. **All components use `'use client'`**: Required for MUI hooks (useTheme, useState, useEffect)
+
+6. **Barrel Export**: Created `src/components/shared/index.ts` for cleaner imports
+
+**Verification**:
+- ✅ TypeScript: `npx tsc --noEmit` passes (zero errors)
+- ✅ ESLint: All 8 changed files pass (zero warnings)
+- ✅ Next.js build: `npx next build` succeeds
+- ✅ LSP diagnostics: Zero errors on all changed files

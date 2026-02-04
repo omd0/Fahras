@@ -1,6 +1,6 @@
 'use client';
 
-import type { User, LoginCredentials, RegisterData } from '@/types';
+import type { User, LoginCredentials, RegisterData, Project } from '@/types';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -120,7 +120,36 @@ export const authApi = {
   },
 };
 
+export interface GetProjectsParams {
+  page?: number;
+  per_page?: number;
+  status?: string;
+  program_id?: number;
+  department_id?: number;
+  academic_year?: string;
+  semester?: string;
+  search?: string;
+  is_public?: boolean;
+  sort_by?: string;
+  sort_order?: string;
+  created_by_user_id?: number;
+}
+
 export const apiService = {
+  getProjects: async (params?: GetProjectsParams): Promise<{ data: Project[] } | Project[]> => {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          searchParams.set(key, String(value));
+        }
+      });
+    }
+    const query = searchParams.toString();
+    const url = query ? `${API_BASE}/projects?${query}` : `${API_BASE}/projects`;
+    return fetchJson(url);
+  },
+
   getProject: async (slug: string): Promise<any> => {
     return fetchJson(`${API_BASE}/projects/${slug}`);
   },

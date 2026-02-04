@@ -933,9 +933,9 @@ Wave 8 (Final):
 
 ### Wave 5: Core Frontend Pages
 
-- [ ] 20. Home/Landing Page
+- [x] 20. Home/Landing Page
 
-  **What to do**: Migrate `HomePage.tsx` → `app/page.tsx`. Migrate shared: HeroCarousel, SectionBand, QuickActions, PortalServiceCard, TVTCBranding, TVTCLogo.
+  **What to do**: Migrate HomePage.tsx → `app/page.tsx`. Migrate shared: HeroCarousel, SectionBand, QuickActions, PortalServiceCard, TVTCBranding, TVTCLogo.
 
   **Recommended Agent Profile**: **Category**: `visual-engineering` | **Skills**: [`frontend-ui-ux`]
   **Parallelization**: Wave 5 (parallel) | **Blocked By**: Task 17
