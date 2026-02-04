@@ -520,4 +520,56 @@ export const apiService = {
       body: JSON.stringify({ item_ids: itemIds }),
     });
   },
+
+  // Roles & Permissions (RBAC)
+  getRoles: async (): Promise<any[]> => {
+    const res = await fetchJson<{ data: any[] } | any[]>(`${API_BASE}/roles`);
+    return Array.isArray(res) ? res : (res as { data: any[] }).data || [];
+  },
+
+  createRole: async (data: {
+    name: string;
+    description?: string;
+    permissions?: Array<{ permission_id: number; scope: string }>;
+  }): Promise<any> => {
+    return fetchJson(`${API_BASE}/roles`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateRole: async (
+    roleId: number,
+    data: {
+      name?: string;
+      description?: string;
+      permissions?: Array<{ permission_id: number; scope: string }>;
+    },
+  ): Promise<any> => {
+    return fetchJson(`${API_BASE}/roles/${roleId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteRole: async (roleId: number): Promise<any> => {
+    return fetchJson(`${API_BASE}/roles/${roleId}`, { method: 'DELETE' });
+  },
+
+  getPermissions: async (): Promise<any[]> => {
+    const res = await fetchJson<{ data: any[] } | any[]>(`${API_BASE}/permissions`);
+    return Array.isArray(res) ? res : (res as { data: any[] }).data || [];
+  },
+
+  updateUserRoles: async (userId: number, roleIds: number[]): Promise<any> => {
+    return fetchJson(`${API_BASE}/admin/users/${userId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ role_ids: roleIds }),
+    });
+  },
+
+  getAdminUsers: async (): Promise<User[]> => {
+    const res = await fetchJson<{ data: User[] } | User[]>(`${API_BASE}/admin/users`);
+    return Array.isArray(res) ? res : (res as { data: User[] }).data || [];
+  },
 };

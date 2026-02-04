@@ -1028,7 +1028,7 @@ Wave 8 (Final):
 
 ---
 
-- [ ] 28. Access Control Page (RBAC Admin)
+- [x] 28. Access Control Page (RBAC Admin)
 
   Migrate AccessControlPage + RolesTab, RoleCard, RoleDialog, PermissionsTab, PermissionSelector, UsersTab, AnalyticsTab. Also UserManagementPage.
 
