@@ -1099,7 +1099,7 @@ Wave 8 (Final):
 
 ---
 
-- [ ] 34. Static Pages
+- [x] 34. Static Pages
 
   Migrate TermsOfServicePage, PrivacyPolicyPage, AnalyticsPage.
 
