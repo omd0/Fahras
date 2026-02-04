@@ -13,6 +13,8 @@ import type {
   SavedSearch,
   CreateSavedSearchData,
   CreateProjectData,
+  MilestoneTemplate,
+  MilestoneTemplateData,
 } from '@/types';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -447,5 +449,59 @@ export const apiService = {
 
   markNotificationRead: async (notificationId: number): Promise<void> => {
     await fetchJson(`${API_BASE}/notifications/${notificationId}/read`, { method: 'PUT' });
+  },
+
+  // Milestone Template endpoints
+  getMilestoneTemplates: async (params?: {
+    program_id?: number;
+    department_id?: number;
+    is_default?: boolean;
+  }): Promise<{ templates: MilestoneTemplate[] }> => {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          searchParams.set(key, String(value));
+        }
+      });
+    }
+    const query = searchParams.toString();
+    const url = query
+      ? `${API_BASE}/milestone-templates?${query}`
+      : `${API_BASE}/milestone-templates`;
+    return fetchJson(url);
+  },
+
+  createMilestoneTemplate: async (
+    data: MilestoneTemplateData,
+  ): Promise<{ message: string; template: MilestoneTemplate }> => {
+    return fetchJson(`${API_BASE}/milestone-templates`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateMilestoneTemplate: async (
+    templateId: number,
+    data: Partial<MilestoneTemplateData>,
+  ): Promise<{ message: string; template: MilestoneTemplate }> => {
+    return fetchJson(`${API_BASE}/milestone-templates/${templateId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteMilestoneTemplate: async (templateId: number): Promise<{ message: string }> => {
+    return fetchJson(`${API_BASE}/milestone-templates/${templateId}`, { method: 'DELETE' });
+  },
+
+  reorderTemplateItems: async (
+    templateId: number,
+    itemIds: number[],
+  ): Promise<{ message: string }> => {
+    return fetchJson(`${API_BASE}/milestone-templates/${templateId}/reorder`, {
+      method: 'PUT',
+      body: JSON.stringify({ item_ids: itemIds }),
+    });
   },
 };

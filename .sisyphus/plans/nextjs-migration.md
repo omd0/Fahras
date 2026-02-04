@@ -1006,7 +1006,7 @@ Wave 8 (Final):
 
 ---
 
-- [ ] 26. Milestone Template Config Page
+- [x] 26. Milestone Template Config Page
 
   Migrate MilestoneTemplateConfigPage + TemplateList, TemplateEditor, ProgramTemplateSelector.
 

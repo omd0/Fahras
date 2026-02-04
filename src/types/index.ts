@@ -201,6 +201,49 @@ export interface CreateSavedSearchData {
   is_default?: boolean;
 }
 
+export interface MilestoneTemplate {
+  id: number;
+  name: string;
+  description?: string;
+  program_id?: number;
+  department_id?: number;
+  is_default: boolean;
+  items?: MilestoneTemplateItem[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MilestoneTemplateItem {
+  id: number;
+  milestone_template_id: number;
+  title: string;
+  description?: string;
+  estimated_days: number;
+  is_required: boolean;
+  order: number;
+  allowed_roles?: ('admin' | 'faculty' | 'student')[];
+  allowed_actions?: ('start' | 'pause' | 'extend' | 'view' | 'edit' | 'complete')[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface MilestoneTemplateData {
+  name: string;
+  description?: string;
+  program_id?: number;
+  department_id?: number;
+  is_default?: boolean;
+  items: Array<{
+    title: string;
+    description?: string;
+    estimated_days: number;
+    is_required?: boolean;
+    order: number;
+    allowed_roles?: ('admin' | 'faculty' | 'student')[];
+    allowed_actions?: ('start' | 'pause' | 'extend' | 'view' | 'edit' | 'complete')[];
+  }>;
+}
+
 export interface CreateProjectData {
   program_id: number;
   title: string;
