@@ -724,7 +724,7 @@ Wave 8 (Final):
 
 ---
 
-- [ ] 8. User Management + Roles/Permissions API
+- [x] 8. User Management + Roles/Permissions API
 
   **What to do**: Create `app/api/admin/users/` (GET paginated, POST create), `app/api/admin/users/[id]/` (PUT, DELETE), `app/api/admin/users/[id]/toggle-status/` (POST), `app/api/roles/` (GET, POST), `app/api/roles/[id]/` (PUT, DELETE), `app/api/permissions/` (GET)
 

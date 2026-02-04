@@ -116,3 +116,84 @@ When implementing other admin routes:
 - Simple, mechanical work with no complex logic
 - Unblocks Wave 3 (10 parallel API tasks)
 
+
+## [2026-02-04] Task 8: User Management + Roles/Permissions API (8 Routes)
+
+**Status**: ✅ COMPLETED
+
+**Files Created** (8 total):
+1. `app/api/admin/users/route.ts` — GET paginated users, POST create user
+2. `app/api/admin/users/[id]/route.ts` — GET single, PUT update, DELETE delete
+3. `app/api/admin/users/[id]/toggle-status/route.ts` — POST toggle user status
+4. `app/api/roles/route.ts` — GET all roles, POST create role
+5. `app/api/roles/[id]/route.ts` — GET single, PUT update, DELETE delete
+6. `app/api/permissions/route.ts` — GET all permissions
+
+**Key Implementation Patterns**:
+
+1. **Admin-Only Routes**: All routes use `withRole('admin', handler)` middleware
+   - Returns 403 for non-admin users
+   - Consistent error handling with success flag
+
+2. **Pagination**: Users endpoint supports `page` and `limit` query params
+   - Default: page=1, limit=10
+   - Returns: count, page, limit, totalPages
+
+3. **Response Format**: Consistent JSON structure
+   ```typescript
+   {
+     success: true,
+     data: [...],
+     count: number,
+     message?: string
+   }
+   ```
+
+4. **Prisma Transactions**: Multi-step operations (create user + assign roles)
+   - Used for atomicity and rollback on error
+   - Prevents partial state updates
+
+5. **Password Hashing**: bcryptjs with 12 salt rounds
+   - Default password: 'password' if not provided
+   - Never exposed in responses
+
+6. **Role/Permission Relations**:
+   - Users → RoleUser → Role → PermissionRole → Permission
+   - Always include nested relations in queries
+   - Format responses to exclude internal join table details
+
+7. **Validation**:
+   - Email uniqueness (case-insensitive)
+   - Role/Permission ID existence checks
+   - Status enum validation (active, inactive, suspended)
+   - System role protection (cannot modify/delete)
+
+8. **Error Handling**:
+   - 400: Invalid input (NaN IDs)
+   - 401: Authentication required (handled by middleware)
+   - 403: Insufficient permissions (admin check)
+   - 404: Resource not found
+   - 422: Validation errors
+   - 500: Server errors with optional debug info in development
+
+9. **Type Safety**:
+   - `AuthenticatedRequest` extends NextRequest with Session
+   - `RouteContext` with async params (Next.js 16 pattern)
+   - Explicit type casting for PermissionScope enum
+
+10. **Code Quality**:
+    - ESLint: Zero warnings (removed unused imports/variables)
+    - TypeScript: Zero errors (npx tsc --noEmit passes)
+    - No comments needed (self-documenting code)
+
+**Verification Results**:
+- ✅ TypeScript: `npx tsc --noEmit` passes
+- ✅ ESLint: `npx eslint app/api/admin app/api/roles app/api/permissions --max-warnings 0` passes
+- ✅ All 8 route files created with correct structure
+- ✅ All endpoints return consistent response format
+- ✅ Admin-only access enforced on all routes
+
+**Next Steps**:
+- Task 9: Implement remaining auth routes (logout, refresh, password reset, etc.)
+- Task 10: Implement project management API routes
+- Task 11: Implement file upload/download API routes
