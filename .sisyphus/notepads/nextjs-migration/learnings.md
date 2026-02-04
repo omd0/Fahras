@@ -669,3 +669,71 @@ These stubs enable layout migration while remaining features are unmigrated:
 - Placed inside `<Providers>` in `app/layout.tsx` so it has access to theme/language contexts
 - `app/layout.tsx` remains a Server Component (metadata export works)
 - AppLayout handles: Header, Footer, CommandPalette, SkipNavigation
+
+## [2026-02-04] Task 18: Auth Pages Migration (5 Pages + 6 Components)
+
+**Status**: COMPLETED
+
+**Files Created** (17 total):
+
+*Pages (5)*:
+1. `src/app/login/page.tsx` — Login with email/password, remember me, guest continue
+2. `src/app/register/page.tsx` — Registration with password strength, domain validation
+3. `src/app/forgot-password/page.tsx` — Email-based password reset request
+4. `src/app/reset-password/page.tsx` — Token-based password reset with confirmation
+5. `src/app/verify-email/page.tsx` — OTP + magic link email verification
+
+*Auth Components (6)*:
+1. `src/features/auth/components/OTPInput.tsx` — 6-digit OTP input with auto-focus/paste
+2. `src/features/auth/components/ProtectedRoute.tsx` — Auth guard with email verification check
+3. `src/features/auth/components/RoleProtectedRoute.tsx` — Role-based route guard
+4. `src/features/auth/components/EmailVerifiedRoute.tsx` — Email verified guard
+5. `src/features/auth/components/ChangePasswordForm.tsx` — Password change form
+6. `src/features/auth/components/LogoutAllDevicesButton.tsx` — Logout all sessions with dialog
+
+*Supporting Files (6)*:
+1. `src/features/auth/store.ts` — Full auth store (upgraded from stub) with login/register/logout/refresh
+2. `src/lib/api.ts` — Full API service with all auth endpoints (login, register, logout, forgot/reset password, email verification)
+3. `src/utils/errorHandling.ts` — Error extraction utilities for API responses
+4. `src/utils/bookmarkCookies.ts` — Guest bookmark cookie management (SSR-safe)
+5. `src/components/TVTCLogo.tsx` — Logo component with size/variant/color props
+
+**Key Migration Patterns**:
+
+1. **React Router → Next.js Navigation**:
+   - `useNavigate()` → `useRouter()` from `next/navigation`
+   - `navigate(path)` → `router.push(path)`
+   - `navigate(path, { replace: true })` → `router.replace(path)`
+   - `useLocation()` → `usePathname()` from `next/navigation`
+   - `useSearchParams()` from `react-router-dom` → `useSearchParams()` from `next/navigation`
+   - `location.state.from` → `searchParams.get('from')` (query param instead of state)
+
+2. **Link Components**:
+   - `<Link component={RouterLink} to="/path">` → `<Typography component={NextLink} href="/path">`
+   - `<Link component="button" onClick={...}>` → `<Typography component="button" onClick={...}>`
+   - Must import `NextLink` from `next/link`
+
+3. **Navigate Component → useEffect + router**:
+   - React Router's `<Navigate to="/path" replace />` doesn't exist in Next.js
+   - Replaced with `useEffect` + `router.replace()` + return `null` until redirect
+
+4. **Auth Token in API Calls**:
+   - No Axios — using native `fetch` with `fetchJson()` wrapper
+   - Token read from `localStorage` → `auth-storage` Zustand persist key
+   - Error objects shaped to match Axios error format (`error.response.data.message`)
+
+5. **SSR Safety**:
+   - `bookmarkCookies.ts` guards all `document`/`window` access with typeof checks
+   - Auth store uses Zustand persist (client-only, hydrates on mount)
+   - All files have `'use client'` directive
+
+6. **API Service Architecture**:
+   - `fetchJson<T>()` generic wrapper handles auth headers, error shaping, JSON parsing
+   - Token injected from localStorage on every request (same pattern as Axios interceptor)
+   - Error thrown with `.response.status` and `.response.data` matching Axios shape
+
+**Verification**:
+- TypeScript: `npx tsc --noEmit` passes (zero errors)
+- ESLint: All 17 files pass with `--max-warnings 0` (zero warnings)
+- All pages export default functions (Next.js App Router requirement)
+- All components have `'use client'` directive

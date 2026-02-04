@@ -854,7 +854,7 @@ Wave 8 (Final):
 
 ---
 
-- [ ] 18. Auth Pages (Login, Register, ForgotPassword, ResetPassword, EmailVerify)
+- [x] 18. Auth Pages (Login, Register, ForgotPassword, ResetPassword, EmailVerify)
 
   **What to do**: Migrate 5 auth pages + auth store + auth components (ProtectedRoute, RoleProtectedRoute, EmailVerifiedRoute, ChangePasswordForm, OTPInput, LogoutAllDevicesButton). Add `'use client'`. Replace React Router with Next.js router. Update API calls to same-origin.
 
