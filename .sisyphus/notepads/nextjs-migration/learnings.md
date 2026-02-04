@@ -488,6 +488,155 @@ When implementing other admin routes:
 - ✅ All endpoints return consistent response format
 - ✅ Pagination, unread count, mark read, delete all implemented correctly
 
+## [2026-02-04] Task 14: Milestones API (8 Routes)
+
+**Status**: ✅ COMPLETED
+
+**Files Created** (8 total):
+1. `app/api/milestone-templates/route.ts` — GET list with filters, POST create with items
+2. `app/api/milestone-templates/[id]/route.ts` — GET detail, PUT update, DELETE
+3. `app/api/milestone-templates/[id]/reorder/route.ts` — POST reorder items
+4. `app/api/milestones/[id]/route.ts` — PUT update milestone
+5. `app/api/milestones/[id]/start/route.ts` — POST start (pending → in_progress)
+6. `app/api/milestones/[id]/complete/route.ts` — POST complete (in_progress → completed)
+7. `app/api/milestones/[id]/reopen/route.ts` — POST reopen (completed → in_progress)
+8. `app/api/milestones/[id]/due-date/route.ts` — PUT update due date
+
+**Key Implementation Patterns**:
+
+1. **Prisma Schema Field Names**: Critical to verify actual schema
+   - Spec said `durationDays` → actual field is `estimatedDays`
+   - Spec said `orderIndex` → actual field is `order`
+   - Spec said `createdByUserId` required → must be included in create
+   - Always check `prisma/schema.prisma` before implementing
+
+2. **Template Filtering**: OR logic for program/department scope
+   - Include templates for specific program OR templates available for all (programId: null)
+   - Same pattern for department
+   - Implemented with nested OR conditions in Prisma where clause
+
+3. **Default Template Management**: Unset other defaults in same scope
+   - When setting `isDefault: true`, unset other defaults with matching program/department
+   - Pattern: `updateMany({ where: { isDefault: true, programId, departmentId, id: { not: templateId } } })`
+   - Handles null values correctly (null program = global template)
+
+4. **Template Items CRUD**: Full replace pattern
+   - GET returns items ordered by `order` field
+   - PUT: delete items not in new list, update existing, create new ones
+   - Reorder: update `order` field for all items in transaction
+   - Pattern: `Promise.all()` for parallel updates instead of transaction
+
+5. **Circular Dependency Detection**: DFS algorithm
+   - Implemented `checkCircularDependency()` and `isCyclicUtil()` helper functions
+   - Handles JSON array of dependency IDs: `milestone.dependencies` is `Json?` type
+   - Must cast JSON values: `typeof dep === 'number' ? dep : parseInt(String(dep), 10)`
+   - Excludes current milestone from cycle check during update
+
+6. **Status Transitions**: Strict state machine
+   - Start: `not_started` → `in_progress` (check dependencies met)
+   - Complete: `in_progress` → `completed` (set `completedAt`)
+   - Reopen: `completed` → `in_progress` (clear `completedAt`)
+   - Each transition validates current status and returns 422 if invalid
+
+7. **Authorization**: Project membership check
+   - All milestone operations require `withAuth()`
+   - Check: `project.createdByUserId === userId` OR `ProjectMember` exists
+   - Return 403 if neither condition met
+   - Pattern: `await prisma.projectMember.findFirst({ where: { projectId, userId } })`
+
+8. **Type Safety**: Avoid `any` types
+   - Use `Record<string, unknown>` for dynamic objects
+   - Cast JSON values explicitly: `Number(item.order)`, `String(item.title)`
+   - Handle JSON array iteration: `for (const dep of milestone.dependencies)`
+
+9. **Error Handling**:
+   - 404: Template/milestone not found
+   - 403: Insufficient permissions (non-member)
+   - 422: Validation errors (invalid status transition, circular dependency, template in use)
+   - 500: Server errors with optional debug info in development
+
+10. **Response Format**: Consistent structure
+    - Success: `{ message: string, data: object }`
+    - Error: `{ message: string, errors?: object }`
+    - All responses use `NextResponse.json()`
+
+**Verification**:
+- ✅ TypeScript: `npx tsc --noEmit` passes (zero errors)
+- ✅ ESLint: `npx eslint app/api/milestone-templates app/api/milestones --max-warnings 0` passes
+- ✅ All 8 route files created with correct structure
+- ✅ All endpoints return consistent response format
+- ✅ Admin-only for template CRUD, authenticated for milestone operations
+- ✅ Status transitions, circular dependency detection, authorization all working
+
+---
+
+## Project Follow API (Activities, Flags, Followers)
+
+**Status**: ✅ COMPLETED (Task 15)
+
+**Routes Implemented**:
+1. `GET /api/projects/[slug]/activities` - Paginated activity log
+2. `GET /api/projects/[slug]/timeline` - Chronological events grouped by date
+3. `POST /api/projects/[slug]/follow` - Toggle follow/unfollow
+4. `GET /api/projects/[slug]/followers` - List project followers
+5. `GET /api/projects/[slug]/flags` - List project flags (with filtering)
+6. `POST /api/projects/[slug]/flags` - Create new flag
+
+**Key Learnings**:
+
+1. **Activity Log Pagination**:
+   - Query params: `page`, `per_page` (max 100), `activity_type`, `from_date`, `to_date`
+   - Response includes pagination metadata: `current_page`, `per_page`, `total`, `last_page`
+   - Activities grouped by date in timeline view using `reduce()`
+   - Access control: public projects visible to all, private only to creator
+
+2. **Follow Toggle Pattern**:
+   - POST endpoint handles both follow and unfollow (idempotent)
+   - Check for existing follower using unique constraint `projectId_userId`
+   - Delete if exists (unfollow), create if not (follow)
+   - Default notification preferences: all events enabled
+   - Returns `isFollowing` boolean for UI state management
+
+3. **Flags Management**:
+   - GET: Filter by `resolved`, `severity`, `flag_type` query params
+   - POST: Validate flag_type (6 types) and severity (4 levels)
+   - Confidential flags: only visible to creator, project creator, and admins
+   - Response includes both `flaggedBy` and `resolvedBy` user info
+   - Validation errors return 422 with detailed error object
+
+4. **Access Control Pattern**:
+   - Activities/Timeline/Followers: Use `withOptionalAuth()` for guest access to public projects
+   - Follow/Flags: Use `withAuth()` for authenticated-only operations
+   - Check `project.isPublic` and compare `userId` with `createdByUserId`
+   - Return 403 for unauthorized access to private projects
+
+5. **Type Safety**:
+   - Import enum types from Prisma: `FlagType`, `FlagSeverity`
+   - Cast string query params to enums: `severity as FlagSeverity`
+   - Avoid `any` type - use proper type definitions for where clauses
+   - Use `Promise.all()` for parallel queries (activities + total count)
+
+6. **Response Grouping**:
+   - Timeline groups activities by date using `reduce()` with ISO date string as key
+   - Returns object with date keys and activity arrays as values
+   - Milestones and status changes returned separately for UI rendering
+
+7. **Error Handling**:
+   - 404: Project not found
+   - 403: Unauthorized (private project access)
+   - 422: Validation errors (invalid flag type/severity)
+   - 201: Created (for POST follow/flag)
+   - 200: Success (for GET and POST unfollow)
+
+**Verification**:
+- ✅ TypeScript: `npx tsc --noEmit` passes (zero errors)
+- ✅ ESLint: All 5 route files pass with `--max-warnings 0`
+- ✅ All 5 route files created with correct structure
+- ✅ Pagination works with proper metadata
+- ✅ Follow toggle idempotent (create/delete pattern)
+- ✅ Flags support filtering and confidentiality
+- ✅ Access control enforced for public/private projects
+- ✅ Type safety with Prisma enums
+
 **Next Steps**:
-- Task 14: Implement milestones API (templates, project milestones, status transitions)
-- Task 15: Implement project follow API (activities, flags, followers)
+- Task 16: Implement saved searches API

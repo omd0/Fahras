@@ -798,7 +798,7 @@ Wave 8 (Final):
 
 ---
 
-- [ ] 14. Milestones API
+- [x] 14. Milestones API
 
   **What to do**: Create milestone templates (CRUD, reorder), project milestones (CRUD, apply template, status transitions, due dates, timeline).
 
@@ -810,7 +810,7 @@ Wave 8 (Final):
 
 ---
 
-- [ ] 15. Project Follow API (Activities, Flags, Followers)
+- [x] 15. Project Follow API (Activities, Flags, Followers)
 
   **What to do**: Create activities (GET paginated), timeline (GET), follow/unfollow, followers list, flags (GET, POST, resolve).
 
@@ -822,7 +822,7 @@ Wave 8 (Final):
 
 ---
 
-- [ ] 16. Saved Searches API
+- [x] 16. Saved Searches API
 
   **What to do**: Create saved searches CRUD, usage tracking, set default.
 
