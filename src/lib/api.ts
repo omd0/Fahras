@@ -5,6 +5,9 @@ import type {
   LoginCredentials,
   RegisterData,
   Project,
+  Comment,
+  Rating,
+  ProjectFile,
   Department,
   Program,
   SavedSearch,
@@ -224,5 +227,62 @@ export const apiService = {
 
   recordSavedSearchUsage: async (id: number): Promise<any> => {
     return fetchJson(`${API_BASE}/saved-searches/${id}/usage`, { method: 'POST' });
+  },
+
+  getComments: async (projectId: number): Promise<{ comments: Comment[] }> => {
+    return fetchJson(`${API_BASE}/projects/${projectId}/comments`);
+  },
+
+  addComment: async (projectId: number, content: string, parentId?: number): Promise<{ comment: Comment }> => {
+    return fetchJson(`${API_BASE}/projects/${projectId}/comments`, {
+      method: 'POST',
+      body: JSON.stringify({ content, parent_id: parentId }),
+    });
+  },
+
+  getRatings: async (projectId: number): Promise<{ ratings: Rating[]; average_rating: number | null; total_ratings: number }> => {
+    return fetchJson(`${API_BASE}/projects/${projectId}/ratings`);
+  },
+
+  rateProject: async (projectId: number, rating: number, review?: string): Promise<{ rating: Rating }> => {
+    return fetchJson(`${API_BASE}/projects/${projectId}/ratings`, {
+      method: 'POST',
+      body: JSON.stringify({ rating, review }),
+    });
+  },
+
+  getProjectFiles: async (projectId: number): Promise<{ files: ProjectFile[] }> => {
+    return fetchJson(`${API_BASE}/projects/${projectId}/files`);
+  },
+
+  downloadFile: async (fileId: number): Promise<Blob> => {
+    const token =
+      typeof window !== 'undefined'
+        ? JSON.parse(localStorage.getItem('auth-storage') || '{}')?.state?.token
+        : null;
+
+    const headers: Record<string, string> = {
+      Accept: 'application/octet-stream',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+
+    const res = await fetch(`${API_BASE}/files/${fileId}/download`, { headers });
+    if (!res.ok) {
+      const error: any = new Error(`Download failed: HTTP ${res.status}`);
+      error.response = { status: res.status, data: {} };
+      throw error;
+    }
+    return res.blob();
+  },
+
+  deleteProject: async (projectId: number): Promise<any> => {
+    return fetchJson(`${API_BASE}/projects/${projectId}`, { method: 'DELETE' });
+  },
+
+  updateProject: async (projectId: number, data: Partial<Project>): Promise<any> => {
+    return fetchJson(`${API_BASE}/projects/${projectId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
   },
 };

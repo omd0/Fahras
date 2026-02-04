@@ -132,6 +132,31 @@ export interface ProjectFile {
   updated_at: string;
 }
 
+export interface Comment {
+  id: number;
+  project_id: number;
+  user_id: number;
+  content: string;
+  parent_id?: number;
+  is_approved: boolean;
+  user?: User;
+  replies?: Comment[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Rating {
+  id: number;
+  project_id: number;
+  user_id: number;
+  rating: number;
+  review?: string;
+  is_approved: boolean;
+  user?: User;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface LoginCredentials {
   email: string;
   password: string;

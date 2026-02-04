@@ -957,7 +957,7 @@ Wave 8 (Final):
 
 ---
 
-- [ ] 22. Project Detail Page
+- [x] 22. Project Detail Page
 
   **What to do**: Migrate ProjectDetailPage + all detail components (Header, Info, Files, Interactions, Sidebar, Approval, Visibility, Export). Migrate CommentSection, RatingSection, BookmarkButton. Migrate projectRoutes.ts, projectHelpers.ts. Handle optional auth.
 

@@ -7,3 +7,7 @@ export type { QuickAction } from './QuickActions';
 export { PortalServiceCard } from './PortalServiceCard';
 export { TVTCLogo } from './TVTCLogo';
 export { TVTCBranding } from './TVTCBranding';
+export { Breadcrumb } from './Breadcrumb';
+export type { BreadcrumbItem } from './Breadcrumb';
+export { ConfirmDialog } from './ConfirmDialog';
+export type { ConfirmDialogProps } from './ConfirmDialog';

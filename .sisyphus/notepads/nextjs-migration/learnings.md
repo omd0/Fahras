@@ -922,3 +922,67 @@ These stubs enable layout migration while remaining features are unmigrated:
 - ✅ ESLint: All files pass with `--max-warnings 0`
 - ✅ LSP diagnostics: Zero errors on all 6 target files + 4 supporting files
 - ✅ All 6 target files exist at correct locations
+
+## [2026-02-04] Task 22: Project Detail Page Migration
+
+**Status**: ✅ COMPLETED
+
+**Files Created** (13 total):
+
+*Main page (1)*:
+1. `src/app/pr/[slug]/page.tsx` — Main ProjectDetailPage with all sub-components composed
+
+*Feature components (4)*:
+2. `src/features/projects/components/ProjectMainInfo.tsx` — Title banner, abstract, keywords, academic info
+3. `src/features/projects/components/ProjectFiles.tsx` — File list with download via apiService.downloadFile
+4. `src/features/projects/components/ProjectSidebar.tsx` — Program info, members, advisors, creator
+5. `src/features/projects/components/ProjectExportDialog.tsx` — Export to PDF/HTML/JSON/DOCX
+
+*Shared components (5)*:
+6. `src/components/shared/Breadcrumb.tsx` — Next.js breadcrumb with usePathname
+7. `src/components/shared/ConfirmDialog.tsx` — Reusable confirmation dialog
+8. `src/components/CommentSection.tsx` — Threaded comments with guest/auth support
+9. `src/components/RatingSection.tsx` — Rating display + submission
+10. `src/components/StatusSelector.tsx` — Project status change dialog
+
+*Supporting files modified (3)*:
+11. `src/types/index.ts` — Added Comment, Rating interfaces
+12. `src/lib/api.ts` — Added 8 API methods (comments, ratings, files, delete, update)
+13. `src/components/shared/index.ts` — Added Breadcrumb, ConfirmDialog exports
+
+*Utility created (1)*:
+14. `src/utils/projectHelpers.ts` — Status/approval color and label utilities
+
+**Key Migration Patterns**:
+
+1. **Dynamic Route Params**: `useParams()` from `next/navigation` returns `Record<string, string | string[]>`
+   - Must cast: `const slug = params?.slug as string | undefined`
+   - Unlike React Router's typed `useParams<{ slug: string }>()`
+
+2. **Location State → Search Params**: `location.state?.from` → `searchParams.get('from')`
+   - Next.js doesn't support location state
+   - Use `useSearchParams()` from `next/navigation` for query params
+
+3. **useCallback for fetchProject**: Wrapped in useCallback with `loadProjectFiles` dependency
+   - Prevents infinite re-renders when used in useEffect dependency array
+   - `loadProjectFiles` also wrapped in useCallback with empty deps
+
+4. **String Conversion for API**: `apiService.getProject()` takes `string` param
+   - When passing `project.id` (number), must use `String(slugOrId)`
+   - Caught by TypeScript: `Argument of type 'string | number' is not assignable to parameter of type 'string'`
+
+5. **Unused Import Cleanup**: React 19 doesn't require `import React`
+   - Removed `React` import from page.tsx (only hooks needed)
+   - Removed unused `ProjectFile` type import
+
+6. **File Download via Blob**: `apiService.downloadFile()` returns `Blob` (not JSON)
+   - Uses native `fetch` with `response.blob()` instead of `fetchJson`
+   - Creates temporary `<a>` element for download trigger
+
+**Verification**:
+- ✅ TypeScript: `npx tsc --noEmit` passes (zero errors)
+- ✅ ESLint: All 12 files pass with `--max-warnings 0` (zero warnings)
+- ✅ LSP diagnostics: Zero errors on page.tsx
+- ✅ MUI v7 Grid syntax used throughout: `<Grid size={{ xs: 12, md: 8 }}>`
+- ✅ All array accesses use fallback: `(items || []).map()`
+- ✅ All API responses handled with try/catch and fallback values
