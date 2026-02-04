@@ -345,4 +345,48 @@ export const apiService = {
       }),
     });
   },
+
+  updateProfile: async (data: {
+    full_name?: string;
+    email?: string;
+  }): Promise<{ user: User; message: string }> => {
+    return fetchJson(`${API_BASE}/profile`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  uploadAvatar: async (file: File): Promise<{ user: User; avatar_url: string; message: string }> => {
+    const token =
+      typeof window !== 'undefined'
+        ? JSON.parse(localStorage.getItem('auth-storage') || '{}')?.state?.token
+        : null;
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    const headers: Record<string, string> = {
+      Accept: 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+
+    const res = await fetch(`${API_BASE}/profile/avatar`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      const error: any = new Error(errorData.message || `Upload failed: HTTP ${res.status}`);
+      error.response = { status: res.status, data: errorData };
+      throw error;
+    }
+
+    return res.json();
+  },
+
+  deleteAvatar: async (): Promise<{ user: User; message: string }> => {
+    return fetchJson(`${API_BASE}/profile/avatar`, { method: 'DELETE' });
+  },
 };

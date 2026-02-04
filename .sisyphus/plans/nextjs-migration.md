@@ -981,7 +981,7 @@ Wave 8 (Final):
 
 ---
 
-- [ ] 24. Profile/Settings Pages
+- [x] 24. Profile/Settings Pages
 
   **What to do**: Migrate ProfilePage, SettingsPage. Include avatar upload, password change.
 
