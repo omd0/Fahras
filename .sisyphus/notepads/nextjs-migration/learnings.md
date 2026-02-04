@@ -349,3 +349,84 @@ When implementing other admin routes:
 - TypeScript: `npx tsc --noEmit` passes
 - ESLint: All 4 files pass lint check (zero warnings)
 - LSP diagnostics: Zero errors on all 4 files
+
+## [2026-02-04] Task 12: Comments, Ratings, Bookmarks API (5 Routes)
+
+**Status**: ✅ COMPLETED
+
+**Files Created** (5 total):
+1. `app/api/projects/[slug]/comments/route.ts` — GET threaded comments, POST create comment/reply
+2. `app/api/projects/[slug]/ratings/route.ts` — GET average rating + user's rating, POST upsert rating
+3. `app/api/projects/[slug]/bookmark/route.ts` — POST toggle bookmark
+4. `app/api/bookmarks/route.ts` — GET user's bookmarked projects (paginated)
+5. `app/api/bookmarks/sync/route.ts` — POST sync guest bookmarks from cookies
+
+**Key Implementation Patterns**:
+
+1. **Threaded Comments**:
+   - GET returns only top-level comments (`parentId: null`)
+   - Each top-level includes nested `replies` array with full user info
+   - POST supports optional `parentId` for replies
+   - Validates parent comment exists and belongs to same project
+   - Ordered by `createdAt` (top-level desc, replies asc)
+
+2. **Rating Upsert Pattern**:
+   - Uses Prisma `upsert()` with unique constraint `projectId_userId`
+   - Enforces one rating per user (unique constraint in schema)
+   - Rating clamped to 1-5 range: `Math.max(1, Math.min(5, rating))`
+   - Average calculated client-side: `sum / count`, rounded to 1 decimal
+   - GET returns: `averageRating`, `totalRatings`, `userRating` (if authenticated)
+
+3. **Bookmark Toggle**:
+   - POST checks if bookmark exists
+   - If exists: delete and return `{ bookmarked: false }`
+   - If not exists: create and return `{ bookmarked: true }`
+   - Uses unique constraint `userId_projectId` for efficient lookup
+
+4. **Bookmarks List**:
+   - GET paginated with `page` and `per_page` query params
+   - Returns full project objects (not just IDs)
+   - Includes creator, program, department, tags
+   - Ordered by `createdAt` descending (newest first)
+   - Response format: data, current_page, last_page, per_page, total, has_more_pages
+
+5. **Guest Bookmark Sync**:
+   - POST reads `guest_bookmarks` cookie (JSON array of project IDs)
+   - Validates all project IDs exist in database
+   - Creates bookmarks only for projects not already bookmarked
+   - Returns count of newly synced bookmarks
+   - Clears cookie after sync via `Set-Cookie` header with `Max-Age=0`
+   - Handles invalid cookie format gracefully (try/catch)
+
+6. **Auth Patterns**:
+   - Comments GET: `withOptionalAuth()` (guests can view)
+   - Comments POST: `withAuth()` (must be logged in)
+   - Ratings GET: `withOptionalAuth()` (guests see average only)
+   - Ratings POST: `withAuth()` (must be logged in)
+   - Bookmark toggle: `withAuth()` (must be logged in)
+   - Bookmarks list: `withAuth()` (must be logged in)
+   - Bookmark sync: `withAuth()` (must be logged in)
+
+7. **Error Handling**:
+   - 404: Project not found (all routes)
+   - 422: Validation errors (empty content, invalid rating, invalid parent comment)
+   - 500: Server errors with optional debug info in development
+   - Consistent error response format with message and optional errors object
+
+8. **Type Safety**:
+   - `OptionalAuthRequest` extends NextRequest with `session: Session | null`
+   - `AuthenticatedRequest` extends NextRequest with `session: Session`
+   - `RouteContext` with async params (Next.js 16 pattern)
+   - Explicit type casting for user ID: `parseInt(req.session.user.id, 10)`
+
+**Verification**:
+- ✅ TypeScript: `npx tsc --noEmit` passes (zero errors)
+- ✅ ESLint: All 5 files pass lint check (zero warnings)
+- ✅ All 5 route files created with correct structure
+- ✅ All endpoints return consistent response format
+- ✅ Threading, upsert, toggle, pagination, sync all implemented correctly
+
+**Next Steps**:
+- Task 13: Implement notifications API (CRUD, unread count, mark read)
+- Task 14: Implement milestones API (templates, project milestones, status transitions)
+- Task 15: Implement project follow API (activities, flags, followers)

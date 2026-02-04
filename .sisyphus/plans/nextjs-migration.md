@@ -774,7 +774,7 @@ Wave 8 (Final):
 
 ---
 
-- [ ] 12. Comments, Ratings, Bookmarks API
+- [x] 12. Comments, Ratings, Bookmarks API
 
   **What to do**: Create comments (GET threaded, POST), ratings (GET with average, POST unique per user), bookmark toggle, bookmarks list, guest bookmark sync routes.
 
