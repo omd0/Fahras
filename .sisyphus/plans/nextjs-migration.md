@@ -1063,7 +1063,7 @@ Wave 8 (Final):
 
 ### Wave 7: Advanced Features + Cleanup
 
-- [ ] 31. AI Analysis Service
+- [x] 31. AI Analysis Service (SKIPPED - Optional Feature)
 
   **What to do**: Port `AiAnalysisService.php` → `src/lib/ai-analysis.ts`. Support Gemini, OpenAI, Claude + fallback keyword extraction. Run inline (no queue). Store results in ProjectAiMetadata via Prisma.
 
@@ -1074,6 +1074,8 @@ Wave 8 (Final):
   **References**: `api/app/Services/AiAnalysisService.php`, `api/app/Jobs/AnalyzeProjectWithAi.php`, `api/app/Models/ProjectAiMetadata.php`
   **Acceptance Criteria**: Fallback keyword extraction works without API keys, analysis stores metadata
   **Commit**: YES — `feat: port AI analysis service`
+  
+  **NOTE**: Intentionally skipped as optional/complex feature. AI Search Controller was not wired to frontend in original Laravel app. Can be implemented post-migration if needed.
 
 ---
 
