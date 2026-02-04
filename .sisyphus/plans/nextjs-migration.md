@@ -1077,7 +1077,7 @@ Wave 8 (Final):
 
 ---
 
-- [ ] 32. TODO Stub Pages
+- [x] 32. TODO Stub Pages
 
   Create empty "Coming Soon" stubs: `app/evaluations/page.tsx`, `app/approvals/page.tsx`, `app/admin/approvals/page.tsx`, `app/faculty/pending-approvals/page.tsx`. Create 501 API stubs.
 
