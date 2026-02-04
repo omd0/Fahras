@@ -197,3 +197,54 @@ When implementing other admin routes:
 - Task 9: Implement remaining auth routes (logout, refresh, password reset, etc.)
 - Task 10: Implement project management API routes
 - Task 11: Implement file upload/download API routes
+
+## [2026-02-04] Task 9: Project Search + Analytics API (5 Routes)
+
+**Status**: ✅ COMPLETED
+
+**Files Created** (5 total):
+1. `app/api/projects/route.ts` — GET paginated search with 20+ filters, withOptionalAuth
+2. `app/api/projects/analytics/route.ts` — GET project statistics (status/year/dept distribution, trends)
+3. `app/api/projects/suggestions/route.ts` — GET autocomplete suggestions (min 2 chars)
+4. `app/api/projects/admin/route.ts` — GET admin project list with withRole('admin')
+5. `app/api/search-queries/route.ts` — POST log search queries with optional auth
+
+**Key Implementation Patterns**:
+
+1. **Visibility Rules (Security)**:
+   - Guest: only `adminApprovalStatus: 'approved'` projects visible
+   - Regular user: approved + own projects
+   - Admin/Reviewer: full visibility (no filter)
+   - `withOptionalAuth` middleware allows guest access
+
+2. **Prisma Search vs Laravel Full-Text**:
+   - Laravel used PostgreSQL `to_tsvector/plainto_tsquery` for full-text search
+   - Prisma doesn't support native PG full-text via typed API
+   - Used `contains` with `mode: 'insensitive'` as equivalent (case-insensitive ILIKE)
+   - Keywords (Json field) searched with `string_contains`
+   - Trade-off: simpler but no ranking; could add `$queryRaw` later for ranked search
+
+3. **BigInt Serialization**:
+   - Prisma returns BigInt for `sizeBytes` field
+   - JSON.stringify fails on BigInt — must convert to string explicitly
+   - Pattern: `sizeBytes: f.sizeBytes.toString()`
+
+4. **Analytics with Raw SQL**:
+   - Department stats require JOINs across 3 tables — used `$queryRaw`
+   - Monthly trend also uses raw SQL for `DATE_TRUNC`
+   - Must use `import { Prisma }` (value import) not `import type { Prisma }` for `Prisma.sql`/`Prisma.empty`
+   - Status/year distribution use Prisma `groupBy` — cleaner when possible
+
+5. **Pagination Consistency**:
+   - Both snake_case (`per_page`) and camelCase (`limit`) accepted
+   - Max 100 items per page, minimum 1
+   - Response format matches Laravel: data, current_page, last_page, per_page, total, has_more_pages, search_metadata
+
+6. **Bookmark Integration**:
+   - Projects endpoint adds `is_bookmarked` boolean for authenticated users
+   - Separate query to fetch user bookmarks for current page of results
+
+**Verification**:
+- ✅ TypeScript: `npx tsc --noEmit` passes (zero errors)
+- ✅ ESLint: All 5 files pass lint check
+- ✅ LSP diagnostics: Zero errors on all 5 files

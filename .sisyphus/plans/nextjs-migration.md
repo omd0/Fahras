@@ -736,7 +736,7 @@ Wave 8 (Final):
 
 ---
 
-- [ ] 9. Project Search + Analytics API
+- [x] 9. Project Search + Analytics API
 
   **What to do**: Create `app/api/projects/route.ts` (GET: paginated search with filters, full-text search), `app/api/projects/analytics/route.ts` (GET), `app/api/projects/suggestions/route.ts` (GET), `app/api/projects/admin/route.ts` (GET), `app/api/search-queries/route.ts` (POST). Implement PostgreSQL full-text search. Support optional auth (guest access).
 
