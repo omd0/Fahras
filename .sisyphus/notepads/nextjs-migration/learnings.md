@@ -737,3 +737,87 @@ These stubs enable layout migration while remaining features are unmigrated:
 - ESLint: All 17 files pass with `--max-warnings 0` (zero warnings)
 - All pages export default functions (Next.js App Router requirement)
 - All components have `'use client'` directive
+
+## [2026-02-04] Task 19: Next.js 16 Proxy for Route Protection
+
+**Status**: ✅ COMPLETED
+
+**File Created** (1 total):
+1. `proxy.ts` — Route protection at project root (NOT `middleware.ts`)
+
+**Key Implementation Patterns**:
+
+1. **Next.js 16 Proxy vs Middleware**:
+   - Next.js 16 uses `proxy.ts` (NOT `middleware.ts`)
+   - Export function named `proxy()` (NOT `middleware()`)
+   - Runs on Node.js runtime (NOT Edge Runtime) — full Node.js APIs available
+   - Can use `await auth()` to get NextAuth session
+   - Returns `NextResponse` from `next/server`
+
+2. **Route Classification**:
+   - **Public routes**: No auth required (/, /explore, /login, /register, /terms, /privacy, etc.)
+   - **Auth-required routes**: Must be logged in (/dashboard, /profile, /settings, /notifications, /pr/create, etc.)
+   - **Role-protected routes**: Specific roles required (/admin, /access-control, /users, /evaluations, /advisor-projects, /faculty/pending-approvals, /student/my-projects, /milestone-templates)
+   - **Guest-accessible routes**: Public projects visible to guests (/pr/[slug], /pr/[slug]/code)
+
+3. **Route Matching Patterns**:
+   - Exact match for public routes: `PUBLIC_ROUTES.includes(pathname)`
+   - Regex for project detail: `/^\/pr\/[a-z0-9]+$/i`
+   - Regex for project code viewer: `/^\/pr\/[a-z0-9]+\/code/i`
+   - Regex for project edit/follow: `/^\/pr\/[a-z0-9]+\/(edit|follow)$/i`
+   - Prefix match for role-protected: `pathname.startsWith(route)`
+
+4. **Legacy Redirects**:
+   - `/projects/:id` → `/pr/:id` (old numeric ID format)
+   - `/project/:id` → `/pr/:id` (alternative old format)
+   - Implemented with regex capture groups: `pathname.match(/^\/projects\/(.+)$/)`
+
+5. **Session Checking**:
+   - Call `await auth()` to get NextAuth session
+   - Check `session?.user` for authentication
+   - Access roles via `session.user.roles` (array of role names)
+   - Redirect unauthenticated to `/login?from={pathname}` (return URL as query param)
+
+6. **Role-Based Access Control**:
+   - Define `ROLE_PROTECTED_ROUTES` object mapping route prefixes to required role arrays
+   - For each protected route, check if user has ANY of the required roles
+   - If user lacks required role, redirect to `/dashboard` (not `/login`)
+   - Pattern: `requiredRoles.some((role) => userRoles.includes(role))`
+
+7. **Config Matcher**:
+   - Exclude API routes: `api`
+   - Exclude Next.js internals: `_next/static`, `_next/image`
+   - Exclude static files: `favicon.ico`
+   - Pattern: `matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)']`
+
+8. **Helper Functions**:
+   - `isPublicRoute(pathname)` — Check if route is public
+   - `requiresAuth(pathname)` — Check if route requires authentication
+   - `getRequiredRoles(pathname)` — Get required roles for a route
+   - `userHasRole(userRoles, requiredRoles)` — Check if user has required role
+
+9. **Error Handling**:
+   - 401 (Unauthorized): Redirect to `/login?from={pathname}`
+   - 403 (Forbidden): Redirect to `/dashboard` (user lacks required role)
+   - 404 (Not Found): Let Next.js handle (proxy doesn't intercept)
+   - All other routes: `NextResponse.next()` to allow request
+
+10. **Type Safety**:
+    - Import types: `NextRequest`, `NextResponse` from `next/server`
+    - Use `request.nextUrl` for URL parsing
+    - Use `request.url` for full URL in redirects
+    - Return type: `NextResponse` or `Promise<NextResponse>`
+
+**Verification**:
+- ✅ File created at project root: `/proxy.ts`
+- ✅ Function named `proxy` (not `middleware`)
+- ✅ ESLint: Zero warnings (`npx eslint proxy.ts --max-warnings 0`)
+- ✅ TypeScript: Compiles without errors (Next.js type definitions)
+- ✅ No conflicting `middleware.ts` file exists
+- ✅ Config matcher excludes API routes and static files
+- ✅ All route patterns tested with regex
+
+**Next Steps**:
+- Task 20: Migrate home/landing page
+- Task 21: Migrate explore page with search/filters
+- Task 22: Migrate project detail page

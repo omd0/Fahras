@@ -866,7 +866,7 @@ Wave 8 (Final):
 
 ---
 
-- [ ] 19. Next.js 16 Proxy for Route Protection
+- [x] 19. Next.js 16 Proxy for Route Protection
 
   **What to do**:
   - **CRITICAL: Create `proxy.ts` at project root (NOT `middleware.ts`)**
@@ -906,12 +906,12 @@ Wave 8 (Final):
   - Next.js 16 proxy docs: https://nextjs.org/docs/app/guides/upgrading/version-16 (middleware → proxy migration)
 
   **Acceptance Criteria**:
-  - [ ] File is named `proxy.ts` (NOT `middleware.ts`)
-  - [ ] Exports function named `proxy` (NOT `middleware`)
-  - [ ] Unauthenticated `/dashboard` redirects to `/login`
-  - [ ] `/projects/123` redirects to `/pr/123`
-  - [ ] Public routes accessible without auth
-  - [ ] No `middleware.ts` file exists anywhere in the project
+  - [x] File is named `proxy.ts` (NOT `middleware.ts`)
+  - [x] Exports function named `proxy` (NOT `middleware`)
+  - [x] Unauthenticated `/dashboard` redirects to `/login`
+  - [x] `/projects/123` redirects to `/pr/123`
+  - [x] Public routes accessible without auth
+  - [x] No `middleware.ts` file exists anywhere in the project
 
   **Agent-Executed QA Scenarios**:
   ```
