@@ -1050,7 +1050,7 @@ Wave 8 (Final):
 
 ---
 
-- [ ] 30. Project Follow Page
+- [x] 30. Project Follow Page
 
   Migrate ProjectFollowPage + ActivityFeed, MilestoneTimeline, ProjectFlags, ProjectFollowers, ProjectHealthScore, and all sub-components.
 

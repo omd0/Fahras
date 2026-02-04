@@ -15,6 +15,11 @@ import type {
   CreateProjectData,
   MilestoneTemplate,
   MilestoneTemplateData,
+  ProjectMilestone,
+  ProjectActivity,
+  ProjectFlag,
+  ProjectFollower,
+  TimelineData,
 } from '@/types';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -571,5 +576,124 @@ export const apiService = {
   getAdminUsers: async (): Promise<User[]> => {
     const res = await fetchJson<{ data: User[] } | User[]>(`${API_BASE}/admin/users`);
     return Array.isArray(res) ? res : (res as { data: User[] }).data || [];
+  },
+
+  // Project Milestone endpoints
+  getProjectMilestones: async (projectId: number): Promise<{ milestones: ProjectMilestone[] }> => {
+    return fetchJson(`${API_BASE}/projects/${projectId}/milestones`);
+  },
+
+  createMilestone: async (
+    projectId: number,
+    data: { title: string; description?: string; due_date?: string; dependencies?: number[]; order?: number },
+  ): Promise<{ message: string; milestone: ProjectMilestone }> => {
+    return fetchJson(`${API_BASE}/projects/${projectId}/milestones`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateMilestone: async (
+    milestoneId: number,
+    data: Partial<ProjectMilestone>,
+  ): Promise<{ message: string; milestone: ProjectMilestone }> => {
+    return fetchJson(`${API_BASE}/milestones/${milestoneId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteMilestone: async (milestoneId: number): Promise<{ message: string }> => {
+    return fetchJson(`${API_BASE}/milestones/${milestoneId}`, { method: 'DELETE' });
+  },
+
+  startMilestone: async (milestoneId: number): Promise<{ message: string; milestone: ProjectMilestone }> => {
+    return fetchJson(`${API_BASE}/milestones/${milestoneId}/start`, { method: 'POST' });
+  },
+
+  completeMilestone: async (
+    milestoneId: number,
+    completionNotes?: string,
+  ): Promise<{ message: string; milestone: ProjectMilestone }> => {
+    return fetchJson(`${API_BASE}/milestones/${milestoneId}/complete`, {
+      method: 'POST',
+      body: JSON.stringify({ completion_notes: completionNotes }),
+    });
+  },
+
+  getMilestoneTimeline: async (projectId: number): Promise<TimelineData> => {
+    return fetchJson(`${API_BASE}/projects/${projectId}/milestones/timeline`);
+  },
+
+  // Project Activity endpoints
+  getProjectActivities: async (
+    projectId: number,
+    params?: { activity_type?: string; from_date?: string; to_date?: string; per_page?: number; page?: number },
+  ): Promise<{
+    activities: ProjectActivity[];
+    pagination: { current_page: number; per_page: number; total: number; last_page: number };
+  }> => {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) searchParams.set(key, String(value));
+      });
+    }
+    const query = searchParams.toString();
+    return fetchJson(`${API_BASE}/projects/${projectId}/activities${query ? `?${query}` : ''}`);
+  },
+
+  // Project Follow endpoints
+  followProject: async (
+    projectId: number,
+    notificationPreferences?: Record<string, boolean>,
+  ): Promise<{ message: string; follower: ProjectFollower }> => {
+    return fetchJson(`${API_BASE}/projects/${projectId}/follow`, {
+      method: 'POST',
+      body: JSON.stringify({ notification_preferences: notificationPreferences }),
+    });
+  },
+
+  unfollowProject: async (projectId: number): Promise<{ message: string }> => {
+    return fetchJson(`${API_BASE}/projects/${projectId}/follow`, { method: 'DELETE' });
+  },
+
+  getProjectFollowers: async (projectId: number): Promise<{ followers: ProjectFollower[] }> => {
+    return fetchJson(`${API_BASE}/projects/${projectId}/followers`);
+  },
+
+  // Project Flag endpoints
+  createProjectFlag: async (
+    projectId: number,
+    data: { flag_type: ProjectFlag['flag_type']; severity: ProjectFlag['severity']; message: string; is_confidential?: boolean },
+  ): Promise<{ message: string; flag: ProjectFlag }> => {
+    return fetchJson(`${API_BASE}/projects/${projectId}/flags`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  resolveFlag: async (
+    flagId: number,
+    resolutionNotes?: string,
+  ): Promise<{ message: string; flag: ProjectFlag }> => {
+    return fetchJson(`${API_BASE}/flags/${flagId}/resolve`, {
+      method: 'PUT',
+      body: JSON.stringify({ resolution_notes: resolutionNotes }),
+    });
+  },
+
+  getProjectFlags: async (
+    projectId: number,
+    params?: { resolved?: boolean; severity?: ProjectFlag['severity']; flag_type?: ProjectFlag['flag_type'] },
+  ): Promise<{ flags: ProjectFlag[] }> => {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) searchParams.set(key, String(value));
+      });
+    }
+    const query = searchParams.toString();
+    return fetchJson(`${API_BASE}/projects/${projectId}/flags${query ? `?${query}` : ''}`);
   },
 };

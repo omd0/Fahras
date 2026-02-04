@@ -244,6 +244,73 @@ export interface MilestoneTemplateData {
   }>;
 }
 
+export interface ProjectMilestone {
+  id: number;
+  project_id: number;
+  template_item_id?: number;
+  title: string;
+  description?: string;
+  status: 'not_started' | 'in_progress' | 'completed' | 'blocked';
+  due_date?: string;
+  started_at?: string;
+  completed_at?: string;
+  order: number;
+  dependencies?: number[];
+  completion_notes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProjectActivity {
+  id: number;
+  project_id: number;
+  user_id: number;
+  activity_type: string;
+  title: string;
+  description?: string;
+  metadata?: Record<string, unknown>;
+  user?: User;
+  created_at: string;
+}
+
+export interface ProjectFlag {
+  id: number;
+  project_id: number;
+  flagged_by_user_id: number;
+  flag_type: 'scope_creep' | 'technical_blocker' | 'team_conflict' | 'resource_shortage' | 'timeline_risk' | 'other';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  message: string;
+  is_confidential: boolean;
+  resolved_at?: string;
+  resolved_by_user_id?: number;
+  resolution_notes?: string;
+  flaggedBy?: User;
+  resolvedBy?: User;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProjectFollower {
+  id: number;
+  project_id: number;
+  user_id: number;
+  notification_preferences?: Record<string, boolean>;
+  user?: User;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TimelineData {
+  milestones: ProjectMilestone[];
+  links: TimelineLink[];
+}
+
+export interface TimelineLink {
+  source: number;
+  target: number;
+  type: string;
+}
+
 export interface CreateProjectData {
   program_id: number;
   title: string;
