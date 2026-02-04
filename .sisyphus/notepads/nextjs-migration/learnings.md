@@ -426,7 +426,68 @@ When implementing other admin routes:
 - ✅ All endpoints return consistent response format
 - ✅ Threading, upsert, toggle, pagination, sync all implemented correctly
 
+## [2026-02-04] Task 13: Notifications API (6 Routes)
+
+**Status**: ✅ COMPLETED
+
+**Files Created** (6 total):
+1. `app/api/notifications/route.ts` — GET paginated list + unread count, DELETE all
+2. `app/api/notifications/unread-count/route.ts` — GET unread count only
+3. `app/api/notifications/mark-all-read/route.ts` — POST mark all as read
+4. `app/api/notifications/delete-all/route.ts` — POST delete all
+5. `app/api/notifications/[id]/read/route.ts` — POST mark single as read
+6. `app/api/notifications/[id]/route.ts` — DELETE single notification
+
+**Key Implementation Patterns**:
+
+1. **Pagination**: GET /api/notifications supports `page` and `per_page` query params
+   - Default: page=1, per_page=15 (max 100)
+   - Response includes pagination metadata: current_page, per_page, total, last_page, has_more_pages
+   - Also includes unread_count in same response
+
+2. **Unread Count**: Separate endpoint for lightweight count queries
+   - Returns single integer: `{ unread_count: number }`
+   - Useful for badge updates without fetching full list
+
+3. **Mark as Read**: Two patterns
+   - Mark all: `POST /api/notifications/mark-all-read` — updates all unread to read
+   - Mark single: `POST /api/notifications/[id]/read` — updates one notification
+   - Both set `isRead: true` and `readAt: new Date()`
+
+4. **Delete Operations**: Two patterns
+   - Delete all: `POST /api/notifications/delete-all` — removes all notifications
+   - Delete single: `DELETE /api/notifications/[id]` — removes one notification
+   - Both use hard delete (not soft delete)
+
+5. **Authorization**:
+   - All routes use `withAuth()` middleware (authenticated only)
+   - Single notification routes check ownership: `notification.userId !== userId` → 403
+   - Users can only access their own notifications
+
+6. **Prisma Queries**:
+   - List: `findMany()` with `where: { userId }`, ordered by `createdAt: 'desc'`
+   - Count: `count()` with `where: { userId, isRead: false }` for unread
+   - Update: `updateMany()` for bulk, `update()` for single
+   - Delete: `deleteMany()` for bulk, `delete()` for single
+
+7. **Error Handling**:
+   - 401: Authentication required (handled by middleware)
+   - 403: Unauthorized (notification doesn't belong to user)
+   - 404: Notification not found
+   - 500: Server errors with optional debug info in development
+
+8. **Type Safety**:
+   - `AuthenticatedRequest` extends NextRequest with Session
+   - `RouteContext` with async params (Next.js 16 pattern)
+   - Explicit type casting for user ID: `parseInt(req.session.user.id, 10)`
+
+**Verification**:
+- ✅ TypeScript: `npx tsc --noEmit` passes (zero errors)
+- ✅ ESLint: All 6 files pass lint check (zero warnings)
+- ✅ All 6 route files created with correct structure
+- ✅ All endpoints return consistent response format
+- ✅ Pagination, unread count, mark read, delete all implemented correctly
+
 **Next Steps**:
-- Task 13: Implement notifications API (CRUD, unread count, mark read)
 - Task 14: Implement milestones API (templates, project milestones, status transitions)
 - Task 15: Implement project follow API (activities, flags, followers)

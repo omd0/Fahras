@@ -786,7 +786,7 @@ Wave 8 (Final):
 
 ---
 
-- [ ] 13. Notifications API
+- [x] 13. Notifications API
 
   **What to do**: Create notifications CRUD (GET paginated, unread count, mark read, mark all read, delete, delete all).
 
