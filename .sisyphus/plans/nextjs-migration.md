@@ -1112,7 +1112,7 @@ Wave 8 (Final):
 
 ### Wave 8: Deployment & Polish
 
-- [ ] 35. Database Seeding
+- [x] 35. Database Seeding
 
   **What to do**: Create `prisma/seed.ts`: 4 roles, all permissions with scopes, 6+ departments, 7+ programs, default milestone template (10 items), test users (1 admin, 3 faculty, 4 students, 1 reviewer), sample projects. Add to package.json: `"prisma": { "seed": "tsx prisma/seed.ts" }`.
 
