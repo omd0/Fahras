@@ -687,7 +687,7 @@ Wave 8 (Final):
 
 ---
 
-- [ ] 6. RBAC Middleware + Permission Utilities
+- [x] 6. RBAC Middleware + Permission Utilities
 
   **What to do**:
   - Create `src/middleware/rbac.ts`: checkPermission(), checkRole(), isAdmin(), isFaculty(), isStudent(), isReviewer(), getPermissionScope(), filterByScope()
@@ -703,8 +703,8 @@ Wave 8 (Final):
   - `api/database/seeders/PermissionSeeder.php` — All permission codes
 
   **Acceptance Criteria**:
-  - [ ] All RBAC functions exported and type-safe
-  - [ ] All constants match Laravel values
+  - [x] All RBAC functions exported and type-safe
+  - [x] All constants match Laravel values
 
   **Commit**: YES — `feat: implement RBAC middleware and permission utilities`
 

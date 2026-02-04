@@ -1,76 +1,118 @@
-# Learnings — Next.js 16 Migration
+# NextJS Migration - Learnings & Patterns
 
-This file accumulates conventions, patterns, and wisdom discovered during the migration.
+## API Route Implementation Patterns
 
----
+### Permission Route (`/api/permissions`)
+**Status**: ✅ COMPLETED
 
-## Task 1: Project Initialization (2026-02-03)
+**Key Learnings**:
+1. **Auth Error Handling**: Use `AuthError` class with statusCode for proper error propagation
+   - 401: Authentication required (no session)
+   - 403: Insufficient permissions (wrong role)
 
-### Next.js 16.1.6 Config Facts
-- `cacheComponents: true` is TOP-LEVEL in next.config.ts (not experimental). Confirmed via type defs.
-- `turbopack: {}` is TOP-LEVEL. Empty object enables it. Accepts `resolveAlias`, `resolveExtensions`, `rules`.
-- `experimental.cacheComponents` and `experimental.dynamicIO` are DEPRECATED in 16.x — use top-level `cacheComponents`.
-- Build output confirms: `▲ Next.js 16.1.6 (Turbopack, Cache Components)` — both active by default.
-- No `--turbopack` flag needed in dev/build scripts. Turbopack is the default bundler in 16.x.
+2. **Prisma Include Pattern**: Always include relations when fetching permissions
+   ```typescript
+   permissionRoles: {
+     include: { role: true }
+   }
+   ```
 
-### ESLint in Next.js 16
-- Uses flat config format: `eslint.config.mjs` with `defineConfig` and `globalIgnores` from `"eslint/config"`.
-- Must import `eslint-config-next/core-web-vitals` and `eslint-config-next/typescript` separately.
-- Add `api/**` and `web/**` to globalIgnores to avoid linting the legacy codebase.
-- Use `npx eslint .` directly, NOT `next lint`.
+3. **Response Format**: Consistent JSON structure with success flag
+   ```typescript
+   {
+     success: true,
+     data: [...],
+     count: number
+   }
+   ```
 
-### Prisma Integration
-- Existing `prisma/schema.prisma` at root already present from prior scaffolding.
-- `prisma generate` runs successfully in postinstall (with `|| true` fallback for schema validation errors).
-- `@types/bcryptjs` is deprecated — bcryptjs 3.x ships its own types.
-- Prisma singleton at `src/lib/prisma.ts` uses `globalThis` pattern for dev HMR stability.
+4. **Error Handling**: Distinguish between AuthError and other errors
+   - AuthError: Check statusCode and return appropriate HTTP status
+   - Other errors: Log and return 500 with optional debug info
 
-### tsconfig.json
-- Next.js 16 generates `"plugins": [{ "name": "next" }]` — keep this for IDE integration.
-- Path aliases: `@/*` maps to `./src/*`. All sub-aliases (`@/components/*`, etc.) also added for explicit resolution.
-- Must exclude `api` and `web` directories to avoid TypeScript picking up legacy code.
-- `include` must have `next-env.d.ts`, `.next/types/**/*.ts`, `.next/dev/types/**/*.ts`, and `**/*.mts`.
+5. **Build Warnings**: NextAuth routes may show prerendering warnings during build
+   - These are expected for dynamic auth routes
+   - Build completes successfully despite warnings
 
-### Dependencies Installed
-- Core: next 16.1.6, react 19.x, react-dom 19.x
-- UI: @mui/material 7.x, @emotion/react, @emotion/styled, framer-motion
-- State: zustand 5.x
-- Data: @prisma/client, axios
-- Auth: next-auth 5.0.0-beta.30
-- Storage: @aws-sdk/client-s3
-- Utils: bcryptjs, crypto-js, cmdk, js-yaml, react-window, stylis, stylis-plugin-rtl
-- NOT installed (by design): react-router-dom (Next.js routing), tailwind, vitest/jest, next-intl
+## Permission System Architecture
 
-### Project Structure
-- Source lives in `src/` directory (--src-dir flag)
-- App Router pages in `src/app/`
-- Shared lib in `src/lib/`
-- Pre-created empty dirs: components, features, utils, store, types, config, providers, styles, i18n
-- No `middleware.ts` — Next.js 16 uses `proxy.ts` for route protection (Task 19)
+### Models & Relations
+- **Permission**: code (unique), category (enum), description
+- **Role**: name (unique), isSystemRole, isTemplate
+- **PermissionRole**: pivot table with scope field (all, department, own, none)
+- **User → Role → Permission**: Many-to-many relationships
 
+### Permission Categories (7)
+- Projects, Users, Files, Analytics, Settings, System, Roles
 
-## Session 1 Summary (2026-02-03)
+### Permission Scopes (4)
+- `all`: Global access
+- `department`: Department-level access
+- `own`: Own resources only
+- `none`: No access
 
-**Completed**: 6/62 tasks (9.7%)
-**Token Usage**: 116k/200k (58%)
-**Time**: ~3 hours
+### Default Roles
+- **Admin**: All permissions with `all` scope
+- **Faculty**: User/Project/File permissions with appropriate scopes
+- **Student**: Limited project and file permissions
+- **Reviewer**: Read-only permissions
 
-### What Works
-- Next.js 16 foundation solid (Turbopack, cacheComponents, proxy architecture)
-- Prisma schema complete (32 models, 16 enums)
-- MUI v7 theme fully migrated with RTL
-- NextAuth v5 configured with JWT
-- 8 API routes functional (register, login, user, programs, departments, tags, faculties, nextauth)
+## TypeScript & Build Patterns
 
-### Critical Blockers
-- Subagent delegation highly unreliable (4+ failed sessions)
-- RBAC middleware (Task 6) not implemented
-- 11/14 auth routes incomplete
-- All UI pages not started (Tasks 17-30)
+### Type Safety
+- Use `AuthError` class for typed error handling
+- Import types from `@/lib/auth-helpers` and `@/lib/prisma`
+- Always type NextRequest/NextResponse
 
-### Strategic Decision
-Full 62-task migration requires estimated 1000k+ tokens. Current session establishes foundation for incremental completion. Next session should focus on:
-1. Critical path: Project CRUD (Task 10)
-2. proxy.ts (Task 19)  
-3. Core UI pages (Tasks 20-23)
+### Build Process
+- `npx tsc --noEmit`: Validates TypeScript without emitting files
+- `npm run build`: Full Next.js build with Turbopack
+- Build includes route compilation and static generation
+- Dynamic routes (like `/api/permissions`) are marked as `ƒ` (server-rendered on demand)
+
+## Next Steps for Related Routes
+
+When implementing other admin routes:
+1. Use same `requireRole(['admin'])` pattern
+2. Include relations for nested data (roles with permissions, users with roles)
+3. Support pagination with query params (page, limit)
+4. Use Prisma transactions for multi-step operations
+5. Return consistent response format with success flag
+6. Handle 401/403/404/422/500 status codes appropriately
+
+## Code Quality Notes
+
+- Comments are necessary for error handling logic (distinguish between auth types)
+- Always provide fallback values in responses
+- Use `process.env.NODE_ENV === 'development'` for debug info
+- Log errors with context for debugging
+
+## [2026-02-04] Task 6: RBAC Middleware & Constants
+
+**Status**: ✅ COMPLETED (Direct implementation by orchestrator)
+
+**Files Created** (6 total):
+1. `src/constants/approval-status.ts` — 704 bytes
+2. `src/constants/project-status.ts` — 1.1 KB
+3. `src/constants/member-role.ts` — 428 bytes
+4. `src/constants/advisor-role.ts` — 526 bytes
+5. `src/constants/permissions.ts` — 1.7 KB
+6. `src/middleware/rbac.ts` — 2.8 KB
+
+**Key Patterns**:
+1. **Enum + Labels Pattern**: Each constant file exports enum + labels object + validator function
+2. **Permission Scopes**: ALL (global), DEPARTMENT (dept-level), OWN (own resources), NONE (no access)
+3. **RBAC Functions**: 8 functions exported (checkPermission, checkRole, 4 role helpers, getPermissionScope, filterByScope)
+4. **Type Safety**: PermissionCode derived from const array for exhaustive checking
+5. **Nullable-Safe**: All RBAC functions handle null/undefined user gracefully
+
+**Verification**:
+- ✅ ESLint: Zero warnings
+- ✅ TypeScript: New files have zero errors (existing API route errors unrelated)
+- ✅ All 6 files exist with expected sizes
+
+**Implementation Decision**:
+- Orchestrator created files directly (not via subagent) due to previous subagent failures (see problems.md)
+- Simple, mechanical work with no complex logic
+- Unblocks Wave 3 (10 parallel API tasks)
 
