@@ -248,3 +248,52 @@ When implementing other admin routes:
 - ✅ TypeScript: `npx tsc --noEmit` passes (zero errors)
 - ✅ ESLint: All 5 files pass lint check
 - ✅ LSP diagnostics: Zero errors on all 5 files
+
+## [2026-02-04] Task 10: Project CRUD API (7 Endpoints)
+
+**Status**: ✅ COMPLETED
+
+**Files Modified** (1):
+1. `app/api/projects/route.ts` — Added POST handler for project creation with slug generation
+
+**Files Created** (4):
+1. `app/api/projects/[slug]/route.ts` — GET detail, PUT update, DELETE
+2. `app/api/projects/[slug]/approve/route.ts` — POST approve (admin only)
+3. `app/api/projects/[slug]/hide/route.ts` — POST hide (admin only)
+4. `app/api/projects/[slug]/visibility/route.ts` — PUT visibility (creator/admin)
+
+**Key Implementation Patterns**:
+
+1. **Slug Generation**: 6-char alphanumeric random string with uniqueness check
+   - Max 10 attempts before throwing
+   - Accepts optional `Prisma.TransactionClient` to run within transaction
+   - Pattern: `generateUniqueSlug(tx?)` shared in the route file
+
+2. **Route Context Type**: Must use `Record<string, string>` not specific `{ slug: string }`
+   - The middleware's `RouteContext` uses `Promise<Record<string, string>>`
+   - Using a local more-specific type causes TS incompatibility
+
+3. **Backward Compatibility**: GET by slug falls back to ID lookup if slug is numeric
+   - `findProjectBySlug()` helper checks slug first, then tries parseInt for ID
+
+4. **Authorization Patterns**:
+   - `withAuth()` for authenticated routes (POST create, PUT update, DELETE)
+   - `withRole('admin')` for admin-only (approve, hide)
+   - `withOptionalAuth()` for public-accessible GET detail (guest sees approved only)
+   - Creator/admin check: `project.createdByUserId !== userId && !isAdmin`
+
+5. **Transaction Usage**: POST create and PUT update use `prisma.$transaction()`
+   - Create: project + members + advisors + tags in one transaction
+   - Update: field updates + replace members/advisors/tags in one transaction
+
+6. **Partial Updates**: PUT only processes provided fields
+   - Maps snake_case and camelCase field names to Prisma camelCase
+   - Members/advisors/tags: full replace (delete all + create new) when provided
+
+7. **Visibility Route**: Dual-purpose — creator can toggle `isPublic`, admin can also change `adminApprovalStatus`
+   - Non-admin attempting to change approval status gets 403
+
+**Verification**:
+- ✅ TypeScript: `npx tsc --noEmit` passes
+- ✅ ESLint: All project route files pass
+- ✅ LSP diagnostics: Zero errors on all 5 files

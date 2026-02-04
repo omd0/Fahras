@@ -1,10 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withOptionalAuth } from '@/middleware/auth';
+import { withOptionalAuth, withAuth } from '@/middleware/auth';
 import { prisma } from '@/lib/prisma';
 import type { Session } from 'next-auth';
 import type { Prisma } from '@prisma/client';
 
 type OptionalAuthRequest = NextRequest & { session: Session | null };
+type AuthenticatedRequest = NextRequest & { session: Session };
+
+// ---------------------------------------------------------------------------
+// Slug generation helpers
+// ---------------------------------------------------------------------------
+function generateSlug(): string {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let slug = '';
+  for (let i = 0; i < 6; i++) {
+    slug += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return slug;
+}
+
+async function generateUniqueSlug(
+  tx?: Prisma.TransactionClient
+): Promise<string> {
+  const client = tx ?? prisma;
+  let attempts = 0;
+  while (attempts < 10) {
+    const slug = generateSlug();
+    const existing = await client.project.findUnique({ where: { slug } });
+    if (!existing) return slug;
+    attempts++;
+  }
+  throw new Error('Failed to generate unique slug after 10 attempts');
+}
 
 /**
  * GET /api/projects — Paginated project list with search & filters.
@@ -241,6 +268,150 @@ export const GET = withOptionalAuth(async (req: OptionalAuthRequest) => {
     return NextResponse.json(
       {
         message: 'Failed to fetch projects',
+        ...(process.env.NODE_ENV === 'development' && { error: String(error) }),
+      },
+      { status: 500 }
+    );
+  }
+});
+
+export const POST = withAuth(async (req: AuthenticatedRequest) => {
+  try {
+    const body = await req.json();
+    const userId = parseInt(req.session.user.id, 10);
+
+    const errors: Record<string, string[]> = {};
+    if (!body.title || typeof body.title !== 'string') {
+      errors.title = ['Title is required'];
+    }
+    if (!body.abstract || typeof body.abstract !== 'string') {
+      errors.abstract = ['Abstract is required'];
+    }
+    if (!body.program_id && !body.programId) {
+      errors.program_id = ['Program ID is required'];
+    }
+    if (!body.academic_year && !body.academicYear) {
+      errors.academic_year = ['Academic year is required'];
+    }
+    if (!body.semester) {
+      errors.semester = ['Semester is required'];
+    } else if (!['fall', 'spring', 'summer'].includes(body.semester)) {
+      errors.semester = ['Semester must be fall, spring, or summer'];
+    }
+
+    if (Object.keys(errors).length > 0) {
+      return NextResponse.json(
+        { message: 'Validation failed', errors },
+        { status: 422 }
+      );
+    }
+
+    const programId = body.program_id ?? body.programId;
+    const academicYear = body.academic_year ?? body.academicYear;
+    const members: Array<{ userId: number; role: 'LEAD' | 'MEMBER' }> = body.members ?? [];
+    const advisors: Array<{ userId: number; role: 'MAIN' | 'CO_ADVISOR' | 'REVIEWER' }> = body.advisors ?? [];
+    const tagIds: number[] = body.tags ?? body.tagIds ?? [];
+
+    const programExists = await prisma.program.findUnique({
+      where: { id: parseInt(String(programId), 10) },
+    });
+    if (!programExists) {
+      return NextResponse.json(
+        { message: 'Validation failed', errors: { program_id: ['Program not found'] } },
+        { status: 422 }
+      );
+    }
+
+    const project = await prisma.$transaction(async (tx) => {
+      const slug = await generateUniqueSlug(tx);
+
+      const proj = await tx.project.create({
+        data: {
+          slug,
+          title: body.title.trim(),
+          abstract: body.abstract.trim(),
+          keywords: body.keywords ?? [],
+          academicYear,
+          semester: body.semester as 'fall' | 'spring' | 'summer',
+          status: 'draft',
+          isPublic: body.is_public ?? body.isPublic ?? false,
+          createdByUserId: userId,
+          programId: parseInt(String(programId), 10),
+          customMembers: body.custom_members ?? body.customMembers ?? undefined,
+          customAdvisors: body.custom_advisors ?? body.customAdvisors ?? undefined,
+          doi: body.doi ?? undefined,
+          repoUrl: body.repo_url ?? body.repoUrl ?? undefined,
+        },
+      });
+
+      if (members.length > 0) {
+        await tx.projectMember.createMany({
+          data: members.map((m) => ({
+            projectId: proj.id,
+            userId: m.userId,
+            roleInProject: m.role,
+          })),
+        });
+      }
+
+      if (advisors.length > 0) {
+        await tx.projectAdvisor.createMany({
+          data: advisors.map((a) => ({
+            projectId: proj.id,
+            userId: a.userId,
+            advisorRole: a.role,
+          })),
+        });
+      }
+
+      if (tagIds.length > 0) {
+        await tx.projectTag.createMany({
+          data: tagIds.map((tagId) => ({
+            projectId: proj.id,
+            tagId,
+          })),
+        });
+      }
+
+      return proj;
+    });
+
+    const created = await prisma.project.findUnique({
+      where: { id: project.id },
+      include: {
+        creator: {
+          select: { id: true, fullName: true, email: true, avatarUrl: true },
+        },
+        program: {
+          include: {
+            department: { select: { id: true, name: true } },
+          },
+        },
+        projectMembers: {
+          include: {
+            user: { select: { id: true, fullName: true, email: true } },
+          },
+        },
+        projectAdvisors: {
+          include: {
+            user: { select: { id: true, fullName: true, email: true } },
+          },
+        },
+        projectTags: {
+          include: { tag: true },
+        },
+      },
+    });
+
+    return NextResponse.json(
+      { message: 'Project created successfully', project: created },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error('Error creating project:', error);
+    return NextResponse.json(
+      {
+        message: 'Failed to create project',
         ...(process.env.NODE_ENV === 'development' && { error: String(error) }),
       },
       { status: 500 }

@@ -748,7 +748,7 @@ Wave 8 (Final):
 
 ---
 
-- [ ] 10. Project CRUD API
+- [x] 10. Project CRUD API
 
   **What to do**: Extend `app/api/projects/route.ts` (POST: create with members/advisors/tags, 6-char slug). Create `app/api/projects/[slug]/route.ts` (GET with relations, PUT, DELETE). Create approve/hide/visibility routes. Use Prisma transactions for creation.
 
