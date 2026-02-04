@@ -1017,7 +1017,7 @@ Wave 8 (Final):
 
 ---
 
-- [ ] 27. Notifications + Bookmarks Pages
+- [x] 27. Notifications + Bookmarks Pages
 
   Migrate NotificationsPage, NotificationCenter, useNotifications. Migrate MyBookmarksPage, bookmarkCookies.ts.
 

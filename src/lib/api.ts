@@ -451,6 +451,22 @@ export const apiService = {
     await fetchJson(`${API_BASE}/notifications/${notificationId}/read`, { method: 'PUT' });
   },
 
+  markAllNotificationsRead: async (): Promise<void> => {
+    await fetchJson(`${API_BASE}/notifications/read-all`, { method: 'PUT' });
+  },
+
+  deleteNotification: async (notificationId: number): Promise<void> => {
+    await fetchJson(`${API_BASE}/notifications/${notificationId}`, { method: 'DELETE' });
+  },
+
+  deleteAllNotifications: async (): Promise<void> => {
+    await fetchJson(`${API_BASE}/notifications`, { method: 'DELETE' });
+  },
+
+  getUnreadCount: async (): Promise<{ unread_count: number }> => {
+    return fetchJson(`${API_BASE}/notifications/unread-count`);
+  },
+
   // Milestone Template endpoints
   getMilestoneTemplates: async (params?: {
     program_id?: number;
