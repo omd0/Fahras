@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { signIn } from 'next-auth/react';
+// import { signIn } from 'next-auth/react';
 
 // This is a compatibility endpoint for the frontend
 // Actual auth is handled by NextAuth at /api/auth/[...nextauth]

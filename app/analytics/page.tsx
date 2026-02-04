@@ -137,7 +137,14 @@ export default function AnalyticsPage() {
       setLoading(true);
       setError(null);
       // TODO: Implement getProjectAnalytics API endpoint
-      const data = { projects: [], statistics: {} } as any; // await apiService.getProjectAnalytics();
+      const data: AnalyticsData = {
+        status_distribution: {},
+        year_distribution: [],
+        department_distribution: [],
+        recent_activity: 0,
+        monthly_trend: [],
+        total_projects: 0
+      }; // await apiService.getProjectAnalytics();
       setAnalytics(data);
     } catch (error: unknown) {
       console.error('Failed to fetch analytics:', error);

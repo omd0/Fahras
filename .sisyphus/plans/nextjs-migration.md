@@ -1163,7 +1163,7 @@ Wave 8 (Final):
 
 ---
 
-- [ ] 37. Final QA Verification
+- [x] 37. Final QA Verification
 
   **What to do**: Full build verification, seed DB, test all API routes via curl, test auth flow, test project CRUD, screenshot key pages.
 

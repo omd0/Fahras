@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth-helpers';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await requireAuth();
 
@@ -37,9 +37,9 @@ export async function GET(request: NextRequest) {
         fullName: user.fullName,
         status: user.status,
         emailVerifiedAt: user.emailVerifiedAt,
-        roles: user.roleUsers.map((ru: any) => ru.role),
-        permissions: user.roleUsers.flatMap((ru: any) => 
-          ru.role.permissionRoles.map((pr: any) => pr.permission)
+        roles: user.roleUsers.map((ru: { role: unknown }) => ru.role),
+        permissions: user.roleUsers.flatMap((ru: { role: { permissionRoles: { permission: unknown }[] } }) => 
+          ru.role.permissionRoles.map((pr: { permission: unknown }) => pr.permission)
         ),
         createdAt: user.createdAt,
         updatedAt: user.updatedAt

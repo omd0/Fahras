@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireRole } from '@/lib/auth-helpers';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const tags = await prisma.tag.findMany();
     return NextResponse.json(tags);
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json(
       { error: 'Failed to fetch tags' },
       { status: 500 }
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(tag, { status: 201 });
-  } catch (error) {
+  } catch (_error) {
     if (error instanceof Error && error.message.includes('Insufficient permissions')) {
       return NextResponse.json(
         { error: 'Admin role required' },

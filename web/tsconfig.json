@@ -43,7 +43,8 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": [
-    "src"
+    "src",
+    "app"
   ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
