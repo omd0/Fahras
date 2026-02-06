@@ -1,10 +1,8 @@
 {
-  "active_plan": "/home/omd/Documents/CTI/Fahras/.sisyphus/plans/nextjs-migration.md",
-  "started_at": "2026-02-03T09:36:04.039Z",
+  "active_plan": "/home/omd/Documents/CTI/Fahras/.sisyphus/plans/test-automation.md",
+  "started_at": "2026-02-06T07:36:37.375Z",
   "session_ids": [
-    "ses_3dd6b742dffeklLmV7pWDVixgE",
-    "ses_3dd0c5e53ffe2GNb4yGCPaaJYA",
-    "ses_3d7afadd0ffexAvbc2J3S5ks3q"
+    "ses_3ce1e5b09ffeqZ5VlLkwsMNIEW"
   ],
-  "plan_name": "nextjs-migration"
+  "plan_name": "test-automation"
 }

@@ -8,7 +8,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "postinstall": "prisma generate || true"
+    "postinstall": "prisma generate || true",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "test:api": "playwright test tests/api/",
+    "test:e2e": "playwright test tests/e2e/"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.800.0",
@@ -37,6 +43,7 @@
     "seed": "tsx prisma/seed.ts"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.1",
     "@types/bcryptjs": "^3.0.0",
     "@types/crypto-js": "^4.2.2",
     "@types/js-yaml": "^4.0.9",
