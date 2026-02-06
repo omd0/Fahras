@@ -623,7 +623,7 @@ Critical Path: Task 1-4 → Tasks 5-10 → Full verification
 
 ---
 
-- [ ] 9. Implement Explore Search Test (8.2)
+- [x] 9. Implement Explore Search Test (8.2)
 
   **What to do**:
   - Create `tests/e2e/guest/explore.spec.ts`
@@ -693,7 +693,7 @@ Critical Path: Task 1-4 → Tasks 5-10 → Full verification
 
 ### Full Browser Suite - Guest Tests (Wave 3a)
 
-- [ ] 11. Implement Guest Project Detail Test (8.3)
+- [x] 11. Implement Guest Project Detail Test (8.3)
 
   **What to do**:
   - Create `tests/e2e/guest/project-detail.spec.ts`
@@ -708,7 +708,7 @@ Critical Path: Task 1-4 → Tasks 5-10 → Full verification
 
 ---
 
-- [ ] 12. Implement Guest Access Denied Test (8.4)
+- [x] 12. Implement Guest Access Denied Test (8.4)
 
   **What to do**:
   - Create `tests/e2e/guest/access-denied.spec.ts`
