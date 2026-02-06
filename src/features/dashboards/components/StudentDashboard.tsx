@@ -98,6 +98,7 @@ export const StudentDashboard: React.FC = () => {
       setError(null);
 
       const response = await apiService.getProjects({
+        my_projects: true,
         per_page: 20,
         sort_by: 'updated_at',
         sort_order: 'desc',
@@ -106,21 +107,37 @@ export const StudentDashboard: React.FC = () => {
 
       setProjects(projectsData);
 
-      const myProjectsList = projectsData.filter(
-        (p: Project) =>
-          p.created_by_user_id === user?.id ||
-          (p.members || []).some((member) => member.id === user?.id),
-      );
+      const userIdNum = user?.id ? parseInt(String(user.id), 10) : 0;
+      const myProjectsList = projectsData.filter((p: Project) => {
+        const creatorId =
+          (p as unknown as { createdByUserId?: number }).createdByUserId ??
+          p.created_by_user_id;
+        const members =
+          (p as unknown as { projectMembers?: Array<{ userId: number }> }).projectMembers ??
+          p.members ??
+          [];
+        return (
+          creatorId === userIdNum ||
+          members.some((m) => {
+            const memberId = (m as unknown as { userId?: number; id?: number }).userId ??
+              (m as unknown as { userId?: number; id?: number }).id;
+            return memberId === userIdNum;
+          })
+        );
+      });
 
       setStats({
         myProjects: myProjectsList.length,
         inProgress: myProjectsList.filter((p: Project) =>
-          ['submitted', 'under_review'].includes(p.status),
+          ['submitted', 'under_review', 'draft'].includes(p.status),
         ).length,
         completed: myProjectsList.filter((p: Project) => p.status === 'completed').length,
-        pendingApproval: myProjectsList.filter(
-          (p: Project) => p.admin_approval_status === 'pending',
-        ).length,
+        pendingApproval: myProjectsList.filter((p: Project) => {
+          const approvalStatus =
+            (p as unknown as { adminApprovalStatus?: string }).adminApprovalStatus ??
+            p.admin_approval_status;
+          return approvalStatus === 'pending';
+        }).length,
       });
     } catch (err: unknown) {
       setError(getErrorMessage(err, 'Failed to fetch dashboard data'));
@@ -182,11 +199,24 @@ export const StudentDashboard: React.FC = () => {
     return date.toLocaleDateString();
   };
 
-  const myProjects = (projects || []).filter(
-    (p) =>
-      p.created_by_user_id === user?.id ||
-      (p.members || []).some((member) => member.id === user?.id),
-  );
+  const userIdNum = user?.id ? parseInt(String(user.id), 10) : 0;
+  const myProjects = (projects || []).filter((p) => {
+    const creatorId =
+      (p as unknown as { createdByUserId?: number }).createdByUserId ?? p.created_by_user_id;
+    const members =
+      (p as unknown as { projectMembers?: Array<{ userId: number }> }).projectMembers ??
+      p.members ??
+      [];
+    return (
+      creatorId === userIdNum ||
+      members.some((m) => {
+        const memberId =
+          (m as unknown as { userId?: number; id?: number }).userId ??
+          (m as unknown as { userId?: number; id?: number }).id;
+        return memberId === userIdNum;
+      })
+    );
+  });
 
   const handleMyProjectsClick = () => {
     if (myProjectsRef.current) {

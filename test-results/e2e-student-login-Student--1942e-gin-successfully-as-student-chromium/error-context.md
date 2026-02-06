@@ -1,0 +1,114 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - navigation "Skip navigation":
+    - link "Skip to main content" [ref=e2] [cursor=pointer]:
+      - /url: "#main-content"
+    - link "Skip to navigation" [ref=e3] [cursor=pointer]:
+      - /url: "#navigation"
+  - generic [ref=e4]:
+    - banner [ref=e5]:
+      - generic [ref=e6]:
+        - generic [ref=e7]:
+          - button "Home" [ref=e8] [cursor=pointer]:
+            - img [ref=e9]
+          - button "About" [ref=e11] [cursor=pointer]:
+            - img [ref=e12]
+          - button "Help" [ref=e14] [cursor=pointer]:
+            - img [ref=e15]
+        - generic [ref=e17]:
+          - button "Open search" [ref=e18] [cursor=pointer]:
+            - img [ref=e19]
+          - generic [ref=e21]:
+            - img [ref=e22]
+            - generic [ref=e24]:
+              - generic [ref=e25]: Language
+              - generic [ref=e26]:
+                - combobox "Language English" [ref=e27] [cursor=pointer]: English
+                - textbox: en
+                - img
+                - group:
+                  - generic: Language
+          - separator [ref=e28]
+          - button "Login" [ref=e29] [cursor=pointer]:
+            - img [ref=e31]
+            - text: Login
+          - button "Register" [ref=e33] [cursor=pointer]:
+            - img [ref=e35]
+            - text: Register
+    - main [ref=e37]:
+      - main [ref=e39]:
+        - generic [ref=e41]:
+          - generic [ref=e42]:
+            - generic [ref=e43]:
+              - img [ref=e44]
+              - heading "TVTC" [level=4] [ref=e46]
+            - heading "Fahras" [level=1] [ref=e47]
+          - heading "Welcome Back" [level=2] [ref=e48]
+          - paragraph [ref=e49]: Sign in to access your projects and continue your academic journey
+          - generic [ref=e50]:
+            - generic [ref=e51]:
+              - generic [ref=e52]:
+                - text: Email Address
+                - generic [ref=e53]: "*"
+              - generic [ref=e54]:
+                - img [ref=e56]
+                - textbox "Email Address" [active] [ref=e58]
+                - group:
+                  - generic: Email Address *
+            - generic [ref=e59]:
+              - generic [ref=e60]:
+                - text: Password
+                - generic [ref=e61]: "*"
+              - generic [ref=e62]:
+                - img [ref=e64]
+                - textbox "Password" [ref=e66]
+                - button "Show password" [ref=e68] [cursor=pointer]:
+                  - img [ref=e69]
+                - group:
+                  - generic: Password *
+            - generic [ref=e71]:
+              - generic [ref=e72] [cursor=pointer]:
+                - generic [ref=e73]:
+                  - checkbox "Remember me" [ref=e74]
+                  - img [ref=e75]
+                - paragraph [ref=e77]: Remember me
+              - link "Forgot Password?" [ref=e78] [cursor=pointer]:
+                - /url: /forgot-password
+            - button "Sign In" [ref=e79] [cursor=pointer]:
+              - img [ref=e81]
+              - text: Sign In
+            - generic [ref=e83]:
+              - separator [ref=e84]
+              - paragraph [ref=e85]: or
+              - separator [ref=e86]
+            - button "Continue as Guest" [ref=e87] [cursor=pointer]:
+              - img [ref=e89]
+              - text: Continue as Guest
+            - paragraph [ref=e92]:
+              - text: Don't have an account?
+              - link "Create Account" [ref=e93] [cursor=pointer]:
+                - /url: /register
+            - separator [ref=e94]
+            - generic [ref=e95]:
+              - link "Terms of Service" [ref=e96] [cursor=pointer]:
+                - /url: /terms
+              - link "Privacy Policy" [ref=e97] [cursor=pointer]:
+                - /url: /privacy
+    - contentinfo [ref=e98]:
+      - generic [ref=e99]:
+        - generic [ref=e100]:
+          - heading "المؤسسة العامة للتدريب التقني والمهني" [level=1] [ref=e101]
+          - paragraph [ref=e102]: Technical and Vocational Training Corporation
+        - generic [ref=e103]:
+          - heading "الكلية التقنية للاتصالات والمعلومات بالرياض" [level=2] [ref=e104]
+          - paragraph [ref=e105]: Technical College of Telecommunications and Information in Riyadh
+      - generic [ref=e106]:
+        - link "Terms of Service" [ref=e107] [cursor=pointer]:
+          - /url: /terms
+        - link "Privacy Policy" [ref=e108] [cursor=pointer]:
+          - /url: /privacy
+  - button "Open Next.js Dev Tools" [ref=e114] [cursor=pointer]:
+    - img [ref=e115]
+```

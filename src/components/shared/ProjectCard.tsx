@@ -58,7 +58,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
                 size="small"
               />
               <Typography variant="caption" color="text.secondary">
-                by {project.creator?.full_name || 'Unknown'}
+                by {(project.creator as { fullName?: string; full_name?: string } | undefined)?.fullName || project.creator?.full_name || 'Unknown'}
               </Typography>
               {project.academic_year && (
                 <Typography variant="caption" color="text.secondary">

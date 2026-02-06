@@ -276,7 +276,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
           <Stack direction="row" alignItems="center" spacing={0.5}>
             <PersonIcon sx={{ fontSize: 16, color: theme.palette.text.disabled }} />
             <Typography variant="caption" sx={{ color: theme.palette.text.secondary, fontSize: '0.75rem' }}>
-              {project.creator?.full_name || 'Unknown'}
+              {(project.creator as { fullName?: string; full_name?: string } | undefined)?.fullName || project.creator?.full_name || 'Unknown'}
             </Typography>
           </Stack>
           {(project.files?.length ?? 0) > 0 && (

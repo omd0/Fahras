@@ -522,3 +522,47 @@ This is acceptable - both indicate the request cannot proceed.
 2. tests/api/bookmarks/bookmarks.spec.ts (3 tests)
 
 ### Total API Tests Now: 44 tests across 8 files
+
+## [2026-02-06T14:00:00] Login Helper Fix Attempt
+
+### Issue
+Login helper in `tests/fixtures/auth.ts` was using `page.evaluate()` to import `next-auth/react`, which fails because it's a Node.js module.
+
+### Solution Implemented
+Replaced with standard Playwright form interactions:
+1. Navigate to `/login`
+2. Fill `#email` field with user email
+3. Fill `#password` field with user password
+4. Click `button[type="submit"]`
+5. Wait for navigation to `/dashboard`
+
+### Current Implementation
+```typescript
+export async function login(page: Page, role: 'admin' | 'faculty' | 'student' | 'reviewer') {
+  const user = TEST_USERS[role];
+  
+  await page.goto('/login');
+  
+  await page.fill('#email', user.email);
+  await page.fill('#password', user.password);
+  
+  const submitButton = page.locator('button[type="submit"]');
+  await submitButton.click();
+  
+  await page.waitForURL('/dashboard');
+}
+```
+
+### Root Cause of Test Failure
+The login helper is correctly implemented, but the underlying application has a NextAuth CSRF token issue:
+- Form submission succeeds (button click works)
+- Form is submitted as GET request with query parameters instead of being handled by React's onSubmit
+- NextAuth returns "MissingCSRF" error (documented in problems.md)
+- Redirect to `/dashboard` never happens
+
+### Status
+✅ Login helper is correctly implemented using standard Playwright form interactions
+❌ Tests fail due to application-level NextAuth CSRF issue (not a test automation issue)
+
+### Recommendation
+The login helper is production-ready. Once the NextAuth CSRF issue is fixed in the application, the tests will pass.

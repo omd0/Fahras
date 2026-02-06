@@ -308,8 +308,20 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
 
     const programId = body.program_id ?? body.programId;
     const academicYear = body.academic_year ?? body.academicYear;
-    const members: Array<{ userId: number; role: 'LEAD' | 'MEMBER' }> = body.members ?? [];
-    const advisors: Array<{ userId: number; role: 'MAIN' | 'CO_ADVISOR' | 'REVIEWER' }> = body.advisors ?? [];
+    const rawMembers = body.members ?? [];
+    const members: Array<{ userId: number; role: 'LEAD' | 'MEMBER' }> = rawMembers.map(
+      (m: { userId?: number; user_id?: number; role: 'LEAD' | 'MEMBER' }) => ({
+        userId: m.userId ?? m.user_id ?? 0,
+        role: m.role,
+      })
+    );
+    const rawAdvisors = body.advisors ?? [];
+    const advisors: Array<{ userId: number; role: 'MAIN' | 'CO_ADVISOR' | 'REVIEWER' }> = rawAdvisors.map(
+      (a: { userId?: number; user_id?: number; role: 'MAIN' | 'CO_ADVISOR' | 'REVIEWER' }) => ({
+        userId: a.userId ?? a.user_id ?? 0,
+        role: a.role,
+      })
+    );
     const tagIds: number[] = body.tags ?? body.tagIds ?? [];
 
     const programExists = await prisma.program.findUnique({
@@ -344,9 +356,10 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
         },
       });
 
-      if (members.length > 0) {
+      const validMembers = members.filter((m) => m.userId > 0);
+      if (validMembers.length > 0) {
         await tx.projectMember.createMany({
-          data: members.map((m) => ({
+          data: validMembers.map((m) => ({
             projectId: proj.id,
             userId: m.userId,
             roleInProject: m.role,
@@ -354,9 +367,10 @@ export const POST = withAuth(async (req: AuthenticatedRequest) => {
         });
       }
 
-      if (advisors.length > 0) {
+      const validAdvisors = advisors.filter((a) => a.userId > 0);
+      if (validAdvisors.length > 0) {
         await tx.projectAdvisor.createMany({
-          data: advisors.map((a) => ({
+          data: validAdvisors.map((a) => ({
             projectId: proj.id,
             userId: a.userId,
             advisorRole: a.role,

@@ -51,6 +51,11 @@ declare module "@auth/core/jwt" {
 }
 
 export const authConfig: NextAuthConfig = {
+  secret:
+    process.env.AUTH_SECRET ||
+    (process.env.NODE_ENV === "development"
+      ? "og2PjoDory5Jj7YlnP7UgJsh6z9QlZE2FYwUIBOjwiA="
+      : undefined),
   providers: [
     Credentials({
       name: "credentials",

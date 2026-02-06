@@ -67,12 +67,6 @@ export default function HomePage() {
   ];
 
   useEffect(() => {
-    if (isAuthenticated && user?.roles?.some(role => role.name === 'student')) {
-      router.push('/dashboard');
-    }
-  }, [isAuthenticated, user, router]);
-
-  useEffect(() => {
     fetchRecentProjects();
   }, []);
 
@@ -218,7 +212,7 @@ export default function HomePage() {
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
                           <PersonIcon sx={{ fontSize: 18, color: theme.palette.text.secondary }} />
                           <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
-                            {project.creator?.full_name || t('Unknown Author')}
+                            {(project.creator as { fullName?: string; full_name?: string } | undefined)?.fullName || project.creator?.full_name || t('Unknown Author')}
                           </Typography>
                         </Box>
 

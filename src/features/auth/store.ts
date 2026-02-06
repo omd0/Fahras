@@ -2,6 +2,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { signIn, signOut } from 'next-auth/react';
 import type { User, LoginCredentials, RegisterData } from '@/types';
 import { authApi, apiService } from '@/lib/api';
 import { getGuestBookmarks, clearGuestBookmarks } from '@/utils/bookmarkCookies';
@@ -43,23 +44,38 @@ export const useAuthStore = create<AuthStore>()(
         set({ isLoading: true, error: null });
 
         try {
-          const response = await authApi.login(credentials);
-          set({
-            user: response.user,
-            token: response.token,
-            isAuthenticated: true,
-            isLoading: false,
-            error: null,
+          // Use NextAuth signIn instead of legacy API
+          const result = await signIn('credentials', {
+            email: credentials.email,
+            password: credentials.password,
+            redirect: false,
           });
 
-          // Sync guest bookmarks after successful login
-          const guestBookmarkIds = getGuestBookmarks();
-          if (guestBookmarkIds.length > 0) {
-            try {
-              await apiService.syncGuestBookmarks(guestBookmarkIds);
-              clearGuestBookmarks();
-            } catch (syncError) {
-              console.error('Failed to sync guest bookmarks:', syncError);
+          if (result?.error) {
+            throw new Error(result.error);
+          }
+
+          if (result?.ok) {
+            // Fetch the user profile to populate state
+            const userResponse = await authApi.getUser();
+            
+            set({
+              user: userResponse.user,
+              token: "session", // Token is managed by httpOnly cookie now
+              isAuthenticated: true,
+              isLoading: false,
+              error: null,
+            });
+
+            // Sync guest bookmarks after successful login
+            const guestBookmarkIds = getGuestBookmarks();
+            if (guestBookmarkIds.length > 0) {
+              try {
+                await apiService.syncGuestBookmarks(guestBookmarkIds);
+                clearGuestBookmarks();
+              } catch (syncError) {
+                console.error('Failed to sync guest bookmarks:', syncError);
+              }
             }
           }
         } catch (error: unknown) {
@@ -142,7 +158,8 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
 
-      logout: () => {
+      logout: async () => {
+        await signOut({ redirect: false });
         authApi.logout().catch(console.error);
         set({
           user: null,

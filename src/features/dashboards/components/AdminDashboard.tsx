@@ -301,7 +301,7 @@ export const AdminDashboard: React.FC = () => {
                               sx={{ textTransform: 'capitalize' }}
                             />
                             <Typography variant="caption" color="text.secondary">
-                              by {project.creator?.full_name || 'Unknown'}
+                              by {(project.creator as { fullName?: string; full_name?: string } | undefined)?.fullName || project.creator?.full_name || 'Unknown'}
                             </Typography>
                             <Typography variant="caption" color="text.secondary">
                               {project.academic_year}

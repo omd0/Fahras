@@ -153,6 +153,7 @@ export interface GetProjectsParams {
   sort_by?: string;
   sort_order?: string;
   created_by_user_id?: number;
+  my_projects?: boolean;
 }
 
 export const apiService = {
@@ -333,7 +334,7 @@ export const apiService = {
   },
 
   getUsers: async (): Promise<User[]> => {
-    const res = await fetchJson<{ data: User[] } | User[]>(`${API_BASE}/admin/users`);
+    const res = await fetchJson<{ data: User[] } | User[]>(`${API_BASE}/users`);
     return Array.isArray(res) ? res : (res as { data: User[] }).data || [];
   },
 
