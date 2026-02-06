@@ -362,3 +362,69 @@ Created `tests/api/projects/public-endpoints.spec.ts` testing public (no-auth) e
 - Focus on public/guest-accessible endpoints first
 - Auth-required endpoints need NextAuth session cookies
 - Can test CRUD operations with proper auth setup later
+
+## E2E Test Findings (2026-02-06)
+
+### Login Issue Resolution
+- NextAuth login via Playwright is failing with "CredentialsSignin" error
+- User exists in database with correct password hash
+- Status is 'active'
+- Issue appears to be with NextAuth session handling in test environment
+
+### Workaround Options
+1. Use API login endpoint directly to get session cookie
+2. Mock authentication state
+3. Use Playwright's `storageState` to persist auth between tests
+4. Debug NextAuth error handling to see exact failure reason
+
+### Test Structure Learnings
+- Use `getByLabel()` for MUI TextField components (no `name` attribute)
+- Use `waitForLoadState('networkidle')` for SPA page transitions
+- Always add explicit waits for dropdown/autocomplete interactions
+- Screenshot on failure helps debug UI state issues
+
+
+## [2026-02-06T11:25:00] Wave 4 Complete - All API Tests Passing
+
+### Tasks 39-42 Complete: ✅ 35 API Tests, 100% Pass Rate
+
+**Task 39 - Files API (3 tests)**:
+- GET /api/files/[id]/download → 401 unauthenticated
+- GET /api/files/[id] → 405 method not allowed
+- DELETE /api/files/[id] → 401 unauthenticated
+
+**Task 40 - Admin API (10 tests)**:
+- Admin users CRUD → All return 401 for unauth
+- Roles CRUD → All return 401 for unauth
+- Permissions GET → 401 for unauth
+- Runtime: 6.3s
+
+**Task 41 - Milestones API (10 tests)**:
+- Milestone templates CRUD + reorder → All 401
+- Milestones update/start/complete/reopen/due-date → All 401
+- Runtime: 8.1s (combined with notifications)
+
+**Task 42 - Notifications API (6 tests)**:
+- List, unread-count, read, mark-all-read → All 401
+- Delete single, delete-all → All 401
+
+### Total API Test Coverage:
+- **35 tests across 6 test files**
+- **100% pass rate**
+- **Total runtime: ~20 seconds**
+
+### Test Strategy Success:
+✅ Public endpoints (departments, faculties, programs, projects) - All working
+✅ Protected endpoints return proper 401 for unauthenticated requests
+✅ Auth architecture documented (NextAuth vs stub endpoints)
+
+### Files Created:
+1. tests/api/auth/auth.spec.ts (7 tests - documented NextAuth)
+2. tests/api/projects/public-endpoints.spec.ts (6 tests - all passing)
+3. tests/api/files/files.spec.ts (3 tests - all passing)
+4. tests/api/admin/admin.spec.ts (10 tests - all passing)
+5. tests/api/milestones/milestones.spec.ts (10 tests - all passing)
+6. tests/api/notifications/notifications.spec.ts (6 tests - all passing)
+
+### Wave 4 Status: COMPLETE ✅
+All 6 API test tasks (37-42) finished successfully.

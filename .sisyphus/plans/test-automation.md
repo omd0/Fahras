@@ -934,7 +934,7 @@ Critical Path: Task 1-4 → Tasks 5-10 → Full verification
 
 ---
 
-- [ ] 39. Implement Files API Tests
+- [x] 39. Implement Files API Tests
 
   **What to do**:
   - Create `tests/api/files/files.spec.ts`
@@ -947,7 +947,7 @@ Critical Path: Task 1-4 → Tasks 5-10 → Full verification
 
 ---
 
-- [ ] 40. Implement Admin API Tests
+- [x] 40. Implement Admin API Tests
 
   **What to do**:
   - Create `tests/api/admin/admin.spec.ts`
@@ -959,7 +959,7 @@ Critical Path: Task 1-4 → Tasks 5-10 → Full verification
 
 ---
 
-- [ ] 41. Implement Milestone API Tests
+- [x] 41. Implement Milestone API Tests
 
   **What to do**:
   - Create `tests/api/milestones/milestones.spec.ts`
@@ -970,7 +970,7 @@ Critical Path: Task 1-4 → Tasks 5-10 → Full verification
 
 ---
 
-- [ ] 42. Implement Notification API Tests
+- [x] 42. Implement Notification API Tests
 
   **What to do**:
   - Create `tests/api/notifications/notifications.spec.ts`
