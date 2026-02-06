@@ -69,3 +69,40 @@ _Agents will append unresolved blockers here_
 4. May need to update TEST_WORKFLOWS.md with correct API structure
 
 **Status**: API tests blocked until endpoint investigation complete.
+
+## [2026-02-06T11:50:00] CRITICAL BLOCKER: Login Not Working
+
+### Issue
+Login form submission does NOT redirect to /dashboard after 30+ seconds.
+
+### Evidence
+- Form fields found: #email, #password ✅
+- Form fills successfully ✅
+- Submit button clicks ✅
+- **Redirect to /dashboard: FAILS ❌**
+
+### Attempted Fixes
+1. Added networkidle wait → Timeout
+2. Increased timeout to 30s → Still no redirect
+3. Changed waitUntil to 'domcontentloaded' → Still fails
+
+### Root Cause Hypothesis
+1. **Auth backend not working** - Login API/NextAuth not processing credentials
+2. **Frontend auth store issue** - useAuthStore.login() failing silently
+3. **Redirect logic broken** - router.replace(from) not executing
+4. **Session/cookie issue** - Auth session not being created
+
+### Impact
+**BLOCKS ALL 39 REMAINING TASKS** - Cannot test any authenticated features
+
+### Recommendation
+**STOP BOULDER SESSION** - This is a fundamental application issue, not a test issue.
+The login functionality itself appears broken in the dev environment.
+
+### Next Steps (Manual Investigation Required)
+1. Test login manually in browser at http://localhost:3000/login
+2. Check browser console for errors
+3. Check Next.js dev server logs for auth errors
+4. Verify database connection and user records
+5. Test NextAuth endpoints directly
+6. Fix application code before continuing tests

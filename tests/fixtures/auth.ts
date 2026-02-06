@@ -3,18 +3,15 @@ import { TEST_USERS } from './test-data';
 
 export async function login(page: Page, role: 'admin' | 'faculty' | 'student' | 'reviewer') {
   const user = TEST_USERS[role];
-  await page.goto('/login');
+  await page.goto('/login', { waitUntil: 'domcontentloaded' });
   
-  // Wait for login form to be ready
-  await page.waitForSelector('#email', { timeout: 10000 });
+  await page.waitForSelector('#email', { state: 'visible', timeout: 20000 });
   
-  // Fill credentials
   await page.fill('#email', user.email);
   await page.fill('#password', user.password);
   
-  // Submit form
-  await page.click('button[type="submit"]');
+  const submitButton = page.locator('button[type="submit"]');
+  await submitButton.click();
   
-  // Wait for redirect to dashboard
-  await page.waitForURL('/dashboard', { timeout: 15000 });
+  await page.waitForURL('/dashboard', { timeout: 30000 });
 }
