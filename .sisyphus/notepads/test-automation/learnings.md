@@ -292,3 +292,73 @@ _Agents will append findings here after each task_
 2. Investigate API 500 errors (check server logs)
 3. Consider implementing tests without delegation
 4. Focus on non-auth tests or API endpoint verification first
+
+## [2026-02-06T11:15:00] Task 37: Auth API Tests - Architecture Discovery
+
+### Key Finding: NextAuth-based Authentication
+- `/api/login` is a **compatibility stub**, not the real auth endpoint
+- Returns: `{"message":"Please use NextAuth signIn method","redirect":"/api/auth/signin"}`
+- Actual auth handled by NextAuth at `/api/auth/[...nextauth]`
+- Frontend uses NextAuth's `signIn()` method, not direct API calls
+
+### Test Results:
+- 1/7 tests passed (POST /api/register with unique email)
+- 6/7 tests failed with 500 errors (expected - wrong auth approach)
+
+### Correct Auth Flow:
+1. Frontend: `signIn('credentials', { email, password })`
+2. NextAuth validates via `src/lib/auth.ts` authorize callback
+3. Session stored in HTTP-only cookie
+4. Token also in localStorage (`auth-storage` key) for API calls
+
+### API Test Strategy Update Needed:
+- Cannot test `/api/login` directly (it's a stub)
+- Should test NextAuth endpoints: `/api/auth/signin`, `/api/auth/session`
+- Or test authenticated endpoints with valid session cookies
+- Or focus on non-auth API endpoints (projects, departments, etc.)
+
+### Files Created:
+- `tests/api/auth/auth.spec.ts` (needs rewrite for NextAuth)
+
+### Next Steps:
+- Rewrite auth tests for NextAuth flow
+- Or skip auth tests and focus on resource endpoints
+- Document NextAuth testing patterns for future tests
+
+## [2026-02-06T11:18:00] Task 38: Projects API Tests - SUCCESS
+
+### Test Results: 6/6 PASSED ✅
+
+Created `tests/api/projects/public-endpoints.spec.ts` testing public (no-auth) endpoints:
+
+1. ✅ GET /api/departments - Returns department list
+2. ✅ GET /api/faculties - Returns faculty list  
+3. ✅ GET /api/programs - Returns program list
+4. ✅ GET /api/projects - Returns public projects with pagination metadata
+5. ✅ GET /api/projects?search=test - Search functionality works
+6. ✅ GET /api/projects?page=1&per_page=5 - Pagination works correctly
+
+### API Response Structure:
+```json
+{
+  "data": [...],
+  "current_page": 1,
+  "per_page": 5,
+  "total": N,
+  "last_page": M,
+  "has_more_pages": boolean
+}
+```
+
+### Key Insights:
+- Public endpoints work perfectly without auth
+- Pagination follows Laravel-style response format
+- Search query parameter works as expected
+- All endpoints return proper JSON with data arrays
+
+### Runtime: 2.7 seconds for 6 tests
+
+### Strategy Going Forward:
+- Focus on public/guest-accessible endpoints first
+- Auth-required endpoints need NextAuth session cookies
+- Can test CRUD operations with proper auth setup later

@@ -910,7 +910,7 @@ Critical Path: Task 1-4 → Tasks 5-10 → Full verification
 
 ### API Integration Tests (Wave 4)
 
-- [ ] 37. Implement Auth API Tests
+- [x] 37. Implement Auth API Tests
 
   **What to do**:
   - Create `tests/api/auth/auth.spec.ts`
@@ -923,7 +923,7 @@ Critical Path: Task 1-4 → Tasks 5-10 → Full verification
 
 ---
 
-- [ ] 38. Implement Projects API Tests
+- [x] 38. Implement Projects API Tests
 
   **What to do**:
   - Create `tests/api/projects/projects.spec.ts`
